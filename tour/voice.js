@@ -2,7 +2,8 @@
 // Short commands ("next", "floor plan", "the kitchen", "number two") run at once in the page; everything else goes to
 // Claude, which drives the same tools. The bar shows what was heard, each thing the tour does, and the answer, which is
 // also read aloud. Speech in: the browser's speech recognition (Chrome). Speech out: Ethan, a Fish Audio voice streamed by
-// serve.py (/api/speak), one sentence at a time; the browser's own voice when the server has none (?browservoice forces it).
+// serve.py (/api/speak), one sentence at a time, and only Ethan (no browser voice: without Fish a reply is a caption). Every spoken
+// line is Claude's, fitted to the conversation: a command the page runs itself gets its line from /api/say (user, Nov 14).
 
 // ---- quick(): which sentences need no Claude round trip. Pure; tested in voice.test.mjs ----
 // Only a whole sentence that is nothing but the command matches; anything longer is a question for Claude.
@@ -202,11 +203,11 @@ export default function initVoice(api) {
     store.set('ie-intro', '1');
     const touch = matchMedia('(pointer: coarse)').matches, box = document.createElement('div'); box.id = 'v-intro';
     box.setAttribute('role', 'dialog'); box.setAttribute('aria-modal', 'true'); box.setAttribute('aria-labelledby', 'v-intro-h');
-    box.innerHTML = `<div>${touch ? '' : '<kbd>Space</kbd>'}<b id="v-intro-h">${touch ? 'Tap the mic' : 'Hold Space'} to talk to your assistant</b>
-      <p>For the best experience, just ask out loud: “Which apartment is best for my dad in Hollywood?”</p>
-      <p><b style="font-size:inherit;color:#1b1f1d">Neighbourhood check</b> (the apartments and the streets around them): Northeast LA, Hollywood and Houston Heights.<br>
-      <b style="font-size:inherit;color:#1b1f1d">Room check</b>: any other apartment tour.</p>
-      <p>You can always type instead.</p>
+    box.innerHTML = `<div>${touch ? '' : '<kbd>Space</kbd>'}<b id="v-intro-h">${touch ? 'Tap the mic' : 'Hold Space'} and just ask</b>
+      <p>“Which apartment is best for my dad in Hollywood?”</p>
+      <p><b style="font-size:inherit;color:#1b1f1d">Streets and neighbourhoods:</b> Northeast LA, Hollywood, Houston Heights.<br>
+      <b style="font-size:inherit;color:#1b1f1d">Rooms:</b> any apartment tour.</p>
+      <p>Prefer typing? That works too.</p>
       <button type="button">Got it</button></div>`;
     const close = () => { box.remove(); removeEventListener('keydown', onKey, true); };
     const onKey = e => { if (e.code === 'Space' || e.key === 'Escape' || e.key === 'Enter') close(); }; // Space also starts listening (handler below)
@@ -233,24 +234,15 @@ export default function initVoice(api) {
   // ---- Speech out: one sentence at a time (long single utterances get cut off in Chrome) ----
   // Silent mode (?mute in the address, or window.__mute set by a test): captions only, nothing is played. 'fast' skips the reading time.
   const muted = window.__mute || new URLSearchParams(location.search).has('mute'), spoken = [];
-  let voice = null, talk = 0, last = ''; // last = the newest answer, for "say that again"
-  const canSpeak = 'speechSynthesis' in window && !muted;
-  const pickVoice = () => { const vs = speechSynthesis.getVoices(); voice = ['Samantha', 'Ava', 'Allison', 'Google US English', 'Microsoft Aria'].map(n => vs.find(v => v.name.startsWith(n))).find(Boolean) || vs.find(v => /^en[-_]US/.test(v.lang)) || null; };
-  if (canSpeak) { pickVoice(); speechSynthesis.addEventListener('voiceschanged', pickVoice); }
-  // Ethan (Fish, through serve.py). fishOk turns false for this page the first time the server can't give a sentence (no key, the
-  // run's voice budget used up, no network): from then on the browser's voice reads. Each next sentence loads while one plays.
-  let fishOk = !muted && !new URLSearchParams(location.search).has('browservoice'), audio = null, fillA = null, fillEnd = Promise.resolve();
+  let talk = 0, last = ''; // last = the newest answer, for "say that again"
+  // Ethan (Fish, through serve.py). fishOk is false only when the server has no voice at all (no key, offline test server): then captions.
+  // Each next sentence loads while one plays.
+  let fishOk = !muted, audio = null;
   const clip = t => Object.assign(new Audio('/api/speak?t=' + encodeURIComponent(t)), { preload: 'auto' });
-  const FILLERS = ['One sec.', 'Okay, let me look.', 'Sure.', 'Alright, let’s see.', 'Mm, let me check.'];
-  if (fishOk) fetch('/api/speak?t=' + encodeURIComponent(FILLERS[0])).then(r => { if (!r.ok) fishOk = false; else FILLERS.slice(1).forEach(t => fetch('/api/speak?t=' + encodeURIComponent(t))); }, () => { fishOk = false; }); // warms the server's cache: fillers cost nothing after the first time
-  function hush(keepFiller) { talk++; if (canSpeak) speechSynthesis.cancel(); audio?.pause(); audio = null; if (!keepFiller) { fillA?.pause(); fillA = null; fillEnd = Promise.resolve(); } }
-  // A short "One sec." while Claude thinks, so the wait isn't silent. The answer starts when it has finished.
-  function filler() {
-    if (!fishOk || held) return;
-    const a = fillA = clip(FILLERS[Math.floor(Math.random() * FILLERS.length)]);
-    fillEnd = new Promise(r => { a.onended = a.onerror = r; a.play().catch(r); setTimeout(r, 2500); });
-  }
-  // Plays the sentences in Ethan's voice; resolves with how many were played (fewer = the server failed: the rest go to the browser voice).
+  // No fixed filler lines while Claude thinks (user, Nov 14: every spoken line fits the conversation); this only checks Ethan's voice is there.
+  if (fishOk) fetch('/api/speak?t=Hello.').then(r => { if (!r.ok) fishOk = false; }, () => { fishOk = false; });
+  function hush() { talk++; audio?.pause(); audio = null; }
+  // Plays the sentences in Ethan's voice; a sentence the server can't give is skipped (its words stay in the caption).
   async function playFish(parts, my) {
     let next = clip(parts[0]);
     for (let k = 0; k < parts.length; k++) {
@@ -258,63 +250,71 @@ export default function initVoice(api) {
       if (my !== talk) return parts.length;
       audio = a;
       const r = await new Promise(res => { a.onended = () => res('ok'); a.onerror = () => res('fail'); a.play().catch(e => res(e.name === 'NotAllowedError' ? 'blocked' : 'fail')); });
-      if (my !== talk || r === 'blocked') return parts.length; // blocked (no click on the page yet): the caption stays, like the browser voice
-      if (r === 'fail') { fishOk = false; window.__fishOff = a.error?.message || a.error?.code || 'play failed'; return k; }
+      if (my !== talk || r === 'blocked') return parts.length; // blocked (no click on the page yet): the caption stays
+      if (r === 'fail') { window.__fishOff = a.error?.message || a.error?.code || 'play failed'; continue; }
     }
     return parts.length;
   }
   function speak(text) {
-    hush(true); const my = talk;
+    hush(); const my = talk;
     if (held) { show({ say: text, err: false }); spoken.push(speakable(text)); last = text; return Promise.resolve(); } // the person is talking: caption only, never talk over them
     rec?.abort(); // the open mic must not hear our own voice; it reopens when we finish
     show({ state: 'speaking', say: text, err: false }); spoken.push(speakable(text)); last = text;
     return new Promise(res => {
       const done = () => { if (my !== talk) return res(); talk++; res(); if (open) listen(true); else rest(); };
-      if (!canSpeak && !fishOk) return setTimeout(done, muted === 'fast' ? 30 : Math.max(2000, text.split(/\s+/).length * 330));
-      const parts = speakable(text).split(/(?<=[.!?])\s+/).filter(Boolean);
-      const browser = left => {
-        if (!canSpeak || !left.length) return done();
-        left.forEach((p, k) => {
-          const u = new SpeechSynthesisUtterance(p); if (voice) u.voice = voice; u.rate = 1.04;
-          if (k === left.length - 1) u.onend = u.onerror = done; // blocked speech (no click yet) ends at once: the caption stays
-          speechSynthesis.speak(u);
-        });
-      };
       const poll = setInterval(() => { if (my !== talk) { clearInterval(poll); res(); } }, 150); // hushed from outside
+      // Ethan's voice (Fish) only, on every page (user, Nov 14): no browser voice. Without Fish the answer is a caption for its reading time.
+      if (!fishOk) return setTimeout(done, muted === 'fast' ? 30 : Math.max(2000, text.split(/\s+/).length * 330));
+      const parts = speakable(text).split(/(?<=[.!?])\s+/).filter(Boolean);
       setTimeout(done, 6000 + text.split(/\s+/).length * 900); // a voice that never reports the end must not hang the request
-      if (!fishOk) return browser(parts);
-      fillEnd.then(() => my === talk ? playFish(parts, my) : parts.length).then(n => my === talk && browser(parts.slice(n)));
+      playFish(parts, my).then(() => my === talk && done());
     });
   }
 
-  // ---- One request: a quick command runs here, the rest goes to Claude ----
+  // ---- What was said, for Claude's next line; and a line for a command the page ran itself ----
+  const talkLog = []; // last 6 { q: what they said, a: what Ethan said }
+  const logTalk = (q, a) => { if (q && a) { talkLog.push({ q: String(q).slice(0, 500), a: String(a).slice(0, 600) }); talkLog.splice(0, talkLog.length - 6); } };
+  // Claude's spoken line after the page did something itself (a quick command). Without Claude: the page's own words (fallback).
+  async function custom(heard, did, fallback = '') {
+    try {
+      const r = await fetch('/api/say', { method: 'POST', headers: { 'Content-Type': 'application/json' }, signal: AbortSignal.timeout(9000), // then the page's own words
+        body: JSON.stringify({ heard: String(heard).slice(0, 500), did: String(did).slice(0, 1500), page: `${document.title} (${location.pathname})`, history: talkLog }) });
+      const j = await r.json().catch(() => ({})); if (r.ok && j.text) return j.text;
+    } catch {}
+    return fallback;
+  }
+
+  // ---- One request: a quick command runs here at once (then Claude says a line about it), the rest goes to Claude ----
   let turn = 0;
   async function handle(text, note, others = []) {
     const my = ++turn; api.hold?.(); hush(); api.stop(); // hold first: a walkthrough must not move on when its line is cut off
     show({ state: 'thinking', heard: text, steps: [], say: '', err: false });
     let said = null; // the answer being read aloud; it starts as soon as Claude has it, while the tour is still moving
-    const on = (kind, v) => { if (my !== turn) return; if (kind === 'step') show({ steps: [...ui.steps, { text: v }] }); else if (kind === 'say') said = speak(v); };
+    const on = (kind, v) => { if (my !== turn) return; if (kind === 'step') show({ steps: [...ui.steps, { text: v }] }); else if (kind === 'say') { said = speak(v); logTalk(text, v); } };
     await api.ready; if (my !== turn) return; // something said while the tour is still loading waits for it
     let q = null, hint = ''; // the recogniser's other guesses: a second chance at an instant command, else a hint for Claude
     if (!note) { ({ text, q } = pickHeard(text, others, api.places())); if (q && others.length) show({ heard: text }); else if (others.length) hint = `the speech recogniser was unsure; it also heard: ${others.map(o => `"${o}"`).join(' / ')}`; }
     if (q?.stop) { if (api.mode() === 'walk') api.run('walkthrough', { action: 'pause' }); return rest(); } // "stop" also holds a playing walkthrough
-    if (q?.repeat) return last ? speak(last) : rest();
-    if (q?.help) return speak(api.help || 'Say a room, a view, or ask a question.');
+    if (q?.repeat) { await (last ? speak(last) : rest()); if (my === turn) api.resume?.(); return; } // a paused walkthrough goes on after
+    if (q?.help) { const help = api.help || 'Say a room, a view, or ask a question.', line = await custom(text, `they asked for help; what they can say on this page: ${help}`, help); if (my !== turn) return; logTalk(text, line); await speak(line); if (my === turn) api.resume?.(); return; }
     // Inside a tour, a place by name ("the kitchen", "number two") flies there at once and Ethan then says what it's like for them.
     if (q && q.tool === 'show_issue' && api.chatty) {
       const out = await Promise.race([api.run(q.tool, q.input, on), new Promise(r => setTimeout(r, 200))]); if (my !== turn) return; // Claude starts while the camera flies
-      if (out?.error) return show({ state: rec ? 'listening' : 'idle', say: out.error, err: true });
+      if (out?.error) { show({ state: rec ? 'listening' : 'idle', say: out.error, err: true }); return api.resume?.(); }
       note = 'the tour is already flying there and has opened its card';
     } else if (q) {
-      if (q.say) speak(q.say); // the name of the place, said while the camera flies there
-      const out = await api.run(q.tool, q.input, on); if (my !== turn) return;
-      if (out?.error) { hush(); return show({ state: rec ? 'listening' : 'idle', say: api.home ? 'That works inside an apartment. Ask which one is worst, or say “open” and its name.' : out.error, err: !api.home }); }
-      if (!q.say) show({ state: rec ? 'listening' : 'idle', say: /^(walkthrough|open_page|ui)$/.test(q.tool) && typeof out === 'string' ? out : '' }); // "Showing problem 3 of 6: …" as a caption
-      if (q.tool !== 'walkthrough') api.resume?.(); // "night mode" during a walkthrough: done, the walk goes on
-      const to = api.nav?.(); if (to) api.open(to); // "home", "the neighbourhood": the command asked for another page
+      const facts = []; // what the page would have said itself: facts for Claude's line, not the line
+      const out = await api.run(q.tool, q.input, (kind, v) => kind === 'say' ? facts.push(v) : on(kind, v)); if (my !== turn) return;
+      if (out?.error) { hush(); const inside = api.home && /apartment first|inside an apartment|open an apartment/i.test(out.error); show({ state: rec ? 'listening' : 'idle', say: inside ? 'That works inside an apartment. Ask which one is worst, or say “open” and its name.' : out.error, err: !inside }); return api.resume?.(); }
+      const to = api.nav?.(); if (to) return api.open(to); // "home", "the neighbourhood": the command asked for another page
+      // the walk and "go inside" speak their own lines; a command that leaves the page has no one left to hear a line
+      if (/^(walkthrough|enter|open_region|open_page)$/.test(q.tool)) { show({ state: rec ? 'listening' : 'idle', say: typeof out === 'string' ? out : '' }); return; }
+      const did = [q.say && `went to ${q.say}`, `${q.tool} ${JSON.stringify(q.input)}`, typeof out === 'string' && out, ...facts].filter(Boolean).join('. ');
+      const line = await custom(text, did, facts.join(' ') || q.say || (typeof out === 'string' ? out : '')); if (my !== turn) return;
+      if (line) { logTalk(text, line); await speak(line); } else rest();
+      if (my === turn) api.resume?.(); // "night mode" during a walkthrough: done, the walk goes on
       return;
     }
-    filler();
     const r = await api.ask(text, { on, note: [note, hint].filter(Boolean).join('; ') || undefined }); if (my !== turn) return;
     if (r.error) { show({ state: rec ? 'listening' : 'idle', say: r.error, err: true }); return api.resume?.(true); } // Claude down: the walk is local, it goes on
     if (r.open && !note) store.set('ie-voice-next', text); // the new page finishes this request ("…and show me the bathroom")
@@ -388,5 +388,5 @@ export default function initVoice(api) {
   const next = store.get('ie-voice-next'); store.set('ie-voice-next', null);
   if (next) handle(next, 'the page has just opened this apartment for this request');
   window.__voice = { hear: handle, ui, spoken }; // test hook: feed a sentence as if it had been spoken; spoken = every text given to the speech voice
-  return { toggle: () => el('v-mic').click(), speak, hush, hear: handle, stop: stopAll }; // speak/hush: a page that narrates by itself uses the same voice, so the open mic never hears it
+  return { toggle: () => el('v-mic').click(), speak, hush, hear: handle, stop: stopAll, custom }; // custom: Claude's line for something a page did by itself // speak/hush: a page that narrates by itself uses the same voice, so the open mic never hears it
 }

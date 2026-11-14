@@ -1,4 +1,4 @@
-// 3D view for the street page, ported from src/app/Terrain3D.tsx: Vexcel elevation as a mesh (bare ground), the aerial photo
+// 3D view for the street page, ported from the old site's Terrain3D.tsx (in git history): Vexcel elevation as a mesh (bare ground), the aerial photo
 // draped on it, buildings and trees from /api/buildings, streets drawn on top in profile colours. Loaded only when 3D is opened.
 // three comes from the import map in street.html (the tour's local three 0.184, addons from the CDN at the same version).
 import * as THREE from 'three';

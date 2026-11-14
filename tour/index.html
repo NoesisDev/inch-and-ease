@@ -43,6 +43,7 @@
   aside, .float, #card, #home nav { background:var(--glass); -webkit-backdrop-filter:var(--blur); backdrop-filter:var(--blur); border:1px solid var(--edge); box-shadow:var(--shadow); }
 
   /* ---- Side panel: a glass panel inset from the window edge ---- */
+  @media screen and (min-width:761px) { aside { width:320px !important; } } /* same width as the flyover and streets panels (Tape measure look, Nov 14) */
   aside { width:296px; flex:none; margin:8px 0 8px 8px; height:calc(100vh - 16px); border-radius:18px; display:flex; flex-direction:column; overflow:hidden; position:relative; z-index:6; }
   aside header { padding:12px 16px 2px; } aside .body { flex:1; overflow:auto; padding:0 16px 12px; } aside footer { padding:8px 16px 10px; border-top:1px solid var(--sep); }
   .homelink { color:var(--muted); font-size:13px; text-decoration:none; font-weight:500; display:inline-flex; align-items:center; gap:4px; } .homelink[hidden] { display:none; } .homelink:hover { color:var(--ink); }
@@ -67,10 +68,6 @@
   .score .stat { display:flex; align-items:baseline; gap:5px; }
   .score .stat b { font-size:15px; font-weight:700; letter-spacing:-.02em; line-height:1.2; } .score .stat span { color:var(--muted); font-size:13px; line-height:1.25; }
   .score .stat.crit b { color:var(--failInk); } .score .stat.tape b { color:var(--verifyInk); }
-  .score .money { margin-top:6px; font-size:13px; }
-  .score .money .m { display:flex; align-items:baseline; gap:6px; } .score .money .m b { font-size:15px; font-weight:700; letter-spacing:-.02em; color:var(--passInk); }
-  .score .money small { display:block; color:var(--muted); font-size:13px; }
-  .score .money .m + small { margin-top:2px; }
   /* iOS segmented controls: a rounded track with a raised selected segment. */
   .tabs, .looks, #view { display:flex; background:var(--fill); border-radius:10px; padding:2px; gap:2px; }
   .tabs { margin:12px 0 6px; }
@@ -162,6 +159,10 @@
     #p-plan .budget input { background:none; } #plan .pr { break-inside:avoid; }
   }
   /* Hover box: top-right corner, under Matterport's settings button; quiet, never takes clicks. */
+  #hoverx { margin:10px 0 2px; padding:10px 12px; border-radius:8px; background:var(--chosen, #FFF6CC); box-shadow:inset 3px 0 0 var(--verify); font-size:13px; }
+  #hoverx.w-fail { box-shadow:inset 3px 0 0 var(--fail); } #hoverx .hx-t { display:block; margin-bottom:6px; font-size:14px; }
+  #hoverx .hx { display:flex; gap:10px; align-items:flex-start; margin-top:6px; } #hoverx .hx b { font-weight:600; }
+  #hoverx small { display:block; color:var(--muted); } #hoverx .hx-fix { color:var(--ink); margin-top:2px; }
   #peek { right:10px; top:64px; width:250px; padding:10px 12px; font-size:12px; pointer-events:none; box-shadow:var(--shadow), inset 3px 0 0 var(--pk, transparent); border-radius:14px; }
   #peek.w-fail { --pk:var(--fail); } #peek.w-verify { --pk:var(--verify); } #peek.w-pass { --pk:var(--pass); }
   #peek b { font-size:14px; font-weight:600; display:block; } #peek .pc { display:block; color:var(--muted); margin:1px 0 4px; }
@@ -269,7 +270,7 @@
   .band .stats b.red { color:var(--failInk); } .band .stats span { font-size:17px; } .band .stats small { display:block; color:var(--muted); font-size:12px; margin-top:8px; }
   #home h3 { font-size:40px; line-height:1.05; font-weight:700; letter-spacing:-.03em; margin:88px 0 8px; }
   .lead { color:var(--muted); font-size:17px; margin:0 0 32px; }
-  .any { margin-top:56px; } .any h4 { font-size:22px; font-weight:700; margin:0 0 6px; } .any h4.sub { margin-top:40px; } #anyGrid, #freshGrid { margin-top:20px; } .apt .tag.new { background:#1d1d1f !important; color:#fff; } .apt .fx b.go { color:inherit; }
+  .any { margin-top:56px; } .any h4 { font-size:22px; font-weight:700; margin:0 0 6px; } .apt .tag.new { background:#1d1d1f !important; color:#fff; } .apt .fx b.go { color:inherit; }
   #anyMore { margin-top:24px; font:inherit; font-weight:600; padding:10px 16px; border:1px solid var(--line, #d2d2d7); border-radius:10px; background:transparent; color:inherit; cursor:pointer; }
   .any form { display:flex; gap:10px; max-width:720px; margin-top:14px; } .any input { flex:1; min-width:0; font:inherit; padding:12px 14px; border:1px solid var(--line, #d2d2d7); border-radius:10px; background:var(--panel, #fff); color:inherit; }
   .any button { font:inherit; font-weight:600; padding:12px 18px; border:0; border-radius:10px; background:var(--ink, #1d1d1f); color:var(--bg, #fff); cursor:pointer; }
@@ -315,6 +316,8 @@
   #home nav { display:grid; grid-template-columns:1fr auto 1fr; gap:24px; }
   #home nav .logo { justify-self:start; margin:0; color:var(--brand); white-space:nowrap; }
   #home nav .links { gap:32px; } #home nav .acts { justify-self:end; display:flex; align-items:center; gap:12px; }
+  /* The sticky bar paints edge to edge (and its hairline too): before, only the centre column was painted, so the band and photos showed beside it while scrolling */
+  #home nav { box-shadow:0 0 0 100vmax var(--homeBg), 0 1px 0 100vmax var(--brandLine); clip-path:inset(0 -100vmax -1px); }
   @media (max-width:900px) and (min-width:600px) { #home nav .links { display:flex; gap:20px; } #home nav .links a[href^="#"] { display:none; } }
   @media (max-width:599px) { #home nav { grid-template-columns:1fr auto; } }
   #home nav .cta, .btn { border-radius:6px; background:var(--brand); color:var(--brandInk); } #home nav .cta { padding:10px 16px; } #home nav .cta:hover { color:var(--brandInk); }
@@ -441,16 +444,10 @@
     </div></section>
     <h3 id="apartments">Apartments we checked</h3>
     <p class="lead">Real 3D tours from Houston and Los Angeles. Open one to walk through it.</p>
-    <div class="grid" id="grid"></div>
+    <div class="grid" id="grid"></div><button type="button" id="anyMore" hidden></button>
     <div class="any" id="any">
-      <h4>Not checked yet</h4>
-      <p class="lead">CoStar tours nobody has opened here. Pick one and watch Inch &amp; Ease read its floor plan and check it, live, in a few seconds.</p>
-      <div class="grid" id="freshGrid"></div>
-      <h4 class="sub">More CoStar tours</h4>
-      <p class="lead">Real Matterport tours CoStar shared with us, checked the same way. Open any one.</p>
-      <div class="grid" id="anyGrid"></div><button type="button" id="anyMore" hidden></button>
-      <h4 class="sub">Browse all 14,944</h4>
-      <p class="lead">Pick a group, scroll, and open any tour. No typing needed. Units with at least three rooms come first. About 7 in 10 tours have the floor plan data a check needs.</p>
+      <h4>All Matterport tours</h4>
+      <p class="lead">14,944 CoStar tours. Open any one and watch it get checked, live, in a few seconds.</p>
       <div class="browse" id="browse">
         <div class="chips" role="group" aria-label="Which tours">
           <button type="button" data-f="" aria-pressed="true">All</button><button type="button" data-f="ada" aria-pressed="false">Labelled accessible</button><button type="button" data-f="homes" aria-pressed="false">Homes</button><button type="button" data-f="houston" aria-pressed="false">Houston</button><button type="button" data-f="la" aria-pressed="false">Los Angeles</button>
@@ -846,7 +843,7 @@ async function flyTo(i) {
   moving = true;
   try {
     await sdk.Mode.moveTo(sdk.Mode.Mode.INSIDE).catch(() => {});
-    await sweepMove(v.s.id, { x: v.pitch, y: v.yaw - frameOff() }, 1200);
+    await sweepMove(v.s.id, { x: v.pitch, y: v.yaw - frameOff() }, 1600);
   } finally { moving = false; }
   return true;
 }
@@ -918,7 +915,7 @@ function sweepPath(from, to) { // fewest steps between two scan points over Matt
 async function sweepMove(id, rotation, ms) {
   for (let k = 0; ; k++) {
     try { return await sdk.Sweep.moveTo(id, { rotation, transition: sdk.Sweep.Transition.FLY, transitionTime: ms }); }
-    catch (e) { if (k >= 3) return status('move: ' + (e.message || e)); await new Promise(r => setTimeout(r, 500)); }
+    catch (e) { if (k >= 8) return status('move: ' + (e.message || e)); await new Promise(r => setTimeout(r, 500)); } // 4 s: a pan still running refuses moves
   }
 }
 async function shot(i) {
@@ -933,10 +930,10 @@ async function shot(i) {
     else if (curSweep && curSweep !== dest.id) { // walk there: up to 3 steps on the way, each one facing the next
       const path = sweepPath(curSweep, dest.id).slice(1, -1), hops = path.length <= 3 ? path : [...new Set([0.25, 0.5, 0.75].map(f => path[Math.floor(f * path.length)]))];
       let from = pose.position;
-      for (const s of hops) { if (gen !== walkGen) return true; await sweepMove(s.id, { x: -3, y: yawTo(from, s.position) }, 650); from = s.position; }
+      for (const s of hops) { if (gen !== walkGen) return true; await sweepMove(s.id, { x: -3, y: yawTo(from, s.position) }, 1100); from = s.position; }
     }
     if (gen !== walkGen) return true;
-    await sweepMove(dest.id, { x: pitch, y: yaw + PAN / 2 }, 1100); // lands a little to one side, then pans across the subject
+    await sweepMove(dest.id, { x: pitch, y: yaw + PAN / 2 }, 1800); // lands a little to one side, then pans across the subject
   } finally { moving = false; }
   if (gen === walkGen) sdk.Camera.rotate(PAN, 0, { speed: PAN_SPEED }).catch(() => {}); // positive = clockwise (measured: yaw −10° for +10), so it pans across to the other side
   return true;
@@ -964,6 +961,7 @@ async function goTo(i) {
   goingBack = false;
   if (mode !== 'walk') setMode(isArea(i) && !houseLike() ? 'overview' : 'inside');
   showCard(i);
+  if (!sdk) return; // the plain Matterport player (a public address): the card opens, there is no camera to move
   // The entry questions (steps at the entry, door hardware) have no measured spot: look at the entry door the route starts from.
   const to = !i.at && CHECK[i.n]?.room === 'Entry' && ev.route.entry?.at ? { ...i, at: ev.route.entry.at } : i;
   if (!(await (mode === 'walk' ? shot(to) : flyTo(to))) && !photos[i.id]) return;
@@ -1015,7 +1013,7 @@ addEventListener('keydown', e => { if (e.key === 'Escape' && measuring) { measur
 function stepHtml(i) {
   const c = CHECK[i.n];
   if (c.how === 'ask') return `<div class="step" data-step><p class="q">${esc(c.question)}</p><div class="answers">${c.answers.map(a => `<button type="button" data-answer="${a[0]}" aria-pressed="${i.value === a[0]}">${esc(a[1])}</button>`).join('')}</div></div>`;
-  if (c.how === 'measure') return `<div class="step" data-step><p class="q">${esc(c.measure)}</p><button type="button" class="primary" id="m-tour">Measure in the tour (two clicks)</button>
+  if (c.how === 'measure') return `<div class="step" data-step><p class="q">${esc(c.measure)}</p>${sdk ? '<button type="button" class="primary" id="m-tour">Measure in the tour (two clicks)</button>' : ''}
     <label class="typed">or type it from a tape <input id="m-in" type="number" min="0" step="0.25" inputmode="decimal" aria-label="Inches"> in <button type="button" id="m-ok">Save</button></label></div>`;
   return '';
 }
@@ -1098,10 +1096,10 @@ function showCard(i) {
     <h3>${i.title}</h3>${i.kind === 'door' || i.kind === 'step' ? `<div class="where">${esc(i.detail)}</div>` : ''}
     <div class="nums">${nums.map(([k, v, bad]) => `<div class="${bad ? 'bad' : ''}">${k}<b>${v}</b></div>`).join('')}</div>
     <p>${why}</p>
-    ${i.at && CHECK[i.n].how === 'auto' ? (photos[i.id] ? `<img alt="The problem in the tour" src="${photos[i.id]}">` : `<div class="ph">Taking a photo from the tour…</div>`) : ''}
+    ${i.at && sdk && CHECK[i.n].how === 'auto' ? (photos[i.id] ? `<img alt="The problem in the tour" src="${photos[i.id]}">` : `<div class="ph">Taking a photo from the tour…</div>`) : ''}
     ${svg ? (CHECK[i.n].how === 'auto' ? `<h4>${i.s === 'pass' ? 'To scale' : 'Why it won\'t work (to scale)'}</h4>` : `<h4>Complete the check</h4>`) + svg : ''}
     ${fixHtml(i)}
-    ${i.kind === 'door' || i.kind === 'step' ? `<button class="measure" id="measure">Measure it yourself with Matterport's ruler</button>` : ''}
+    ${sdk && (i.kind === 'door' || i.kind === 'step') ? `<button class="measure" id="measure">Measure it yourself with Matterport's ruler</button>` : ''}
     <p class="src"><span>Source: ${esc(i.source || 'not measured yet')}.${i.source === 'Matterport scan' ? ' Confirm with a tape before you sign.' : ''}</span><span>Reference: ${src}.</span></p>`;
   $('measure')?.addEventListener('click', async () => {
     // Matterport's own measuring tool: a second reading of the same door or step, straight from the scan.
@@ -1138,7 +1136,7 @@ function doorSvg(clear, door = clear + CLEAR_LOSS, s = 'fail') {
     <text x="${mid}" y="${106 + 21 * k}" ${DT}>wheelchair</text><text x="${mid}" y="${106 + 21 * k + 16}" ${DT}>${CHAIR}"</text>
     <text x="${mid}" y="318" ${DT} fill="${over > 0 ? hot : DA.ok}">${over > 0 ? `${over.toFixed(1)}" too wide` : 'fits'}</text></svg>`;
 }
-// Side view, 16 px per inch: a 3½ inch front caster against the step and the ½" limit.
+// Side view, 16 px per inch: a 3½ inch front caster against the step and the ¾" limit (checks.js passes up to 2 cm).
 function stepSvg(h) {
   const k = 16, base = 132, top = base - Math.min(h, 6) * k, cy = base - 29;
   return `<svg viewBox="0 0 340 184" role="img" aria-label="${h.toFixed(1)} inch step against the half inch limit">
@@ -1148,7 +1146,7 @@ function stepSvg(h) {
     <circle cx="171" cy="${cy}" r="28" fill="${DA.ink}"/><circle cx="171" cy="${cy}" r="21" fill="#fff"/><path d="M171 ${cy - 21}V${cy + 21}M150 ${cy}H192M156 ${cy - 15}L186 ${cy + 15}M186 ${cy - 15}L156 ${cy + 15}" stroke="${DA.mut}"/><circle cx="171" cy="${cy}" r="5" fill="${DA.ink}"/>
     <text x="86" y="${cy - 81}" font-size="11" fill="${DA.mut}">front wheel of the chair</text>
     ${h >= 0.25 ? `<path d="M216 ${top}V${base}${tick(216, top)}${tick(216, base)}" stroke="${DA.fail}"/><text x="228" y="${(top + base) / 2 + 6}" font-family="Barlow Semi Condensed, Barlow, sans-serif" font-size="18" font-weight="700" fill="${DA.fail}">${h.toFixed(1)}" step</text>` : ''}
-    <path d="M16 ${base - 0.5 * k}H110" stroke="${DA.ok}" stroke-dasharray="4 3"/><text x="16" y="${base - 0.5 * k - 7}" font-size="11" fill="${DA.ok}">½" limit</text>
+    <path d="M16 ${base - 0.75 * k}H110" stroke="${DA.ok}" stroke-dasharray="4 3"/><text x="16" y="${base - 0.75 * k - 7}" font-size="11" fill="${DA.ok}">¾" limit</text>
     <text x="16" y="${base + 22}" font-size="11" fill="${DA.mut}">floor</text><text x="228" y="${base + 22}" font-size="11" fill="${DA.mut}">past the door</text></svg>`;
 }
 // Top view, 2.6 px per inch: the room's narrow side, the 5' turning circle and the chair. What the circle needs beyond the walls is tinted red.
@@ -1226,18 +1224,40 @@ function roomBuckets() {
 // the mouse; we find the room outline it falls in. Nothing is placed over the model, so clicks still reach the tour.
 // shortcut: one floor only (rooms on other floors share x/z); use the hit's floor when a multi-floor tour is in the demo.
 const insidePoly = (p, poly) => { let c = false; for (let a = 0, b = poly.length - 1; a < poly.length; b = a++) { const A = poly[a], B = poly[b]; if ((A.y > p.y) !== (B.y > p.y) && p.x < (B.x - A.x) * (p.y - A.y) / (B.y - A.y) + A.x) c = !c; } return c; };
-let peekRoom = null;
+let peekRoom = null, peekKey = null;
+// Hover a red or orange area (user, Nov 14): the sidebar opens on Issues and says, at the top, what's wrong there and the fix;
+// a door or step under the pointer (within 70 cm) is explained by itself, otherwise the room's problems. Their rows light up below.
+function explainInSide(list, title) {
+  let hx = $('hoverx'); if (!hx) { hx = document.createElement('div'); hx.id = 'hoverx';  $('p-issues').prepend(hx); }
+  document.querySelectorAll('#issues .issue.hl').forEach(e => e.classList.remove('hl'));
+  if (!list.length) { hx.hidden = true; return; }
+  if (document.body.classList.contains('side-off')) { sidePanel(false); showTab('t-issues', 'p-issues'); } // pops the hidden panel (user, Nov 14)
+  else if ($('p-issues').hidden) return; // reading the plan or Claude's answer: not taken away
+  // the fix that closes it first, else the plan's pick
+  const fix = i => { const r = plan?.rows.find(r => r.item.id === i.id), o = r?.options?.find(o => o.verdict === 'closes') || r?.chosen || r?.options?.[0]; return o ? `${o.label}, ${money(o)}${o.verdict && o.verdict !== 'closes' ? ` (${VERDICT[o.verdict]})` : ''}` : ''; };
+  hx.className = list.some(i => i.s === 'fail') ? 'w-fail' : 'w-verify'; hx.hidden = false;
+  hx.innerHTML = `<b class="hx-t">${esc(title)}</b>` + list.slice(0, 3).map(i => `<div class="hx"><span class="num s-${i.s}" style="background:var(--${i.s})">${issueList.indexOf(i) + 1}</span><div><b>${esc(i.title)}</b>${i.detail && i.detail !== title ? `<small>${esc(i.detail)}</small>` : ''}${fix(i) ? `<small class="hx-fix">Fix: ${esc(fix(i))}</small>` : ''}</div></div>`).join('') +
+    (list.length > 3 ? `<small>+ ${list.length - 3} more below</small>` : '');
+  for (const i of list) { const row = document.querySelector(`#issues .issue[data-item="${CSS.escape(i.id)}"]`); row?.classList.add('hl'); if (i === list[0]) row?.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); }
+}
 function peek(hit) {
-  if (!ev || mode === 'drone' || document.body.classList.contains('card-open')) { if (peekRoom) { peekRoom = null; $('peek').hidden = true; retint(); } return; }
+  // Not during the drone, an open card or the walkthrough (the walk drives the sidebar); inside, the sidebar explains but the floor isn't tinted.
+  if (!ev || mode === 'drone' || mode === 'walk' || document.body.classList.contains('card-open')) { if (peekRoom || peekKey) { peekRoom = peekKey = null; $('peek').hidden = true; explainInSide([]); retint(); } return; }
   const p = hit?.position && { x: hit.position.x, y: -hit.position.z };
   const room = p && ev.rooms.find(r => r.poly.length > 2 && !/void/i.test(r.name) && insidePoly(p, r.poly));
-  if ((room?.id || null) === peekRoom) return;
-  peekRoom = room?.id || null; retint();
-  if (!room) { $('peek').hidden = true; return; }
+  const near = p ? issueList.filter(i => i.at && isProblem(i) && Math.hypot(i.at.x - p.x, i.at.y - p.y) < 0.7).sort((a, b) => Math.hypot(a.at.x - p.x, a.at.y - p.y) - Math.hypot(b.at.x - p.x, b.at.y - p.y)) : [];
+  const key = `${room?.id || ''}|${near[0]?.id || ''}`; if (key === peekKey) return; peekKey = key;
+  if (near.length) { $('peek').hidden = true; return explainInSide(near.slice(0, 1), near[0].between || near[0].room || 'Here'); }
+  if (mode === 'inside') { explainInSide([]); return; } // inside, the pointer is always on some floor: only a door or step under it counts
+  if ((room?.id || null) !== peekRoom) { peekRoom = room?.id || null; retint(); } // off a door, back on the room's floor: the room again
+  if (!room) { $('peek').hidden = true; explainInSide([]); return; }
   const { label, by } = roomBuckets(), rows = by[room.id] || [], probs = rows.filter(isProblem), todo = rows.filter(i => i.s === 'none').length;
+  const tintOK = mode !== 'inside'; // inside, the pointer is always on some floor: a tinted floor looked like an error
+  if (probs.length) { $('peek').hidden = true; const t = tintOK && roomTints[room.id]; if (t) { t.inputs.color = HEX[probs.some(i => i.s === 'fail') ? 'fail' : 'verify']; t.inputs.opacity = 0.45; } return explainInSide(probs, label[room.id] || room.name); }
+  explainInSide([]);
   const crit = probs.filter(i => i.critical).length, fail = probs.filter(i => i.s === 'fail').length - crit, tape = probs.filter(i => i.s === 'verify').length;
   const w = crit || fail ? 'fail' : tape ? 'verify' : 'pass';
-  const tint = roomTints[room.id]; if (tint) { tint.inputs.color = HEX[w]; tint.inputs.opacity = 0.45; }
+  const tint = tintOK && roomTints[room.id]; if (tint) { tint.inputs.color = HEX[w]; tint.inputs.opacity = 0.45; }
   const counts = [crit && `${crit} critical`, fail && `${fail} problem${fail > 1 ? 's' : ''}`, tape && `${tape} to tape`].filter(Boolean).join(' · ');
   $('peek').className = `float w-${w}`; $('peek').hidden = false;
   $('peek').innerHTML = `<b>${esc(label[room.id] || room.name)}</b><span class="pc">${counts || 'No problems found'}</span>` +
@@ -1312,8 +1332,17 @@ function renderList() {
 async function load(sid) {
   status('Loading tour…');
   const res = await fetch(`private/tours/${sid}.json`); model = await res.json(); if (!res.ok) throw new Error(model.error || 'This tour could not be loaded.'); solid = solidWalls(model);
+  const opt = $('pick').querySelector(`option[value="${sid}"]`); if (opt && model.name) opt.textContent = model.name; // was "CoStar tour <id>" for a tour outside the list
   products = await loadProducts();
   ev = evaluate(model); renderList();
+  if (!window.MP_KEY) { // a public address: CoStar's SDK key only works on localhost, so the plain Matterport player beside the same list (no 3D pins)
+    const f = document.createElement('iframe');
+    f.src = `https://my.matterport.com/show/?m=${sid}&play=1&qs=1&brand=0&help=0`; f.allow = 'fullscreen; xr-spatial-tracking'; f.title = '3D tour';
+    f.style.cssText = 'display:block;width:100%;height:100%;border:0';
+    document.querySelector('main').prepend(f); $('skel')?.remove(); window.__ie = { ready: true, pins: 0 };
+    $('dock').hidden = $('legend').hidden = true; // views, walkthrough and pin colours need the 3D connection
+    return status('Tour ready. The list has every problem; pins in 3D need the full app.');
+  }
   await connect(sid);
   await sdk.Scene.registerComponents([{ name: 'ie.shape', factory: ieShape }]);
   await tintRooms().catch(e => console.log('[tour] tint: ' + (e.message || e)));
@@ -1343,6 +1372,7 @@ async function load(sid) {
 }
 // Dollhouse camera framed on the apartment's own walls (from the wall data), looking down at ~50°.
 async function overview() {
+  if (!sdk) return;
   if (mode !== 'drone') setMode('overview');
   if (shownFloor) await showFloor(null); // the whole building again
   const pts = model.floors.flatMap(f => f.vertices.map(v => v.position));
@@ -1395,10 +1425,12 @@ const TOOLS = {
     await goTo(c); return `Showing ${c.title} (${c.s}).`;
   },
   async set_view({ mode: m }) { // the dock's own buttons do the work, so voice and mouse can't drift apart
+    if (!sdk) return { error: 'Views and the walkthrough need the full app; here the tour plays in Matterport\'s own player.' };
     document.querySelector(`#modes [data-mode="${{ dollhouse: 'overview', floorplan: 'plan', walkthrough: 'walk' }[m] || m}"]`).click();
     return `View: ${m}.`;
   },
   async walkthrough({ action }) {
+    if (!sdk && action !== 'next' && action !== 'previous') return { error: 'The walkthrough needs the full app; here the tour plays in Matterport\'s own player.' };
     if (action === 'pause' || action === 'stop') walkOff = true; else if (action !== 'back') walkOff = asked = false; // paused by them: it waits for "go on"
     if (action === 'stop') { $('w-end').click(); return 'Walkthrough ended.'; }
     if (action === 'back' && mode !== 'walk') { // the place shown before this one, wherever it was
@@ -1674,7 +1706,7 @@ const seen = new Set(); let walkOff = false, asked = false, introSaid = false, w
 // resumeAfter = the walk paused because the person spoke, and goes on by itself once they have their answer.
 let guide = null, lineOf = null, keepsNumbers = () => false, guideLine = '', resumeAfter = false;
 const typeOf = o => products.find(p => p.id === o.product?.id)?.type?.replaceAll('_', ' ');
-const DWELL = c => isProblem(c) ? 8000 : 3500; // ms: time to read a problem card vs. a glance at a room that passes
+const DWELL = c => isProblem(c) ? 10000 : 5000; // slower walk (user, Nov 14: "more time, smooth") // ms: time to read a problem card vs. a glance at a room that passes
 // The walk's order: from the entrance (the unit's front door in the floor plan; the first scan point when there is none), always on
 // to the nearest place by WALKING distance over the scan's own links (straight lines went through walls: bedroom, kitchen, bedroom
 // again), finishing a room before leaving it. from = a plan point to start from instead (where they stand, or the place they asked about).
@@ -1746,7 +1778,7 @@ function auditWalk() {
   window.__walkAudit = { start: start?.id, entry: !!ev.route.entry?.at, stops, warnings, total: stops.reduce((t, s) => t + (s.metres || 0), 0) };
   if (warnings.length) console.warn('[walk] ' + warnings.join('; '));
 }
-const camAt = () => pose?.mode === sdk?.Mode.Mode.INSIDE ? { x: pose.position.x, y: -pose.position.z } : null; // where they stand now
+const camAt = () => sdk && pose?.mode === sdk.Mode.Mode.INSIDE ? { x: pose.position.x, y: -pose.position.z } : null; // where they stand now
 // fresh = from the entrance, everything again. from = a place to start at; if it is on screen already it isn't said again.
 function startWalk(from = null, fresh = false) {
   if (fresh) seen.clear();
@@ -1801,7 +1833,7 @@ function barFor(c) {
 let walkLines = null, walkKey = '';
 const baseOf = c => lineOf(c, plan?.rows.find(r => r.item.id === c.id), typeOf);
 function prepareWalk() {
-  if (!guide || !lineOf || !model || !ev) return; // the start page has no apartment, so no walk
+  if (!guide || !lineOf || !model || !ev || !sdk) return; // the start page has no apartment (and the plain player no walk), so no walk
   const list = route().map(c => ({ id: c.id, base: baseOf(c).text, room: c.room || c.between || '', kind: c.kind })); // always the whole walk: one request per tour, however often the walk is re-routed
   const key = JSON.stringify([person(), list]); if (key === walkKey) return; walkKey = key;
   walkLines = fetch('/api/walk', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: model?.name, about: person(), stops: list }) })
@@ -1826,7 +1858,7 @@ async function showStop() {
   const talk = guide(text); await flying; await talk; // it talks while the camera flies
   if (stops[at] !== c || mode !== 'walk' || !playing) return; // moved on, left, or paused because the person spoke
   if (line.ask) { stopAuto(); resumeAfter = true; return; } // "Shall I add it?": wait for the answer
-  autoTimer = setTimeout(advance, 900);
+  autoTimer = setTimeout(advance, 2500); // a moment to look before the next stop (slower walk, user Nov 14)
 }
 function advance() {
   if (at < stops.length - 1) { at++; return showStop(); }
@@ -1861,10 +1893,10 @@ document.querySelectorAll('.hint [data-q]').forEach(b => b.onclick = () => askTy
 function setTheme(t) {
   if (!['standard', 'night', 'contrast'].includes(t)) t = 'standard';
   document.documentElement.dataset.theme = t;
-  document.querySelectorAll('.looks button').forEach(b => b.setAttribute('aria-pressed', b.dataset.look === t));
+  document.querySelectorAll('.looks button[data-look]').forEach(b => b.setAttribute('aria-pressed', b.dataset.look === t));
   try { localStorage.setItem('ie-look', t); } catch {} // new key (was ie-theme): looks saved while testing are dropped once, so everyone starts on white
 }
-document.querySelectorAll('.looks button').forEach(b => b.onclick = () => setTheme(b.dataset.look));
+document.querySelectorAll('.looks button[data-look]').forEach(b => b.onclick = () => setTheme(b.dataset.look));
 $('budget').onchange = () => { const v = $('budget').value.trim(); budget = v === '' ? null : Math.max(0, +v); replan(); };
 $('print').onclick = () => { showTab('t-plan', 'p-plan'); print(); };
 function setText(t) {
@@ -1923,7 +1955,7 @@ async function renderHome() {
   rows.sort((a, b) => (b.t.id === demo.id) - (a.t.id === demo.id) || fails(b) - fails(a));
   homeRows = rows;
   for (const row of rows) $('grid').appendChild(aptCard(row));
-  renderFresh(); renderExamples(); filmOn(); // not awaited: the start page and voice are ready before the extra tours are scored
+  renderExamples(); filmOn(); // not awaited: the start page and voice are ready before the extra tours are scored
   browse();
 }
 // The film on the start page (notes/demo_capture.mjs): the recorded walk, and its lines shown under it as the film reaches them,
@@ -1983,29 +2015,17 @@ function aptCard({ t, r, pa, labelled }) {
     <div class="fx">${worst ? `<b>${worst.title}</b><span>${fixText.charAt(0).toUpperCase() + fixText.slice(1)}</span>` : 'Every door, step and room passes'}</div>`;
   return a;
 }
-// Not checked yet: tours never opened here (the server checked each has a floor plan). Clicking one runs the whole check live.
-async function renderFresh() {
-  try {
-    const { models } = await (await fetch('/api/fresh')).json(), g = $('freshGrid');
-    for (const m of models) {
-      const a = document.createElement('a'); a.className = 'apt'; a.href = `?m=${m.sid}&q=${$('quality').value}`;
-      a.innerHTML = `<div class="img" style="background-image:url(${thumb(m.sid)})"><span class="tag new">Not checked yet</span></div>
-        <h4>${esc(m.name)}</h4><div class="city">${esc([m.city, m.state].filter(x => x && x !== 'US').join(', '))}${m.room_count ? ` · ${m.room_count} rooms` : ''}</div>
-        <div class="fx"><b class="go">Open to check it now</b><span>Floor plan read from Matterport, then every check</span></div>`;
-      g.appendChild(a);
-    }
-    if (!models.length) g.previousElementSibling.hidden = g.previousElementSibling.previousElementSibling.hidden = true;
-  } catch { $('freshGrid').hidden = true; }
-}
 // More CoStar tours: every one fetched so far (the server lists only tours that loaded), scored like the checked ones.
-async function renderExamples(show = 9) {
+// They join the checked grid (one section, user Nov 14: "short, not long"): two rows show, the rest behind "Show all".
+async function renderExamples(rowsShown = 2) {
   try {
-    const { models } = await (await fetch('/api/examples')).json(), g = $('anyGrid');
+    const { models } = await (await fetch('/api/examples')).json(), g = $('grid');
     const rows = (await Promise.all(models.map(m => rowOf({ id: m.sid, name: m.name, city: [m.city, m.state].filter(x => x && x !== 'US').join(', ') || 'CoStar tour' }).catch(() => null)))).filter(Boolean);
+    const show = Math.max(0, rowsShown * 3 - g.children.length);
     rows.forEach((row, k) => { const a = aptCard(row); a.hidden = k >= show; g.appendChild(a); });
-    const more = $('anyMore'); more.hidden = rows.length <= show; more.textContent = `Show all ${rows.length}`;
+    const more = $('anyMore'); more.hidden = rows.length <= show; more.textContent = `Show all ${g.children.length}`;
     more.onclick = () => { g.querySelectorAll('.apt[hidden]').forEach(a => a.hidden = false); more.hidden = true; };
-  } catch { $('anyGrid').hidden = true; } // no local server list (e.g. a static copy): the search below still explains itself
+  } catch {} // no local server list (e.g. a static copy): the checked ones and the list below still work
 }
 const booted = !new URLSearchParams(location.search).get('m') ? renderHome()
   : load(sid).catch(e => { status('Error: ' + (e.message || e)); const k = $('skel'); if (k) k.innerHTML = /cannot be checked|not available with the CoStar/.test(e.message) ? `<p>${esc(e.message)} <a href="./#any">Pick another tour</a></p>` : `<p>The 3D tour didn't load. The checks and fixes on the left still work. Check the internet connection, then <button type="button" onclick="location.reload()">Try again</button></p>`; window.__ie = { error: String(e.message || e) }; });

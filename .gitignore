@@ -32,3 +32,7 @@ tsconfig.tsbuildinfo
 .claude/
 .vercel
 .env*
+
+# Full-app container deploy (scripts/deploy_app.sh): staging copy with sponsor data, and its Vercel link
+.app-deploy/
+.vercel-app/

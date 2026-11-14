@@ -4,34 +4,31 @@
 
 An accessibility room planner built solo at HackPrinceton Fall 2026 (Nov 13–15).
 
-**Live:** [inchandease.us](https://inchandease.us), the street check around a building (Houston and Los Angeles, where Vexcel has coverage). Try `?q=34.0522,-118.2437`.
-The 3D apartment tour (`tour/`) runs locally: the tours are CoStar / Matterport hackathon data that can't be published, and the Matterport SDK key only works on localhost.
+**Live:** [inchandease.us](https://inchandease.us), the whole app: start page, apartment tours, neighbourhood flyover and street check. Online, the tours play in Matterport's own player beside the full list of problems (the Matterport SDK key only works on localhost, so the 3D pins, shapes and measuring run in the local app). CoStar allowed a temporary public demo for judging as long as the raw data isn't re-published: the server only serves what the pages need.
 
-| Part | Where | Run | Tests |
+| What | Where | Run | Tests |
 |---|---|---|---|
-| Around the building | `src/` (Next.js) | `npm install && npm run dev` | `npm test` |
-| 3D tour + neighbourhood flyover + street check (`street.html`, same data code as `src/lib`) | `tour/` (plain ES modules + a small Python server; the one local app) | `uv run --with anthropic python tour/serve.py` | `node --test tour/*.test.mjs` |
+| The app: start page, 3D tours, neighbourhood flyover, street check, voice | `tour/` (plain ES modules + one Python server) | `uv run --with anthropic python tour/serve.py` → http://localhost:8090 | `node --test tour/*.test.mjs` |
+| Slope and building code used by the street check | `src/lib/area.ts`, `buildings.ts` (run by Node through `tour/street_data.mjs`) | | `node src/lib/issues.test.mjs` |
+| Public deploy | `scripts/deploy_app.sh` (Vercel container), `scripts/app_env.sh` (keys) | `sh scripts/deploy_app.sh` | |
 
 `data/` (products, checks, profiles, sources) was collected as research before the event; all code was written during the hacking window. Built solo during the event, with Claude Code as the coding assistant.
 
-## Around the building (`src/`, Next.js)
+## Around the building (`tour/street.html`)
 
-Type a latitude and longitude in Houston or Los Angeles. The page draws Vexcel's aerial photo, colours every street and path within 250 m by what you can manage (slope from Vexcel's ground-elevation model; pick manual wheelchair, power wheelchair or cane, or set your own uphill/downhill limit: blue both ways, amber one way only, red too steep or steps), and lists the nearest step-free station, bus stops, mapped kerbs and elevators from OpenStreetMap, plus Vexcel's oblique photos of the building from four sides.
+Type a latitude and longitude in Houston or Los Angeles, or pick an example. The street check opens in 3D: Vexcel's aerial photo on its ground-elevation model, buildings and trees, and every street and path within 250 m coloured by what you can manage (manual wheelchair, power wheelchair, cane, or your own uphill/downhill limit: blue both ways, amber one way only, red too steep or steps). The sidebar lists the issues near the door, the nearest step-free station, bus stops, mapped kerbs and elevators from OpenStreetMap, and Vexcel's oblique photos of the building from four sides. "Describe how you get around" sends the sentence to Claude, which turns it into slope limits (`/api/ask`).
 
-```bash
-npm install
-npm run dev    # http://localhost:3000/?q=<lat>,<lon>  (needs VEXCEL_API_KEY in .env.local)
-```
-
-Vexcel imagery is fetched live through `/api/image` (the key stays on the server) and never committed; OpenStreetMap answers are cached in `.osm-cache/` (git-ignored).
+Vexcel imagery is fetched live through `/api/image` (the key stays on the server); answers are cached in `tour/private/street/` and OpenStreetMap answers in `.osm-cache/` (both git-ignored).
 
 ### Credits
-- [Next.js](https://nextjs.org) 16.4, React 19, Tailwind CSS 4
-- [geotiff.js](https://geotiffjs.github.io) 3.0 (reads Vexcel's elevation GeoTIFFs)
+- [geotiff.js](https://geotiffjs.github.io) 3.0 (reads Vexcel's elevation GeoTIFFs); [three.js](https://threejs.org) 0.184 with OrbitControls (3D view)
 - Vexcel API 2.0 (CoStar hackathon key): ortho, oblique and DTM imagery © Vexcel Imaging US, Inc.
 - Map data © [OpenStreetMap](https://www.openstreetmap.org/copyright) contributors (ODbL), via the Overpass API
-- [three.js](https://threejs.org) 0.184 with OrbitControls (3D terrain view); [Anthropic TypeScript SDK](https://github.com/anthropics/anthropic-sdk-typescript) + [Zod](https://zod.dev) (Claude turns "how I get around" into slope limits); [Fish Audio](https://fish.audio) speech-to-text and text-to-speech
 - Profile presets and the colour idea: [AccessMap](https://www.accessmap.app) (University of Washington Taskar Center); Bolten & Caspi, PLOS ONE 2021
+
+## Voice
+
+Hold Space (or tap the mic) on any page and talk; Chrome's speech recognition hears it. Commands like "night mode", "show the map" or "uphill 10" act at once, and every spoken reply is written by Claude for the conversation (`/api/say`, `/api/agent`, `/api/region`, `/api/walk`) and read in one [Fish Audio](https://fish.audio) voice (`/api/speak`, cached per sentence). Without a voice the reply stays as a caption.
 
 ## The 3D tour (`tour/`)
 
@@ -54,8 +51,8 @@ Tour data and imagery belong to CoStar / Matterport and are never committed (`to
 
 ### Credits
 - [Matterport web component and Showcase SDK](https://matterport.github.io/developer-docs/) (`@matterport/webcomponent` 0.1.47); CoStar / Matterport hackathon data (not included)
-- [three.js](https://threejs.org) 0.184 (Matterport scene objects, loaded from the viewer bundle) and 0.170 (`tour/model.html`)
+- [three.js](https://threejs.org) 0.184 (Matterport scene objects, loaded from the viewer bundle)
 - [Anthropic Python SDK](https://github.com/anthropics/anthropic-sdk-python), Claude Opus 5.5
 - Vexcel API (CoStar hackathon key): aerial photo and ground model for the neighbourhood view, © Vexcel Imaging US, Inc. (not included); streets © [OpenStreetMap](https://www.openstreetmap.org/copyright) contributors via Overpass
-- Work Sans (Google Fonts); start-screen photo from [Unsplash](https://unsplash.com/photos/woman-in-wheelchair-at-doorway-mjJwgKMktLg)
+- Barlow, Space Grotesk and Work Sans (Google Fonts); start-screen photo from [Unsplash](https://unsplash.com/photos/woman-in-wheelchair-at-doorway-mjJwgKMktLg)
 - Limits: 2010 ADA Standards and US Access Board research; Housing Enabler item codes (codes only) and HOME FAST item numbers as anchors; fix evidence cited per product in `data/products.json`

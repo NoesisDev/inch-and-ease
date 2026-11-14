@@ -2,15 +2,16 @@
 # made from .env.local so no key file is stored), /api/agent, which relays one Claude step for the tour page, and /api/region, which writes the flyover script for the region page.
 # The Claude key never reaches the browser; the browser runs the tools in the Matterport tour.
 # Run from the repo root: uv run --with anthropic python tour/serve.py   → http://localhost:8090
-import json, os, sys, functools, http.server, re, csv, base64, urllib.request, urllib.parse, threading, hashlib, random, math, shutil, subprocess
+import json, os, sys, functools, http.server, re, csv, base64, urllib.request, urllib.parse, threading, hashlib, random, math, shutil, subprocess, time
 import anthropic
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
-ENV = dict(l.strip().split('=', 1) for l in open(os.path.join(ROOT, '.env.local')) if '=' in l and not l.startswith('#'))
-KEY = ENV['ANTHROPIC_API_KEY'].strip().strip('"')
+_ENV_FILE = os.path.join(ROOT, '.env.local')  # hosted (Vercel container): no file, the keys come from the environment
+ENV = dict(l.strip().split('=', 1) for l in open(_ENV_FILE) if '=' in l and not l.startswith('#')) if os.path.exists(_ENV_FILE) else dict(os.environ)
+KEY = ENV.get('ANTHROPIC_API_KEY', '').strip().strip('"') or 'missing'  # no key: the server still starts, Claude calls answer 502
 MP_KEY = ENV.get('MATTERPORT_SDK_KEY', '').strip().strip('"')
-client = anthropic.Anthropic(api_key=KEY)
+client = anthropic.Anthropic(api_key=KEY, timeout=45, max_retries=1)  # a stuck call must not hold a request thread for 30 min
 # The guide's voice: "Ethan", a public Fish Audio voice (picked by the user Nov 14), on the expressive drama-3 model. /api/speak
 # streams one sentence and keeps it in tour/private/tts/, so a line said twice (and the fillers) costs nothing the second time.
 FISH_KEY = ENV.get('FISH_API_KEY', '').strip().strip('"')
@@ -41,7 +42,7 @@ def costar_models():
     global _models
     if _models is None:
         with open(INDEX_CSV, newline='') as f:
-            _models = [{k: r[k] for k in ('sid', 'name', 'address', 'city', 'state', 'segment', 'room_count')} for r in csv.DictReader(f)]
+            _models = [{k: r[k] for k in ('sid', 'name', 'address', 'city', 'state', 'segment', 'room_count', 'defurnished')} for r in csv.DictReader(f)]
     return _models
 
 LABELLED = re.compile(r'\bADA\b|handicap|accessible', re.I)
@@ -58,8 +59,10 @@ def search_models(q, group='', offset=0, limit=20):
         return hit, len(hit)
     words, keep = q.lower().split(), GROUPS.get(group, lambda r: True)
     hit = [r for r in rows if keep(r) and all(w in ' '.join((r['name'], r['address'], r['city'], r['sid'])).lower() for w in words)]
-    # Units with rooms first (lobbies and amenity spaces have 1-2), then accessibility-labelled ones.
-    hit.sort(key=lambda r: (-(int(r['room_count'] or 0) >= 3), -bool(LABELLED.search(r['name'])), r['name']))
+    # Tours with a floor plan first: in the index, defurnished=no meant no walls or doors from the Model API (36 of 36 sampled
+    # Nov 14; 33 of 35 that loaded were "yes"), so a judge's first click can't hit "cannot be checked". Then units with rooms
+    # (lobbies and amenity spaces have 1-2), then accessibility-labelled ones.
+    hit.sort(key=lambda r: (r.get('defurnished') != 'yes', -(int(r['room_count'] or 0) >= 3), -bool(LABELLED.search(r['name'])), r['name']))
     return hit[offset:offset + limit], len(hit)
 
 assert GROUPS['ada']({'name': '1 King Suite - Handicap'}) and not GROUPS['ada']({'name': '5836 La Mirada Ave'})  # "Mirada" is not "ADA"
@@ -95,24 +98,43 @@ def fresh_models(n=6):
                 break
             if m and any(f.get('edges') for f in m.get('floors') or []) and m.get('rooms'):
                 ids.append(r['sid'])
-        json.dump(ids, open(FRESH, 'w'))
+        json.dump(ids, open(FRESH + '.part', 'w')); os.replace(FRESH + '.part', FRESH)
         return [info[s] for s in ids if s in info]
 
+_fetched = [0]  # new tours fetched this run: capped, so the public demo can't be used to pull the whole dataset
 def fetch_model(sid):
     """The tour's wall graph, from the cache or the Model API. Raises ValueError with a plain message."""
     path = os.path.join(TOURS, sid + '.json')
     with _lock:
         if os.path.exists(path):
             return json.load(open(path))
+        if sid not in {r['sid'] for r in costar_models()} or _fetched[0] >= 150:
+            raise ValueError('That tour is not available here.')
         m = model_api(sid, MODEL_Q)
         if not m:
             raise ValueError('That model is not available with the CoStar keys.')
         if not any(f.get('edges') for f in m.get('floors') or []) or not m.get('rooms'):
             raise ValueError('That model has no floor plan data, so it cannot be checked.')
-        json.dump(m, open(path, 'w'))
+        json.dump(m, open(path + '.part', 'w')); os.replace(path + '.part', path)  # never a half-written file
+        _fetched[0] += 1
         return m
 
 MAX_BODY = 400_000  # a long conversation plus the apartment data stays well under this
+
+# Public demo: anyone can call the Claude and new-voice routes, and each call costs the owner money. A limit per visitor and per
+# server run (security review, Nov 14); the local app (no proxy header, from this machine) is never limited.
+_hits, _spent, _hits_lock = {}, [0], threading.Lock()
+def allowed(h, per=60, window=300, cap=1500):
+    fwd = h.headers.get('X-Forwarded-For')
+    if not fwd and h.client_address[0] in ('127.0.0.1', '::1'):
+        return True
+    ip, now = (fwd or h.client_address[0]).split(',')[0].strip(), time.time()
+    with _hits_lock:
+        q = [t for t in _hits.get(ip, []) if now - t < window]
+        if len(q) >= per or _spent[0] >= cap:
+            return False
+        _hits[ip] = q + [now]; _spent[0] += 1
+        return True
 
 # Ethan's character, shared by every prompt below so he is one person on every page (user, Nov 14: "a person who knows what he is
 # doing... with taste, with reason... human but still a professional, explaining what is what"). No numbers in its examples: the
@@ -301,6 +323,23 @@ WALK_SCHEMA = {'type': 'object', 'additionalProperties': False, 'required': ['in
                                                                   'properties': {'id': {'type': 'string'}, 'line': {'type': 'string'}, 'ask': {'type': 'boolean'}}}}}}
 
 
+SAY_SYSTEM = """You are Ethan, the voice guide of Inch & Ease, a website that checks apartments and the streets around them for wheelchair users. The person spoke to you and the page has already done what they asked. Write what you say out loud next: one or two short, warm, spoken sentences (under 35 words), in your own words, fitted to this person and to the conversation so far. Use only the facts given and never invent numbers, names or prices. If the page says something failed, say so plainly. Never suggest a command, button or feature unless it appears in what you were given. No lists, no markdown, no emoji, no stage directions. Say numbers and units the way you would aloud."""
+
+def say_line(heard, did, page, history):
+    """One spoken reply, in Ethan's words, after the page ran a command itself (user, Nov 14: the voice is always fitted to the conversation)."""
+    talk = ''.join(f'\nThem: {h["q"]}\nYou: {h["a"]}' for h in history)
+    r = client.beta.messages.create(
+        model='claude-opus-5-5', max_tokens=1000, output_config={'effort': 'low'},
+        betas=['server-side-fallback-2026-07-01'], fallbacks='default',
+        system=SAY_SYSTEM,
+        messages=[{'role': 'user', 'content': f'Page: {page}\nConversation so far:{talk or " (nothing yet)"}\n\nThey just said: "{heard}"\nWhat the page just did: {did}'}])
+    if r.stop_reason == 'refusal':
+        raise ScriptError('Claude declined that line')
+    text = ' '.join(b.text for b in r.content if b.type == 'text').strip()
+    if not text:
+        raise ScriptError('Claude sent no line')
+    return {'text': text}
+
 def walk_lines(name, about, stops):
     """The guide's line for every walkthrough stop, in Ethan's words, from the page's own fact lines. The page checks the numbers survived."""
     r = client.beta.messages.create(
@@ -320,6 +359,7 @@ def walk_lines(name, about, stops):
 # each answer in tour/private/street/ (Vexcel-derived: Sponsor Data, git-ignored); /api/image proxies Vexcel photos; /api/ask is Claude.
 STREET_DIR = os.path.join(HERE, 'private', 'street')
 NODE = shutil.which('node') or '/opt/homebrew/bin/node'
+_node_slots = threading.Semaphore(2)
 
 def street_data(kind, lat, lon):
     """JSON bytes of analyze() (kind 'area') or scene3d() ('buildings'). Raises ValueError with a plain message."""
@@ -327,7 +367,8 @@ def street_data(kind, lat, lon):
     if os.path.exists(path):
         return open(path, 'rb').read()
     try:
-        p = subprocess.run([NODE, '--no-warnings', os.path.join(HERE, 'street_data.mjs'), kind, repr(lat), repr(lon)], cwd=ROOT, capture_output=True, timeout=90)
+        with _node_slots:  # at most two street checks at once: each is a node process that can run for a minute
+            p = subprocess.run([NODE, '--no-warnings', os.path.join(HERE, 'street_data.mjs'), kind, repr(lat), repr(lon)], cwd=ROOT, capture_output=True, timeout=90)
     except subprocess.TimeoutExpired:
         raise ValueError('The street check took too long, try again')
     if p.returncode:
@@ -423,6 +464,9 @@ def street_ask(prompt):
 
 
 class Handler(http.server.SimpleHTTPRequestHandler):
+    def list_directory(self, path):  # no folder listings: on the public deploy they showed everything in tour/private
+        self.send_error(404)
+
     def translate_path(self, path):
         # /data/... is the repo's public dataset (products, photos), one level up from tour/; /node_modules/three/ is three.js for street_3d.js
         if path.startswith(('/data/', '/node_modules/three/')) and '..' not in path:
@@ -430,8 +474,11 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         return super().translate_path(path)
 
     def do_GET(self):
+        if re.match(r'/private/(candidates|street|expected\.json|region/PLAN\.md|tts)', self.path.split('?')[0]):  # server-side data, no page loads it
+            return self.send_error(404)
         if self.path.split('?')[0] == '/private/key.js':  # localhost-only SDK key; never written to disk
-            data = f'window.MP_KEY={json.dumps(MP_KEY)};'.encode()
+            local = (self.headers.get('Host') or '').split(':')[0] == 'localhost'  # the key only works there (even 127.0.0.1 is refused); CoStar credential
+            data = f'window.MP_KEY={json.dumps(MP_KEY if local else "")};'.encode()
             self.send_response(200); self.send_header('Content-Type', 'text/javascript'); self.send_header('Cache-Control', 'no-store')
             self.send_header('Content-Length', str(len(data))); self.end_headers(); return self.wfile.write(data)
         if self.path.startswith('/api/speak?'):
@@ -448,7 +495,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         if self.path.startswith('/api/models?'):
             p = urllib.parse.parse_qs(urllib.parse.urlsplit(self.path).query)
             o = p.get('o', ['0'])[0]
-            models, total = search_models(p.get('q', [''])[0][:200], p.get('f', [''])[0], int(o) if o.isdigit() else 0)
+            models, total = search_models(p.get('q', [''])[0][:200], p.get('f', [''])[0], min(int(o), 200) if o.isdigit() else 0)  # no paging through the whole index
             return self.reply(200, {'models': models, 'total': total})
         if self.path.split('?')[0] in ('/api/area', '/api/buildings', '/api/image'):
             return self.street(self.path.split('?')[0][5:], urllib.parse.parse_qs(urllib.parse.urlsplit(self.path).query))
@@ -461,10 +508,12 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         super().do_GET()
 
     def do_POST(self):
-        if self.path not in ('/api/agent', '/api/region', '/api/walk', '/api/ask'):
+        if self.path not in ('/api/agent', '/api/region', '/api/walk', '/api/ask', '/api/say'):
             return self.send_error(404)
         if OFFLINE:
             return self.reply(503, {'error': 'offline test server: Claude is off'})
+        if not allowed(self):
+            return self.reply(429, {'error': 'Too many questions at once. Try again in a few minutes.'})
         n = int(self.headers.get('Content-Length') or 0)
         if not 0 < n <= MAX_BODY:
             return self.reply(413, {'error': 'request too large'})
@@ -477,7 +526,12 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 name, about, stops = str(body.get('name') or '')[:200], str(body.get('about') or '')[:300], body['stops']
                 assert isinstance(stops, list) and 0 < len(stops) <= 60
                 stops = [{k: str(s[k])[:400] for k in ('id', 'base', 'room', 'kind') if s.get(k) is not None} for s in stops]
-                assert all(s.get('id') and s.get('base') for s in stops)
+                stops = [s for s in stops if s.get('id') and s.get('base')]  # a stop with no fact line is skipped, not the whole walk (it answered 400)
+                assert stops
+            elif self.path == '/api/say':
+                heard, did, page = str(body['heard'])[:500], str(body['did'])[:1500], str(body.get('page') or '')[:60]
+                history = [{'q': str(h['q'])[:500], 'a': str(h['a'])[:600]} for h in (body.get('history') or [])[-6:]]
+                assert heard.strip() and did.strip()
             elif self.path == '/api/ask':
                 prompt = ask_context(body)
             else:
@@ -494,6 +548,8 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 return self.reply(200, region_script(question, facts, rule, history))
             if self.path == '/api/walk':
                 return self.reply(200, walk_lines(name, about, stops))
+            if self.path == '/api/say':
+                return self.reply(200, say_line(heard, did, page, history))
             r = client.beta.messages.create(
                 model='claude-opus-5-5', max_tokens=4000,
                 output_config={'effort': 'low'},  # short chat turns; keeps the tour snappy
@@ -529,6 +585,8 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             return self.wfile.write(data)
         if OFFLINE:
             return self.reply(404, {'error': 'offline: only saved lines play'})
+        if not allowed(self):
+            return self.reply(429, {'error': 'too many new lines at once'})
         with _tts_lock:
             if _tts_used + len(text.encode()) > TTS_CAP:
                 return self.reply(429, {'error': 'voice budget for this run is used up'})
@@ -588,5 +646,6 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 if __name__ == '__main__':
     # The viewer bundle opens dozens of requests at once on a cold cache; the default listen queue of 5 resets some of them.
     http.server.ThreadingHTTPServer.request_queue_size = 128
-    port = int(sys.argv[1]) if len(sys.argv) > 1 else 8090  # python tour/serve.py 8091 runs a second copy
-    http.server.ThreadingHTTPServer(('127.0.0.1', port), functools.partial(Handler, directory=HERE)).serve_forever()
+    port = int(sys.argv[1]) if len(sys.argv) > 1 else int(os.environ.get('PORT', 8090))  # python tour/serve.py 8091 runs a second copy
+    host = os.environ.get('HOST', '127.0.0.1')  # the container sets HOST=0.0.0.0
+    http.server.ThreadingHTTPServer((host, port), functools.partial(Handler, directory=HERE)).serve_forever()

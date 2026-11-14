@@ -13,7 +13,7 @@ registerHooks({
   },
 });
 
-process.loadEnvFile?.(".env.local");
+try { process.loadEnvFile(".env.local"); } catch {} // hosted: no file, VEXCEL_API_KEY comes from the environment
 const [what, lat, lon] = [process.argv[2], Number(process.argv[3]), Number(process.argv[4])];
 try {
   if (!(Math.abs(lat) <= 90 && Math.abs(lon) <= 180)) throw new Error("bad lat or lon");

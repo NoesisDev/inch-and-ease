@@ -184,7 +184,12 @@ export function statusOf(n, value, exact = false) { // exact: read off a tape, s
 const median = xs => { const s = [...xs].sort((a, b) => a - b); return s.length ? (s[(s.length - 1) >> 1] + s[s.length >> 1]) / 2 : 0; };
 const lerp = (a, b, t) => ({ x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t });
 export const roomName = r => (r.classifications || []).map(c => c.label).filter(Boolean).join(', ') || 'Room';
-const SKIP_TURN = /void|closet|balcony|hallway|patio/i, NO_ROUTE = /closet|pantry|laundry|garage|void|patio|balcony|utility/i;
+const SKIP_TURN = /void|closet|balcony|hallway|patio|stair|pantry|laundry|utility|garage|storage/i, NO_ROUTE = /closet|pantry|laundry|garage|void|patio|balcony|utility/i;
+// Rooms nobody needs to roll into: their doors are listed but not scored ("Other" is what Matterport calls furnace and linen closets).
+const CLOSET_LIKE = /closet|pantry|laundry|storage|wardrobe|cupboard|^other$/i;
+// Some tours carry a placeholder for every opening (height and bottom both 0.10 m): those heights say nothing about the floor.
+const placeholder = o => Math.abs((o.height ?? 0) - 0.1) < 1e-6 && Math.abs((o.lowerElevation ?? 0) - 0.1) < 1e-6;
+const inPoly = (p, poly) => { let c = false; for (let a = 0, b = poly.length - 1; a < poly.length; b = a++) { const A = poly[a], B = poly[b]; if ((A.y > p.y) !== (B.y > p.y) && p.x < (B.x - A.x) * (p.y - A.y) / (B.y - A.y) + A.x) c = !c; } return c; };
 
 // Room outline in plan (x, y): chain the boundary edges into one loop. Returns [] when the edges don't close.
 export function roomPolygon(floor, room) {
@@ -220,8 +225,11 @@ export function evaluate(m) {
       rooms.push(room);
       for (const e of r.boundary?.edges || []) (edgeRooms[e.id] ||= []).push(room);
     }
-    const ops = f.edges.flatMap(e => (e.openings || []).filter(o => o.type !== 'window' && o.width >= NOISE_DOOR).map(o => o.lowerElevation || 0));
+    const ops = f.edges.flatMap(e => (e.openings || []).filter(o => o.type !== 'window' && o.width >= NOISE_DOOR && !placeholder(o)).map(o => o.lowerElevation || 0));
     const floorLevel = median(ops);
+    // Rooms that really join up (walls two rooms share): in scans whose room outlines float apart, what's behind a door can't be read
+    const walls = f.edges.filter(e => e.type !== 'invisible' && edgeRooms[e.id]); // real walls, not open-plan joins
+    const sharedWalls = walls.filter(e => edgeRooms[e.id].length === 2).length >= 0.2 * walls.length; // typical tour 0.5; floating outlines 0.13
     for (const e of f.edges) {
       const a = V[e.vertices[0].id], b = V[e.vertices[1].id], rs = edgeRooms[e.id] || [];
       if (e.type === 'invisible' && rs.length === 2) links.push({ a: rs[0].id, b: rs[1].id, w: Infinity, items: [] });
@@ -236,10 +244,18 @@ export function evaluate(m) {
         // The same doorway scanned twice (both faces of a deep doorway, under 40 cm apart and parallel): one door, one box.
         if (items.some(d => d.kind === 'door' && d.floor === f.id && Math.hypot(d.at.x - at.x, d.at.y - at.y) < 0.4 && Math.abs(Math.sin(d.angle - angle)) < 0.2)) continue;
         // shortcut: closet doors aren't on a wheelchair route, so they're listed but not scored; a walk-in closet would need a real check.
-        const closet = rs.some(r => /closet/i.test(r.name)), geo = { between, at, angle, t, floor: f.id, rooms: rs.map(r => r.id), base: floorLevel }; // base: this floor's height in the 3D world (opening heights are absolute: floor 3 can sit 2.7 m up)
+        const closet = rs.some(r => CLOSET_LIKE.test(r.name)), geo = { between, at, angle, t, floor: f.id, rooms: rs.map(r => r.id), base: floorLevel }; // base: this floor's height in the 3D world (opening heights are absolute: floor 3 can sit 2.7 m up)
         // Scan heights outside 1.8–2.5 m are noise (1 door in 10 reads 0.1 m, some 5 m): those are drawn at a standard 2.03 m.
         const door = { id: id('door'), n: 8, kind: 'door', value: o.width, h: o.height >= 1.8 && o.height <= 2.5 ? o.height : 2.03, w: o.width, source: 'Matterport scan', ...geo };
         door.s = closet ? 'skip' : statusOf(8, door.value);
+        // A closed door on a wall with one room and nothing scanned past it is a closet or pantry, unless it turns out to be the
+        // entrance (decided after the route is known). 35 cm beyond the wall, the far side lies in no room (audit, Nov 14: 6 of 30 red flags).
+        if (sharedWalls && rs.length === 1 && rs[0].poly.length > 2) { // only where rooms share walls: in a scan where none do, every door looks one-sided
+          // 35, 70 and 100 cm past the wall (some scans leave a half-metre gap before the next room's outline): a room at any = a real door
+          const len0 = Math.hypot(b.x - a.x, b.y - a.y) || 1, ux = -(b.y - a.y) / len0, uy = (b.x - a.x) / len0;
+          const side = [1, -1].find(sg => !inPoly({ x: at.x + ux * 0.35 * sg, y: at.y + uy * 0.35 * sg }, rs[0].poly));
+          if (side && ![0.35, 0.7, 1.0].some(dd => rooms.some(r => r.floor === f.id && r !== rs[0] && r.poly.length > 2 && inPoly({ x: at.x + ux * dd * side, y: at.y + uy * dd * side }, r.poly)))) door.unscanned = true;
+        }
         // The scan's opening runs right into the end of its wall piece (within 2 cm; a real door frame leaves 5 cm or more): the real
         // doorway can carry on past that corner (a 36" front door was read as 22"), so the width is only a lower bound. It can pass,
         // never fail: a fail becomes "check with a tape", and the card says why.
@@ -247,12 +263,12 @@ export function evaluate(m) {
         if ((s0 < 0.02 || s1 > len - 0.02) && door.s === 'fail') { door.s = 'verify'; door.cut = true; }
         items.push(door); link.items.push(door);
         if (closet) continue;
-        const rise = Math.abs((o.lowerElevation || 0) - floorLevel);
-        const step = { id: id('step'), n: 9, kind: 'step', value: rise, w: o.width, source: 'Matterport scan', ...geo };
+        const rise = placeholder(o) ? null : Math.abs((o.lowerElevation || 0) - floorLevel); // placeholder height: no number, "needs measuring"
+        const step = { id: id('step'), n: 9, kind: 'step', value: rise, w: o.width, source: 'Matterport scan', unscanned: door.unscanned, ...geo };
         step.s = statusOf(9, rise);
         // Over 20 cm is the scan misreading the door bottom, not a threshold (one read 2.65 m; on the mesh the floor was level on both
         // sides): no verdict and no shape, just "check it by eye".
-        if (rise > 0.2) { step.s = 'verify'; step.odd = true; }
+        if (rise != null && rise > 0.2) { step.s = 'verify'; step.odd = true; }
         items.push(step); link.items.push(step);
       }
     }
@@ -261,12 +277,16 @@ export function evaluate(m) {
     const { width: w, depth: d } = r.dims;
     // A room the scan gave no full size for is listed as "needs measuring", never guessed.
     // shortcut: a known side under 1 m is a scan fragment (e.g. a 0.5 m "Bedroom" sliver), skipped; a real room that small would need a tape.
-    const hall = /hallway/i.test(r.name);
+    const hall = /hallway/i.test(r.name), area = r.dims.areaFloor || (w && d ? w * d : null);
     if (!r.at || (!(w && d) && !hall && (w || d || 1) < 1)) continue;
     if (SKIP_TURN.test(r.name) && !hall) continue;
+    if (hall && area && area < 1.2) continue; // a scrap where two corridors meet (1.1 m²), not a hallway; real narrow halls here were 1.3 m² and up
+    if (!hall && w && d && Math.min(w, d) < 0.9 && area && area < 2) continue; // a passage between two doors, not a room to turn in
     // Never guess: with one side missing, the short side is only known when the one side we have already fails.
     const n = hall ? 11 : 10, lim = LIMITS[hall ? 'hall' : 'turn'];
-    const one = w || d, across = w && d ? Math.min(w, d) : one && one + lim.u < lim.min ? one : null;
+    const one = w || d;
+    let across = w && d ? Math.min(w, d) : one && one + lim.u < lim.min ? one : null;
+    if (!hall && across != null && area >= 8 && across < 1.5) across = null; // a big open-plan room with a sliver of a box: the box is wrong
     items.push({ id: id(hall ? 'hall' : 'turn'), n, kind: hall ? 'hall' : 'turn', room: r.name, roomId: r.id, at: r.at, floor: r.floor, value: across, dims: r.dims, source: 'Matterport scan', s: statusOf(n, across) });
   }
   // 21: essential rooms on the entry floor. One floor = no stairs inside.
@@ -284,6 +304,7 @@ export function evaluate(m) {
     items.push({ id: `c${c.n}`, n: c.n, kind: c.how, room: room?.name || c.room, roomId: room?.id, at: room?.at || null, floor: room?.floor || floors[0]?.id, value: null, s: 'none', source: null });
   }
   const route = routes(rooms, links);
+  for (const i of items) if (i.unscanned && !route.entryItems?.includes(i.id) && (i.n === 8 || i.n === 9)) { i.s = 'skip'; i.closedOff = true; } // a closet, not the way in
   for (const i of items) i.critical = isCritical(i, route);
   return { items, rooms, links, route, floors: floors.length, noDoorData };
 }
@@ -293,8 +314,9 @@ export function evaluate(m) {
 export function routes(rooms, links) {
   const pref = r => /entr|foyer/i.test(r.name) ? 0 : /hall|living|kitchen|dining/i.test(r.name) ? 1 : 2;
   const byId = Object.fromEntries(rooms.map(r => [r.id, r]));
+  const stepped = l => l.items.some(i => i.n === 9 && i.s === 'fail') ? 1 : 0; // a balcony slider's track: not the front door (audit, Nov 14)
   const doors = links.filter(l => l.exterior && byId[l.a] && !NO_ROUTE.test(byId[l.a].name) && l.items.some(i => i.n === 8))
-    .sort((p, q) => pref(byId[p.a]) - pref(byId[q.a]) || q.w - p.w);
+    .sort((p, q) => pref(byId[p.a]) - pref(byId[q.a]) || stepped(p) - stepped(q) || q.w - p.w);
   const entry = doors[0];
   if (!entry) return { entry: null, to: {} };
   const best = { [entry.a]: { w: entry.w, via: [entry] } }, done = new Set();
@@ -310,7 +332,7 @@ export function routes(rooms, links) {
   }
   const to = {};
   for (const [rid, b] of Object.entries(best)) to[rid] = { room: byId[rid].name, narrowest: b.w, items: b.via.flatMap(l => l.items.map(i => i.id)) };
-  return { entry: { room: byId[entry.a].name, at: entry.at }, to };
+  return { entry: { room: byId[entry.a].name, at: entry.at }, to, entryItems: entry.items.map(i => i.id) };
 }
 
 // Critical = a fail on the best route from the entry to a bathroom, bedroom or kitchen, a bathroom where the turning circle
@@ -356,7 +378,9 @@ export function describe(i) {
   if (i.n === 8) return { title: i.s === 'skip' ? `Closet door (${ftin(i.value)})` : i.cut ? `Door width unclear (scan: ${ftin(i.value)} or more)` : i.s === 'pass' ? `Door wide enough (${ftin(i.value)})` : `Door ${may}too narrow (${ftin(i.value)})`, detail: i.s === 'skip' ? `${rooms}, closet door, not scored` : i.cut ? `${rooms}. The scan's outline stops this doorway at a wall corner, so it may be wider: measure it.` : rooms, measured: ftin(i.value), need };
   if (i.n === 9 && i.odd) return { title: 'Check the threshold by eye', detail: `${rooms}. The scan reads a ${ftin(i.value)} drop here, more than any door threshold: it may be real stairs or a scan error, so look at it on site.`, measured: ftin(i.value), need };
   if (i.n === 9) return { title: i.s === 'pass' ? 'Level threshold' : i.s === 'verify' ? `Small step at the door (${ftin(i.value)})` : `Step at the door (${ftin(i.value)})`, detail: rooms, measured: ftin(i.value), need };
-  if (i.n === 10) return { title: i.s === 'pass' ? `${i.room}: room to turn around` : `${i.room} ${may}too small to turn around`, detail: i.value == null ? 'room size missing' : `room is ${ftin(i.value)} across, needs ${need}`, measured: ftin(i.value), need };
+  // Just under the limit, feet and inches round to the limit itself ("5' 0" across, needs 5' 0""): then say it in inches with a decimal.
+  const shown = i.value != null && ftin(i.value) === "5' 0\"" && i.s !== 'pass' ? `${(i.value / IN).toFixed(1)}"` : ftin(i.value);
+  if (i.n === 10) return { title: i.s === 'pass' ? `${i.room}: room to turn around` : `${i.room} ${may}too small to turn around`, detail: i.value == null ? 'room size missing' : `room is ${shown} across, needs ${need}`, measured: shown, need };
   if (i.n === 11) return { title: i.s === 'pass' ? `${i.room} wide enough (${ftin(i.value)})` : `${i.room} ${may}too narrow (${ftin(i.value)})`, detail: `needs ${need}`, measured: ftin(i.value), need };
   if (i.n === 21) return { title: c.title, detail: i.floors === 1 ? 'one floor, no stairs inside' : i.value ? 'all on the entry floor' : 'an essential room is upstairs', measured: `${i.floors} floor${i.floors > 1 ? 's' : ''}`, need: 'all on one floor' };
   if (c.how === 'ask') { const a = c.answers.find(a => a[0] === i.value); return { title: c.title, detail: `your answer: ${a?.[1] ?? '—'}`, measured: a?.[1] ?? '—', need: c.answers.find(a => a[2] === 'pass')[1] }; }

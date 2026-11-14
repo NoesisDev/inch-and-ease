@@ -22,7 +22,7 @@
   .glass, #voice { background:var(--glass); -webkit-backdrop-filter:blur(28px) saturate(180%); backdrop-filter:blur(28px) saturate(180%); border:1px solid var(--line); box-shadow:var(--shadow); border-radius:22px; }
   .float { position:fixed; z-index:5; }
   .k { width:28px; height:28px; flex:none; display:grid; place-items:center; border-radius:9px; font-weight:700; font-size:15px; color:var(--on); background:var(--ink); }
-  .k.pass { background:var(--pass); } .k.verify { background:var(--verify); } .k.fail { background:var(--fail); }
+  .k.pass { background:var(--pass); } .k.verify { background:var(--verify); } .k.fail { background:var(--fail); } .k.pass, .k.verify { color:#141414; } /* white on green/orange failed contrast */
 
   #side { position:fixed; z-index:5; left:24px; top:24px; width:320px; display:flex; flex-direction:column; gap:12px; max-height:calc(100% - 140px); }
   #top { padding:16px; }
@@ -42,7 +42,7 @@
   #card.on { opacity:1; visibility:visible; transform:none; }
   #card .head { display:flex; align-items:center; gap:8px; }
   #card .tag { font-size:12px; font-weight:600; padding:5px 10px; border-radius:999px; color:var(--on); }
-  #card .tag.pass { background:var(--pass); } #card .tag.verify { background:var(--verify); } #card .tag.fail { background:var(--fail); }
+  #card .tag.pass { background:var(--pass); } #card .tag.verify { background:var(--verify); } #card .tag.fail { background:var(--fail); } #card .tag.pass, #card .tag.verify { color:#141414; }
   #card h2 { margin:12px 0 2px; font-size:22px; font-weight:700; letter-spacing:-.02em; line-height:1.2; } #card .sub { color:var(--muted); font-size:13px; }
   #card .stats { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin:16px 0; }
   #card .stats div { background:var(--fill); border-radius:16px; padding:12px; font-size:12px; color:var(--muted); }
@@ -61,7 +61,7 @@
   #controls { left:50%; bottom:24px; transform:translateX(-50%); padding:6px; display:flex; gap:6px; align-items:center; width:min(720px, calc(100% - 48px)); border-radius:999px; }
   #ask { flex:1; display:flex; min-width:0; } #ask input { flex:1; min-width:0; padding:10px 16px; background:var(--fill); border-radius:999px; }
   #ask input::placeholder { color:var(--muted); }
-  #demo { white-space:nowrap; flex:none; }
+  #demo, #tourAll { white-space:nowrap; flex:none; } #tourAll { background:var(--ink); color:var(--on); }
   #credits { position:fixed; left:24px; bottom:24px; z-index:5; font-size:11px; line-height:1.35; color:var(--muted); max-width:min(320px, calc(50% - 400px)); padding:8px 12px; border-radius:12px; }
   #credits:empty { display:none; }
   #tip { position:fixed; z-index:6; pointer-events:none; max-width:280px; padding:10px 14px; border-radius:14px; font-size:13px; line-height:1.45; color:var(--muted); }
@@ -100,9 +100,37 @@
   #start kbd { font:600 12px var(--font); background:var(--fill2); color:var(--ink); padding:3px 8px; border-radius:6px; }
   #go { background:var(--ink); color:var(--on); font-size:17px; padding:14px 48px; } #go:hover { background:#fff; } #go:disabled { opacity:.6; cursor:default; }
   #status { color:var(--muted); font-size:13px; margin-top:12px; } #status:empty { display:none; }
+  #start > div:has(.regions) { width:min(680px, calc(100% - 32px)); }
+  .regions { display:grid; grid-template-columns:repeat(3, 1fr); gap:12px; }
+  .regions a { display:block; color:inherit; text-decoration:none; border-radius:16px; overflow:hidden; background:var(--fill2); transition:transform var(--ease, .2s), box-shadow var(--ease, .2s); }
+  .regions a:hover, .regions a:focus-visible { transform:translateY(-2px); box-shadow:0 0 0 2px var(--ink); }
+  .regions img { display:block; width:100%; aspect-ratio:4 / 3; object-fit:cover; } .regions b { display:block; padding:10px 12px; font-size:15px; text-align:left; }
+  @media (max-width:560px) { .regions { grid-template-columns:1fr; } .regions img { aspect-ratio:16 / 7; } }
+
+  /* Tape measure look (user picked "A", Nov 14): the apartment tour's and the streets page's white panels, Barlow and black buttons,
+     and the side becomes one full-height panel, 320 px like theirs. The aerial map and its colours stay as they are. */
+  :root { --glass:rgba(255,255,255,.94); --fill:#F3F1EA; --fill2:#E9E6DC; --line:#E2DFD6; --ink:#141414; --muted:#5C5A55; --on:#fff; --grey:#8E8E93;
+          --fail:#FF3B30; --verify:#FF9500; --pass:#34C759; --failInk:#D7261E; --accent:#141414; --accentInk:#fff;
+          --font:'Barlow', -apple-system, 'Helvetica Neue', system-ui, sans-serif; --head:'Barlow Semi Condensed', 'Barlow', system-ui, sans-serif;
+          --shadow:0 8px 28px -12px rgba(0,0,0,.35); }
+  .glass, #voice { border-radius:10px; } #controls, #back { border-radius:999px; }
+  #side { left:8px; top:8px; bottom:8px; width:320px; max-height:none; gap:0; background:var(--glass); border:1px solid var(--line); border-radius:10px; overflow:hidden;
+          box-shadow:var(--shadow); -webkit-backdrop-filter:blur(20px); backdrop-filter:blur(20px); }
+  #side > .glass { background:none; border:0; box-shadow:none; border-radius:0; -webkit-backdrop-filter:none; backdrop-filter:none; }
+  #side > #top { border-bottom:1px solid var(--line); } #side > #units { flex:1; }
+  #top h1, #card h2, #start h2, #card .stats b { font-family:var(--head); letter-spacing:0; } #top h1 { font-size:24px; }
+  #area-pick { color-scheme:light; }
+  #units button[aria-current=true] { background:#FFF6CC; box-shadow:inset 3px 0 0 var(--ink); }
+  #card .stats .fail b { color:var(--failInk); } #card .stats .verify b { color:#7A5B00; } #card .stats .pass b { color:#1E7B3A; }
+  #go:hover { background:#333; }
+  #credits { left:auto; right:16px; bottom:16px; max-width:min(300px, calc(50% - 400px)); }
+  @media (max-width:1100px) { #side { width:280px; } }
+  @media (max-width:700px) { #side { left:8px; right:8px; top:8px; bottom:auto; width:auto; max-height:42vh; } #credits { display:none; } }
   @media (prefers-reduced-motion: reduce) { * { transition:none !important; } }
-  @media (prefers-reduced-transparency: reduce) { .glass, #start > div { background:#1C1C1E; -webkit-backdrop-filter:none; backdrop-filter:none; } #start { background:rgba(0,0,0,.8); -webkit-backdrop-filter:none; backdrop-filter:none; } }
+  @media (prefers-reduced-transparency: reduce) { .glass, #start > div { background:#fff; -webkit-backdrop-filter:none; backdrop-filter:none; } #start { background:rgba(0,0,0,.8); -webkit-backdrop-filter:none; backdrop-filter:none; } }
 </style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Semi+Condensed:wght@600;700&display=swap" rel="stylesheet">
 </head>
 <body>
 <canvas id="c" aria-label="3D aerial view of the neighbourhood with the apartments marked" role="img"></canvas>
@@ -115,6 +143,7 @@
 <div id="controls" class="float glass">
   <form id="ask"><input id="q" autocomplete="off" placeholder="Ask a question" aria-label="Question"></form>
   <button id="demo" type="button" title="Ask the sample question (D)">Sample question</button>
+  <button id="tourAll" type="button" title="Every apartment, best first: outside with its streets, then inside">Tour all</button>
 </div>
 <div id="legend" aria-label="Street slope"><span><i style="background:var(--pass)"></i>Up to 5%</span><span><i style="background:var(--verify)"></i>5 to 8%</span><span><i style="background:var(--fail)"></i>Over 8% or steps</span></div>
 <div id="credits" class="glass"></div>
@@ -153,7 +182,25 @@ const SAMPLE_Q = "I'm looking for the best apartment for my father. He uses a wh
 // ?r=<slug> picks another neighbourhood (private/region/<slug>/, made by region_fetch.mjs <slug>); regions.json lists them all.
 const RSLUG = /^[\w-]+$/.test(params.get('r') || '') ? params.get('r') : '', RD = 'private/region/' + (RSLUG && RSLUG + '/');
 const REGIONS = await fetch('private/region/regions.json').then(r => r.json()).catch(() => []);
-const goRegion = slug => { location.href = 'region.html' + (slug ? '?r=' + slug : ''); };
+const goRegion = slug => { location.href = 'region.html?r=' + slug; }; // always ?r: a bare region.html is the picker
+// No region in the address: pick one first, and only that one loads (user, Nov 14). Other parameters (mute, …) are kept.
+if (!params.has('r') && REGIONS.length > 1) {
+  const url = slug => { const p = new URLSearchParams(params); p.set('r', slug); return 'region.html?' + p; }; // Northeast LA is ?r= (its files are the default folder)
+  $('start').firstElementChild.innerHTML = `<h2>Pick a neighbourhood</h2><p>A drone flight over real apartments and the streets around them.</p>
+    <div class="regions">${REGIONS.map(r => `<a href="${url(r.slug)}"><img src="private/region/${r.slug ? r.slug + '/' : ''}thumb.jpg" alt=""><b>${r.name}</b></a>`).join('')}</div>
+    <p style="margin:20px 0 0"><a href="./" style="color:inherit">Back to the start page</a></p>`;
+  $('side').style.display = 'none'; // its panel stays empty until a region loads
+  // Voice works here too (it's the headline): saying a region's name opens it.
+  initVoice({ home: true, ready: Promise.resolve(), places: () => ({}), mode: () => '', stop() {}, nav: () => null,
+    help: 'Say Northeast Los Angeles, Hollywood or Houston Heights.',
+    run: async () => ({ error: 'Pick a neighbourhood first: say Northeast Los Angeles, Hollywood or Houston Heights.' }),
+    async ask(text) {
+      const r = REGIONS.find(r => new RegExp(`\\b(${r.say})\\b`, 'i').test(text));
+      if (r) { location.href = url(r.slug); return { text: '', error: '', open: null }; }
+      return { text: '', error: 'Say Northeast Los Angeles, Hollywood or Houston Heights.', open: null };
+    } });
+  await new Promise(() => {}); // nothing else loads until one is picked
+}
 const R = await (await fetch(RD + 'region.json')).json();
 const products = (await (await fetch('/data/products.json')).json()).products;
 const PARK = await fetch(RD + 'parking.json').then(r => r.ok ? r.json() : {}).catch(() => ({})); // disabled parking near each apartment (tour/parking_fetch.mjs)
@@ -386,6 +433,45 @@ async function flyover(question, on) {
   if (s.answer.dive) { await dive(my); await greet(my); }
   return s.answer.line;
 }
+// Guided run (user, Nov 14): every apartment, best first. Fly to it and say how it and its streets are (Claude's flyover script),
+// go inside and let the tour's own Claude say what would stop a wheelchair user there (it shows the worst one), come back out, next.
+const GUIDED = /\b(guided|tour (them )?all|all of them|all the apartments|every apartment|each apartment|one by one|inside and out|through (all|every|each))\b/i;
+async function guided(question, on) {
+  const my = run;
+  if (tourOpen()) back();
+  if (!flight) orbit = !still;
+  const s = await script(question);
+  if (my !== run) return '';
+  if (s.person) person.set(s.person);
+  history = [...history, { q: question, a: [s.intro, ...s.stops.map(x => x.line)].filter(Boolean).join(' ') }].slice(-4);
+  revealed = true;
+  if (s.intro) await say(s.intro);
+  const stops = s.stops?.length ? s.stops : ranked.map(f => ({ id: f.id, line: '' })); // Claude asked a question instead: best first anyway
+  for (const st of stops) {
+    if (my !== run) return '';
+    if (!byId[st.id]) continue;
+    loadTour(st.id); // the tour loads while the outside is described
+    on('step', place(st.id)); await Promise.all([show(st.id, true), st.line && say(st.line)]);
+    if (my !== run) return '';
+    await Promise.race([tourReady, wait(25000)]);
+    if (my !== run) return '';
+    if (!frame.contentWindow?.__tourApi) { on('step', `Skipped: ${place(st.id)} (the tour didn't load)`); continue; }
+    await dive(my);
+    if (my !== run) return '';
+    const t = inner();
+    if (t) {
+      let said = Promise.resolve();
+      await t.ask('In two or three short sentences: what would stop a wheelchair user in this apartment, and what is the fix?',
+        { on: (k, v) => k === 'say' ? (said = say(v)) : on(k, v), note: 'guided neighbourhood run: show the worst problem, keep it short, the run goes on to the next apartment' });
+      await said; t.stop?.();
+    }
+    if (my !== run) return '';
+    back(st.id); await wait(1200);
+  }
+  if (my !== run || !s.answer?.line || !byId[s.answer.id]) return '';
+  on('step', place(s.answer.id)); await Promise.all([show(s.answer.id), say(s.answer.line)]);
+  return s.answer.line;
+}
 // Just inside: Ethan (the tour's own Claude, which knows every room and check) welcomes them and hands the lead back.
 async function greet(my = run) {
   await tourReady; if (my !== run || !inner()) return;
@@ -469,9 +555,10 @@ const api = {
   places: () => ({ rooms: UNITS, ...inner()?.places(), also: [...commands(), ...(inner()?.places().also || [])] }), // the tour's own words too ("yes" after its pause question)
   run: runTool,
   async ask(text, { on, note } = {}) {
+    if (GUIDED.test(text)) return { text: await guided(text, on), error: '', open: null }; // said is spoken by guided() itself
     if (inner()) return inner().ask(text, { on, note });
     const a = LETTER_A.test(text.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim()) && order[0];
-    if (a) { on('say', spoken(a)); await runTool('show_issue', { id: a }, on); }
+    if (a) { const fly = runTool('show_issue', { id: a }, on); on('say', await bar.custom(text, `flew to apartment A: ${spoken(a)}`, spoken(a))); await fly; } // Claude's line, in context (user, Nov 14)
     return { text: (a ? '' : await flyover(text, on)) || '', error: '', open: null };
   },
   // The tour's Claude asked for another apartment or page.
@@ -479,6 +566,7 @@ const api = {
     if (to === 'page:home') return void (location.href = './'); // the start page finishes the request (voice.js keeps it in ie-voice-next)
     let next = null; try { next = sessionStorage.getItem('ie-voice-next'); sessionStorage.removeItem('ie-voice-next'); } catch {}
     if (to === 'page:neighbourhood') return void (tourOpen() && back());
+    if (to === 'page:streets') return void (location.href = active ? `street.html?q=${byId[active].lat},${byId[active].lon}` : 'street.html');
     await enter(to);
     if (next) bar.hear(next, 'the page has just opened this apartment for this request'); // "…and show me the bathroom": the new tour does the rest
   },
@@ -488,13 +576,14 @@ const api = {
 const hear = q => bar.hear(q);
 $('ask').onsubmit = e => { e.preventDefault(); const q = $('q').value.trim(); if (q) { $('q').value = ''; $('q').blur(); hear(q); } };
 $('demo').onclick = () => hear(SAMPLE_Q);
+$('tourAll').onclick = () => hear('Take me through every apartment, best first, inside and out, for someone in a manual wheelchair, and tell me about the streets around each.');
 $('back').onclick = () => back();
 // Registered before voice.js so that Esc sees the bar as it was: Esc first stops what is running (voice.js), and only with nothing
 // running does it leave the tour. An Esc passed up from inside the tour (not trusted) never leaves it: there it closes a card.
 addEventListener('keydown', e => {
   if (e.target.closest?.('input') || !$('start').hidden || e.metaKey || e.ctrlKey || e.altKey) return;
   const k = e.key.toLowerCase(), id = !tourOpen() && order.find(i => letter[i].toLowerCase() === k);
-  if (k === 'escape') { if (e.isTrusted && tourOpen() && window.__voice.ui.state === 'idle') back(); }
+  if (k === 'escape') { if (e.isTrusted && window.__voice.ui.state === 'idle') { api.stop(); if (tourOpen()) back(); } } // also stops "Tour all" between lines
   else if (k === 'f') document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen();
   else if (k === 'b' && tourOpen()) back();
   else if (k === 'd' && !tourOpen()) hear(SAMPLE_Q); // D is the sample question, so apartment D has no key
@@ -506,7 +595,6 @@ const bar = initVoice(api);
 $('go').disabled = false; $('go').textContent = 'Start';
 $('go').onclick = () => {
   $('start').hidden = true; $('demo').focus();
-  if ('speechSynthesis' in window && !window.__mute && !params.has('mute')) speechSynthesis.speak(new SpeechSynthesisUtterance('')); // unlock audio inside the click
 };
 window.__region = { ready: true, ranked: ranked.map(f => f.id), ask: hear, show, back, voice: window.__voice, speak: t => say(t), // speak: the embedded tour's walk talks through this bar // test hook; back is also called by the embedded tour ("neighbourhood")
   state: () => ({ active, revealed, tourOpen: tourOpen(), inTour, caption: window.__voice.ui.say }) };

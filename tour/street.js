@@ -1,5 +1,5 @@
-// The street check in the tour app: a plain-JS port of the public site's area view (src/app/page.tsx AreaView, SlopeMap.tsx,
-// Terrain3D.tsx). Same numbers and texts; the look is the tour's Evergreen, and the voice is the tour's bar (voice.js), so every
+// The street check in the tour app: a plain-JS port of the old Next.js site's area view (AreaView, SlopeMap, Terrain3D; removed
+// Nov 14, see git history). Same numbers and texts; the look is the tour's Tape measure sidebar, and the voice is the tour's bar (voice.js), so every
 // control can be said: a profile, Map or 3D, an example place, an issue by number, or a free description that goes to /api/ask.
 // Data: /api/area (src/lib/area.ts analyze()), /api/buildings, /api/image, /api/ask, all from serve.py.
 import { PROFILES, verdict, findIssues, askStreets, askFacts, spokenLimit } from './street_issues.js';
@@ -23,7 +23,7 @@ const R = 6378137; // Web Mercator, like the photo and the rasters (src/lib/area
 const merc = ([lat, lon]) => [R * Math.log(Math.tan(Math.PI / 4 + (lat * Math.PI) / 360)), (R * lon * Math.PI) / 180];
 
 // ---- State: one object, render() draws whatever depends on the profile ----
-const st = { q: '', area: null, segs: [], pois: [], home: [0, 0], facts: null, view: 'map', lift: 1, buildings: true,
+const st = { q: '', area: null, segs: [], pois: [], home: [0, 0], facts: null, view: '3d', lift: 1, buildings: true,
   profile: 'manual', up: 8, down: 10, avoidSteps: true, sel: null, label: '', answer: '', answerErr: false, at: -1 };
 let three = null, threeKey = '', loaded = Promise.resolve(), asking = null, run = 0;
 const limits = () => ({ up: st.up, down: st.down, avoidSteps: st.avoidSteps });
@@ -136,8 +136,8 @@ function render() {
 }
 
 // ---- Actions: the buttons and the voice call the same ones ----
-function pick(id) { const p = PROFILES.find(x => x.id === id); Object.assign(st, { profile: p.id, up: p.up, down: p.down, avoidSteps: p.avoidSteps }); render(); }
-function custom(patch) { Object.assign(st, { profile: 'custom', label: '' }, patch); render(); }
+function pick(id) { const p = PROFILES.find(x => x.id === id); Object.assign(st, { profile: p.id, up: p.up, down: p.down, avoidSteps: p.avoidSteps, at: -1 }); render(); } // at: the issue list changes with the limits
+function custom(patch) { Object.assign(st, { profile: 'custom', label: '', at: -1 }, patch); render(); }
 function select(i, fly) { st.sel = i; render(); if (fly && i !== null) three?.fly(i); }
 const showSeg = seg => select(st.segs.indexOf(seg), true); // "Show": highlight it, and in 3D fly there
 function setView(v) { if (st.view === v) return; st.view = v; render(); v === '3d' ? mount3DView() : unmount3D(); }
@@ -259,7 +259,7 @@ const bar = initVoice({
   async ask(text, { on }) {
     if (!st.area) return { text: '', error: 'Pick a place first: say Los Angeles or Houston, or type a latitude and longitude.', open: null };
     const lim = spokenLimit(text); // "uphill 10": a slider, no Claude needed
-    if (lim) { custom(lim); const t = `Set to ${st.up}% up and ${st.down}% down. ${share(limits())}% of the streets here work both ways.`; on('step', lim.up != null ? `Uphill ${lim.up}%` : `Downhill ${lim.down}%`); on('say', t); return { text: t, error: '', open: null }; }
+    if (lim) { custom(lim); const t = `Set to ${st.up}% up and ${st.down}% down. ${share(limits())}% of the streets here work both ways.`; on('step', lim.up != null ? `Uphill ${lim.up}%` : `Downhill ${lim.down}%`); const line = await bar.custom(text, t, t); on('say', line); return { text: line, error: '', open: null }; } // Claude says it, in context (user, Nov 14)
     return askClaude(text, on);
   },
 });
