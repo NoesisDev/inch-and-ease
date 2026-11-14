@@ -48,7 +48,7 @@
   #chat { display:flex; flex-direction:column; gap:10px; margin-bottom:10px; }
   #chat .u { align-self:flex-end; background:var(--ink); color:var(--bg); padding:9px 12px; max-width:90%; }
   #chat .a { background:var(--soft); padding:9px 12px; max-width:95%; } #chat .t { color:var(--muted); font-size:12px; }
-  #ask { display:flex; gap:6px; } #ask input { flex:1; padding:11px 12px; border:0; background:var(--soft); }
+  #ask { display:flex; gap:6px; position:sticky; bottom:0; background:var(--panel); padding:8px 0 4px; } #ask input { flex:1; padding:11px 12px; border:0; background:var(--soft); }
   .hint { color:var(--muted); font-size:13px; margin:6px 0 12px; } .hint button { padding:5px 9px; font-size:12px; margin:4px 4px 0 0; }
 
   /* ---- Over the 3D view ---- */
@@ -72,6 +72,17 @@
   .step .primary, button.start { background:var(--accent); color:var(--accentInk); width:100%; margin:4px 0; }
   .typed { display:flex; align-items:center; gap:6px; margin-top:8px; font-size:13px; color:var(--muted); } .typed input { width:80px; padding:8px; border:0; background:var(--soft); }
   #m-next { width:100%; margin-top:10px; text-align:left; }
+  #p-plan .budget { display:flex; align-items:center; gap:6px; font-weight:600; margin:4px 0 12px; } #p-plan .budget input { width:110px; padding:9px 10px; border:0; background:var(--soft); }
+  #plan .tot { display:flex; gap:16px; margin-bottom:8px; } #plan .tot div { font-size:12px; color:var(--muted); } #plan .tot b { display:block; font-size:24px; font-weight:800; color:var(--ink); letter-spacing:-.02em; }
+  #plan h5 { margin:16px 0 4px; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); }
+  #plan .pr { display:flex; gap:10px; justify-content:space-between; padding:8px 0; } #plan .pr b { font-size:13px; display:block; } #plan .pr small { display:block; color:var(--muted); font-size:12px; }
+  #plan .pr > span { font-weight:800; white-space:nowrap; } #plan .st { font-size:12px; text-transform:uppercase; } #plan .st.s-fail { color:var(--fail); } #plan .st.s-verify { color:var(--verify); }
+  #print { width:100%; margin-top:12px; } .printhead { display:none; }
+  @media print {
+    body { display:block; height:auto; overflow:visible; background:#fff; color:#111; } main, #home, #card, .tabs, #p-issues, #p-ask, aside footer, #print, #pick, .homelink, #score .money br { display:none !important; }
+    aside { width:auto; } aside .body { overflow:visible; padding:0 24px; } #p-plan { display:block !important; } .printhead { display:flex; justify-content:space-between; font-size:16px; margin:8px 0 12px; }
+    #p-plan .budget input { background:none; } #plan .pr { break-inside:avoid; }
+  }
   #legend { left:20px; top:20px; padding:8px 12px; display:flex; gap:14px; font-size:12px; font-weight:600; }
   #legend span { display:flex; align-items:center; gap:6px; } #legend i { width:12px; height:12px; display:inline-block; } #legend i.ring { box-shadow:inset 0 0 0 3px var(--ink); background:var(--fail); }
   .issue.hl { background:var(--soft); box-shadow:inset 3px 0 0 var(--ink); }
@@ -205,10 +216,16 @@
     <div class="sub">Can a wheelchair user live here? Red = a measured problem.</div>
     <select id="pick" aria-label="Apartment"></select>
     <div class="score" id="score">Loading…</div>
-    <div class="tabs" role="tablist"><button role="tab" id="t-issues" aria-selected="true">Issues</button><button role="tab" id="t-ask" aria-selected="false">Ask Claude</button></div>
+    <div class="tabs" role="tablist"><button role="tab" id="t-issues" aria-selected="true">Issues</button><button role="tab" id="t-plan" aria-selected="false">Plan</button><button role="tab" id="t-ask" aria-selected="false">Ask Claude</button></div>
   </header>
   <div class="body">
     <section id="p-issues"><div id="issues"></div></section>
+    <section id="p-plan" hidden>
+      <div class="printhead"><b id="r-name"></b><span id="r-date"></span></div>
+      <label class="budget">Budget <span>$</span><input id="budget" type="number" min="0" step="10" placeholder="none" aria-label="Budget in dollars"></label>
+      <div id="plan"></div>
+      <button type="button" id="print">Print or save as PDF</button>
+    </section>
     <section id="p-ask" hidden>
       <div class="hint">Try: <button data-q="Can my dad get into the bathroom? He uses a manual wheelchair.">Bathroom?</button><button data-q="What's the worst problem in this apartment?">Worst problem?</button><button data-q="Show me the whole apartment.">Overview</button></div>
       <div id="chat"></div>
@@ -407,8 +424,8 @@ async function draw(items) {
   } catch (e) { status(`3D shapes failed at ${step}: ` + (e.message || e)); console.log('[tour] stack ' + e.stack); }
   for (const i of items) {
     try {
-      const h = i.kind === 'door' ? i.h + 0.15 : 0.6;
-      const [tag] = [].concat(await sdk.Tag.add({ label: i.title, description: i.detail, anchorPosition: W(i.at, h), stemVector: { x: 0, y: 0.25, z: 0 }, color: RGB(HEX[i.s]) }));
+      const door = i.kind === 'door' || i.kind === 'step', h = door ? (i.kind === 'door' ? i.h : 2.03) + 0.15 : 0.05; // room pins: a 1.75 m stem from the floor clears the walls in the dollhouse
+      const [tag] = [].concat(await sdk.Tag.add({ label: i.title, description: i.detail, anchorPosition: W(i.at, h), stemVector: { x: 0, y: door ? 0.25 : 1.75, z: 0 }, color: RGB(HEX[i.s]) }));
       await settle(() => sdk.Tag.allowAction(tag, {})); // Matterport's own popup never opens; our card does
       (shown[i.id] ||= {}).tag = tag; tagItem[tag] = i.id; tags++;
       await setPinLook(i.id, issueList.indexOf(i) + 1, i.s, i.critical);
@@ -554,7 +571,7 @@ function bindFix(i) {
 // ---- Issue card: what's wrong, a photo from the tour, and a to-scale drawing of why it won't work ----
 const inch = m => m / IN;
 let cardFor = null;
-function closeCard() { closeCard(); document.body.classList.remove('card-open'); cardFor = null; }
+function closeCard() { $('card').classList.remove('open'); document.body.classList.remove('card-open'); cardFor = null; }
 addEventListener('keydown', e => { if (e.key === 'Escape' && $('card').classList.contains('open')) closeCard(); });
 function showCard(i) {
   cardFor = i;
@@ -647,7 +664,21 @@ function moneyLine() {
   m.innerHTML = `<b id="plan-total">$${plan.purchases.toFixed(2)}</b> fixes what a purchase can fix` + (n ? ` · ${n} no purchase fixes` : '') +
     (c.high ? `<br>Contractor work you chose: $${c.low.toLocaleString()}–${c.high.toLocaleString()}` : '') + (budget != null ? `<br>Budget $${budget} · $${plan.left.toFixed(2)} left` : '');
 }
-function replan() { plan = planAll(checks, products, { choices, budget }); moneyLine(); window.__ie && (window.__ie.total = plan.purchases); recolourAll(); }
+function replan() { plan = planAll(checks, products, { choices, budget }); moneyLine(); window.__ie && (window.__ie.total = plan.purchases); recolourAll(); if (!$('p-plan').hidden) renderPlan(); }
+// Plan and report: chosen fixes with prices, contractor work apart, what stays unsolved and why, every number with its source.
+function renderPlan() {
+  $('r-name').textContent = model?.name || ''; $('r-date').textContent = new Date().toLocaleDateString('en-US', { dateStyle: 'medium' });
+  $('budget').value = budget ?? '';
+  const src = i => `${esc(i.measured)} · ${esc(i.source || 'not measured')} · ${esc(CHECK[i.n].anchor)}`;
+  const chosen = plan.rows.filter(r => r.chosen), open = plan.rows.filter(r => r.after !== 'fixed');
+  const why = r => r.chosen?.verdict === 'helps' ? `${esc(r.chosen.label)} helps, not enough` : r.byYou && !r.chosen ? 'you chose not to fix it now'
+    : r.overBudget ? `over budget (cheapest fix ${money(r.default)})` : (() => { const pro = r.options.find(o => o.kind === 'contractor' && o.verdict === 'closes'); return `no purchase fixes it${pro ? `; ${esc(pro.label)}: ${money(pro)}${pro.source ? ` (${esc(pro.source)})` : ''}` : ''}`; })();
+  const sum = summary(checks);
+  $('plan').innerHTML = `<div class="tot"><div><b>$${plan.purchases.toFixed(2)}</b>purchases</div><div><b>${plan.closed}</b>of ${plan.rows.length} problems closed</div>${plan.contractor.high ? `<div><b>$${plan.contractor.low.toLocaleString()}–${plan.contractor.high.toLocaleString()}</b>contractor</div>` : ''}</div>
+    <h5>Chosen fixes</h5>${chosen.length ? chosen.map(r => `<div class="pr"><div><b>${esc(r.item.title)}</b><small>${esc(r.chosen.label)} · ${VERDICT[r.chosen.verdict]}${r.chosen.product ? ` · ${esc(r.chosen.product.store.split(' (')[0])}` : ''}</small><small>${src(r.item)}</small></div><span>${money(r.chosen)}</span></div>`).join('') : '<p class="sub">None yet.</p>'}
+    <h5>Still open, and why</h5>${open.length ? open.map(r => `<div class="pr"><div><b>${esc(r.item.title)}</b><small>${why(r)}</small><small>${src(r.item)}</small></div><span class="st s-${r.item.s}">${r.item.critical ? 'critical' : r.item.s === 'verify' ? 'tape' : 'fails'}</span></div>`).join('') : '<p class="sub">Nothing open.</p>'}
+    <p class="sub">${sum.none} checks not measured yet · ${sum.pass} of ${sum.measured} measured checks pass. Measured from the Matterport scan or by you; confirm with a tape before you sign. Prices from the stores listed, collected Nov 2026.</p>`;
+}
 function renderList() {
   checks = described(ev.items); issueList = checks.filter(i => isProblem(i));
   const sum = summary(checks), byGroup = {};
@@ -691,7 +722,7 @@ async function load(sid) {
   status(`Tour ready · red 3D shapes: ${d.scene ? 'yes' : 'no'} · tags: ${d.tags}/${issueList.length}`);
   $('skel')?.remove();
   // Test hooks for the smoke run: measure() feeds two world points through the same handler as Matterport's ruler.
-  window.__ie = { ready: true, pins: d.tags, shapes: d.scene, measure: (id, a, b) => onMeasured(id, a, b),
+  window.__ie = { ready: true, pins: d.tags, shapes: d.scene, measure: (id, a, b) => onMeasured(id, a, b), plan: () => ({ purchases: plan.purchases, budget, closed: plan.closed }),
     shot5: () => showCard(checks.find(c => c.s === 'none' && CHECK[c.n].how === 'ask' && /bath/i.test(CHECK[c.n].room))) };
   // Open on the whole apartment in 3D (Matterport's dollhouse), red areas included; issues fly inside.
   await overview();
@@ -703,8 +734,8 @@ async function overview() {
   const xs = pts.map(p => p.x), ys = pts.map(p => p.y);
   const cx = (Math.min(...xs) + Math.max(...xs)) / 2, cy = (Math.min(...ys) + Math.max(...ys)) / 2;
   const size = Math.max(Math.max(...xs) - Math.min(...xs), Math.max(...ys) - Math.min(...ys));
-  const pos = { x: cx, y: size * 0.95, z: -cy + size * 0.8 };
-  await sdk.Mode.moveTo(sdk.Mode.Mode.DOLLHOUSE, { position: pos, rotation: { x: -50, y: 0 }, transition: sdk.Mode.TransitionType.FLY })
+  const pos = { x: cx, y: size * 1.1, z: -cy + size * 0.64 }; // ~60° down: pins inside small rooms clear the walls
+  await sdk.Mode.moveTo(sdk.Mode.Mode.DOLLHOUSE, { position: pos, rotation: { x: -60, y: 0 }, transition: sdk.Mode.TransitionType.FLY })
     .catch(() => sdk.Mode.moveTo(sdk.Mode.Mode.DOLLHOUSE)).catch(e => status('dollhouse: ' + (e.message || e)));
 }
 
@@ -713,9 +744,23 @@ const apartmentFacts = () => {
   const keep = ['id', 'n', 'kind', 's', 'title', 'detail', 'between', 'room', 'measured', 'need', 'critical'];
   const fixOf = c => { const r = plan?.rows.find(r => r.item.id === c.id); return r ? { chosen: r.chosen && `${r.chosen.label} (${money(r.chosen)}, ${VERDICT[r.chosen.verdict]})`, options: r.options.map(o => `${o.key}: ${o.label}, ${money(o)}, ${VERDICT[o.verdict]}`) } : undefined; };
   return { name: model.name, purchase_total_usd: plan?.purchases, not_fixable_by_buying: plan?.noPurchaseFix.length, budget_usd: budget,
+    critical_first_ids: issueList.filter(i => i.critical).map(i => i.id),
     checks: checks.map(c => ({ ...Object.fromEntries(keep.filter(k => c[k] !== undefined).map(k => [k === 's' ? 'status' : k, c[k]])), fix: fixOf(c) })) };
 };
 const TOOLS = {
+  async select_fix({ id, option }) {
+    const r = plan.rows.find(r => r.item.id === id);
+    if (!r) return { error: `No problem with id ${id}` };
+    if (option !== 'none' && !r.options.some(o => o.key === option)) return { error: `No option ${option} for ${id}` };
+    choices[id] = option; replan();
+    const it = checks.find(c => c.id === id); if (it) showCard(it);
+    const row = plan.rows.find(x => x.item.id === id);
+    return `Chose ${row.chosen ? `${row.chosen.label} (${money(row.chosen)}, ${VERDICT[row.chosen.verdict]})` : 'no fix'} for ${it.title}. Purchases now $${plan.purchases.toFixed(2)}.`;
+  },
+  async set_budget({ usd }) {
+    budget = usd == null ? null : Math.max(0, Number(usd)); replan(); // the chat stays open; the money line shows the budget
+    return `Budget ${budget == null ? 'cleared' : '$' + budget}. Purchases $${plan.purchases.toFixed(2)}, ${plan.closed} of ${plan.rows.length} problems closed; still open: ${plan.unsolved.map(i => i.title).join('; ') || 'none'}.`;
+  },
   async show_issue({ id }) {
     const c = checks.find(c => c.id === id);
     if (!c) return { error: `No check with id ${id}` };
@@ -743,7 +788,7 @@ async function ask(text) {
       if (r.stop_reason !== 'tool_use') break;
       const results = [];
       for (const b of r.content.filter(b => b.type === 'tool_use')) {
-        thinking.textContent = b.name === 'show_issue' ? 'Flying there…' : 'Switching view…';
+        thinking.textContent = { show_issue: 'Flying there…', set_view: 'Switching view…', select_fix: 'Choosing the fix…', set_budget: 'Planning to the budget…' }[b.name] || 'Working…';
         let out; try { out = await TOOLS[b.name](b.input); } catch (e) { out = { error: String(e.message || e) }; }
         results.push({ type: 'tool_result', tool_use_id: b.id, content: typeof out === 'string' ? out : JSON.stringify(out), ...(out?.error ? { is_error: true } : {}) });
       }
@@ -859,9 +904,11 @@ $('w-play').onclick = () => {
 };
 
 // ---- Tabs, looks ----
-for (const [t, p] of [['t-issues', 'p-issues'], ['t-ask', 'p-ask']]) $(t).onclick = () => {
+for (const [t, p] of [['t-issues', 'p-issues'], ['t-plan', 'p-plan'], ['t-ask', 'p-ask']]) $(t).onclick = () => showTab(t, p);
+function showTab(t, p) {
   document.querySelectorAll('.tabs button').forEach(b => b.setAttribute('aria-selected', b.id === t));
-  $('p-issues').hidden = p !== 'p-issues'; $('p-ask').hidden = p !== 'p-ask';
+  for (const x of ['p-issues', 'p-plan', 'p-ask']) $(x).hidden = p !== x;
+  if (p === 'p-plan') renderPlan();
 };
 document.querySelectorAll('.hint [data-q]').forEach(b => b.onclick = () => ask(b.dataset.q));
 function setTheme(t) {
@@ -871,6 +918,8 @@ function setTheme(t) {
   try { localStorage.setItem('ie-theme', t); } catch {}
 }
 document.querySelectorAll('.looks button').forEach(b => b.onclick = () => setTheme(b.dataset.look));
+$('budget').onchange = () => { const v = $('budget').value.trim(); budget = v === '' ? null : Math.max(0, +v); replan(); };
+$('print').onclick = () => { showTab('t-plan', 'p-plan'); print(); };
 let savedTheme = null; try { savedTheme = localStorage.getItem('ie-theme'); } catch {}
 setTheme(new URLSearchParams(location.search).get('look') || savedTheme || 'standard');
 
