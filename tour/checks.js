@@ -334,9 +334,11 @@ export function describe(i) {
   const c = CHECK[i.n];
   const need = { door: '2\' 10" opening', step: 'level (¾")', turn: "5' 0\" across", hall: '3\' 2" wide', tubRim: '19" or lower', toiletWall: '16–18"', toiletSeat: '17–19"', curb: '½" or lower', sink: '34" or lower', switchH: '15–48"' }[c.limit];
   const needed = need ?? (c.how === 'ask' ? c.answers.find(a => a[2] === 'pass')[1] : 'see the rule');
-  if (i.s === 'none') return { title: c.title + (i.room && c.room !== 'any' ? ` · ${i.room}` : ''), detail: c.how === 'ask' ? 'answer one question' : c.how === 'measure' ? 'measure it in the tour (two clicks)' : 'no data in this scan', measured: '—', need: needed };
-  if (i.n === 8) return { title: `Door ${ftin(i.value)} · ${i.between}`, detail: i.s === 'skip' ? 'closet door, not scored' : `opening ${ftin(i.value)}, needs ${need}`, measured: ftin(i.value), need };
-  if (i.n === 9) return { title: i.s === 'pass' ? `Level threshold · ${i.between}` : `Step ${ftin(i.value)} · ${i.between}`, detail: `step ${ftin(i.value)}, needs ${need}`, measured: ftin(i.value), need };
+  const rooms = (i.between || '').replaceAll(' ↔ ', ' to '); // "Kitchen to Balcony" on the secondary line
+  if (i.s === 'none') { const todo = c.how === 'ask' ? 'answer one question' : c.how === 'measure' ? 'measure it in the tour (two clicks)' : 'no data in this scan';
+    return { title: c.title, detail: i.room && c.room !== 'any' ? `${i.room}, ${todo}` : todo, measured: '—', need: needed }; }
+  if (i.n === 8) return { title: `Door ${ftin(i.value)}`, detail: i.s === 'skip' ? `${rooms}, closet door, not scored` : rooms, measured: ftin(i.value), need };
+  if (i.n === 9) return { title: i.s === 'pass' ? 'Level threshold' : `Step ${ftin(i.value)}`, detail: rooms, measured: ftin(i.value), need };
   if (i.n === 10) return { title: `${i.room}: ${i.s === 'pass' ? "5' turning circle fits" : i.s === 'verify' ? "5' turn is tight" : "5' turning circle doesn't fit"}`, detail: i.value == null ? 'room size missing' : `room is ${ftin(i.value)} across (box)`, measured: ftin(i.value), need };
   if (i.n === 11) return { title: `${i.room} ${ftin(i.value)} wide`, detail: `needs ${need}`, measured: ftin(i.value), need };
   if (i.n === 21) return { title: c.title, detail: i.floors === 1 ? 'one floor, no stairs inside' : i.value ? 'all on the entry floor' : 'an essential room is upstairs', measured: `${i.floors} floor${i.floors > 1 ? 's' : ''}`, need: 'all on one floor' };

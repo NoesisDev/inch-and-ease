@@ -3,88 +3,117 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Inch & Ease · Compare a neighbourhood</title>
+<title>Inch &amp; Ease: compare a neighbourhood</title>
 <link rel="icon" href="data:,">
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-  /* Same tokens as the tour's Night look: colour carries meaning only (red fail, amber one problem left, green nothing critical left). */
-  :root { --bg:#0e0e0f; --panel:#151517; --soft:#232326; --ink:#f3f2ee; --muted:#b4b3ad; --fail:#ff6a5f; --verify:#f2b531; --pass:#43c97c;
-          --font:'Work Sans', -apple-system, system-ui, sans-serif; }
+  /* Dark Liquid Glass over the aerial photo. Colour carries meaning only: red more than one critical left / street over 8%, orange one left / 5–8%, green nothing left / up to 5%. */
+  :root { --bg:#0b0b0c; --glass:rgba(28,28,30,.55); --fill:rgba(255,255,255,.08); --fill2:rgba(255,255,255,.14); --line:rgba(255,255,255,.14);
+          --ink:#F5F5F7; --muted:#A1A1A6; --on:#1C1C1E; --grey:#8E8E93; --fail:#FF453A; --verify:#FF9F0A; --pass:#30D158;
+          --font:-apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", system-ui, sans-serif;
+          --shadow:0 12px 40px rgba(0,0,0,.35), 0 1px 0 rgba(255,255,255,.06) inset; --t:200ms cubic-bezier(.2,.8,.2,1); }
   * { box-sizing:border-box; }
-  html, body { margin:0; height:100%; overflow:hidden; background:var(--bg); color:var(--ink); font:15px/1.45 var(--font); -webkit-font-smoothing:antialiased; }
-  button, input { font:inherit; color:inherit; border:0; border-radius:0; }
-  button { cursor:pointer; background:var(--soft); padding:10px 14px; font-weight:600; }
-  button:focus-visible, input:focus-visible, a:focus-visible { outline:3px solid var(--verify); outline-offset:2px; }
+  html, body { margin:0; height:100%; overflow:hidden; background:var(--bg); color:var(--ink); font:15px/1.4 var(--font); letter-spacing:-.01em; -webkit-font-smoothing:antialiased; }
+  button, input { font:inherit; color:inherit; border:0; letter-spacing:inherit; }
+  button { cursor:pointer; background:var(--fill); padding:10px 16px; font-weight:600; border-radius:999px; transition:background var(--t), transform var(--t), opacity var(--t); }
+  button:hover { background:var(--fill2); } button:active { transform:scale(.97); }
+  button:focus-visible, input:focus-visible, a:focus-visible { outline:2px solid var(--ink); outline-offset:2px; }
   canvas#c { position:fixed; inset:0; width:100%; height:100%; display:block; }
-  .float { position:fixed; z-index:5; background:rgba(21,21,23,.92); box-shadow:0 10px 30px rgba(0,0,0,.5); }
+  .glass { background:var(--glass); -webkit-backdrop-filter:blur(28px) saturate(180%); backdrop-filter:blur(28px) saturate(180%); border:1px solid var(--line); box-shadow:var(--shadow); border-radius:22px; }
+  .float { position:fixed; z-index:5; }
+  .k { width:28px; height:28px; flex:none; display:grid; place-items:center; border-radius:9px; font-weight:700; font-size:15px; color:var(--on); background:var(--ink); }
+  .k.pass { background:var(--pass); } .k.verify { background:var(--verify); } .k.fail { background:var(--fail); }
 
-  #top { left:24px; top:24px; padding:14px 18px; max-width:520px; }
-  #top h1 { margin:0; font-size:20px; font-weight:800; letter-spacing:-.02em; } #top h1 span { color:var(--fail); }
-  #top p { margin:4px 0 0; color:var(--muted); font-size:13px; }
-  #units { left:24px; top:150px; margin:0; padding:8px; list-style:none; width:300px; }
-  #units button { width:100%; display:grid; grid-template-columns:28px 1fr auto; gap:10px; align-items:center; text-align:left; background:none; padding:8px; }
-  #units button[aria-current=true] { background:var(--soft); }
-  #units .k { width:28px; height:28px; display:grid; place-items:center; font-weight:800; color:#111; }
-  #units small { display:block; color:var(--muted); font-weight:400; font-size:12px; } #units .rk { font-weight:800; font-size:13px; color:var(--muted); }
+  #side { position:fixed; z-index:5; left:24px; top:24px; width:320px; display:flex; flex-direction:column; gap:12px; max-height:calc(100% - 140px); }
+  #top { padding:16px; }
+  #top .brand { margin:0; font-size:12px; font-weight:600; color:var(--muted); }
+  #top h1 { margin:2px 0 0; font-size:22px; font-weight:700; letter-spacing:-.02em; line-height:1.2; }
+  #top p { margin:8px 0 0; color:var(--muted); font-size:13px; }
+  #legend { display:flex; gap:12px; font-size:12px; font-weight:500; margin-top:12px; color:var(--muted); }
+  #legend span { white-space:nowrap; display:flex; gap:6px; align-items:center; } #legend i { width:12px; height:4px; border-radius:2px; display:inline-block; }
+  #units { margin:0; padding:8px; list-style:none; overflow:auto; }
+  #units button { width:100%; display:flex; gap:12px; align-items:center; text-align:left; background:none; padding:8px; border-radius:14px; font-weight:600; }
+  #units button:hover { background:var(--fill); } #units button[aria-current=true] { background:var(--fill2); }
+  #units .a { flex:1; min-width:0; } #units small { display:block; color:var(--muted); font-weight:400; font-size:12px; margin-top:1px; }
+  #units .rk { font-weight:600; font-size:13px; color:var(--muted); }
 
-  #card { right:24px; top:24px; width:380px; padding:20px 22px; display:none; }
-  #card.on { display:block; }
-  #card .tag { display:inline-block; font:700 12px/1 var(--font); letter-spacing:.08em; text-transform:uppercase; padding:6px 9px; color:#111; }
-  #card h2 { margin:10px 0 2px; font-size:22px; font-weight:800; letter-spacing:-.02em; line-height:1.15; } #card .sub { color:var(--muted); font-size:13px; }
-  #card .two { display:grid; grid-template-columns:1fr 1fr; gap:6px; margin:14px 0 10px; }
-  #card .two div { background:var(--soft); padding:10px 12px; font-size:12px; color:var(--muted); } #card .two b { display:block; font-size:28px; font-weight:800; letter-spacing:-.03em; color:var(--ink); line-height:1.1; }
-  #card .two .bad b { color:var(--fail); } #card .two .ok b { color:var(--pass); } #card .two .mid b { color:var(--verify); }
-  #card ul { margin:6px 0 0; padding:0 0 0 16px; font-size:13px; } #card li { margin:4px 0; } #card .src { margin-top:10px; font-size:12px; color:var(--muted); }
+  #card { right:24px; top:24px; width:360px; padding:20px; opacity:0; visibility:hidden; transform:translateY(-6px); transition:opacity var(--t), transform var(--t), visibility var(--t); }
+  #card.on { opacity:1; visibility:visible; transform:none; }
+  #card .head { display:flex; align-items:center; gap:8px; }
+  #card .tag { font-size:12px; font-weight:600; padding:5px 10px; border-radius:999px; color:var(--on); }
+  #card .tag.pass { background:var(--pass); } #card .tag.verify { background:var(--verify); } #card .tag.fail { background:var(--fail); }
+  #card h2 { margin:12px 0 2px; font-size:22px; font-weight:700; letter-spacing:-.02em; line-height:1.2; } #card .sub { color:var(--muted); font-size:13px; }
+  #card .stats { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin:16px 0; }
+  #card .stats div { background:var(--fill); border-radius:16px; padding:12px; font-size:12px; color:var(--muted); }
+  #card .stats b { display:block; font-size:26px; font-weight:700; letter-spacing:-.03em; color:var(--ink); line-height:1.15; margin-bottom:2px; }
+  #card .stats b small { font-size:17px; font-weight:600; color:var(--muted); }
+  #card .stats .fail b { color:var(--fail); } #card .stats .pass b { color:var(--pass); } #card .stats .verify b { color:var(--verify); }
+  #card ul { margin:0; padding:0; list-style:none; font-size:13px; } #card li { display:flex; gap:10px; margin:8px 0; }
+  #card li i { flex:none; width:8px; height:8px; border-radius:50%; margin-top:5px; background:var(--grey); }
+  #card li i.fail { background:var(--fail); } #card li i.verify { background:var(--verify); } #card li i.pass { background:var(--pass); }
+  #card .src { margin-top:12px; font-size:11px; color:var(--muted); }
 
-  #caption { left:50%; bottom:110px; transform:translateX(-50%); width:min(880px, calc(100% - 48px)); padding:16px 22px; font-size:22px; line-height:1.4; font-weight:500; text-align:center; display:none; }
-  #caption.on { display:block; } #caption .you { color:var(--muted); }
-  #controls { left:50%; bottom:24px; transform:translateX(-50%); padding:8px; display:flex; gap:6px; align-items:center; width:min(880px, calc(100% - 48px)); }
-  #mic { background:var(--fail); color:#fff; display:flex; gap:8px; align-items:center; white-space:nowrap; } #mic[aria-pressed=true] { background:#fff; color:#111; }
-  #mic svg { width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:2; }
-  #ask { flex:1; display:flex; } #ask input { flex:1; min-width:0; padding:10px 12px; background:var(--soft); }
-  #demo { white-space:nowrap; flex:none; } #mic { flex:none; }
-  #legend { display:flex; gap:12px; font-size:12px; font-weight:600; margin-top:8px; color:var(--muted); }
-  #legend span { display:flex; gap:6px; align-items:center; } #legend i { width:14px; height:4px; display:inline-block; }
-  #credits { position:fixed; left:24px; bottom:4px; z-index:5; font-size:12px; color:var(--muted); text-shadow:0 1px 2px #000; }
+  #caption { left:50%; bottom:100px; transform:translate(-50%, 6px); width:max-content; max-width:min(880px, calc(100% - 48px)); padding:16px 24px; font-size:22px; line-height:1.35; font-weight:500; text-align:center;
+             opacity:0; visibility:hidden; transition:opacity var(--t), transform var(--t), visibility var(--t); }
+  #caption.on { opacity:1; visibility:visible; transform:translate(-50%, 0); } #caption .you { color:var(--muted); }
+  #controls { left:50%; bottom:24px; transform:translateX(-50%); padding:6px; display:flex; gap:6px; align-items:center; width:min(720px, calc(100% - 48px)); border-radius:999px; }
+  #mic { background:var(--ink); color:var(--on); display:flex; gap:8px; align-items:center; white-space:nowrap; flex:none; }
+  #mic:hover { background:#fff; } #mic[aria-pressed=true] { background:var(--fail); color:var(--on); }
+  #mic svg { width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; }
+  #ask { flex:1; display:flex; min-width:0; } #ask input { flex:1; min-width:0; padding:10px 16px; background:var(--fill); border-radius:999px; }
+  #ask input::placeholder { color:var(--muted); }
+  #demo { white-space:nowrap; flex:none; }
+  #credits { position:fixed; left:24px; bottom:24px; z-index:5; font-size:11px; line-height:1.35; color:var(--muted); max-width:min(320px, calc(50% - 400px)); padding:8px 12px; border-radius:12px; }
+  #credits:empty { display:none; }
 
   #tour { position:fixed; inset:0; width:100%; height:100%; border:0; z-index:20; opacity:0; pointer-events:none; transition:opacity .6s; background:var(--bg); }
   #tour.on { opacity:1; pointer-events:auto; }
-  #back { position:fixed; left:50%; top:16px; transform:translateX(-50%); z-index:30; display:none; background:#fff; color:#111; }
-  #back.on { display:block; }
+  #back { position:fixed; left:50%; top:16px; transform:translateX(-50%); z-index:30; display:none; align-items:center; gap:6px; padding:10px 18px 10px 14px; border-radius:999px; }
+  #back.on { display:flex; } #back svg { width:16px; height:16px; fill:none; stroke:currentColor; stroke-width:2.2; stroke-linecap:round; stroke-linejoin:round; }
   #fade { position:fixed; inset:0; z-index:15; background:var(--bg); opacity:0; pointer-events:none; transition:opacity .5s; } #fade.on { opacity:1; }
 
   #start[hidden] { display:none; }
-  #start { position:fixed; inset:0; z-index:40; display:grid; place-items:center; background:rgba(14,14,15,.82); }
-  #start > div { width:min(560px, calc(100% - 48px)); background:var(--panel); padding:32px; }
-  #start h2 { margin:0 0 8px; font-size:30px; font-weight:800; letter-spacing:-.03em; } #start p { color:var(--muted); margin:0 0 16px; }
-  #start ol { margin:0 0 20px; padding-left:20px; } #start li { margin:6px 0; } #start kbd { font:600 13px var(--font); background:var(--soft); padding:1px 6px; }
-  #go { background:var(--fail); color:#fff; font-size:17px; padding:14px 22px; } #status { color:var(--muted); font-size:13px; margin-top:10px; min-height:20px; }
+  #start { position:fixed; inset:0; z-index:40; display:grid; place-items:center; background:rgba(0,0,0,.35); -webkit-backdrop-filter:blur(16px); backdrop-filter:blur(16px); }
+  #start > div { width:min(480px, calc(100% - 32px)); padding:32px; border-radius:28px; text-align:center; }
+  #start h2 { margin:0 0 8px; font-size:28px; font-weight:700; letter-spacing:-.025em; line-height:1.15; } #start p { color:var(--muted); margin:0 0 24px; }
+  #start dl { display:grid; grid-template-columns:auto 1fr; gap:8px 12px; margin:0 auto 24px; text-align:left; font-size:13px; color:var(--muted); width:max-content; }
+  #start dt { text-align:right; } #start dd { margin:0; align-self:center; }
+  #start kbd { font:600 12px var(--font); background:var(--fill2); color:var(--ink); padding:3px 8px; border-radius:6px; }
+  #go { background:var(--ink); color:var(--on); font-size:17px; padding:14px 48px; } #go:hover { background:#fff; } #go:disabled { opacity:.6; cursor:default; }
+  #status { color:var(--muted); font-size:13px; margin-top:12px; } #status:empty { display:none; }
   @media (prefers-reduced-motion: reduce) { * { transition:none !important; } }
+  @media (prefers-reduced-transparency: reduce) { .glass, #start > div { background:#1C1C1E; -webkit-backdrop-filter:none; backdrop-filter:none; } #start { background:rgba(0,0,0,.8); -webkit-backdrop-filter:none; backdrop-filter:none; } }
 </style>
 </head>
 <body>
 <canvas id="c" aria-label="3D aerial view of the neighbourhood with the apartments marked" role="img"></canvas>
-<header id="top" class="float"><h1>Inch <span>&amp;</span> Ease · <span id="area-name" style="color:inherit"></span></h1><p id="rule"></p><div id="legend-slot"></div></header>
-<ol id="units" class="float" aria-label="Apartments in this area"></ol>
-<aside id="card" class="float" aria-live="polite"></aside>
-<div id="caption" class="float" role="status" aria-live="polite"></div>
-<div id="controls" class="float">
+<div id="side">
+  <header id="top" class="glass"><p class="brand">Inch &amp; Ease</p><h1 id="area-name"></h1><p id="rule"></p><div id="legend-slot"></div></header>
+  <ol id="units" class="glass" aria-label="Apartments in this area"></ol>
+</div>
+<aside id="card" class="float glass" aria-live="polite"></aside>
+<div id="caption" class="float glass" role="status" aria-live="polite"></div>
+<div id="controls" class="float glass">
   <button id="mic" type="button" aria-pressed="false" aria-label="Hold to ask by voice (or hold Space)"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>Hold to ask</button>
-  <form id="ask"><input id="q" autocomplete="off" placeholder="…or type a question" aria-label="Question"></form>
+  <form id="ask"><input id="q" autocomplete="off" placeholder="Ask a question" aria-label="Question"></form>
   <button id="demo" type="button" title="Ask the sample question (D)">Sample question</button>
 </div>
-<div id="legend" aria-label="Street colours"><span><i style="background:var(--pass)"></i>Street ≤ 5%</span><span><i style="background:var(--verify)"></i>5–8%</span><span><i style="background:var(--fail)"></i>Over 8% or steps</span></div>
-<div id="credits"></div>
+<div id="legend" aria-label="Street slope"><span><i style="background:var(--pass)"></i>Up to 5%</span><span><i style="background:var(--verify)"></i>5 to 8%</span><span><i style="background:var(--fail)"></i>Over 8% or steps</span></div>
+<div id="credits" class="glass"></div>
 <div id="fade"></div>
 <iframe id="tour" title="3D tour of the chosen apartment"></iframe>
-<button id="back" type="button">← Back to the neighbourhood (B)</button>
-<div id="start"><div>
+<button id="back" class="glass" type="button" title="Back to the neighbourhood (B)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>Neighbourhood</button>
+<div id="start"><div class="glass">
   <h2>Which apartment is best for your father?</h2>
-  <p>A drone flight over five real apartments: what fails inside, how steep the streets are outside, and the one to pick.</p>
-  <p>Press <b>Start</b>, then ask by voice (hold the red button or <kbd>Space</kbd>), type a question, or press <b>Sample question</b>.</p>
-  <p><kbd>A</kbd>–<kbd>E</kbd> fly to an apartment · <kbd>Esc</kbd> stop · <kbd>B</kbd> back from a tour · <kbd>F</kbd> full screen</p>
-  <button id="go" type="button" disabled>Loading the neighbourhood…</button><div id="status" role="status"></div>
+  <p>A drone flight over five real apartments, inside and out.</p>
+  <dl>
+    <dt><kbd>Space</kbd></dt><dd>Hold to ask by voice</dd>
+    <dt><kbd>D</kbd></dt><dd>Sample question</dd>
+    <dt><kbd>A</kbd> to <kbd>E</kbd></dt><dd>Fly to an apartment</dd>
+    <dt><kbd>Esc</kbd></dt><dd>Stop</dd>
+    <dt><kbd>B</kbd></dt><dd>Back from a tour</dd>
+    <dt><kbd>F</kbd></dt><dd>Full screen</dd>
+  </dl>
+  <button id="go" type="button" disabled>Loading…</button><div id="status" role="status"></div>
 </div></div>
 
 <script type="module">
@@ -94,7 +123,8 @@ import { unitFacts, rank, tone, fallbackScript, RULE } from './region.js';
 const $ = id => document.getElementById(id);
 const esc = t => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const params = new URLSearchParams(location.search), still = matchMedia('(prefers-reduced-motion: reduce)').matches;
-const COL = { pass: 0x43c97c, verify: 0xf2b531, fail: 0xff6a5f };
+const COL = { pass: 0x30d158, verify: 0xff9f0a, fail: 0xff453a };
+const FONT = '-apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", system-ui, sans-serif';
 const EX = 1.6; // hills drawn 1.6× taller so the terrain reads from the air
 const SAMPLE_Q = "I'm looking for the best apartment for my father. He uses a wheelchair. Can you tell me about each one?";
 
@@ -106,7 +136,7 @@ const ranked = rank(facts), byId = Object.fromEntries(R.units.map(u => [u.id, u]
 const factOf = Object.fromEntries(facts.map(f => [f.id, f]));
 // Letters by position west → east, so the pins don't give the answer away.
 const letter = Object.fromEntries([...R.units].sort((a, b) => a.lon - b.lon).map((u, k) => [u.id, 'ABCDE'[k]]));
-$('legend-slot').replaceWith($('legend')); $('area-name').textContent = R.name; $('rule').textContent = `${R.units.length} apartments · ${RULE}`; $('credits').textContent = R.credits;
+$('legend-slot').replaceWith($('legend')); $('area-name').textContent = R.name; $('rule').textContent = 'Best first: fewest critical problems, flattest streets, lowest cost'; $('rule').title = RULE.replace(/ → /g, ', then '); $('credits').textContent = R.credits;
 
 // ---- Geometry: metres east (x) / up (y) / south (z) from the area's centre ----
 const A = R.area, lat0 = (A.s + A.n) / 2, lon0 = (A.w + A.e) / 2, M = 111320, ML = M * Math.cos(lat0 * Math.PI / 180);
@@ -142,11 +172,13 @@ scene.add(drape(A, G.w, G.h, await load('private/region/area.jpg'), 0));
 const ribbons = {}, pins = {}, seen = new Set();
 // A pin's label: the letter on a neutral square until the apartment has been checked on screen, then its verdict colour.
 function paintPin(id, on) {
-  const t = on ? tone(factOf[id]) : null, hex = t ? '#' + COL[t].toString(16).padStart(6, '0') : '#f3f2ee', u = byId[id];
+  const t = on ? tone(factOf[id]) : null, hex = t ? '#' + COL[t].toString(16).padStart(6, '0') : '#f5f5f7', u = byId[id];
   const cv = document.createElement('canvas'); cv.width = 512; cv.height = 128; const x = cv.getContext('2d');
-  x.fillStyle = '#151517'; x.fillRect(0, 0, 512, 128); x.fillStyle = hex; x.fillRect(0, 0, 128, 128);
-  x.fillStyle = '#111'; x.font = '800 84px "Work Sans", system-ui'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText(letter[id], 64, 70);
-  x.fillStyle = '#f3f2ee'; x.textAlign = 'left'; x.font = '700 40px "Work Sans", system-ui'; x.fillText(u.address, 150, 64, 350);
+  x.font = `600 40px ${FONT}`; const w = Math.min(504, 150 + Math.min(330, x.measureText(u.address).width) + 32);
+  x.beginPath(); x.roundRect(4, 12, w, 104, 52); x.fillStyle = 'rgba(28,28,30,.82)'; x.fill(); x.lineWidth = 2; x.strokeStyle = 'rgba(255,255,255,.22)'; x.stroke();
+  x.beginPath(); x.arc(64, 64, 40, 0, Math.PI * 2); x.fillStyle = hex; x.fill();
+  x.fillStyle = '#1c1c1e'; x.font = `700 52px ${FONT}`; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText(letter[id], 64, 66);
+  x.fillStyle = '#f5f5f7'; x.textAlign = 'left'; x.font = `600 40px ${FONT}`; x.fillText(u.address, 122, 66, 330);
   const tex = new THREE.CanvasTexture(cv); tex.colorSpace = THREE.SRGBColorSpace;
   const p = pins[id]; p.sp.material.map?.dispose(); p.sp.material.map = tex; p.sp.material.needsUpdate = true; p.pole.material.color.set(hex);
 }
@@ -164,16 +196,24 @@ for (const u of R.units) {
   scene.add(m); ribbons[u.id] = m;
   // Pin: a pole and a label that always faces the camera.
   const base = P(u.lat, u.lon);
-  const pole = new THREE.Mesh(new THREE.CylinderGeometry(2.5, 2.5, 140, 8), new THREE.MeshBasicMaterial({ color: 0xf3f2ee }));
-  pole.position.copy(base).add(new THREE.Vector3(0, 70, 0)); scene.add(pole);
+  const lh = 145 + ('ABCDE'.indexOf(letter[u.id]) % 2) * 330; // every second label stands much higher, so neighbours never share a level
+  const pole = new THREE.Mesh(new THREE.CylinderGeometry(2.5, 2.5, lh, 8), new THREE.MeshBasicMaterial({ color: 0xf5f5f7 }));
+  pole.position.copy(base).add(new THREE.Vector3(0, lh / 2, 0)); scene.add(pole);
   const sp = new THREE.Sprite(new THREE.SpriteMaterial({ depthTest: false, sizeAttenuation: false }));
-  sp.scale.set(0.2, 0.05, 1); sp.center.set(0.125, 0); sp.position.copy(base).add(new THREE.Vector3(0, 145, 0)); sp.renderOrder = 10; scene.add(sp);
+  sp.scale.set(0.17, 0.0425, 1); sp.center.set(0.125, 0); sp.position.copy(base).add(new THREE.Vector3(0, lh, 0)); sp.renderOrder = 10; scene.add(sp); // staggered so near pins' labels don't overlap
   pins[u.id] = { base, sp, pole }; paintPin(u.id, false);
 }
 
 // ---- Camera: a slow drone orbit, and eased flights between views ----
-let view = { pos: new THREE.Vector3(), target: new THREE.Vector3() }, flight = null, orbit = !still, angle = -0.6, active = null;
-const orbitView = a => ({ pos: new THREE.Vector3(Math.sin(a) * 2700, 1900, Math.cos(a) * 2700), target: new THREE.Vector3(0, 0, 0) });
+let view = { pos: new THREE.Vector3(), target: new THREE.Vector3() }, flight = null, orbit = !still, angle = 0.1, sway = 0, active = null;
+// The drone circles the apartments' centre (not the map's), so every pin stays in frame.
+// The drone circles the middle of the apartments' bounding box (not the map's), far enough out that all five labels stay in frame.
+const orbitView = a => {
+  const ps = Object.values(pins).map(p => p.base), xs = ps.map(p => p.x), zs = ps.map(p => p.z);
+  const c = new THREE.Vector3((Math.min(...xs) + Math.max(...xs)) / 2, 0, (Math.min(...zs) + Math.max(...zs)) / 2);
+  const right = new THREE.Vector3(Math.cos(a), 0, -Math.sin(a)).multiplyScalar(-180); // pan so the map sits right of the side panels
+  return { pos: c.clone().add(right).add(new THREE.Vector3(Math.sin(a) * 2900, 3700, Math.cos(a) * 2900)), target: c.clone().add(right) };
+};
 const ease = t => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
 function flyTo(to, ms = 3800) {
   orbit = false;
@@ -196,7 +236,7 @@ renderer.setAnimationLoop(now => {
     const k = Math.min(1, (now - flight.t0) / flight.ms), e = ease(k);
     view.pos.lerpVectors(flight.from.pos, flight.to.pos, e); view.target.lerpVectors(flight.from.target, flight.to.target, e);
     if (k >= 1) { const r = flight.res; flight = null; r(); }
-  } else if (orbit) { angle += dt * 0.00004; view = orbitView(angle); }
+  } else if (orbit) { sway += dt * 0.00011; angle = 0.05 + 0.18 * Math.sin(sway); view = orbitView(angle); } // a slow sway, not a full circle: no pin goes behind a panel
   for (const [id, m] of Object.entries(ribbons)) m.material.opacity += ((id === active ? 0.95 : 0) - m.material.opacity) * Math.min(1, dt / 300);
   camera.position.copy(view.pos); camera.lookAt(view.target);
   renderer.render(scene, camera);
@@ -205,19 +245,20 @@ renderer.setAnimationLoop(now => {
 // ---- Panels: the apartments list, and the card for the one being shown ----
 function renderUnits(reveal = false) {
   const order = reveal ? ranked : [...R.units].sort((a, b) => letter[a.id].localeCompare(letter[b.id])).map(u => factOf[u.id]);
-  $('units').innerHTML = order.map(f => `<li><button type="button" data-id="${f.id}" aria-current="${f.id === active}"><span class="k" style="background:${seen.has(f.id) ? `var(--${tone(f)})` : 'var(--ink)'}">${letter[f.id]}</span>
-    <span>${esc(f.address)}<small>${seen.has(f.id) ? `${f.inside.critical_left ? `${f.inside.critical_left} critical left` : 'nothing critical left'} · ${f.outside.flat_pct}% flat streets` : 'not shown yet'}</small></span>${reveal ? `<span class="rk">#${ranked.indexOf(f) + 1}</span>` : ''}</button></li>`).join('');
+  $('units').innerHTML = order.map(f => `<li><button type="button" data-id="${f.id}" aria-current="${f.id === active}"><span class="k${seen.has(f.id) ? ' ' + tone(f) : ''}">${letter[f.id]}</span>
+    <span class="a">${esc(f.address)}<small>${seen.has(f.id) ? `${f.inside.critical_left ? `${f.inside.critical_left} critical left` : 'Nothing critical left'}, ${f.outside.flat_pct}% flat streets` : 'Not shown yet'}</small></span>${reveal ? `<span class="rk">#${ranked.indexOf(f) + 1}</span>` : ''}</button></li>`).join('');
   document.querySelectorAll('#units button').forEach(b => b.onclick = () => show(b.dataset.id));
 }
 function card(id) {
-  const f = factOf[id], o = f.outside, t = tone(f), left = f.inside.critical_left;
-  $('card').innerHTML = `<span class="tag" style="background:var(--${t})">${letter[id]} · ${left ? `${left} critical left` : 'Nothing critical left'}</span>
+  const f = factOf[id], o = f.outside, t = tone(f), left = f.inside.critical_left, st = o.station, sl = o.steepest_near?.slope;
+  $('card').innerHTML = `<div class="head"><span class="k ${t}">${letter[id]}</span><span class="tag ${t}">${left ? `${left} critical left` : 'Nothing critical left'}</span></div>
     <h2>${esc(f.address)}</h2><div class="sub">${esc(f.name)}</div>
-    <div class="two"><div class="${left ? (left > 1 ? 'bad' : 'mid') : 'ok'}">Inside<b>${f.inside.pass} / ${f.inside.measured}</b>measured checks pass</div>
-      <div class="${o.steep_pct >= 10 ? 'bad' : o.steep_pct >= 3 ? 'mid' : 'ok'}">Streets within 250 m<b>${o.flat_pct}%</b>flat · ${o.steep_pct}% over 8%</div></div>
-    <ul>${f.inside.top.map(p => `<li>${p.critical ? '<b>Critical:</b> ' : ''}${esc(p.what.replace(/^./, c => c.toUpperCase()))}; ${esc(p.fix_spoken)}.</li>`).join('') || '<li>Every measured check passes.</li>'}
-      <li>${o.station ? `Rail station ${o.station.m} m away (${esc(o.station.name)})` : 'No rail station within 1.5 km'} · steepest street nearby ${o.steepest_near?.slope ?? '–'}%</li></ul>
-    <div class="src">Inside: Matterport scan, 21 checks (16 need a visit). Outside: Vexcel ground model + OpenStreetMap streets. Confirm with a tape before you sign.</div>`;
+    <div class="stats"><div class="${left ? (left > 1 ? 'fail' : 'verify') : 'pass'}"><b>${f.inside.pass} <small>/ ${f.inside.measured}</small></b>checks pass</div>
+      <div class="${o.steep_pct >= 10 ? 'fail' : o.steep_pct >= 3 ? 'verify' : 'pass'}"><b>${o.flat_pct}%</b>flat streets<br>${o.steep_pct}% over 8%</div>
+      <div><b>${st ? `${Math.round(st.m * 3.28084 / 10) * 10} ft` : 'None'}</b>${st ? `to ${esc(st.name)}` : 'rail station within 1.5 km'}</div>
+      <div class="${sl == null ? '' : sl > 8 ? 'fail' : sl > 5 ? 'verify' : 'pass'}"><b>${sl == null ? '–' : `${sl}%`}</b>steepest street nearby</div></div>
+    <ul>${f.inside.top.map(p => `<li><i class="${p.critical ? 'fail' : 'verify'}" title="${p.critical ? 'Critical' : 'Minor'}"></i><span>${esc(p.what.replace(/^./, c => c.toUpperCase()))}; ${esc(p.fix_spoken)}.</span></li>`).join('') || '<li><i class="pass"></i><span>Every measured check passes.</span></li>'}</ul>
+    <div class="src">Matterport scan, Vexcel ground model, OpenStreetMap streets. Confirm with a tape before you sign.</div>`;
   $('card').classList.add('on');
 }
 async function show(id, close = false) { active = id; if (!seen.has(id)) { seen.add(id); paintPin(id, true); } renderUnits(revealed); card(id); await flyTo(unitView(id, close)); }

@@ -5,171 +5,229 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Inch & Ease</title>
 <link rel="icon" href="data:,">
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-  /* One look: Swiss, Work Sans, black/white/red, square corners, no divider lines. Plus a high-contrast mode. */
-  :root { --bg:#fff; --panel:#fff; --soft:#f4f3f0; --ink:#111; --muted:#5f5f5c; --line:#e7e5e0; --accent:#111; --accentInk:#fff;
-          --fail:#E3241B; --verify:#C98A00; --verifyInk:#8A5A00; --pass:#0F7B3D; --skip:#8a8882; --none:#8a8882; --float:#fff; --shadow:0 8px 28px rgba(0,0,0,.16);
-          --font:'Work Sans', -apple-system, system-ui, sans-serif; --size:14px; }
-  [data-theme=night] { --bg:#0e0e0f; --panel:#151517; --soft:#232326; --ink:#f3f2ee; --muted:#b4b3ad; --line:#34343a; --accent:#f3f2ee; --accentInk:#111;
-          --fail:#ff6a5f; --verify:#f2b531; --verifyInk:#f2b531; --pass:#43c97c; --skip:#9a9993; --none:#9a9993; --float:#151517; --shadow:0 10px 30px rgba(0,0,0,.55); }
-  [data-theme=contrast] { --bg:#000; --panel:#000; --soft:#1a1a1a; --ink:#fff; --muted:#e6e6e6; --line:#fff; --accent:#FFD400; --accentInk:#000;
-          --fail:#ff5a4f; --pass:#3ddc84; --verify:#FFD400; --verifyInk:#FFD400; --float:#000; --shadow:0 0 0 2px #FFD400; --size:16px; }
+  /* Liquid glass: translucent frosted panels over the 3D view, Apple system font and colours. Colours carry meaning only.
+     Three looks: Daylight (light glass), Night (dark glass), High contrast (solid black/white/yellow, no blur). */
+  :root { --font:-apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", system-ui, sans-serif; --size:14px;
+          --wall:radial-gradient(1100px 700px at 0% 0%, #dde5f0 0%, transparent 65%), radial-gradient(900px 700px at 100% 100%, #ece7e1 0%, transparent 60%), #f2f2f5;
+          --bg:#f5f5f7; --ink:#1d1d1f; --muted:#6e6e73; --glass:rgba(255,255,255,.70); --glassStrong:rgba(255,255,255,.82); --edge:rgba(255,255,255,.35);
+          --ring:rgba(0,0,0,.08); --fill:rgba(118,118,128,.12); --fill2:rgba(118,118,128,.2); --seg:#fff; --sep:rgba(60,60,67,.12); --chosen:rgba(255,255,255,.92);
+          --accent:#1d1d1f; --accentInk:#fff; --focus:#0a84ff;
+          --fail:#FF3B30; --verify:#FF9500; --helps:#FF9500; --pass:#34C759; --fixed:#34C759; --none:#8E8E93; --skip:#8E8E93;
+          --failInk:#d70015; --verifyInk:#c93400; --passInk:#248a3d;
+          --blur:blur(28px) saturate(180%); --shadow:0 0 0 .5px var(--ring), 0 2px 6px rgba(0,0,0,.05), 0 18px 48px rgba(0,0,0,.14); --ease:200ms cubic-bezier(.25,.1,.25,1); }
+  [data-theme=night] { --wall:radial-gradient(1100px 700px at 0% 0%, #1b2130 0%, transparent 65%), radial-gradient(900px 700px at 100% 100%, #221d1a 0%, transparent 60%), #0b0b0d;
+          --bg:#000; --ink:#f5f5f7; --muted:#a1a1a6; --glass:rgba(30,30,32,.62); --glassStrong:rgba(28,28,30,.78); --edge:rgba(255,255,255,.12);
+          --ring:rgba(0,0,0,.5); --fill:rgba(118,118,128,.24); --fill2:rgba(118,118,128,.34); --seg:#636366; --sep:rgba(84,84,88,.5); --chosen:rgba(255,255,255,.1);
+          --accent:#f5f5f7; --accentInk:#1d1d1f;
+          --fail:#FF453A; --verify:#FF9F0A; --helps:#FF9F0A; --pass:#30D158; --fixed:#30D158; --failInk:#ff6961; --verifyInk:#ff9f0a; --passInk:#30d158;
+          --shadow:0 0 0 .5px var(--ring), 0 18px 48px rgba(0,0,0,.5); }
+  [data-theme=contrast] { --wall:#000; --bg:#000; --ink:#fff; --muted:#e6e6e6; --glass:#000; --glassStrong:#000; --edge:#fff; --ring:#fff;
+          --fill:#1a1a1a; --fill2:#333; --seg:#FFD400; --sep:#fff; --chosen:#000; --accent:#FFD400; --accentInk:#000; --focus:#FFD400;
+          --fail:#ff5a4f; --verify:#FFD400; --helps:#FFD400; --pass:#3ddc84; --fixed:#3ddc84; --none:#bdbdbd; --skip:#bdbdbd;
+          --failInk:#ff7a70; --verifyInk:#FFD400; --passInk:#3ddc84; --blur:none; --shadow:none; --size:16px; }
+  @media (prefers-reduced-transparency: reduce) { :root { --glass:#fff; --glassStrong:#fff; --blur:none; } [data-theme=night] { --glass:#1c1c1e; --glassStrong:#1c1c1e; } }
   * { box-sizing:border-box; }
-  body { margin:0; font:var(--size)/1.5 var(--font); color:var(--ink); background:var(--bg); display:flex; height:100vh; overflow:hidden; -webkit-font-smoothing:antialiased; }
-  select, button, input { font:inherit; color:var(--ink); border-radius:0; }
-  button { cursor:pointer; border:0; background:var(--soft); padding:9px 14px; font-weight:600; }
-  button:hover { filter:brightness(.95); }
-  button:focus-visible, select:focus-visible, input:focus-visible, a:focus-visible { outline:3px solid var(--fail); outline-offset:2px; }
-  [data-theme=contrast] :focus-visible { outline-color:#FFD400 !important; }
-  select { width:100%; padding:10px 12px; border:0; background:var(--soft); }
+  body { margin:0; font:400 var(--size)/1.45 var(--font); color:var(--ink); background:var(--wall); display:flex; height:100vh; overflow:hidden; -webkit-font-smoothing:antialiased; letter-spacing:-.005em; }
+  h1, h2, h3, h4, h5 { font-family:var(--font); }
+  select, button, input { font:inherit; color:var(--ink); }
+  button { cursor:pointer; border:0; border-radius:999px; background:var(--fill); padding:8px 14px; font-weight:500; transition:background-color var(--ease), color var(--ease), box-shadow var(--ease), filter var(--ease); }
+  button:hover { filter:brightness(.95); } [data-theme=night] button:hover { filter:brightness(1.25); }
+  button:disabled { opacity:.4; cursor:default; }
+  [data-theme=contrast] button { border:1px solid #fff; }
+  button:focus-visible, select:focus-visible, input:focus-visible, a:focus-visible, .issue:focus-visible { outline:3px solid var(--focus); outline-offset:2px; }
+  select { width:100%; padding:10px 34px 10px 12px; border:0; border-radius:12px; background:var(--fill) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%238e8e93' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 13px center; appearance:none; -webkit-appearance:none; }
+  [data-theme=contrast] select, [data-theme=contrast] input { border:1px solid #fff; }
+  /* One frosted surface for everything that floats. */
+  aside, .float, #card, #home nav { background:var(--glass); -webkit-backdrop-filter:var(--blur); backdrop-filter:var(--blur); border:1px solid var(--edge); box-shadow:var(--shadow); }
 
-  /* ---- Side panel ---- */
-  aside { width:340px; flex:none; background:var(--panel); display:flex; flex-direction:column; }
-  aside header { padding:22px 24px 8px; } aside .body { flex:1; overflow:auto; padding:0 24px 16px; } aside footer { padding:14px 24px 18px; background:var(--soft); }
-  .homelink { color:var(--muted); font-size:13px; text-decoration:none; font-weight:500; } .homelink:hover { color:var(--ink); }
-  h1 { font-size:22px; font-weight:800; letter-spacing:-.02em; margin:12px 0 2px; } h1 span { color:var(--fail); }
-  .sub { color:var(--muted); font-size:13px; } aside select { margin-top:14px; }
-  .score { margin:18px 0 6px; } .score b { font-size:40px; line-height:1; font-weight:800; letter-spacing:-.04em; display:block; margin-bottom:6px; }
-  .score .money { margin-top:6px; font-size:13px; } .score .money b { display:inline; font-size:13px; font-weight:700; letter-spacing:0; color:var(--pass); }
-  .tabs { display:flex; gap:22px; margin:18px 0 10px; }
-  .tabs button { background:none; padding:6px 0; font-weight:700; color:var(--muted); box-shadow:inset 0 -3px 0 transparent; }
-  .tabs button[aria-selected=true] { color:var(--ink); box-shadow:inset 0 -3px 0 var(--fail); }
-  .issue { display:flex; gap:12px; padding:12px 10px; cursor:pointer; align-items:flex-start; margin:0 -10px; } .issue:hover { background:var(--soft); }
-  .num.s-verify, .num.s-helps { color:#111 !important; }
-  .num { width:24px; height:24px; flex:none; display:grid; place-items:center; color:#fff; font:700 12px/1 var(--font); }
-  .issue small { color:var(--muted); display:block; }
-  .grp h5, .grp summary { margin:16px 0 4px; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); cursor:pointer; }
-  .grp h5 span { color:var(--ink); } .nodata { background:var(--soft); padding:8px 10px; font-size:13px; margin-bottom:10px; }
-  .looks { display:flex; gap:2px; } .looks button { flex:1; background:var(--bg); padding:8px 4px; font-size:12px; white-space:nowrap; }
-  .looks button[aria-pressed=true] { background:var(--accent); color:var(--accentInk); }
+  /* ---- Side panel: a glass panel inset from the window edge ---- */
+  aside { width:348px; flex:none; margin:12px 0 12px 12px; height:calc(100vh - 24px); border-radius:22px; display:flex; flex-direction:column; overflow:hidden; position:relative; z-index:6; }
+  aside header { padding:18px 20px 4px; } aside .body { flex:1; overflow:auto; padding:0 20px 16px; } aside footer { padding:12px 20px 16px; border-top:1px solid var(--sep); }
+  .homelink { color:var(--muted); font-size:13px; text-decoration:none; font-weight:500; display:inline-flex; align-items:center; gap:4px; } .homelink[hidden] { display:none; } .homelink:hover { color:var(--ink); }
+  .homelink svg { width:8px; height:12px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+  h1 { font-size:20px; font-weight:700; letter-spacing:-.02em; margin:10px 0 2px; } h1 span, .logo span { color:var(--fail); }
+  .sub { color:var(--muted); font-size:13px; } aside select { margin-top:12px; }
+  .score { margin:16px 0 4px; }
+  .score .big b { display:block; font-size:34px; line-height:1.05; font-weight:700; letter-spacing:-.03em; }
+  .score .big span { color:var(--muted); font-size:13px; }
+  .score .stats { display:flex; gap:8px; margin-top:12px; }
+  .score .stat { flex:1; background:var(--fill); border-radius:14px; padding:8px 12px; display:flex; align-items:baseline; gap:6px; }
+  .score .stat b { font-size:19px; font-weight:700; letter-spacing:-.02em; line-height:1.2; } .score .stat span { color:var(--muted); font-size:12px; line-height:1.25; }
+  .score .stat.crit b { color:var(--failInk); } .score .stat.tape b { color:var(--verifyInk); }
+  .score .money { margin-top:8px; background:var(--fill); border-radius:14px; padding:9px 12px; font-size:13px; }
+  .score .money .m { display:flex; align-items:baseline; gap:8px; } .score .money .m b { font-size:20px; font-weight:700; letter-spacing:-.02em; color:var(--passInk); }
+  .score .money small { display:block; color:var(--muted); font-size:12px; }
+  .score .money .m + small { margin-top:2px; }
+  /* iOS segmented controls: a rounded track with a raised selected segment. */
+  .tabs, .looks { display:flex; background:var(--fill); border-radius:10px; padding:2px; gap:2px; }
+  .tabs { margin:16px 0 8px; }
+  .tabs button, .looks button { flex:1; background:none; border-radius:8px; padding:6px 4px; font-size:13px; font-weight:500; white-space:nowrap; color:var(--ink); }
+  .tabs button[aria-selected=true], .looks button[aria-pressed=true] { background:var(--seg); font-weight:600; box-shadow:0 1px 3px rgba(0,0,0,.12), 0 0 0 .5px rgba(0,0,0,.04); }
+  [data-theme=contrast] .tabs button, [data-theme=contrast] .looks button { border:0; }
+  [data-theme=contrast] .tabs button[aria-selected=true], [data-theme=contrast] .looks button[aria-pressed=true] { color:#000; }
+  .looks button { font-size:12px; }
+  .issue { display:flex; gap:12px; padding:9px 10px; cursor:pointer; align-items:flex-start; margin:0 -10px; border-radius:12px; transition:background-color var(--ease); font-weight:500; }
+  .issue:hover, .issue.hl { background:var(--fill); }
+  .issue small { color:var(--muted); display:block; font-size:12px; font-weight:400; margin-top:1px; }
+  .issue small::first-letter, .apt .fx span::first-letter { text-transform:uppercase; }
+  .num { width:22px; height:22px; flex:none; display:grid; place-items:center; color:#fff; font:600 12px/1 var(--font); border-radius:7px; margin-top:1px; }
+  .num.s-verify, .num.s-helps, .num.s-pass, .num.s-fixed { color:#1d1d1f !important; }
+  /* White numbers need a deeper red than the system red to pass AA (4.5:1): Apple's accessible red. */
+  .num.s-fail, #card .tag.s-fail, .apt .tag:not(.ok) { background:#D70015 !important; }
+  [data-theme=contrast] .num.s-fail, [data-theme=contrast] #card .tag.s-fail { background:#ff5a4f !important; color:#000 !important; }
+  .grp h5, .grp summary { margin:18px 0 4px; font-size:13px; font-weight:600; color:var(--muted); cursor:pointer; }
+  .grp h5 span { color:var(--ink); background:var(--fill); border-radius:999px; padding:1px 7px; font-size:12px; margin-left:4px; }
+  .nodata { background:var(--fill); border-radius:12px; padding:8px 12px; font-size:13px; margin-bottom:10px; }
   #status { color:var(--muted); font-size:12px; margin-top:8px; }
-  #chat { display:flex; flex-direction:column; gap:10px; margin-bottom:10px; }
-  #chat .u { align-self:flex-end; background:var(--ink); color:var(--bg); padding:9px 12px; max-width:90%; }
-  #chat .a { background:var(--soft); padding:9px 12px; max-width:95%; } #chat .t { color:var(--muted); font-size:12px; }
-  #ask { display:flex; gap:6px; position:sticky; bottom:0; background:var(--panel); padding:8px 0 4px; } #ask input { flex:1; padding:11px 12px; border:0; background:var(--soft); }
-  .hint { color:var(--muted); font-size:13px; margin:6px 0 12px; } .hint button { padding:5px 9px; font-size:12px; margin:4px 4px 0 0; }
+  #chat { display:flex; flex-direction:column; gap:8px; margin-bottom:10px; }
+  #chat .u { align-self:flex-end; background:var(--accent); color:var(--accentInk); padding:8px 13px; max-width:88%; border-radius:18px 18px 6px 18px; }
+  #chat .a { background:var(--fill); padding:8px 13px; max-width:95%; border-radius:18px 18px 18px 6px; } #chat .t { color:var(--muted); font-size:12px; }
+  #chat .err { box-shadow:inset 3px 0 0 var(--fail); background:var(--fill); padding:8px 13px; border-radius:12px; }
+  #ask { display:flex; gap:6px; position:sticky; bottom:0; padding:8px 0 4px; } #ask input { flex:1; padding:10px 14px; border:0; border-radius:999px; background:var(--fill); }
+  #mic { width:40px; padding:0; display:grid; place-items:center; flex:none; }
+  .hint { color:var(--muted); font-size:13px; margin:8px 0 12px; } .hint button { padding:5px 11px; font-size:12px; margin:4px 4px 0 0; }
 
-  /* ---- Over the 3D view ---- */
-  main { flex:1; position:relative; min-width:0; } main > matterport-viewer { position:absolute; inset:0; }
-  .float { position:absolute; z-index:5; background:var(--float); color:var(--ink); box-shadow:var(--shadow); }
-  #dock { left:50%; bottom:20px; transform:translateX(-50%); padding:8px; display:flex; flex-direction:column; gap:6px; align-items:center; max-width:calc(100% - 300px); }
+  /* ---- The 3D view: a rounded window beside the panel ---- */
+  main { flex:1; position:relative; min-width:0; margin:12px; border-radius:22px; overflow:hidden; background:var(--bg); box-shadow:0 0 0 .5px var(--ring); }
+  main > matterport-viewer { position:absolute; inset:0; }
+  .float { position:absolute; z-index:5; color:var(--ink); border-radius:18px; }
+  #dock { left:50%; bottom:16px; transform:translateX(-50%); padding:6px; border-radius:24px; display:flex; flex-direction:column; gap:6px; align-items:center; max-width:calc(100% - 300px); transition:left var(--ease), bottom var(--ease); }
   #modes { display:flex; gap:2px; }
-  #modes button { display:flex; flex-direction:column; align-items:center; gap:3px; min-width:84px; padding:9px 10px; background:none; font-size:12px; font-weight:600; }
-  .ic { width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:2; stroke-linejoin:round; stroke-linecap:round; }
-  #mic .ic { width:20px; height:20px; } #modes button[aria-pressed=true] { background:var(--accent); color:var(--accentInk); }
-  #jumps { display:flex; gap:6px; align-items:center; flex-wrap:wrap; justify-content:center; font-size:12px; color:var(--muted); padding:0 4px 2px; }
-  #jumps button { padding:3px 10px 3px 3px; display:flex; gap:7px; align-items:center; font-size:12px; background:var(--soft); }
-  #jumps .num { width:20px; height:20px; font-size:12px; }
+  #modes button { display:flex; flex-direction:column; align-items:center; gap:3px; min-width:78px; padding:8px 10px; border-radius:18px; background:none; font-size:12px; font-weight:500; }
+  #modes button:hover { background:var(--fill); filter:none; }
+  #modes button[aria-pressed=true] { background:var(--accent); color:var(--accentInk); }
+  [data-theme=contrast] #modes button { border:0; }
+  .ic { width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linejoin:round; stroke-linecap:round; }
+  #mic .ic { width:18px; height:18px; }
+  #jumps { display:flex; gap:6px; align-items:center; flex-wrap:wrap; justify-content:center; font-size:12px; color:var(--muted); padding:0 6px 4px; }
+  #jumps button { padding:3px 11px 3px 3px; display:flex; gap:7px; align-items:center; font-size:12px; font-weight:500; }
+  #jumps .num { width:20px; height:20px; font-size:11px; border-radius:999px; margin:0; }
   #skel { position:absolute; inset:0; z-index:4; background:var(--bg); display:grid; place-content:center; gap:12px; justify-items:center; color:var(--muted); }
-  #skel .sk { background:var(--soft); width:420px; height:14px; animation:pulse 1.2s ease-in-out infinite alternate; } #skel .a { height:220px; } #skel .c { width:260px; }
+  #skel .sk { background:var(--fill); width:420px; height:14px; border-radius:8px; animation:pulse 1.2s ease-in-out infinite alternate; } #skel .a { height:220px; border-radius:18px; } #skel .c { width:260px; }
   @keyframes pulse { to { opacity:.45; } } @media (prefers-reduced-motion: reduce) { #skel .sk { animation:none; } * { transition:none !important; } }
-  #chat .err { box-shadow:inset 3px 0 0 var(--fail); background:var(--soft); padding:9px 12px; }
-  #hint { left:50%; top:20px; transform:translateX(-50%); padding:12px 16px; font-weight:600; max-width:60%; z-index:6; }
+  #hint { left:50%; top:16px; transform:translateX(-50%); padding:10px 16px; font-weight:500; max-width:60%; z-index:6; border-radius:999px; }
   .step .q { font-weight:600; font-size:15px; margin:4px 0 10px; } .answers { display:flex; flex-wrap:wrap; gap:6px; }
   .answers button[aria-pressed=true] { background:var(--accent); color:var(--accentInk); }
-  .step .primary, button.start { background:var(--accent); color:var(--accentInk); width:100%; margin:4px 0; }
-  .typed { display:flex; align-items:center; gap:6px; margin-top:8px; font-size:13px; color:var(--muted); } .typed input { width:80px; padding:8px; border:0; background:var(--soft); }
-  #m-next { width:100%; margin-top:10px; text-align:left; }
-  #p-plan .budget { display:flex; align-items:center; gap:6px; font-weight:600; margin:4px 0 12px; } #p-plan .budget input { width:110px; padding:9px 10px; border:0; background:var(--soft); }
-  #plan .tot { display:flex; gap:16px; margin-bottom:8px; } #plan .tot div { font-size:12px; color:var(--muted); } #plan .tot b { display:block; font-size:24px; font-weight:800; color:var(--ink); letter-spacing:-.02em; }
-  #plan h5 { margin:16px 0 4px; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); }
-  #plan .pr { display:flex; gap:10px; justify-content:space-between; padding:8px 0; } #plan .pr b { font-size:13px; display:block; } #plan .pr small { display:block; color:var(--muted); font-size:12px; }
-  #plan .pr > span { font-weight:800; white-space:nowrap; } #plan .st { font-size:12px; text-transform:uppercase; } #plan .st.s-fail { color:var(--fail); } #plan .st.s-verify { color:var(--verifyInk); }
-  #print { width:100%; margin-top:12px; } .printhead { display:none; }
+  .step .primary, button.start { background:var(--accent); color:var(--accentInk); width:100%; margin:4px 0; padding:10px 14px; font-weight:600; }
+  button.start { margin:6px 0 4px; }
+  .typed { display:flex; align-items:center; gap:6px; margin-top:10px; font-size:13px; color:var(--muted); } .typed input { width:80px; padding:7px 10px; border:0; border-radius:10px; background:var(--fill); }
+  #m-next { width:100%; margin-top:10px; text-align:left; padding:10px 14px; }
+  #p-plan .budget { display:flex; align-items:center; gap:6px; font-weight:600; margin:6px 0 12px; } #p-plan .budget input { width:110px; padding:8px 12px; border:0; border-radius:10px; background:var(--fill); }
+  #plan .tot { display:flex; gap:8px; margin-bottom:8px; } #plan .tot div { flex:1; font-size:12px; color:var(--muted); background:var(--fill); border-radius:14px; padding:8px 12px; }
+  #plan .tot b { display:block; font-size:20px; font-weight:700; color:var(--ink); letter-spacing:-.02em; }
+  #plan h5 { margin:18px 0 2px; font-size:13px; font-weight:600; color:var(--muted); }
+  #plan .pr { display:flex; gap:10px; justify-content:space-between; padding:9px 0; border-bottom:1px solid var(--sep); } #plan .pr:last-of-type { border-bottom:0; }
+  #plan .pr b { font-size:13px; display:block; font-weight:600; } #plan .pr small { display:block; color:var(--muted); font-size:12px; } #plan .pr small:first-of-type { color:var(--ink); }
+  #plan .pr > span { font-weight:600; white-space:nowrap; } #plan .st { font-size:12px; } #plan .st.s-fail { color:var(--failInk); } #plan .st.s-verify { color:var(--verifyInk); }
+  #plan .foot { color:var(--muted); font-size:12px; margin-top:14px; }
+  #print { width:100%; margin-top:12px; padding:10px 14px; } .printhead { display:none; }
   @media print {
-    body { display:block; height:auto; overflow:visible; background:#fff; color:#111; } main, #home, #card, .tabs, #p-issues, #p-ask, aside footer, #print, #pick, .homelink, #score .money br { display:none !important; }
-    aside { width:auto; } aside .body { overflow:visible; padding:0 24px; } #p-plan { display:block !important; } .printhead { display:flex; justify-content:space-between; font-size:16px; margin:8px 0 12px; }
+    :root, html[data-theme] { --ink:#1d1d1f; --muted:#6e6e73; --fill:#f2f2f5; --sep:#e5e5ea; --glass:#fff; --blur:none; --shadow:none; --failInk:#d70015; --verifyInk:#c93400; --passInk:#248a3d; }
+    body { display:block; height:auto; overflow:visible; background:#fff; color:#1d1d1f; } main, #home, #card, .tabs, #p-issues, #p-ask, aside footer, #print, #pick, .homelink { display:none !important; }
+    aside { width:auto; height:auto; margin:0; border:0; border-radius:0; box-shadow:none; background:#fff; -webkit-backdrop-filter:none; backdrop-filter:none; overflow:visible; }
+    aside .body { overflow:visible; padding:0 24px; } #p-plan { display:block !important; } .printhead { display:flex; justify-content:space-between; font-size:16px; margin:8px 0 12px; }
     #p-plan .budget input { background:none; } #plan .pr { break-inside:avoid; }
   }
-  #legend { left:20px; top:20px; padding:8px 12px; display:flex; gap:14px; font-size:12px; font-weight:600; }
-  #legend span { display:flex; align-items:center; gap:6px; } #legend i { width:12px; height:12px; display:inline-block; } #legend i.ring { box-shadow:inset 0 0 0 3px var(--ink); background:var(--fail); }
-  .issue.hl { background:var(--soft); box-shadow:inset 3px 0 0 var(--ink); }
-  #walkbar { left:20px; top:64px; padding:8px; display:none; gap:6px; align-items:center; max-width:calc(100% - 440px); }
+  #legend { left:16px; top:16px; padding:7px 14px; display:flex; gap:14px; font-size:12px; font-weight:500; border-radius:999px; }
+  #legend span { display:flex; align-items:center; gap:6px; } #legend i { width:10px; height:10px; display:inline-block; border-radius:50%; } #legend i.ring { box-shadow:0 0 0 2px var(--ink); background:var(--fail); }
+  #walkbar { left:16px; top:60px; padding:6px; display:none; gap:6px; align-items:center; max-width:calc(100% - 440px); border-radius:999px; }
   #walkbar.on { display:flex; } #walkbar .what { min-width:0; padding:0 8px; } #walkbar .what small { color:var(--muted); display:block; font-size:12px; }
-  #walkbar .what div { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-weight:700; }
-  #walkbar #w-next { background:var(--accent); color:var(--accentInk); }
-  #drone { left:20px; bottom:130px; padding:14px; display:none; width:236px; font-size:12px; }
-  #drone.on { display:block; } #drone .pad { display:grid; grid-template-columns:repeat(3, 1fr); gap:4px; margin:10px 0; } #drone .pad button { padding:9px 0; font-size:13px; }
-  #drone kbd { font:600 12px var(--font); background:var(--soft); padding:1px 5px; }
+  #walkbar .what div { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-weight:600; }
+  #walkbar button { white-space:nowrap; } #walkbar #w-next { background:var(--accent); color:var(--accentInk); font-weight:600; }
+  #walkbar #w-prev, #walkbar #w-end { width:34px; height:34px; padding:0; display:grid; place-items:center; flex:none; }
+  #walkbar .ic { width:14px; height:14px; stroke-width:2.2; }
+  #drone { left:16px; bottom:130px; padding:14px; display:none; width:236px; font-size:12px; }
+  #drone.on { display:block; } #drone > b { font-size:14px; font-weight:600; } #drone > small { display:block; color:var(--muted); }
+  #drone .pad { display:grid; grid-template-columns:repeat(3, 1fr); gap:6px; margin:10px 0; } #drone .pad button { padding:8px 0; font-size:13px; border-radius:12px; }
+  #drone .keys { display:grid; gap:4px; color:var(--muted); } #drone kbd { font:600 11px var(--font); color:var(--ink); background:var(--fill); padding:2px 6px; border-radius:6px; margin-right:2px; }
 
   /* ---- Issue card ---- */
-  #card { position:fixed; right:20px; top:20px; width:400px; max-height:calc(100vh - 40px); overflow:auto; background:var(--panel); color:var(--ink); box-shadow:var(--shadow); padding:22px; display:none; z-index:10; }
+  #card { position:fixed; right:24px; top:24px; width:400px; max-height:calc(100vh - 48px); overflow:auto; background:var(--glassStrong); color:var(--ink); padding:20px; display:none; z-index:10; border-radius:22px; }
   #card.open { display:block; }
-  body.card-open #dock { left:calc((100% - 420px) / 2); max-width:calc(100% - 460px); bottom:100px; } body.card-open #jumps { display:none; }
+  body.card-open #dock { left:calc((100% - 412px) / 2); max-width:calc(100% - 460px); bottom:100px; } body.card-open #jumps { display:none; }
   .opt input { accent-color:var(--ink); }
   body.card-open #legend { display:none; }
   #card .ev { display:-webkit-box; -webkit-line-clamp:1; -webkit-box-orient:vertical; overflow:hidden; }
   #card .nofix { font-size:13px; color:var(--muted); margin:4px 0 8px; }
-  #card .tag.s-verify { color:#111; }
-  #card .tag { display:inline-block; font:700 12px/1 var(--font); text-transform:uppercase; letter-spacing:.08em; color:#fff; padding:6px 9px; }
-  #card h3 { font-size:22px; line-height:1.15; font-weight:800; letter-spacing:-.02em; margin:12px 0 4px; }
-  #card .nums { display:flex; gap:4px; margin:14px 0; }
-  #card .nums div { flex:1; background:var(--soft); padding:10px 12px; font-size:12px; color:var(--muted); } #card .nums b { display:block; font-size:22px; font-weight:800; letter-spacing:-.02em; color:var(--ink); }
-  #card .nums .bad b { color:var(--fail); }
-  #card p { margin:8px 0; font-size:14px; } #card h4 { margin:18px 0 8px; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); }
-  #card img, #card .ph { width:100%; display:block; aspect-ratio:16/10; object-fit:cover; background:var(--soft); }
+  #card .tag { display:inline-block; font:600 12px/1 var(--font); color:#fff; padding:6px 10px; border-radius:999px; }
+  #card .tag.s-verify, #card .tag.s-pass, #card .tag.s-helps, #card .tag.s-fixed { color:#1d1d1f; }
+  #card h3 { font-size:22px; line-height:1.15; font-weight:700; letter-spacing:-.02em; margin:12px 40px 2px 0; }
+  #card .where { color:var(--muted); font-size:14px; }
+  #card .nums { display:flex; gap:6px; margin:14px 0; }
+  #card .nums div { flex:1; background:var(--fill); border-radius:14px; padding:9px 12px; font-size:12px; color:var(--muted); } #card .nums b { display:block; font-size:21px; font-weight:700; letter-spacing:-.02em; color:var(--ink); }
+  #card .nums .bad b { color:var(--failInk); }
+  #card p { margin:8px 0; font-size:14px; } #card h4 { margin:18px 0 8px; font-size:13px; font-weight:600; color:var(--muted); }
+  #card img, #card .ph { width:100%; display:block; aspect-ratio:16/10; object-fit:cover; background:var(--fill); border-radius:14px; }
   #card .ph { display:grid; place-items:center; color:var(--muted); font-size:12px; }
-  #card svg { width:100%; height:auto; display:block; background:#fafaf8; }
-  #card .src { font-size:12px; color:var(--muted); } #card .x { position:absolute; right:12px; top:12px; background:none; font-size:22px; padding:2px 8px; }
-  #card .measure { width:100%; margin-top:12px; }
-  .fix { display:flex; gap:12px; align-items:center; background:var(--soft); padding:10px; margin:6px 0; text-decoration:none; color:inherit; }
-  .fix img { width:64px !important; height:64px; aspect-ratio:1 !important; object-fit:contain !important; background:#fff !important; flex:none; }
-  .fix b { display:block; font-size:13px; line-height:1.3; } .fix .price { font-size:20px; font-weight:800; color:var(--pass); white-space:nowrap; margin-left:auto; }
+  #card svg { width:100%; height:auto; display:block; background:#f5f5f7; border-radius:14px; font-family:var(--font); }
+  #card .src { font-size:12px; color:var(--muted); margin-top:14px; } #card .src span { display:block; }
+  #card .x { position:absolute; right:14px; top:14px; width:30px; height:30px; padding:0; display:grid; place-items:center; font-size:19px; line-height:1; color:var(--muted); }
+  #card .measure { width:100%; margin-top:12px; padding:10px 14px; }
+  .fix { display:flex; gap:12px; align-items:center; background:var(--fill); padding:10px; margin:6px 0; text-decoration:none; color:inherit; border-radius:14px; }
+  .fix img { width:64px !important; height:64px; aspect-ratio:1 !important; object-fit:contain !important; background:#fff !important; flex:none; border-radius:10px; }
+  .fix b { display:block; font-size:13px; line-height:1.3; } .fix .price { font-size:20px; font-weight:700; color:var(--passInk); white-space:nowrap; margin-left:auto; }
   .fix small { color:var(--muted); display:block; font-size:12px; margin-top:2px; }
-  .opts { display:flex; flex-direction:column; gap:4px; }
-  .opt { display:grid; grid-template-columns:auto 56px 1fr auto; gap:10px; align-items:center; background:var(--soft); padding:10px; cursor:pointer; box-shadow:inset 3px 0 0 transparent; }
-  .opt.chosen { box-shadow:inset 3px 0 0 var(--ink); background:var(--panel); outline:1px solid var(--line); }
-  .opt img, .opt .noimg { width:56px !important; height:56px; aspect-ratio:1 !important; object-fit:contain !important; background:#fff !important; display:grid; place-items:center; font-weight:700; color:#111; }
-  .opt .what { min-width:0; } .opt b { display:block; font-size:13px; line-height:1.3; } .opt small { color:var(--muted); display:block; font-size:12px; margin-top:2px; }
-  .opt small.warn { color:var(--fail); } .opt a { font-size:12px; color:var(--ink); }
-  .opt .vd { display:inline-block; margin-top:4px; font-size:12px; font-weight:700; } .v-closes .vd { color:var(--pass); } .v-helps .vd { color:var(--verifyInk); } .v-na .vd, .v-nosupport .vd { color:var(--muted); }
-  .opt .price { font-size:18px; font-weight:800; white-space:nowrap; }
-  .owner { background:var(--soft); padding:10px 12px; font-size:13px; margin:6px 0; box-shadow:inset 3px 0 0 var(--fail); }
-  .verdict { font-weight:700; font-size:14px; margin:4px 0 8px; }
+  .opts { display:flex; flex-direction:column; gap:6px; }
+  .opt { display:grid; grid-template-columns:auto 48px 1fr auto; gap:10px; align-items:center; background:var(--fill); padding:10px 12px 10px 10px; cursor:pointer; border-radius:14px; transition:background-color var(--ease), box-shadow var(--ease); }
+  .opt.chosen { background:var(--chosen); box-shadow:inset 0 0 0 1.5px var(--ink); }
+  .opt img, .opt .noimg { width:48px !important; height:48px; aspect-ratio:1 !important; object-fit:contain !important; background:#fff !important; display:grid; place-items:center; font-weight:600; color:#1d1d1f; border-radius:10px; }
+  .opt small::first-letter, .opt .vd::first-letter, #plan .pr small::first-letter { text-transform:uppercase; }
+  .opt .what { min-width:0; } .opt b { display:block; font-size:13px; line-height:1.3; font-weight:600; } .opt small { color:var(--muted); display:block; font-size:12px; margin-top:2px; }
+  .opt small.warn { color:var(--failInk); } .opt a { font-size:12px; color:var(--ink); }
+  .opt .vd { display:inline-block; margin-top:4px; font-size:12px; font-weight:600; } .v-closes .vd { color:var(--passInk); } .v-helps .vd { color:var(--verifyInk); } .v-na .vd, .v-nosupport .vd { color:var(--muted); }
+  .opt .price { font-size:17px; font-weight:700; white-space:nowrap; letter-spacing:-.01em; }
+  .owner { background:var(--fill); padding:10px 12px; font-size:13px; margin:6px 0; box-shadow:inset 3px 0 0 var(--fail); border-radius:12px; }
+  .verdict { font-weight:600; font-size:14px; margin:4px 0 8px; }
 
-  /* ---- Start screen (from the approved mock) ---- */
-  #home { position:fixed; inset:0; z-index:40; overflow:auto; background:var(--bg); }
-  #home .page { max-width:1280px; margin:0 auto; padding:0 64px 72px; }
-  #home nav { display:flex; align-items:center; height:88px; font-size:15px; font-weight:500; gap:32px; }
-  #home nav .logo { font-size:22px; font-weight:800; letter-spacing:-.02em; margin-right:auto; } #home nav .logo span { color:var(--fail); }
-  #home nav a { color:var(--ink); text-decoration:none; } #home nav .cta { background:var(--accent); color:var(--accentInk); padding:11px 18px; font-weight:600; }
-  #home .looks button { background:var(--soft); padding:9px 12px; } #home .looks button[aria-pressed=true] { background:var(--accent); color:var(--accentInk); }
-  .hero { display:grid; grid-template-columns:1fr 460px; gap:72px; align-items:center; padding:24px 0 72px; }
-  .kicker { font-size:13px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--fail); }
-  .hero h2 { font-size:96px; line-height:.95; font-weight:800; letter-spacing:-.045em; margin:22px 0 28px; }
-  .hero p { font-size:20px; line-height:1.5; margin:0 0 36px; max-width:540px; opacity:.85; }
-  .btn { display:inline-block; background:var(--accent); color:var(--accentInk); padding:18px 26px; font-weight:600; font-size:16px; text-decoration:none; }
-  .btn.ghost { background:var(--soft); color:var(--ink); margin-left:10px; }
-  .proof { margin-top:44px; display:flex; gap:44px; }
-  .proof b { display:block; font-size:30px; font-weight:700; letter-spacing:-.02em; } .proof span { font-size:13px; color:var(--muted); } .proof b.red { color:var(--fail); }
-  .photo { position:relative; height:640px; background:#ddd url(https://images.unsplash.com/photo-1756312177391-021928b460c8?w=1100&q=80&auto=format) center 30%/cover; }
-  .note { position:absolute; background:#fff; color:#111; padding:10px 14px; font-size:13px; font-weight:600; box-shadow:0 6px 24px rgba(0,0,0,.18); }
-  .note small { display:block; font-weight:400; color:#5f5f5c; font-size:12px; }
-  .note::before { content:''; position:absolute; width:10px; height:10px; background:#E3241B; border-radius:50%; left:-22px; top:16px; box-shadow:0 0 0 4px rgba(227,36,27,.25); }
-  .note.n1 { left:56%; top:31%; } .note.n2 { left:61%; top:88%; }
-  .bracket { position:absolute; left:51%; width:20%; top:28%; border-top:3px solid #E3241B; }
-  .bracket::before, .bracket::after { content:''; position:absolute; top:-9px; width:3px; height:15px; background:#E3241B; } .bracket::before { left:0; } .bracket::after { right:0; }
-  .credit { position:absolute; left:12px; bottom:10px; font-size:12px; color:#fff; text-shadow:0 1px 2px rgba(0,0,0,.6); }
+  /* ---- Start screen ---- */
+  #home { position:fixed; inset:0; z-index:40; overflow:auto; background:var(--wall); }
+  #home .page { max-width:1280px; margin:0 auto; padding:0 48px 72px; }
+  #home nav { position:sticky; top:12px; z-index:5; display:flex; align-items:center; height:60px; margin:12px 0 0; padding:0 10px 0 22px; border-radius:22px; font-size:14px; font-weight:500; gap:24px; }
+  #home nav .logo { font-size:19px; font-weight:700; letter-spacing:-.02em; margin-right:auto; }
+  #home nav a { color:var(--ink); text-decoration:none; } #home nav a:hover { color:var(--muted); }
+  #home nav .cta { background:var(--accent); color:var(--accentInk); padding:9px 16px; font-weight:600; border-radius:999px; } #home nav .cta:hover { color:var(--accentInk); filter:brightness(.92); }
+  #home .looks { width:250px; }
+  .hero { display:grid; grid-template-columns:1fr 460px; gap:64px; align-items:center; padding:56px 0 72px; }
+  .kicker { font-size:15px; font-weight:600; color:var(--muted); }
+  .hero h2 { font-size:80px; line-height:1; font-weight:700; letter-spacing:-.045em; margin:14px 0 24px; }
+  .hero p { font-size:20px; line-height:1.5; margin:0 0 32px; max-width:540px; color:var(--muted); }
+  .btn { display:inline-block; background:var(--accent); color:var(--accentInk); padding:14px 24px; font-weight:600; font-size:16px; text-decoration:none; border-radius:999px; transition:filter var(--ease); }
+  .btn:hover { filter:brightness(.92); }
+  .btn.ghost { background:var(--fill); color:var(--ink); margin-left:10px; }
+  .proof { margin-top:44px; display:flex; gap:12px; flex-wrap:wrap; }
+  .proof div { background:var(--glass); -webkit-backdrop-filter:var(--blur); backdrop-filter:var(--blur); border:1px solid var(--edge); box-shadow:0 0 0 .5px var(--ring); border-radius:18px; padding:14px 18px; min-width:150px; }
+  .proof b { display:block; font-size:26px; font-weight:700; letter-spacing:-.02em; line-height:1.15; } .proof span { font-size:13px; color:var(--muted); } .proof b.red { color:var(--failInk); }
+  .photo { position:relative; height:620px; border-radius:28px; overflow:hidden; background:#ddd url(https://images.unsplash.com/photo-1756312177391-021928b460c8?w=1100&q=80&auto=format) center 30%/cover; box-shadow:var(--shadow); }
+  .note { position:absolute; background:rgba(255,255,255,.78); -webkit-backdrop-filter:blur(20px) saturate(180%); backdrop-filter:blur(20px) saturate(180%); color:#1d1d1f; padding:9px 14px; font-size:13px; font-weight:600; border-radius:14px; border:1px solid rgba(255,255,255,.5); box-shadow:0 8px 24px rgba(0,0,0,.18); }
+  .note small { display:block; font-weight:400; color:#6e6e73; font-size:12px; }
+  .note::before { content:''; position:absolute; width:10px; height:10px; background:#FF3B30; border-radius:50%; left:-22px; top:16px; box-shadow:0 0 0 4px rgba(255,59,48,.28); }
+  .note.n1 { left:56%; top:31%; } .note.n2 { left:58%; top:86%; }
+  .bracket { position:absolute; left:51%; width:20%; top:28%; border-top:3px solid #FF3B30; }
+  .bracket::before, .bracket::after { content:''; position:absolute; top:-9px; width:3px; height:15px; background:#FF3B30; border-radius:2px; } .bracket::before { left:0; } .bracket::after { right:0; }
+  .credit { position:absolute; left:14px; bottom:12px; font-size:12px; color:#fff; text-shadow:0 1px 2px rgba(0,0,0,.6); }
   .credit a { color:#fff; }
-  .band { background:var(--soft); margin:0 -64px; padding:64px; }
+  .band { background:var(--glass); -webkit-backdrop-filter:var(--blur); backdrop-filter:var(--blur); border:1px solid var(--edge); box-shadow:0 0 0 .5px var(--ring); border-radius:28px; padding:44px 48px; }
   .band .stats { display:grid; grid-template-columns:repeat(3, 1fr); gap:48px; }
-  .band .stats b { display:block; font-size:64px; line-height:1; font-weight:800; letter-spacing:-.04em; margin-bottom:12px; }
-  .band .stats b.red { color:var(--fail); } .band .stats span { font-size:17px; } .band .stats small { display:block; color:var(--muted); font-size:12px; margin-top:8px; }
-  #home h3 { font-size:44px; line-height:1.05; font-weight:800; letter-spacing:-.03em; margin:88px 0 10px; }
-  .lead { color:var(--muted); font-size:17px; margin:0 0 36px; }
-  .grid { display:grid; grid-template-columns:repeat(3, 1fr); gap:44px 32px; }
+  .band .stats b { display:block; font-size:56px; line-height:1; font-weight:700; letter-spacing:-.04em; margin-bottom:12px; }
+  .band .stats b.red { color:var(--failInk); } .band .stats span { font-size:17px; } .band .stats small { display:block; color:var(--muted); font-size:12px; margin-top:8px; }
+  #home h3 { font-size:40px; line-height:1.05; font-weight:700; letter-spacing:-.03em; margin:88px 0 8px; }
+  .lead { color:var(--muted); font-size:17px; margin:0 0 32px; }
+  .grid { display:grid; grid-template-columns:repeat(3, 1fr); gap:40px 28px; }
   .apt { display:block; color:inherit; text-decoration:none; }
-  .apt .img { aspect-ratio:4/3; background:var(--soft) center/cover; position:relative; transition:filter .15s; } .apt:hover .img { filter:brightness(1.06); }
-  .apt .tag { position:absolute; left:0; top:0; background:var(--fail); color:#fff; font-size:13px; font-weight:600; padding:8px 12px; } .apt .tag.ok { background:var(--pass); }
-  .apt h4 { font-size:20px; font-weight:700; letter-spacing:-.01em; margin:18px 0 2px; } .apt .city { color:var(--muted); font-size:14px; }
-  .apt .sc { display:flex; align-items:baseline; gap:10px; margin-top:14px; } .apt .sc b { font-size:28px; font-weight:800; letter-spacing:-.03em; } .apt .sc span { color:var(--muted); font-size:14px; }
-  .apt .fx { margin-top:6px; font-size:14px; } .apt .fx b { color:var(--fail); font-weight:600; }
-  .how { display:grid; grid-template-columns:repeat(3, 1fr); gap:48px; margin-top:96px; }
-  .how .n { font-size:15px; font-weight:700; color:var(--fail); } .how h5 { font-size:24px; font-weight:700; letter-spacing:-.02em; margin:10px 0 8px; } .how p { color:var(--muted); margin:0; font-size:16px; }
-  #home footer { margin-top:96px; color:var(--muted); font-size:13px; display:flex; justify-content:space-between; gap:24px; }
-  @media (max-width:900px) { .hero { grid-template-columns:1fr; } .hero h2 { font-size:56px; } .band .stats, .grid, .how { grid-template-columns:1fr; } #home .page { padding:0 20px 48px; } .band { margin:0 -20px; padding:40px 20px; } }
+  .apt .img { aspect-ratio:4/3; background:var(--fill) center/cover; position:relative; border-radius:18px; overflow:hidden; transition:transform var(--ease), box-shadow var(--ease); box-shadow:0 0 0 .5px var(--ring); }
+  .apt:hover .img { transform:translateY(-2px); box-shadow:var(--shadow); }
+  .apt .tag { position:absolute; left:12px; top:12px; background:var(--fail); color:#fff; font-size:13px; font-weight:600; padding:6px 12px; border-radius:999px; } .apt .tag.ok { background:var(--pass); color:#1d1d1f; }
+  .apt h4 { font-size:19px; font-weight:600; letter-spacing:-.01em; margin:16px 0 2px; } .apt .city { color:var(--muted); font-size:14px; }
+  .apt .sc { display:flex; align-items:baseline; gap:8px; margin-top:12px; } .apt .sc b { font-size:26px; font-weight:700; letter-spacing:-.03em; } .apt .sc span { color:var(--muted); font-size:14px; }
+  .apt .fx { margin-top:4px; font-size:14px; } .apt .fx b { color:var(--failInk); font-weight:600; display:block; } .apt .fx span { color:var(--muted); }
+  .how { display:grid; grid-template-columns:repeat(3, 1fr); gap:20px; margin-top:96px; }
+  .how > div { background:var(--glass); -webkit-backdrop-filter:var(--blur); backdrop-filter:var(--blur); border:1px solid var(--edge); box-shadow:0 0 0 .5px var(--ring); border-radius:22px; padding:28px; }
+  .how .n { font-size:13px; font-weight:600; color:var(--muted); } .how h5 { font-size:22px; font-weight:700; letter-spacing:-.02em; margin:8px 0 6px; } .how p { color:var(--muted); margin:0; font-size:15px; }
+  #home footer { margin-top:80px; color:var(--muted); font-size:12px; display:flex; justify-content:space-between; gap:24px; }
+  #home footer span { display:block; } #home footer .brand { font-weight:600; color:var(--ink); white-space:nowrap; }
+  [data-theme=contrast] .proof div, [data-theme=contrast] .band, [data-theme=contrast] .how > div { border:1px solid #fff; }
+  @media (max-width:900px) { .hero { grid-template-columns:1fr; } .hero h2 { font-size:52px; } .band .stats, .grid, .how { grid-template-columns:1fr; } #home .page { padding:0 16px 48px; } .band { padding:32px 20px; } #home nav { gap:12px; overflow-x:auto; } }
 </style>
 <script src="private/key.js"></script>
 </head>
@@ -183,7 +241,7 @@
         <div class="kicker">For wheelchair users and their families</div>
         <h2>Can you live here?</h2>
         <p>We measure every door, step and room of a real apartment tour against wheelchair limits. You see each problem in the room itself, with the cheapest fix and its price.</p>
-        <a class="btn" id="demoLink" href="#">Check the demo apartment →</a><a class="btn ghost" href="#apartments">All apartments</a>
+        <a class="btn" id="demoLink" href="#">Check the demo apartment</a><a class="btn ghost" href="#apartments">All apartments</a>
         <div class="proof" id="proof"></div>
       </div>
       <div class="photo" role="img" aria-label="A wheelchair user beside a doorway with a raised threshold">
@@ -206,14 +264,14 @@
       <div><div class="n">02</div><h5>The check</h5><p>Each door, step and room against the wheelchair reference, with a margin for "check with a tape".</p></div>
       <div><div class="n">03</div><h5>The answer</h5><p>Red marks in the room, the cheapest fix, and Claude to answer your questions.</p></div>
     </div>
-    <footer><span>Tours and room data: CoStar / Matterport, shown locally. Limits: 2010 ADA Standards, US Access Board. Measured from the scan; confirm with a tape before you sign.</span><span>Measured. Checked. Bought.</span></footer>
+    <footer><div><span>Tours and room data from CoStar and Matterport, shown locally.</span><span>Limits from the 2010 ADA Standards and the US Access Board.</span><span>Numbers come from the scan. Confirm with a tape before you sign.</span></div><span class="brand">Inch &amp; Ease</span></footer>
   </div>
 </div>
 <aside>
   <header>
-    <a class="homelink" href="./">← All apartments</a>
+    <a class="homelink" href="./"><svg viewBox="0 0 8 12" aria-hidden="true"><path d="M6.5 1L1.5 6l5 5"/></svg>All apartments</a>
     <h1>Inch <span>&amp;</span> Ease</h1>
-    <div class="sub">Can a wheelchair user live here? Red = a measured problem.</div>
+    <div class="sub">Can a wheelchair user live here?</div>
     <select id="pick" aria-label="Apartment"></select>
     <div class="score" id="score">Loading…</div>
     <div class="tabs" role="tablist"><button role="tab" id="t-issues" aria-selected="true">Issues</button><button role="tab" id="t-plan" aria-selected="false">Plan</button><button role="tab" id="t-ask" aria-selected="false">Ask Claude</button></div>
@@ -241,22 +299,22 @@
 <main>
   <div id="hint" class="float" role="status" hidden></div>
   <div id="skel" aria-live="polite"><div class="sk a"></div><div class="sk b"></div><div class="sk c"></div><p>Loading the 3D tour…</p></div>
-  <div id="legend" class="float" aria-label="Legend"><span><i style="background:var(--fail)"></i>Fails</span><span><i style="background:var(--verify)"></i>Check with a tape / fix helps</span><span><i style="background:var(--pass)"></i>Fixed</span><span><i class="ring"></i>Critical</span></div>
+  <div id="legend" class="float" aria-label="Legend"><span><i style="background:var(--fail)"></i>Fails</span><span><i style="background:var(--verify)"></i>Check with a tape</span><span><i style="background:var(--pass)"></i>Fixed</span><span><i class="ring"></i>Critical</span></div>
   <div id="walkbar" class="float" role="region" aria-label="Walkthrough">
-    <button id="w-prev" aria-label="Previous stop">◀</button>
+    <button id="w-prev" aria-label="Previous stop"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
     <div class="what"><small id="w-count">Stop 1 of 5</small><div id="w-title">…</div></div>
-    <button id="w-play" aria-label="Auto-play">▶ Auto</button>
-    <button id="w-next" aria-label="Next stop">Next ▶</button>
-    <button id="w-end" aria-label="End walkthrough">✕</button>
+    <button id="w-play" aria-label="Auto-play">Auto play</button>
+    <button id="w-next" aria-label="Next stop">Next</button>
+    <button id="w-end" aria-label="End walkthrough"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
   </div>
   <div id="drone" class="float" role="region" aria-label="Drone controls">
-    <b>Drone</b> · hold to fly
+    <b>Drone</b><small>Hold a button to fly</small>
     <div class="pad">
-      <button data-k="q" title="Turn left (Q)">⟲</button><button data-k="w" title="Forward (W)">▲</button><button data-k="e" title="Turn right (E)">⟳</button>
+      <button data-k="q" title="Turn left (Q)">↺</button><button data-k="w" title="Forward (W)">▲</button><button data-k="e" title="Turn right (E)">↻</button>
       <button data-k="a" title="Left (A)">◀</button><button data-k="s" title="Back (S)">▼</button><button data-k="d" title="Right (D)">▶</button>
       <button data-k="r" title="Up (R)">Up</button><button id="flyover" title="Automatic flyover">Auto</button><button data-k="f" title="Down (F)">Down</button>
     </div>
-    <kbd>W A S D</kbd> move · <kbd>R</kbd>/<kbd>F</kbd> up/down · <kbd>Q</kbd>/<kbd>E</kbd> turn · <kbd>Shift</kbd> faster · drag to look
+    <div class="keys"><div><kbd>W A S D</kbd> move</div><div><kbd>R</kbd><kbd>F</kbd> up and down</div><div><kbd>Q</kbd><kbd>E</kbd> turn</div><div><kbd>Shift</kbd> faster, drag to look</div></div>
   </div>
   <div id="dock" class="float" role="toolbar" aria-label="Navigation">
     <div id="modes">
@@ -292,7 +350,7 @@ const isProblem = i => i.s === 'fail' || i.s === 'verify';
 const CLICK = () => sdk.Scene.InteractionType.CLICK, HOVER = () => sdk.Scene.InteractionType.HOVER;
 const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const ieShape = () => ({
-  inputs: { shape: 'box', w: 1, h: 1, d: 0.1, x: 0, y: 0, z: 0, angle: 0, color: 0xd6453d, opacity: 0.45, pulse: false, pts: null },
+  inputs: { shape: 'box', w: 1, h: 1, d: 0.1, x: 0, y: 0, z: 0, angle: 0, color: 0xff3b30, opacity: 0.45, pulse: false, pts: null },
   outputs: {}, events: {}, emits: { clicked: true, hovered: true }, t: 0,
   onInit() {
     const THREE = this.context.three, i = this.inputs, floor = i.shape === 'floor';
@@ -366,7 +424,7 @@ async function connect(sid) {
 }
 
 // Colours carry meaning only: red fail, amber tape (or a fix that helps), green fixed, grey not measured.
-const HEX = { fail: 0xd6453d, verify: 0xe0a21b, helps: 0xe0a21b, fixed: 0x2e9d63, pass: 0x2e9d63, none: 0x8a8882 };
+const HEX = { fail: 0xff3b30, verify: 0xff9500, helps: 0xff9500, fixed: 0x34c759, pass: 0x34c759, none: 0x8e8e93 }; // Apple system red, orange, green, grey
 const RGB = h => ({ r: (h >> 16 & 255) / 255, g: (h >> 8 & 255) / 255, b: (h & 255) / 255 });
 const shown = {}; // item id → { comp, tag, room ids }
 const roomTints = {}; // room id → floor component
@@ -376,9 +434,11 @@ const WORST = { fail: 3, verify: 2, helps: 2, fixed: 1, pass: 1, none: 0 };
 // Numbered pin icons, drawn here and handed to Matterport as PNG data. Critical pins get a black ring.
 function pinIcon(n, after, critical) {
   const c = document.createElement('canvas'); c.width = c.height = 64; const g = c.getContext('2d');
-  g.fillStyle = critical ? '#111' : '#fff'; g.fillRect(0, 0, 64, 64);
-  g.fillStyle = '#' + HEX[after].toString(16).padStart(6, '0'); g.fillRect(critical ? 7 : 3, critical ? 7 : 3, critical ? 50 : 58, critical ? 50 : 58);
-  g.fillStyle = after === 'verify' || after === 'helps' ? '#111' : '#fff'; g.font = '700 34px "Work Sans", system-ui, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
+  const box = (x, w, r) => { g.beginPath(); g.roundRect(x, x, w, w, r); g.fill(); }; // rounded squares, like the list badges
+  g.fillStyle = critical ? '#1d1d1f' : '#fff'; box(0, 64, 18);
+  // Accessible red (#D70015) behind white digits; the other colours carry dark digits.
+  g.fillStyle = after === 'fail' ? '#D70015' : '#' + HEX[after].toString(16).padStart(6, '0'); box(critical ? 7 : 3, critical ? 50 : 58, critical ? 12 : 16);
+  g.fillStyle = ['verify', 'helps', 'pass', 'fixed'].includes(after) ? '#1d1d1f' : '#fff'; g.font = '600 34px -apple-system, BlinkMacSystemFont, "Helvetica Neue", system-ui, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
   g.fillText(String(n), 32, 35); return c.toDataURL('image/png');
 }
 async function setPinLook(id, n, after, critical) {
@@ -542,6 +602,7 @@ function bindStep(i) {
 }
 
 const loadProducts = async () => (await (await fetch('/data/products.json')).json()).products;
+const refs = a => String(a).replaceAll(' \u00b7 ', ', '); // reference lists read as commas on screen
 const esc = t => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 // Fix options for one item: every rung of its ladder, each re-checked; choosing one updates the plan and the 3D shape.
 const VERDICT = { closes: 'closes it', helps: 'helps, not enough', na: "doesn't apply here", nosupport: 'not counted as support' };
@@ -553,9 +614,9 @@ function fixHtml(i) {
       <input type="radio" name="fix" value="${esc(o.key)}" ${row.chosen?.key === o.key ? 'checked' : ''}>
       ${o.product ? `<img alt="" src="/data/${esc(o.product.photo)}">` : `<span class="noimg">${o.kind === 'contractor' ? 'Pro' : o.kind === 'free' ? '$0' : '—'}</span>`}
       <span class="what"><b>${esc(o.label)}</b>
-        <small>${[o.product && `${esc(o.product.store.split(' (')[0])} · ${esc(o.product.install)}`, o.change && esc(o.change), !o.product && o.note && esc(o.note), o.kind === 'contractor' && o.source && esc(o.source), o.kind === 'text' && 'not in our catalogue, table price'].filter(Boolean).join(' · ')}</small>
+        ${[o.product && `${esc(o.product.store.split(' (')[0])}, ${esc(o.product.install)}`, o.change && esc(o.change.replace(' → ', ' to ')), !o.product && o.note && esc(o.note), o.kind === 'contractor' && o.source && esc(o.source), o.kind === 'text' && 'Not in our catalogue, table price'].filter(Boolean).map(t => `<small>${t}</small>`).join('')}
         ${o.reason ? `<small class="warn">${esc(o.reason)}</small>` : ''}${o.product?.evidence ? `<small class="ev" title="${esc(o.product.evidence)}">${esc(o.product.evidence)}</small>` : ''}
-        <span class="vd">${VERDICT[o.verdict]}</span>${o.product?.url ? ` <a href="${esc(o.product.url)}" target="_blank" rel="noopener">store ↗</a>` : ''}</span>
+        <span class="vd">${VERDICT[o.verdict]}</span>${o.product?.url ? ` <a href="${esc(o.product.url)}" target="_blank" rel="noopener">Store ↗</a>` : ''}</span>
       <span class="price">${money(o)}</span></label>`;
   const noProd = !row.options.some(o => o.kind === 'product' && o.verdict !== 'nosupport' && o.verdict !== 'na');
   return `<h4>Fix options</h4>${noProd ? '<p class="nofix">No product in our catalogue changes this number; the options below are what is left.</p>' : ''}<div class="opts" role="radiogroup" aria-label="Fix options">${row.options.map(opt).join('')}
@@ -584,33 +645,33 @@ function showCard(i) {
     nums = [['This doorway', `${inch(i.w).toFixed(1)}"`, bad], ['Clear when open', `~${clear.toFixed(0)}"`, bad], ['Needed clear', '32"', false]];
     why = `A manual wheelchair is up to <b>${CHAIR}"</b> wide with hands on the wheels. This opening is ${inch(i.w).toFixed(1)}"; an open door takes about 1½–2", leaving about <b>${clear.toFixed(0)}"</b>. ` +
       (i.s === 'fail' ? 'The chair doesn\'t fit through.' : i.s === 'verify' ? 'An opening between 32" and 34" may leave just under 32" clear: measure it with a tape.' : i.s === 'skip' ? 'It only leads to a closet, so it isn\'t scored.' : clear >= CHAIR ? 'A chair fits through.' : 'It meets the 32" reference, but the widest chairs will be tight.');
-    svg = doorSvg(clear); src = 'ADA 404.2.3 (32" clear) · HUD Fair Housing Design Manual · Access Board anthropometry study';
+    svg = doorSvg(clear); src = 'ADA 404.2.3 (32" clear), HUD Fair Housing Design Manual, Access Board anthropometry study';
   } else if (i.kind === 'step') {
     tag = i.s === 'pass' ? 'Level threshold' : 'Step at the door';
     nums = [['Step height', ftin(i.value), i.s !== 'pass'], ['Level within', '¾"', false]];
     why = i.s === 'pass' ? 'The threshold is level, so a wheelchair rolls straight over it.' : `A step has to be ramped. Even at a 0.8" threshold, 46% of new manual wheelchair users failed on their first try. This one is <b>${ftin(i.value)}</b> (the scan reads door bottoms to about ±1", so under 2" means check with a tape).`;
-    svg = stepSvg(inch(i.value)); src = 'ADA 404.2.5 / 303 · threshold study in data/rules.json';
+    svg = stepSvg(inch(i.value)); src = 'ADA 404.2.5 and 303, threshold study in data/rules.json';
   } else if (i.kind === 'turn' || i.kind === 'hall') {
     const across = i.value == null ? null : inch(i.value); i.across_ft = ftin(i.value);
     tag = i.s === 'pass' ? 'Room to turn' : 'No room to turn';
     nums = [['Room across', i.across_ft, i.s !== 'pass'], ['Turning circle', '5\' 0"', false]];
     why = i.s === 'pass' ? `The room is ${i.across_ft} across, so a 5' circle fits on paper. Furniture isn't subtracted, so check the open floor.` : `A wheelchair needs a 5' circle to turn around. This room is narrower than that, so a turn means backing in and out. Even in a full 5' circle, fewer than half of wheelchair users complete a 360° turn.`;
-    svg = turnSvg(across ?? 58); src = 'ADA 304.3 (60" circle) · Access Board turning study';
-    if (i.kind === 'hall') { tag = { pass: 'Hallway wide enough', fail: 'Hallway too narrow', verify: 'Check with a tape', none: 'Not measured yet' }[i.s]; nums = [['Hallway', i.across_ft, i.s !== 'pass'], ['Needed', '3\' 2"', false]]; why = 'A wheelchair needs 36" to roll down a hallway and more to turn into a door off it. This is the room box, so furniture isn\'t subtracted.'; svg = ''; src = CHECK[11].anchor; }
+    svg = turnSvg(across ?? 58); src = 'ADA 304.3 (60" circle), Access Board turning study';
+    if (i.kind === 'hall') { tag = { pass: 'Hallway wide enough', fail: 'Hallway too narrow', verify: 'Check with a tape', none: 'Not measured yet' }[i.s]; nums = [['Hallway', i.across_ft, i.s !== 'pass'], ['Needed', '3\' 2"', false]]; why = 'A wheelchair needs 36" to roll down a hallway and more to turn into a door off it. This is the room box, so furniture isn\'t subtracted.'; svg = ''; src = refs(CHECK[11].anchor); }
   } else {
     const c = CHECK[i.n]; tag = { pass: 'Passes', fail: 'Fails', verify: 'Check with a tape', none: 'Not measured yet', skip: 'Not scored' }[i.s];
-    nums = [['Measured', i.measured, i.s === 'fail'], ['Needed', i.need, false]]; why = `${c.rule}. ${c.who}.`; svg = ''; src = c.anchor;
-    if (c.how !== 'auto') { const nx = i.s !== 'none' && nextInRoom(i); svg = stepHtml(i) + (nx ? `<button type="button" id="m-next">Next in the ${esc(c.room === 'any' ? 'apartment' : c.room.toLowerCase())}: ${esc(CHECK[nx.n].title)} →</button>` : ''); }
+    nums = [['Measured', i.measured, i.s === 'fail'], ['Needed', i.need, false]]; why = `${c.rule}. ${c.who}.`; svg = ''; src = refs(c.anchor);
+    if (c.how !== 'auto') { const nx = i.s !== 'none' && nextInRoom(i); svg = stepHtml(i) + (nx ? `<button type="button" id="m-next">Next in the ${esc(c.room === 'any' ? 'apartment' : c.room.toLowerCase())}: ${esc(CHECK[nx.n].title)}</button>` : ''); }
   }
   $('card').innerHTML = `<button class="x" aria-label="Close">×</button><span class="tag s-${i.s}" style="background:var(--${i.s})">${tag}</span>
-    <h3>${i.title}</h3>
+    <h3>${i.title}</h3>${i.kind === 'door' || i.kind === 'step' ? `<div class="where">${esc(i.detail)}</div>` : ''}
     <div class="nums">${nums.map(([k, v, bad]) => `<div class="${bad ? 'bad' : ''}">${k}<b>${v}</b></div>`).join('')}</div>
     <p>${why}</p>
     ${i.at && CHECK[i.n].how === 'auto' ? (photos[i.id] ? `<img alt="The problem in the tour" src="${photos[i.id]}">` : `<div class="ph">Taking a photo from the tour…</div>`) : ''}
     ${svg ? (CHECK[i.n].how === 'auto' ? `<h4>${i.s === 'pass' ? 'To scale' : 'Why it won\'t work (to scale)'}</h4>` : `<h4>Complete the check</h4>`) + svg : ''}
     ${fixHtml(i)}
     ${i.kind === 'door' || i.kind === 'step' ? `<button class="measure" id="measure">Measure it yourself with Matterport's ruler</button>` : ''}
-    <p class="src">Number from: ${esc(i.source || 'not measured yet')} · Reference: ${src}${i.source === 'Matterport scan' ? '. Confirm with a tape before you sign.' : '.'}</p>`;
+    <p class="src"><span>Source: ${esc(i.source || 'not measured yet')}.${i.source === 'Matterport scan' ? ' Confirm with a tape before you sign.' : ''}</span><span>Reference: ${src}.</span></p>`;
   $('measure')?.addEventListener('click', async () => {
     // Matterport's own measuring tool: a second reading of the same door or step, straight from the scan.
     closeCard();
@@ -626,60 +687,60 @@ function showCard(i) {
 function doorSvg(clear) {
   const k = 6, W0 = 340, cx = W0 / 2, gap = clear * k, chair = CHAIR * k, over = (chair - gap) / 2;
   return `<svg viewBox="0 0 ${W0} 230" role="img" aria-label="Wheelchair ${CHAIR} inches wide against a ${clear.toFixed(0)} inch doorway">
-    <rect x="0" y="40" width="${cx - gap / 2}" height="26" fill="#cfc9bf"/><rect x="${cx + gap / 2}" y="40" width="${W0 - cx - gap / 2}" height="26" fill="#cfc9bf"/>
-    <line x1="${cx - gap / 2}" y1="30" x2="${cx + gap / 2}" y2="30" stroke="#1d1d1b"/><text x="${cx}" y="22" text-anchor="middle" font-size="12">doorway ~${clear.toFixed(0)}" clear</text>
-    <rect x="${cx - chair / 2}" y="96" width="${chair}" height="110" rx="14" fill="none" stroke="#1d1d1b" stroke-width="2"/>
-    <rect x="${cx - chair / 2}" y="96" width="14" height="110" rx="6" fill="#1d1d1b"/><rect x="${cx + chair / 2 - 14}" y="96" width="14" height="110" rx="6" fill="#1d1d1b"/>
-    ${over > 0 ? `<rect x="${cx - chair / 2}" y="40" width="${over}" height="166" fill="#d6453d" opacity=".35"/><rect x="${cx + gap / 2}" y="40" width="${over}" height="166" fill="#d6453d" opacity=".35"/>` : ''}
+    <rect x="0" y="40" width="${cx - gap / 2}" height="26" fill="#d1d1d6"/><rect x="${cx + gap / 2}" y="40" width="${W0 - cx - gap / 2}" height="26" fill="#d1d1d6"/>
+    <line x1="${cx - gap / 2}" y1="30" x2="${cx + gap / 2}" y2="30" stroke="#1d1d1f"/><text x="${cx}" y="22" text-anchor="middle" font-size="12">doorway ~${clear.toFixed(0)}" clear</text>
+    <rect x="${cx - chair / 2}" y="96" width="${chair}" height="110" rx="14" fill="none" stroke="#1d1d1f" stroke-width="2"/>
+    <rect x="${cx - chair / 2}" y="96" width="14" height="110" rx="6" fill="#1d1d1f"/><rect x="${cx + chair / 2 - 14}" y="96" width="14" height="110" rx="6" fill="#1d1d1f"/>
+    ${over > 0 ? `<rect x="${cx - chair / 2}" y="40" width="${over}" height="166" fill="#ff3b30" opacity=".35"/><rect x="${cx + gap / 2}" y="40" width="${over}" height="166" fill="#ff3b30" opacity=".35"/>` : ''}
     <text x="${cx}" y="160" text-anchor="middle" font-size="12">wheelchair ${CHAIR}"</text>
-    <text x="${cx}" y="224" text-anchor="middle" font-size="12" fill="#d6453d" font-weight="600">${over > 0 ? `${(CHAIR - clear).toFixed(1)}" too wide` : 'fits'}</text></svg>`;
+    <text x="${cx}" y="224" text-anchor="middle" font-size="12" fill="#d70015" font-weight="600">${over > 0 ? `${(CHAIR - clear).toFixed(1)}" too wide` : 'fits'}</text></svg>`;
 }
 // Side view: the step against the ½" limit. 20 px per inch (exaggerated so small steps show).
 function stepSvg(h) {
   const k = 20, base = 170, sh = Math.min(h, 6) * k;
   return `<svg viewBox="0 0 340 200" role="img" aria-label="${h.toFixed(1)} inch step against the half inch limit">
-    <line x1="0" y1="${base}" x2="340" y2="${base}" stroke="#1d1d1b" stroke-width="2"/>
-    <rect x="200" y="${base - sh}" width="140" height="${sh}" fill="#d6453d" opacity=".55"/>
-    <line x1="150" y1="${base - 0.5 * k}" x2="340" y2="${base - 0.5 * k}" stroke="#2e9d63" stroke-dasharray="5 4"/>
-    <text x="150" y="${base - 0.5 * k - 6}" font-size="12" fill="#2e9d63">½" limit</text>
-    <circle cx="150" cy="${base - 36}" r="36" fill="none" stroke="#1d1d1b" stroke-width="3"/><circle cx="150" cy="${base - 36}" r="4"/>
-    <text x="270" y="${base - sh - 8}" text-anchor="middle" font-size="12" font-weight="600" fill="#d6453d">${h.toFixed(1)}" step</text>
-    <text x="170" y="194" text-anchor="middle" font-size="11" fill="#6b6a66">side view, step drawn 20× larger than the wheel</text></svg>`;
+    <line x1="0" y1="${base}" x2="340" y2="${base}" stroke="#1d1d1f" stroke-width="2"/>
+    <rect x="200" y="${base - sh}" width="140" height="${sh}" fill="#ff3b30" opacity=".55"/>
+    <line x1="150" y1="${base - 0.5 * k}" x2="340" y2="${base - 0.5 * k}" stroke="#248a3d" stroke-dasharray="5 4"/>
+    <text x="150" y="${base - 0.5 * k - 6}" font-size="12" fill="#248a3d">½" limit</text>
+    <circle cx="150" cy="${base - 36}" r="36" fill="none" stroke="#1d1d1f" stroke-width="3"/><circle cx="150" cy="${base - 36}" r="4"/>
+    <text x="270" y="${base - sh - 8}" text-anchor="middle" font-size="12" font-weight="600" fill="#d70015">${h.toFixed(1)}" step</text>
+    <text x="170" y="194" text-anchor="middle" font-size="11" fill="#6e6e73">side view, step drawn 20× larger than the wheel</text></svg>`;
 }
 // Top view: the room's narrow side vs the 5' turning circle. 2.6 px per inch.
 function turnSvg(across) {
   const k = 2.6, cx = 170, cy = 105, r = 30 * k, half = Math.min(across * k / 2, 100); // rooms wider than the drawing are shown at its edge
-  return `<svg viewBox="0 0 340 215" role="img" aria-label="Five foot turning circle in a room ${across.toFixed(0)} inches across">
+  return `<svg viewBox="0 0 340 240" role="img" aria-label="Five foot turning circle in a room ${across.toFixed(0)} inches across">
     <defs><clipPath id="out"><rect x="0" y="0" width="340" height="${Math.max(0, cy - half)}"/><rect x="0" y="${cy + half}" width="340" height="215"/></clipPath></defs>
-    <rect x="0" y="${cy - half - 8}" width="340" height="8" fill="#cfc9bf"/><rect x="0" y="${cy + half}" width="340" height="8" fill="#cfc9bf"/>
-    <circle cx="${cx}" cy="${cy}" r="${r}" fill="#d6453d" opacity=".35" clip-path="url(#out)"/>
-    <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#d6453d" stroke-width="2" stroke-dasharray="6 4"/>
+    <rect x="0" y="${cy - half - 8}" width="340" height="8" fill="#d1d1d6"/><rect x="0" y="${cy + half}" width="340" height="8" fill="#d1d1d6"/>
+    <circle cx="${cx}" cy="${cy}" r="${r}" fill="#ff3b30" opacity=".35" clip-path="url(#out)"/>
+    <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#ff3b30" stroke-width="2" stroke-dasharray="6 4"/>
     <text x="${cx}" y="${cy + 4}" text-anchor="middle" font-size="12">5' turning circle</text>
-    <text x="8" y="${cy - half - 14}" font-size="11" fill="#6b6a66">wall</text>
-    <text x="${cx}" y="211" text-anchor="middle" font-size="12" font-weight="600" fill="#d6453d">room is ${ft(across * IN)} across, circle needs 5' 0"</text></svg>`;
+    <text x="8" y="${cy - half - 14}" font-size="11" fill="#6e6e73">wall</text>
+    <text x="${cx}" y="232" text-anchor="middle" font-size="12" font-weight="600" fill="#d70015">room is ${ft(across * IN)} across, circle needs 5' 0"</text></svg>`;
 }
 
 let checks = [], convo = [], issueList = [], pose = null, products = [], plan = null, ev = null, choices = {}, budget = null;
 function moneyLine() {
   const m = $('money'); if (!m) return;
   const c = plan.contractor, n = plan.noPurchaseFix.length;
-  m.innerHTML = `<b id="plan-total">$${plan.purchases.toFixed(2)}</b> fixes what a purchase can fix` + (n ? ` · ${n} no purchase fixes` : '') +
-    (c.high ? `<br>Contractor work you chose: $${c.low.toLocaleString()}–${c.high.toLocaleString()}` : '') + (budget != null ? `<br>Budget $${budget} · $${plan.left.toFixed(2)} left` : '');
+  m.innerHTML = `<div class="m"><b id="plan-total">$${plan.purchases.toFixed(2)}</b><span>fixes what a purchase can fix</span></div>` + (n ? `<small>${n} need more than a purchase</small>` : '') +
+    (c.high ? `<small>Contractor work you chose: $${c.low.toLocaleString()}–${c.high.toLocaleString()}</small>` : '') + (budget != null ? `<small>Budget $${budget}, $${plan.left.toFixed(2)} left</small>` : '');
 }
 function replan() { plan = planAll(checks, products, { choices, budget }); moneyLine(); window.__ie && (window.__ie.total = plan.purchases); recolourAll(); if (!$('p-plan').hidden) renderPlan(); }
 // Plan and report: chosen fixes with prices, contractor work apart, what stays unsolved and why, every number with its source.
 function renderPlan() {
   $('r-name').textContent = model?.name || ''; $('r-date').textContent = new Date().toLocaleDateString('en-US', { dateStyle: 'medium' });
   $('budget').value = budget ?? '';
-  const src = i => `${esc(i.measured)} · ${esc(i.source || 'not measured')} · ${esc(CHECK[i.n].anchor)}`;
+  const src = i => `${esc(i.source || 'not measured')}. ${esc(refs(CHECK[i.n].anchor))}`;
   const chosen = plan.rows.filter(r => r.chosen), open = plan.rows.filter(r => r.after !== 'fixed');
   const why = r => r.chosen?.verdict === 'helps' ? `${esc(r.chosen.label)} helps, not enough` : r.byYou && !r.chosen ? 'you chose not to fix it now'
     : r.overBudget ? `over budget (cheapest fix ${money(r.default)})` : (() => { const pro = r.options.find(o => o.kind === 'contractor' && o.verdict === 'closes'); return `no purchase fixes it${pro ? `; ${esc(pro.label)}${pro.low != null ? `: ${money(pro)}` : ''}${pro.source ? ` (${esc(pro.source)})` : ''}` : ''}`; })();
   const sum = summary(checks);
   $('plan').innerHTML = `<div class="tot"><div><b>$${plan.purchases.toFixed(2)}</b>purchases</div><div><b>${plan.closed}</b>of ${plan.rows.length} problems closed</div>${plan.contractor.high ? `<div><b>$${plan.contractor.low.toLocaleString()}–${plan.contractor.high.toLocaleString()}</b>contractor</div>` : ''}</div>
-    <h5>Chosen fixes</h5>${chosen.length ? chosen.map(r => `<div class="pr"><div><b>${esc(r.item.title)}</b><small>${esc(r.chosen.label)} · ${VERDICT[r.chosen.verdict]}${r.chosen.product ? ` · ${esc(r.chosen.product.store.split(' (')[0])}` : ''}</small><small>${src(r.item)}</small></div><span>${money(r.chosen)}</span></div>`).join('') : '<p class="sub">None yet.</p>'}
-    <h5>Still open, and why</h5>${open.length ? open.map(r => `<div class="pr"><div><b>${esc(r.item.title)}</b><small>${why(r)}</small><small>${src(r.item)}</small></div><span class="st s-${r.item.s}">${r.item.critical ? 'critical' : r.item.s === 'verify' ? 'tape' : 'fails'}</span></div>`).join('') : '<p class="sub">Nothing open.</p>'}
-    <p class="sub">${sum.none} checks not measured yet · ${sum.pass} of ${sum.measured} measured checks pass. Measured from the Matterport scan or by you; confirm with a tape before you sign. Prices from the stores listed, collected Nov 2026.</p>`;
+    <h5>Chosen fixes</h5>${chosen.length ? chosen.map(r => `<div class="pr"><div><b>${esc(r.item.title)}</b><small>${esc(r.item.detail)}</small><small>${esc(r.chosen.label)}</small><small>${VERDICT[r.chosen.verdict][0].toUpperCase() + VERDICT[r.chosen.verdict].slice(1)}${r.chosen.product ? `, ${esc(r.chosen.product.store.split(' (')[0])}` : ''}</small><small>${src(r.item)}</small></div><span>${money(r.chosen)}</span></div>`).join('') : '<p class="sub">None yet.</p>'}
+    <h5>Still open, and why</h5>${open.length ? open.map(r => `<div class="pr"><div><b>${esc(r.item.title)}</b><small>${esc(r.item.detail)}</small><small>${why(r)}</small><small>${src(r.item)}</small></div><span class="st s-${r.item.s}">${r.item.critical ? 'critical' : r.item.s === 'verify' ? 'tape' : 'fails'}</span></div>`).join('') : '<p class="sub">Nothing open.</p>'}
+    <p class="foot">${sum.pass} of ${sum.measured} measured checks pass. ${sum.none} not measured yet. Numbers come from the Matterport scan or from you; confirm with a tape before you sign. Prices from the stores listed, collected Nov 2026.</p>`;
 }
 function renderList() {
   checks = described(ev.items); issueList = checks.filter(i => isProblem(i));
@@ -687,14 +748,15 @@ function renderList() {
   for (const i of checks) (byGroup[groupOf(i)] ||= []).push(i);
   plan = planAll(checks, products, { choices, budget });
   $('score').innerHTML = (ev.noDoorData ? '<div class="nodata">This tour has no doorway data: doors and steps are not measured.</div>' : '') +
-    `<b>${sum.pass} of ${sum.measured}</b>measured checks pass · ${sum.critical} critical${sum.verify ? ` · ${sum.verify} to check with a tape` : ''}` +
-    (!issueList.length ? '<div class="money">No problems in the automatic checks. 16 checks need a measurement or an answer.</div>' : `<div class="money" id="money"></div>`);
+    `<div class="big"><b>${sum.pass} of ${sum.measured}</b><span>measured checks pass</span></div>` +
+    `<div class="stats"><div class="stat crit"><b>${sum.critical}</b><span>critical</span></div>${sum.verify ? `<div class="stat tape"><b>${sum.verify}</b><span>to check</span></div>` : ''}</div>` +
+    (!issueList.length ? '<div class="money"><small>No problems in the automatic checks. 16 checks need a measurement or an answer.</small></div>' : `<div class="money" id="money"></div>`);
   moneyLine();
   $('issues').innerHTML = ''; $('jumps').innerHTML = issueList.length ? '<span>Go to issue</span>' : '<span>No problems found</span>';
   for (const [g, label] of GROUPS) {
     const rows = byGroup[g]; if (!rows) continue;
     const box = document.createElement(g === 'pass' ? 'details' : 'section'); box.className = 'grp';
-    box.innerHTML = g === 'pass' ? `<summary>${label} (${rows.length})</summary>` : `<h5>${label} <span>${rows.length}</span></h5>` + (g === 'none' ? '<button type="button" class="start" id="start-check">Complete the check: bathroom first →</button>' : '');
+    box.innerHTML = g === 'pass' ? `<summary>${label} (${rows.length})</summary>` : `<h5>${label} <span>${rows.length}</span></h5>` + (g === 'none' ? '<button type="button" class="start" id="start-check">Complete the check, bathroom first</button>' : '');
     for (const i of rows) {
       const pin = issueList.indexOf(i) + 1, el = document.createElement('div');
       el.className = 'issue'; el.tabIndex = 0; el.dataset.item = i.id; el.dataset.check = i.n; el.dataset.status = i.s; if (isProblem(i) && hasPricedFix(i, products)) el.dataset.priced = '';
@@ -721,7 +783,7 @@ async function load(sid) {
   await sdk.Scene.registerComponents([{ name: 'ie.shape', factory: ieShape }]);
   await tintRooms().catch(e => console.log('[tour] tint: ' + (e.message || e)));
   const d = await draw(issueList.filter(i => i.at)); retint(); watchPins(); watchRuler();
-  status(`Tour ready · red 3D shapes: ${d.scene ? 'yes' : 'no'} · tags: ${d.tags}/${issueList.length}`);
+  status(d.scene && d.tags === issueList.length ? 'Tour ready' : `Tour ready. ${d.scene ? '' : '3D marks unavailable. '}${d.tags} of ${issueList.length} pins shown.`);
   $('skel')?.remove();
   // Test hooks for the smoke run: measure() feeds two world points through the same handler as Matterport's ruler.
   window.__ie = { ready: true, pins: d.tags, shapes: d.scene, measure: (id, a, b) => onMeasured(id, a, b), plan: () => ({ purchases: plan.purchases, budget, closed: plan.closed }),
@@ -893,18 +955,18 @@ function startWalk() {
 }
 async function showStop() {
   const c = stops[at]; if (!c) return;
-  $('w-count').textContent = `Stop ${at + 1} of ${stops.length}` + (c.s === 'pass' ? ' · fine' : ' · problem');
+  $('w-count').textContent = `Stop ${at + 1} of ${stops.length}` + (c.s === 'pass' ? '' : ', problem');
   $('w-title').textContent = c.kind === 'turn' ? (c.s === 'pass' ? `${c.room}: room to turn` : c.title) : c.title;
-  $('w-prev').disabled = at === 0; $('w-next').textContent = at === stops.length - 1 ? 'Finish' : 'Next ▶';
+  $('w-prev').disabled = at === 0; $('w-next').textContent = at === stops.length - 1 ? 'Finish' : 'Next';
   await goTo(c);
 }
 $('w-prev').onclick = () => { if (at > 0) { at--; showStop(); } };
 $('w-next').onclick = () => { if (at < stops.length - 1) { at++; showStop(); } else { setMode('overview'); closeCard(); overview(); } };
 $('w-end').onclick = () => { setMode('overview'); closeCard(); overview(); };
-function stopAuto() { clearInterval(autoTimer); autoTimer = null; $('w-play').textContent = '▶ Auto'; }
+function stopAuto() { clearInterval(autoTimer); autoTimer = null; $('w-play').textContent = 'Auto play'; }
 $('w-play').onclick = () => {
   if (autoTimer) return stopAuto();
-  $('w-play').textContent = '⏸ Pause';
+  $('w-play').textContent = 'Pause';
   autoTimer = setInterval(() => { if (at < stops.length - 1) { at++; showStop(); } else stopAuto(); }, 9000);
 };
 
@@ -942,7 +1004,7 @@ $('pick').onchange = reloadWith; $('quality').onchange = reloadWith;
 const thumb = id => `https://my.matterport.com/api/v1/player/models/${id}/thumb`;
 async function renderHome() {
   products = await loadProducts();
-  $('home').hidden = false; document.title = 'Inch & Ease · Can you live here?';
+  $('home').hidden = false; document.title = 'Inch & Ease';
   const demo = demoTour;
   $('demoLink').href = $('navDemo').href = `?m=${demo.id}`;
   const rows = [];
@@ -957,16 +1019,16 @@ async function renderHome() {
   const cheapest = Math.min(...rows.flatMap(x => x.pa.rows.filter(p => p.chosen?.price > 0).map(p => p.chosen.price)));
   $('proof').innerHTML = (worstLabelled && fails(worstLabelled) ? `<div><b class="red">${fails(worstLabelled)} problems</b><span>in a unit labelled "ADA"</span></div>` : '') +
     (isFinite(cheapest) ? `<div><b>$${cheapest.toFixed(2)}</b><span>cheapest real fix found</span></div>` : '') +
-    `<div><b>${rows.length}</b><span>apartments, Houston + LA</span></div>`;
+    `<div><b>${rows.length}</b><span>apartments in Houston and LA</span></div>`;
   rows.sort((a, b) => (b.t.id === demo.id) - (a.t.id === demo.id) || fails(b) - fails(a));
   for (const { t, r, pa, labelled } of rows) {
     const worst = r.issues[0], f = worst && pa.rows.find(p => p.item.id === worst.id), n = fails({ r });
     const pro = f?.options.find(o => o.kind === 'contractor' && o.verdict === 'closes'), fixText = !f ? '' : f.chosen ? `fix: ${money(f.chosen)}` : pro?.price ? `contractor, about $${pro.price.toLocaleString()}` : 'no purchase fixes it';
     const a = document.createElement('a'); a.className = 'apt'; a.href = `?m=${t.id}`;
     a.innerHTML = `<div class="img" style="background-image:url(${thumb(t.id)})"><span class="tag ${n ? '' : 'ok'}">${n ? n + ' problem' + (n > 1 ? 's' : '') : 'All pass'}</span></div>
-      <h4>${t.name}</h4><div class="city">${t.city}${labelled ? ' · labelled accessible' : ''}</div>
+      <h4>${t.name}</h4><div class="city">${t.city}${labelled ? ', labelled accessible' : ''}</div>
       <div class="sc"><b>${r.pass}/${r.total}</b><span>checks pass</span></div>
-      <div class="fx">${worst ? `<b>${worst.title.split(' · ')[0]}</b> · ${fixText}` : 'Every door, step and room passes'}</div>`;
+      <div class="fx">${worst ? `<b>${worst.title}</b><span>${fixText.charAt(0).toUpperCase() + fixText.slice(1)}</span>` : 'Every door, step and room passes'}</div>`;
     $('grid').appendChild(a);
   }
 }
