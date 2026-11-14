@@ -9,7 +9,7 @@
   /* Liquid glass: translucent frosted panels over the 3D view, Apple system font and colours. Colours carry meaning only.
      Three looks: Daylight (light glass), Night (dark glass), High contrast (solid black/white/yellow, no blur). */
   :root { --font:-apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", system-ui, sans-serif; --size:14px;
-          --wall:radial-gradient(1100px 700px at 0% 0%, #dde5f0 0%, transparent 65%), radial-gradient(900px 700px at 100% 100%, #ece7e1 0%, transparent 60%), #f2f2f5;
+          --wall:#fff; /* plain white page (user, Nov 14) */
           --bg:#f5f5f7; --ink:#1d1d1f; --muted:#5c5c61; --glass:rgba(255,255,255,.70); --glassStrong:rgba(255,255,255,.82); --edge:rgba(255,255,255,.35);
           --ring:rgba(0,0,0,.08); --fill:rgba(118,118,128,.12); --fill2:rgba(118,118,128,.2); --seg:#fff; --sep:rgba(60,60,67,.12); --chosen:rgba(255,255,255,.92);
           --accent:#1d1d1f; --accentInk:#fff; --focus:#0a84ff;
@@ -50,7 +50,7 @@
   h1 { font-size:16px; font-weight:700; letter-spacing:-.02em; margin:6px 0 0; } h1 span, .logo span { color:var(--failInk); }
   .sub { color:var(--muted); font-size:12px; } aside select { margin-top:8px; padding-top:7px; padding-bottom:7px; }
   .score { margin:14px 0 2px; }
-  .q { font-size:11px; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:.04em; }
+  .q { font-size:13px; font-weight:500; color:var(--muted); } /* plain sentence case: no small spaced-out capitals */
   .tiles { display:grid; grid-template-columns:1fr 1fr 1.4fr; gap:6px; margin-top:12px; }
   .tile { background:var(--fill); border-radius:12px; padding:7px 10px; min-width:0; }
   .tile b { display:block; font-size:18px; font-weight:700; letter-spacing:-.02em; line-height:1.15; } .tile span { display:block; font-size:12px; line-height:1.25; color:var(--muted); }
@@ -180,6 +180,11 @@
   #walkbar #w-prev, #walkbar #w-end { width:34px; height:34px; padding:0; display:grid; place-items:center; flex:none; }
   #walkbar .ic { width:14px; height:14px; stroke-width:2.2; }
   /* Drone: one quiet line of key hints in the dock, in place of "Go to issue"; fades almost away while flying, back on hover. */
+  /* The voice bar sits at the bottom, just above the menu (user, Nov 14), and moves up when the menu grows a second row. */
+  main #voice:not(.home) { top:auto; bottom:62px; }
+  main:has(#walkbar.on, #drone.on) #voice:not(.home), body.side-off main:has(#jumps:not(:empty)) #voice:not(.home) { bottom:104px; }
+  #tip { position:fixed; z-index:30; max-width:280px; padding:10px 12px; border-radius:12px; font-size:13px; line-height:1.4; pointer-events:none; }
+  #tip b { display:block; font-size:14px; } #tip span { display:block; color:var(--muted); margin-top:2px; }
   #drone { display:none; align-items:center; justify-content:center; flex-wrap:wrap; gap:4px 12px; padding:0 6px 4px; font-size:12px; color:var(--muted); opacity:.8; transition:opacity 400ms ease; }
   #drone.on { display:flex; } #dock:has(#drone.on) #jumps { display:none; } body.flying #drone { opacity:.2; } #drone:hover, #drone:focus-within { opacity:1; }
   #drone kbd { font:600 11px var(--font); color:var(--ink); background:var(--fill); padding:2px 5px; border-radius:5px; margin-right:2px; }
@@ -264,8 +269,22 @@
   .band .stats b.red { color:var(--failInk); } .band .stats span { font-size:17px; } .band .stats small { display:block; color:var(--muted); font-size:12px; margin-top:8px; }
   #home h3 { font-size:40px; line-height:1.05; font-weight:700; letter-spacing:-.03em; margin:88px 0 8px; }
   .lead { color:var(--muted); font-size:17px; margin:0 0 32px; }
+  .any { margin-top:56px; } .any h4 { font-size:22px; font-weight:700; margin:0 0 6px; } .any h4.sub { margin-top:40px; } #anyGrid, #freshGrid { margin-top:20px; } .apt .tag.new { background:#1d1d1f !important; color:#fff; } .apt .fx b.go { color:inherit; }
+  #anyMore { margin-top:24px; font:inherit; font-weight:600; padding:10px 16px; border:1px solid var(--line, #d2d2d7); border-radius:10px; background:transparent; color:inherit; cursor:pointer; }
+  .any form { display:flex; gap:10px; max-width:720px; margin-top:14px; } .any input { flex:1; min-width:0; font:inherit; padding:12px 14px; border:1px solid var(--line, #d2d2d7); border-radius:10px; background:var(--panel, #fff); color:inherit; }
+  .any button { font:inherit; font-weight:600; padding:12px 18px; border:0; border-radius:10px; background:var(--ink, #1d1d1f); color:var(--bg, #fff); cursor:pointer; }
+  .browse { max-width:720px; margin-top:16px; border:1px solid var(--line, #d2d2d7); border-radius:12px; background:var(--panel, #fff); }
+  .browse .chips { display:flex; flex-wrap:wrap; gap:8px; padding:14px 14px 0; }
+  .browse .chips button { font-weight:600; padding:8px 14px; border-radius:999px; background:var(--fill, #f2f2f7); color:inherit; }
+  .browse .chips button[aria-pressed=true] { background:var(--ink, #1d1d1f); color:var(--bg, #fff); }
+  .browse form { margin:12px 14px 0; max-width:none; } .browse .count { padding:10px 14px 6px; font-size:14px; color:var(--muted); }
+  #anyList { list-style:none; padding:0; margin:0; max-height:420px; overflow-y:auto; border-top:1px solid var(--line, #e5e5ea); } #anyList li + li { border-top:1px solid var(--line, #e5e5ea); }
+  #anyList a { display:flex; gap:12px; align-items:center; padding:10px 14px; color:inherit; text-decoration:none; } #anyList a:hover, #anyList a:focus { background:var(--fill, #f2f2f7); }
+  #anyList img { width:72px; height:48px; object-fit:cover; border-radius:6px; flex:none; background:var(--fill, #f2f2f7); }
+  #anyList small { display:block; color:var(--muted); } #anyList > li > small { display:block; padding:12px 14px; }
+  #anyNext { display:block; width:calc(100% - 28px); margin:10px 14px 14px; background:var(--fill, #f2f2f7); color:inherit; } #anyNext[hidden] { display:none; }
   .grid { display:grid; grid-template-columns:repeat(3, 1fr); gap:40px 28px; }
-  .apt { display:block; color:inherit; text-decoration:none; }
+  .apt { display:block; color:inherit; text-decoration:none; } .apt[hidden] { display:none; }
   .apt .img { aspect-ratio:4/3; background:var(--fill) center/cover; position:relative; border-radius:18px; overflow:hidden; transition:transform var(--ease), box-shadow var(--ease); box-shadow:0 0 0 .5px var(--ring); }
   .apt:hover .img { transform:translateY(-2px); box-shadow:var(--shadow); }
   .apt .tag { position:absolute; left:12px; top:12px; background:var(--fail); color:#fff; font-size:13px; font-weight:600; padding:6px 12px; border-radius:999px; } .apt .tag.ok { background:var(--pass); color:#1d1d1f; }
@@ -279,7 +298,69 @@
   #home footer span { display:block; } #home footer .brand { font-weight:600; color:var(--ink); white-space:nowrap; }
   [data-theme=contrast] .proof div, [data-theme=contrast] .band, [data-theme=contrast] .how > div { border:1px solid #fff; }
   @media (max-width:900px) { .hero { grid-template-columns:1fr; } .hero h2 { font-size:52px; } .band .stats, .grid, .how { grid-template-columns:1fr; } #home .page { padding:0 16px 48px; } .band { padding:32px 20px; } #home nav { gap:8px; padding:0 8px 0 18px; } #home nav .links { display:none; } #prefs { top:80px; right:16px; width:min(300px, calc(100vw - 32px)); } }
+
+  /* ---- Brand "Evergreen" (user's pick, Nov 14; notes/design_refs/options/v9_brand): the name in Space Grotesk, evergreen + sage.
+     The start page follows layout B: flat, centred, cream, square-ish corners, hairlines instead of glass cards. ---- */
+  :root { --brand:#1F4D3F; --brandSoft:#7FA393; --brandInk:#fff; --brandFont:'Space Grotesk', var(--font); --homeFont:'Work Sans', var(--font);
+          --homeBg:#F7F6F2; --homeInk:#16302A; --homeMuted:#4A5F58; --kickerBg:#E3EBE6; --brandLine:#B9CAC1; --homeRed:#B3261E; }
+  [data-theme=night] { --brand:#9CCBB5; --brandSoft:#5E8C78; --brandInk:#0F1513; --homeBg:#0F1513; --homeInk:#EEF3F0; --homeMuted:#A7B5AF; --kickerBg:rgba(156,203,181,.14); --brandLine:rgba(156,203,181,.35); --homeRed:#ff6961; }
+  [data-theme=contrast] { --brand:#FFD400; --brandSoft:#fff; --brandInk:#000; --homeBg:#000; --homeInk:#fff; --homeMuted:#e6e6e6; --kickerBg:#000; --brandLine:#fff; --homeRed:#ff7a70; }
+  .logo, aside h1, #home footer .brand { font-family:var(--brandFont); font-weight:700; letter-spacing:-.04em; color:var(--brand); }
+  .logo span, aside h1 span { color:var(--brandSoft); font-weight:500; }
+  #home { background:var(--homeBg); color:var(--homeInk); font-family:var(--homeFont); --muted:var(--homeMuted); }
+  #home :is(h2, h3, h4, h5) { font-family:var(--brandFont); }
+  #home nav { position:sticky; top:0; height:72px; margin:0; padding:0; border-radius:0; background:var(--homeBg); border:0; border-bottom:1px solid var(--brandLine); box-shadow:none; -webkit-backdrop-filter:none; backdrop-filter:none; font-weight:400; font-size:15px; }
+  #home nav .logo { font-size:22px; font-weight:700; letter-spacing:-.04em; }
+  #home nav .cta, .btn { border-radius:6px; background:var(--brand); color:var(--brandInk); } #home nav .cta { padding:10px 16px; } #home nav .cta:hover { color:var(--brandInk); }
+  .btn.ghost { background:transparent; color:var(--brand); box-shadow:inset 0 0 0 1px var(--brandLine); margin-left:0; }
+  .hero { grid-template-columns:1fr; gap:0; padding:88px 0 0; text-align:center; }
+  .hero > div:first-child { display:flex; flex-direction:column; align-items:center; }
+  .kicker { font:500 15px var(--brandFont); color:var(--brand); background:var(--kickerBg); padding:6px 12px; border-radius:4px; } [data-theme=contrast] .kicker { box-shadow:inset 0 0 0 1px #fff; }
+  .hero h2 { font-size:92px; font-weight:700; letter-spacing:-.05em; margin:22px 0 20px; }
+  .hero p { font-size:21px; max-width:620px; margin:0 auto 32px; }
+  .ctas { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
+  .photo { height:460px; margin-top:56px; border-radius:8px; box-shadow:none; background-image:url(https://images.unsplash.com/photo-1756312177391-021928b460c8?w=1600&q=80&auto=format); background-position:center 80%; }
+  .bracket { top:12%; } .note { border-radius:4px; background:#fff; -webkit-backdrop-filter:none; backdrop-filter:none; box-shadow:none; } .note.n1 { left:62%; top:18%; } .note.n2 { left:62%; top:80%; }
+  .proof { justify-content:center; gap:16px 56px; margin-top:28px; }
+  .proof div { display:flex; align-items:baseline; gap:8px; min-width:0; padding:0; background:none; border:0; box-shadow:none; -webkit-backdrop-filter:none; backdrop-filter:none; border-radius:0; }
+  .proof b { display:inline; font:700 22px var(--brandFont); } .proof span { font-size:15px; } .proof b.red, .band .stats b.red { color:var(--homeRed); }
+  .band { margin-top:64px; padding:0; background:none; border:0; border-radius:0; box-shadow:none; -webkit-backdrop-filter:none; backdrop-filter:none; }
+  .band .stats { gap:24px; } .band .stats > div { border-top:2px solid var(--brand); padding-top:18px; }
+  .band .stats b { font:700 46px/1 var(--brandFont); letter-spacing:-.04em; margin-bottom:10px; } .band .stats span { font-size:16px; }
+  #home h3 { font-size:32px; letter-spacing:-.03em; margin-top:80px; }
+  /* Hero (user, Nov 14): the question and the buttons on the left, a film of a real conversation with the guide on the right,
+     with each line said shown under it as it happens. */
+  .hero { grid-template-columns:minmax(0, 5fr) minmax(0, 7fr); gap:56px; align-items:center; padding:64px 0 0; text-align:left; }
+  .hero > div:first-child { align-items:flex-start; }
+  .hero h2 { font-size:76px; margin:22px 0 20px; } .hero p { margin:0 0 32px; max-width:470px; } .ctas { justify-content:flex-start; }
+  .hero .proof { grid-column:1 / -1; justify-content:flex-start; margin-top:8px; }
+  .film { margin:0; display:grid; gap:16px; } .film[hidden] { display:none; }
+  .film .screen { position:relative; aspect-ratio:16 / 9; border-radius:14px; overflow:hidden; background:#f2f2f5; border:1px solid rgba(0,0,0,.07); box-shadow:0 24px 60px -28px rgba(0,0,0,.35); }
+  .film video { display:block; width:100%; height:100%; object-fit:cover; }
+  .film .tag { position:absolute; left:12px; top:12px; font:600 11px var(--homeFont, inherit); letter-spacing:.02em; color:#1d1d1f; background:rgba(255,255,255,.9); padding:4px 9px; border-radius:999px; }
+  /* The chat under the film: a fixed height, newest at the bottom, older lines scroll off the top (no jumping layout). */
+  .talk { list-style:none; margin:0; padding:0; height:228px; overflow:hidden; display:flex; flex-direction:column; gap:8px; justify-content:flex-end;
+    -webkit-mask-image:linear-gradient(transparent, #000 28%); mask-image:linear-gradient(transparent, #000 28%); }
+  .talk li { flex:none; max-width:86%; padding:10px 14px; border-radius:18px; font-size:15px; line-height:1.45; animation:talkIn .3s ease both; }
+  .talk li b { display:block; font-size:12px; font-weight:600; opacity:.6; margin-bottom:2px; }
+  .talk li.you { align-self:flex-end; background:#1d1d1f; color:#fff; border-bottom-right-radius:6px; }
+  .talk li.guide { align-self:flex-start; background:#fff; color:#1d1d1f; border:1px solid rgba(0,0,0,.08); border-bottom-left-radius:6px; }
+  .talk li.typing span::after { content:''; display:inline-block; width:2px; height:1.05em; margin-left:2px; vertical-align:-3px; background:currentColor; animation:caret 1s steps(1) infinite; }
+  .talk li.dots span { display:flex; gap:4px; padding:6px 0 4px; } .talk li.dots i { width:6px; height:6px; border-radius:50%; background:#8e8e93; animation:dot 1s ease-in-out infinite; }
+  .talk li.dots i:nth-child(2) { animation-delay:.15s; } .talk li.dots i:nth-child(3) { animation-delay:.3s; }
+  @keyframes talkIn { from { opacity:0; transform:translateY(6px); } }
+  @keyframes caret { 50% { opacity:0; } }
+  @keyframes dot { 0%, 100% { opacity:.35; transform:none; } 50% { opacity:1; transform:translateY(-2px); } }
+  @media (prefers-reduced-motion: reduce) { .talk li, .talk li.typing span::after, .talk li.dots i { animation:none; } }
+  @media (max-width:900px) { .hero { grid-template-columns:1fr; gap:32px; } .hero h2 { font-size:52px; } }
+  .apt .img { border-radius:6px; } .apt:hover .img { transform:none; box-shadow:0 0 0 2px var(--brand); } .apt .tag { border-radius:4px; } .apt h4 { font-family:var(--brandFont); letter-spacing:-.02em; }
+  .how { gap:24px; margin-top:88px; } .how > div { padding:18px 0 0; background:none; border:0; border-top:1px solid var(--brandLine); border-radius:0; box-shadow:none; -webkit-backdrop-filter:none; backdrop-filter:none; }
+  .how .n { color:var(--brand); font-family:var(--brandFont); }
+  [data-theme=contrast] .proof div, [data-theme=contrast] .band, [data-theme=contrast] .how > div { border:0; } [data-theme=contrast] .how > div { border-top:1px solid #fff; }
+  @media (max-width:900px) { .hero { padding-top:48px; } .hero h2 { font-size:52px; } .photo { height:320px; margin-top:40px; } .note.n1, .note.n2 { left:auto; right:10px; } .proof { flex-direction:column; align-items:center; } .band .stats > div + div { margin-top:8px; } }
 </style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="private/key.js"></script>
 </head>
 <body>
@@ -290,31 +371,49 @@
     <div id="prefs" popover><h6>Look</h6><div class="looks" role="group" aria-label="Look"><button type="button" data-look="standard">Daylight</button><button type="button" data-look="night">Night</button><button type="button" data-look="contrast">High contrast</button></div><h6>Text size</h6><div class="looks" role="group" aria-label="Text size"><button type="button" data-text-size="standard">Standard</button><button type="button" data-text-size="large">Large</button><button type="button" data-text-size="larger">Larger</button></div></div>
     <section class="hero">
       <div>
-        <div class="kicker">For wheelchair users and their families</div>
+        <div class="kicker">Comfort, not compliance</div>
         <h2>Can you live here?</h2>
-        <p>We measure every door, step and room of a real apartment tour against wheelchair limits. You see each problem in the room itself, with the cheapest fix and its price.</p>
-        <a class="btn" id="demoLink" href="#">Check the demo apartment</a><a class="btn ghost" href="#apartments">All apartments</a>
-        <div class="proof" id="proof"></div>
+        <p>Rules are the minimum. We check how easy daily life would be, then find the best fit and the fixes.</p>
+        <div class="ctas"><a class="btn" id="demoLink" href="#">Try the demo</a><a class="btn ghost" href="region.html">Compare neighbourhoods</a></div>
       </div>
-      <div class="photo" role="img" aria-label="A wheelchair user beside a doorway with a raised threshold">
-        <div class="bracket"></div>
-        <div class="note n1">Door width<small>needs 32" clear</small></div>
-        <div class="note n2">Threshold step<small>over ½" needs a ramp</small></div>
-        <div class="credit">Photo: <a href="https://unsplash.com/photos/woman-in-wheelchair-at-doorway-mjJwgKMktLg" target="_blank" rel="noopener">Unsplash</a></div>
-      </div>
+      <!-- The film: a recorded walk with the guide (notes/demo_capture.mjs), and what is said, line by line, in step with it. -->
+      <figure class="film" id="film" hidden>
+        <div class="screen"><video id="filmVideo" muted loop playsinline preload="auto" aria-label="Recorded demo: someone asks the guide about an apartment for their dad, and it walks them through it"></video><span class="tag">Recorded demo</span></div>
+        <ol class="talk" id="filmTalk" aria-label="What is said in the demo"></ol>
+      </figure>
+      <div class="proof" id="proof"></div>
     </section>
     <div class="band"><div class="stats">
-      <div><b class="red">0.15%</b><span>of US homes are wheelchair accessible.</span><small>HUD, American Housing Survey 2011</small></div>
-      <div><b>5.5M</b><span>Americans use a wheelchair.</span><small>US Census Bureau, 2014 data</small></div>
-      <div><b>&lt;50%</b><span>of wheelchair users can turn fully in the standard 5' circle.</span><small>US Access Board research</small></div>
+      <div><b class="red">&lt;4%</b><span>of US homes are livable with trouble walking.</span><small>Under 0.2% fully wheelchair accessible. HUD-funded NYU study, 2011</small></div>
+      <div><b>13.4%</b><span>of US adults have trouble walking a quarter mile.</span><small>2.3% (5.5M) use a wheelchair. US Census Bureau, 2014</small></div>
+      <div><b>&lt;50%</b><span>of wheelchair users can turn fully in the standard circle.</span><small>US Access Board research</small></div>
     </div></div>
     <h3 id="apartments">Apartments we checked</h3>
     <p class="lead">Real 3D tours from Houston and Los Angeles. Open one to walk through it.</p>
     <div class="grid" id="grid"></div>
+    <div class="any" id="any">
+      <h4>Not checked yet</h4>
+      <p class="lead">CoStar tours nobody has opened here. Pick one and watch Inch &amp; Ease read its floor plan and check it, live, in a few seconds.</p>
+      <div class="grid" id="freshGrid"></div>
+      <h4 class="sub">More CoStar tours</h4>
+      <p class="lead">Real Matterport tours CoStar shared with us, checked the same way. Open any one.</p>
+      <div class="grid" id="anyGrid"></div><button type="button" id="anyMore" hidden></button>
+      <h4 class="sub">Browse all 14,944</h4>
+      <p class="lead">Pick a group, scroll, and open any tour. No typing needed. Units with at least three rooms come first. About 7 in 10 tours have the floor plan data a check needs.</p>
+      <div class="browse" id="browse">
+        <div class="chips" role="group" aria-label="Which tours">
+          <button type="button" data-f="" aria-pressed="true">All</button><button type="button" data-f="ada" aria-pressed="false">Labelled accessible</button><button type="button" data-f="homes" aria-pressed="false">Homes</button><button type="button" data-f="houston" aria-pressed="false">Houston</button><button type="button" data-f="la" aria-pressed="false">Los Angeles</button>
+        </div>
+        <form id="anyForm" role="search"><input id="anyQ" type="search" placeholder="Narrow it down (optional): a name, a city, or a Matterport link" aria-label="Narrow the CoStar tours" autocomplete="off"></form>
+        <div class="count" id="anyCount" aria-live="polite"></div>
+        <ul id="anyList"></ul>
+        <button type="button" id="anyNext" hidden>Show more</button>
+      </div>
+    </div>
     <div class="how" id="how">
-      <div><div class="n">01</div><h5>The tour</h5><p>A Matterport 3D scan of the apartment, with every wall and doorway.</p></div>
-      <div><div class="n">02</div><h5>The check</h5><p>Each door, step and room against the wheelchair reference, with a margin for "check with a tape".</p></div>
-      <div><div class="n">03</div><h5>The answer</h5><p>Red marks in the room, the cheapest fix, and Claude to answer your questions.</p></div>
+      <div><div class="n">01</div><h5>The tour</h5><p>A real 3D scan of the apartment.</p></div>
+      <div><div class="n">02</div><h5>The check</h5><p>Every door, step and room, measured.</p></div>
+      <div><div class="n">03</div><h5>The answer</h5><p>The best fit, the fixes, and a guide you can talk to.</p></div>
     </div>
     <footer><div><span>Tours and room data from CoStar and Matterport, shown locally.</span><span>Limits from the 2010 ADA Standards and the US Access Board.</span><span>Numbers come from the scan. Confirm with a tape before you sign.</span></div><span class="brand">Inch &amp; Ease</span></footer>
   </div>
@@ -345,6 +444,7 @@
   <footer>
     <details class="disp"><summary>Settings</summary>
     <div class="looks" role="group" aria-label="Look"><button type="button" data-look="standard">Daylight</button><button type="button" data-look="night">Night</button><button type="button" data-look="contrast">High contrast</button></div>
+    <div style="margin-top:8px"><div class="looks" role="group" aria-label="Text size"><button type="button" data-text-size="standard">Standard</button><button type="button" data-text-size="large">Large</button><button type="button" data-text-size="larger">Larger</button></div></div>
     <label class="sub" style="display:flex;gap:8px;align-items:center;margin-top:8px">Quality <select id="quality" aria-label="Quality" style="margin:0;flex:1"><option value="standard">Standard</option><option value="high">High (sharp panoramas)</option><option value="max">Max (sharpest 3D, slower)</option></select></label>
     </details>
     <div id="status"></div>
@@ -355,9 +455,9 @@
   <div id="fpv" hidden title="Click to steer with the mouse"></div>
   <div id="hint" class="float" role="status" hidden></div>
   <div id="peek" class="float" role="status" aria-live="polite" hidden></div>
+  <div id="tip" class="float" role="tooltip" hidden></div>
   <div id="skel" aria-live="polite"><div class="sk a"></div><div class="sk b"></div><div class="sk c"></div><p>Loading the 3D tour…</p></div>
   <div id="legend" class="float" aria-label="Legend"><span><i style="background:var(--fail)"></i>Fails</span><span><i style="background:var(--verify)"></i>Check with a tape</span><span><i style="background:var(--pass)"></i>Fixed</span><span><i class="ring"></i>Critical</span></div>
-    <div style="margin-top:8px"><div class="looks" role="group" aria-label="Text size"><button type="button" data-text-size="standard">Standard</button><button type="button" data-text-size="large">Large</button><button type="button" data-text-size="larger">Larger</button></div></div>
   <div id="dock" class="float" role="toolbar" aria-label="Navigation">
     <div id="modes">
       <a id="d-home" href="./" title="Back to all apartments"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-7 9 7v9h-6v-6H9v6H3z"/></svg>Home</a>
@@ -377,7 +477,7 @@
       <div class="prog"><i id="w-prog"></i></div>
     </div>
     <div id="drone" role="region" aria-label="Drone keys">
-      <span><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> fly</span><span><kbd>Space</kbd><kbd>Shift</kbd> up, down</span><span><kbd>Q</kbd><kbd>E</kbd> turn</span><span><kbd>R</kbd><kbd>F</kbd> tilt</span><span>The mouse steers. <kbd>Esc</kbd> frees it, click the view to steer again (or drag)</span>
+      <span title="Space and Shift fly up and down, Q and E turn, R and F tilt">Fly with the W A S D keys and the mouse. Press Esc to stop.</span>
       <button type="button" id="flyover" title="Fly one circle around the apartment">Auto</button><button type="button" id="d-reset" title="Back to the start view">Reset</button>
     </div>
   </div>
@@ -395,6 +495,9 @@ const $ = id => document.getElementById(id);
 const status = t => { $('status').textContent = t; console.log('[tour]', t); };
 const lerp = (a, b, t) => ({ x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t });
 const W = (p, h = 0) => ({ x: p.x, y: h, z: -p.y }); // wall-data plan (x, y) → Matterport world (y up); checked on the demo tour's room bounds
+// The floor an item or room stands on, as a height in the 3D world (checks.js base, per floor). Without it every shape sat at
+// ground level, so on upper floors the boxes floated through the rooms below.
+const levelOf = i => i.base ?? checks.find(c => c.base != null && c.floor === (i.floor ?? ev?.rooms.find(r => r.id === i.roomId)?.floor))?.base ?? 0;
 
 // Every check comes from checks.js (21 checks, thresholds, route, critical); items get their plain-words title here.
 const described = items => ordered(items).map(i => ({ ...i, ...describe(i) }));
@@ -404,10 +507,23 @@ const isProblem = i => i.s === 'fail' || i.s === 'verify';
 // a see-through box (door, step) or disc (turning space), or a flat floor tint (room). Colour and pulse change through inputs.
 const CLICK = () => sdk.Scene.InteractionType.CLICK, HOVER = () => sdk.Scene.InteractionType.HOVER;
 const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+// The space around the model (dollhouse, floor plan, drone) follows the page's look: white in Daylight instead of Matterport's
+// near-black. It is the viewer's "Skysphere" gradient (uniforms topColor / bottomColor, linear RGB); the viewer has no setting for
+// it and a component added after start never runs, so the first of our shapes repaints it every frame (Night keeps the original).
+let spaceOwner = null, sky = null, skyNight = null;
+function paintSpace(ctx) {
+  if (sky === null) { let r = ctx.scene; while (r.parent) r = r.parent; sky = r.children.find(k => k.name === 'Skysphere') || false; if (sky) skyNight = [sky.material.uniforms.topColor.value.clone(), sky.material.uniforms.bottomColor.value.clone()]; }
+  if (!sky) return;
+  const t = document.documentElement.dataset.theme, u = sky.material.uniforms;
+  if (t === 'night') { u.topColor.value.copy(skyNight[0]); u.bottomColor.value.copy(skyNight[1]); }
+  else if (t === 'contrast') { u.topColor.value.set(0, 0, 0); u.bottomColor.value.set(0, 0, 0); }
+  else { u.topColor.value.set(1, 1, 1); u.bottomColor.value.set(0.89, 0.89, 0.9); } // white above, a soft grey towards the floor
+}
 const ieShape = () => ({
   inputs: { shape: 'box', w: 1, h: 1, d: 0.1, x: 0, y: 0, z: 0, angle: 0, color: 0xff3b30, opacity: 0.45, pulse: false, pts: null },
   outputs: {}, events: {}, emits: { clicked: true, hovered: true }, t: 0,
   onInit() {
+    spaceOwner ||= this;
     const THREE = this.context.three, i = this.inputs, floor = i.shape === 'floor';
     this.geo = floor ? new THREE.ShapeGeometry(new THREE.Shape(i.pts.map(p => new THREE.Vector2(p.x, p.y))))
       : i.shape === 'disc' ? new THREE.CylinderGeometry(i.w / 2, i.w / 2, 0.03, 64) : new THREE.BoxGeometry(i.w, i.h, i.d);
@@ -415,22 +531,33 @@ const ieShape = () => ({
     const mesh = new THREE.Mesh(this.geo, this.mat), g = new THREE.Group(); g.add(mesh);
     if (floor) { mesh.rotation.x = -Math.PI / 2; g.position.y = i.y; } // plan (x, y) → world (x, h, −y)
     else {
-      this.lineMat = new THREE.LineBasicMaterial({ color: i.color }); this.edges = new THREE.EdgesGeometry(this.geo);
+      this.lineMat = new THREE.LineBasicMaterial({ color: i.color, transparent: true }); this.edges = new THREE.EdgesGeometry(this.geo);
       g.add(new THREE.LineSegments(this.edges, this.lineMat)); g.position.set(i.x, i.y, i.z); g.rotation.y = i.angle;
+      if (i.shape === 'box') { this.g = g; this.v = new THREE.Vector3(); }
       this.outputs.collider = mesh; this.events = { [CLICK()]: true, [HOVER()]: true };
     }
     this.outputs.objectRoot = g;
   },
   onInputsUpdated() { this.mat.color.setHex(this.inputs.color); this.lineMat?.color.setHex(this.inputs.color); this.mat.opacity = this.inputs.opacity; },
   onTick(delta) {
-    if (!this.inputs.pulse || still) return;
-    this.t += delta; this.mat.opacity = this.inputs.opacity * (0.45 + 0.55 * Math.abs(Math.sin(this.t / 300)));
+    if (spaceOwner === this) paintSpace(this.context);
+    const i = this.inputs; let o = i.opacity;
+    if (i.pulse && !still) { this.t += delta; o *= 0.45 + 0.55 * Math.abs(Math.sin(this.t / 300)); }
+    // A box the camera stands next to fades out: closer than about a metre it filled the view as a flat red band across the wall.
+    // Distance from the camera to the box's nearest face, in the box's own frame; gone at 0.4 m, full again from 1.4 m.
+    let near = 1;
+    if (this.g && this.context.camera) {
+      const p = this.g.worldToLocal(this.context.camera.getWorldPosition(this.v));
+      const d = Math.hypot(Math.max(Math.abs(p.x) - i.w / 2, 0), Math.max(Math.abs(p.y) - i.h / 2, 0), Math.max(Math.abs(p.z) - i.d / 2, 0));
+      near = Math.min(1, Math.max(0, (d - 0.4) / 1));
+    }
+    this.mat.opacity = o * near; if (this.lineMat) this.lineMat.opacity = near;
   },
   onEvent(type, data) { this.notify(type === CLICK() ? 'clicked' : 'hovered', data); },
   onDestroy() { this.geo.dispose(); this.mat.dispose(); this.edges?.dispose(); this.lineMat?.dispose(); this.outputs.collider = null; },
 });
 
-let sdk, sweeps = [], model, solid = [];
+let sdk, sweeps = [], model, solid = [], curSweep = null; // curSweep: the scan point the camera stands on (inside view)
 
 
 // Solid wall pieces in plan coordinates (doorways and open passages cut out), for line-of-sight checks.
@@ -444,9 +571,9 @@ function solidWalls(m) {
       let s = 0;
       for (const o of (e.openings || []).filter(o => o.type !== 'window').sort((p, q) => p.relativeCenter - q.relativeCenter)) {
         const s0 = o.relativeCenter - o.width / 2 / len, s1 = o.relativeCenter + o.width / 2 / len;
-        if (s0 > s) out.push([lerp(a, b, s), lerp(a, b, s0)]); s = Math.max(s, s1);
+        if (s0 > s) out.push([lerp(a, b, s), lerp(a, b, s0), f.id]); s = Math.max(s, s1);
       }
-      if (s < 1) out.push([lerp(a, b, s), b]);
+      if (s < 1) out.push([lerp(a, b, s), b, f.id]); // f.id: on a multi-floor tour only that floor's walls block a view
     }
   }
   return out;
@@ -454,10 +581,10 @@ function solidWalls(m) {
 const cross = (p, q, r) => (q.x - p.x) * (r.y - p.y) - (q.y - p.y) * (r.x - p.x);
 const hits = (p1, p2, q1, q2) => cross(p1, p2, q1) * cross(p1, p2, q2) < 0 && cross(q1, q2, p1) * cross(q1, q2, p2) < 0;
 // Stop 15 cm short of the target so the wall the problem sits on doesn't count as blocking.
-function clearView(from, to) {
+function clearView(from, to, floor = null) {
   const d = Math.hypot(to.x - from.x, to.y - from.y); if (d < 0.5) return false;
   const end = lerp(from, to, 1 - 0.15 / d);
-  return !solid.some(([a, b]) => hits(from, end, a, b));
+  return !solid.some(([a, b, f]) => (!floor || f === floor) && hits(from, end, a, b));
 }
 async function connect(sid) {
   // The web component runs Matterport's full viewer in this page, which unlocks the Scene API (our own red 3D shapes).
@@ -476,6 +603,7 @@ async function connect(sid) {
   sdk = await v.playingPromise;
   sweeps = await new Promise(r => sdk.Sweep.data.subscribe({ onCollectionUpdated: c => r(Object.values(c)) }));
   sdk.Camera.pose.subscribe(p => { pose = p; });
+  sdk.Sweep.current.subscribe(s => { curSweep = s?.id || null; });
 }
 
 // Colours carry meaning only: red fail, amber tape (or a fix that helps), green fixed, grey not measured.
@@ -510,10 +638,24 @@ async function tintRooms() {
   for (const r of ev.rooms) {
     if (r.poly.length < 3 || /void|hallway/i.test(r.name)) continue; // hallways are often the building corridor, outside the unit
     const c = obj.addNode().addComponent('ie.shape');
-    Object.assign(c.inputs, { shape: 'floor', pts: r.poly, y: 0.06, color: HEX.none, opacity: 0 });
+    Object.assign(c.inputs, { shape: 'floor', pts: inset(r.poly, 0.1), y: levelOf(r) + 0.06, color: HEX.none, opacity: 0 });
     roomTints[r.id] = c;
   }
   obj.start();
+}
+// A room's outline runs along the middle of its walls, so a tint drawn on it showed as a red band up the skirting boards. Each edge
+// moves d metres inwards (half a wall plus a margin) and neighbouring edges meet again; a corner that would shoot far out stays put.
+function inset(poly, d) {
+  const n = poly.length; if (n < 3) return poly;
+  const sgn = poly.reduce((s, p, k) => { const q = poly[(k + 1) % n]; return s + p.x * q.y - q.x * p.y; }, 0) > 0 ? 1 : -1; // anticlockwise: inside is on the left
+  const lines = poly.map((p, k) => { const q = poly[(k + 1) % n], dx = q.x - p.x, dy = q.y - p.y, L = Math.hypot(dx, dy) || 1;
+    return { x: p.x - dy / L * sgn * d, y: p.y + dx / L * sgn * d, dx, dy }; });
+  return poly.map((p, k) => {
+    const a = lines[(k - 1 + n) % n], b = lines[k], den = a.dx * b.dy - a.dy * b.dx;
+    if (Math.abs(den) < 1e-9) return { x: b.x, y: b.y };
+    const t = ((b.x - a.x) * b.dy - (b.y - a.y) * b.dx) / den, q = { x: a.x + a.dx * t, y: a.y + a.dy * t };
+    return Math.hypot(q.x - p.x, q.y - p.y) > 3 * d ? p : q;
+  });
 }
 function retint() {
   const worst = {};
@@ -526,10 +668,10 @@ async function draw(items) {
   try {
     const [obj] = await sdk.Scene.createObjects(1); step = 'addNode';
     for (const i of items) {
-      const comp = obj.addNode().addComponent('ie.shape'), color = HEX[i.s];
-      if (i.kind === 'door') Object.assign(comp.inputs, { w: i.w, h: i.h, d: i.t + 0.06, ...W(i.at, i.h / 2), angle: i.angle, color });
-      else if (i.kind === 'step') Object.assign(comp.inputs, { w: i.w, h: Math.max(i.value, 0.03), d: i.t + 0.3, ...W(i.at, Math.max(i.value, 0.03) / 2), angle: i.angle, color, opacity: 0.7 });
-      else Object.assign(comp.inputs, { shape: 'disc', w: i.kind === 'hall' ? Math.max(i.value || 0.9, 0.6) : i.kind === 'turn' ? TURN : 0.5, ...W(i.at, 0.04), color, opacity: 0.35 });
+      const comp = obj.addNode().addComponent('ie.shape'), color = HEX[i.s], y0 = levelOf(i);
+      if (i.kind === 'door') Object.assign(comp.inputs, { w: i.w, h: i.h, d: i.t + 0.06, ...W(i.at, y0 + i.h / 2), angle: i.angle, color, ...(i.cut ? { opacity: 0.2 } : {}) }); // cut at a wall corner: the real doorway may be wider, so a lighter box
+      else if (i.kind === 'step') Object.assign(comp.inputs, { w: i.w, h: Math.max(i.value, 0.03), d: i.t + 0.3, ...W(i.at, y0 + Math.max(i.value, 0.03) / 2), angle: i.angle, color, opacity: 0.7 });
+      else Object.assign(comp.inputs, { shape: 'disc', w: i.kind === 'hall' ? Math.max(i.value || 0.9, 0.6) : i.kind === 'turn' ? TURN : 0.5, ...W(i.at, y0 + 0.04), color, opacity: 0.35 });
       comp.inputs.pulse = !!i.critical;
       shown[i.id] = { comp, rooms: i.rooms || [i.roomId] };
       obj.spyOnEvent({ path: obj.addEmitPath(comp, 'clicked'), onEvent: () => openItem(i) });
@@ -540,7 +682,7 @@ async function draw(items) {
   for (const i of items) {
     try {
       const door = i.kind === 'door' || i.kind === 'step', h = door ? (i.kind === 'door' ? i.h : 2.03) + 0.15 : 0.05; // room pins: a 1.75 m stem from the floor clears the walls in the dollhouse
-      const [tag] = [].concat(await sdk.Tag.add({ label: i.title, description: i.detail, anchorPosition: W(i.at, h), stemVector: { x: 0, y: door ? 0.25 : 1.75, z: 0 }, color: RGB(HEX[i.s]) }));
+      const [tag] = [].concat(await sdk.Tag.add({ label: i.title, description: i.detail, anchorPosition: W(i.at, levelOf(i) + h), stemVector: { x: 0, y: door ? 0.25 : 1.75, z: 0 }, color: RGB(HEX[i.s]) }));
       await settle(() => sdk.Tag.allowAction(tag, {})); // Matterport's own popup never opens; our card does
       (shown[i.id] ||= {}).tag = tag; tagItem[tag] = i.id; tags++;
       await setPinLook(i.id, issueList.indexOf(i) + 1, i.s, i.critical);
@@ -565,8 +707,20 @@ function watchPins() {
 function hoverItem(i, on) {
   document.querySelectorAll(`#issues [data-item="${i.id}"]`).forEach(row => row.classList.toggle('hl', on)); // a door shows under both its rooms
   const s = shown[i.id]; if (s?.comp) s.comp.inputs.pulse = on || !!i.critical;
+  showTip(on && i);
 }
-function openItem(i) { i = checks.find(c => c.id === i.id) || i; if (i.at && i.s !== 'none') { setMode('inside'); goTo(i); } else showCard(i); }
+// Hovering a red or orange shape (or its pin) in 3D: what is wrong, in one plain sentence, next to the pointer. A click opens the card.
+let pointer = { x: 0, y: 0 };
+addEventListener('pointermove', e => { pointer = { x: e.clientX, y: e.clientY }; if (!$('tip').hidden) placeTip(); }, { passive: true, capture: true });
+function placeTip() { const t = $('tip'), r = t.getBoundingClientRect(); t.style.left = Math.min(pointer.x + 16, innerWidth - r.width - 8) + 'px'; t.style.top = Math.min(pointer.y + 18, innerHeight - r.height - 8) + 'px'; }
+function showTip(i) {
+  const t = $('tip');
+  if (!i || mode === 'drone') { t.hidden = true; return; }
+  const plain = lineOf ? lineOf(i).text : i.detail || '';
+  t.innerHTML = `<b>${esc(i.title)}</b>${plain ? `<span>${esc(plain)}</span>` : ''}<span>Click for the full explanation.</span>`;
+  t.hidden = false; $('peek').hidden = true; placeTip();
+}
+function openItem(i) { showTip(false); i = checks.find(c => c.id === i.id) || i; if (i.at && i.s !== 'none') { if (mode === 'walk') return void jumpTo(i); setMode('inside'); goTo(i); } else showCard(i); }
 function recolourAll() {
   for (const i of issueList) {
     const s = shown[i.id]; if (!s) continue; const a = afterOf(i);
@@ -580,17 +734,95 @@ let moving = false; const photos = {};
 // Fly inside to a sweep with a clear line of sight, about 2.5 m from the problem. One move at a time: clicks during a move only open the card.
 async function flyTo(i) {
   if (moving || !sdk || !i.at) return false;
-  if (isArea(i)) return areaView(i);
-  const p = W(i.at), dist = s => Math.hypot(s.position.x - p.x, s.position.z - p.z);
-  const seen = sweeps.filter(s => clearView({ x: s.position.x, y: -s.position.z }, i.at));
-  const near = [...(seen.length ? seen : sweeps)].sort((a, b) => Math.abs(dist(a) - 2.5) - Math.abs(dist(b) - 2.5))[0];
-  if (!near) return false;
-  const yaw = Math.atan2(-(p.x - near.position.x), -(p.z - near.position.z)) * 180 / Math.PI;
+  const v = viewFor(i);
+  if (isArea(i) || v.warn === 'no clear view') return areaView(i);
   moving = true;
   try {
     await sdk.Mode.moveTo(sdk.Mode.Mode.INSIDE).catch(() => {});
-    await sdk.Sweep.moveTo(near.id, { rotation: { x: i.kind === 'door' ? -5 : -30, y: yaw }, transition: sdk.Sweep.Transition.FLY, transitionTime: 1200 }).catch(e => status('move: ' + e.message));
+    await sweepMove(v.s.id, { x: v.pitch, y: v.yaw - frameOff() }, 1200);
   } finally { moving = false; }
+  return true;
+}
+// ---- Where to stand for each place, worked out once per tour and checked (auditWalk), so a new property never gets a silly shot ----
+// Rules: a scan point on the SAME floor (multi-floor tours offered points straight above, on the next floor); a clear line of
+// sight on that floor's walls; never inside a drawn door box (scans are often taken in doorways: the whole view turned red);
+// a door or step seen from the front, within 60° of straight on; a door ~2.5 m away, a step ~1.8 m (close enough to see a small
+// lip); a room from a point INSIDE it, as far from its middle as fits (doorway or corner: most floor and two walls in one frame).
+// Pitch aims at the subject's real height from the camera's own height, so the subject is never cut off at the top or bottom.
+// When no point sees it at all, the stop is shown from above (areaView) and auditWalk() says so.
+const floorOf = i => i.floor ?? ev?.rooms.find(r => r.id === i.roomId)?.floor ?? null;
+const floorY = s => s.puckPosition?.y ?? s.position.y - 1.5; // the floor under a scan point
+const planOf = s => ({ x: s.position.x, y: -s.position.z });
+const views = new Map(); // item id → { s: sweep, yaw, pitch, warn }
+function viewFor(i) {
+  if (views.has(i.id)) return views.get(i.id);
+  const room = i.kind === 'turn' || i.kind === 'hall' ? ev.rooms.find(r => r.id === i.roomId) : null;
+  const look = room?.at || i.at, fl = floorOf(i), base = levelOf(i), d = s => Math.hypot(planOf(s).x - look.x, planOf(s).y - look.y);
+  const inBox = (s, b) => { const dx = s.position.x - b.at.x, dz = s.position.z + b.at.y, c = Math.cos(b.angle || 0), n = Math.sin(b.angle || 0);
+    return Math.abs(dx * c - dz * n) < b.w / 2 + 0.2 && Math.abs(dx * n + dz * c) < ((b.t || 0.15) + 0.06) / 2 + 0.4; };
+  const boxes = checks.filter(c => c.kind === 'door' && shown[c.id]?.comp && c.at && c.w);
+  const front = s => { if (i.kind !== 'door' && i.kind !== 'step') return true; const vx = look.x - planOf(s).x, vy = look.y - planOf(s).y;
+    return Math.abs(-vx * Math.sin(i.angle || 0) + vy * Math.cos(i.angle || 0)) >= 0.5 * Math.hypot(vx, vy); };
+  const inRoom = s => room?.poly.length > 2 && insidePoly(planOf(s), room.poly);
+  const floorSweeps = sweeps.filter(s => s.enabled !== false && Math.abs(floorY(s) - base) < 1.2);
+  const sees = s => d(s) >= 0.6 && clearView(planOf(s), look, fl);
+  let ok = floorSweeps.filter(s => sees(s) && d(s) >= 0.9 && !boxes.some(b => inBox(s, b)));
+  if (!ok.length) ok = floorSweeps.filter(sees); // second choice: standing in a doorway is fine now that a box next to the camera fades out
+  const want = 2.5; // a step too: from 1.6 m the camera looked steeply down and the door's own box filled the frame
+  const score = s => (room ? (inRoom(s) ? 10 : 0) + Math.min(d(s), 4.5) : (front(s) ? 10 : 0) - Math.abs(d(s) - want)) - (d(s) > 5 ? 5 : 0);
+  let s = ok.sort((a, b) => score(b) - score(a))[0], warn = '';
+  if (!s) { s = (floorSweeps.length ? floorSweeps : sweeps).slice().sort((a, b) => d(a) - d(b))[0]; warn = 'no clear view'; }
+  else if (room && !inRoom(s)) warn = 'seen from the next room';
+  else if (!room && !front(s)) warn = 'seen from the side';
+  const ty = base + (room ? 1.0 : i.kind === 'door' ? Math.min(1.0, (i.h || 2) / 2) : i.kind === 'step' ? 0.05 : 0.3);
+  const pitch = s ? Math.max(-32, Math.min(5, -Math.atan2(s.position.y - ty, Math.max(d(s), 0.5)) * 180 / Math.PI)) : -20; // never steeper than 32° down: it reads as falling
+  const v = { s, yaw: s ? yawTo(s.position, W(look)) : 0, pitch, warn };
+  views.set(i.id, v); return v;
+}
+// ---- The walk's camera: it moves like a person showing you round. A few steps along the scan's own paths, each facing the way
+// it goes (never sideways or backwards), then a turn to the subject at eye level and a slow pan while the guide talks.
+// A room is framed from its doorway or a corner, across its middle (the estate-photo rule: most floor and two walls in one frame);
+// a door straight on, horizon level; a step looking down at it. Whole-room problems keep the view from above (areaView).
+const yawTo = (from, to) => Math.atan2(-(to.x - from.x), -(to.z - from.z)) * 180 / Math.PI;
+// Degrees to turn right so the subject sits in the middle of the part of the 3D view the open card leaves free (it used to be
+// centred on the whole view, half behind the card). Uses Matterport's own lens (pose.projection) and the card's place on screen.
+function frameOff() {
+  const v = document.querySelector('matterport-viewer')?.getBoundingClientRect(), c = $('card').getBoundingClientRect();
+  if (!v?.width || !pose?.projection || !document.body.classList.contains('card-open') || c.left >= v.right) return 0;
+  const half = v.width / 2, shift = v.left + half - (v.left + Math.max(c.left, v.left)) / 2;
+  return Math.atan(shift / half / pose.projection[0]) * 180 / Math.PI; // projection[0] = 1 / tan(half the horizontal field of view)
+}
+const PAN = 12, PAN_SPEED = 3; // degrees panned after landing, degrees per second (~4 s): slow enough to read as a camera move, not a turn
+function sweepPath(from, to) { // fewest steps between two scan points over Matterport's own neighbour links
+  const by = new Map(sweeps.map(s => [s.id, s])), prev = new Map([[from, null]]), q = [from];
+  while (q.length) { const id = q.shift(); if (id === to) break; for (const n of by.get(id)?.neighbors || []) if (by.has(n) && !prev.has(n)) { prev.set(n, id); q.push(n); } }
+  if (!prev.has(to)) return [];
+  const out = []; for (let id = to; id; id = prev.get(id)) out.unshift(by.get(id)); return out;
+}
+// A move asked for while the camera is still busy (the opening overview flight, a pan) is refused: try again, up to 4 times in 2 s.
+async function sweepMove(id, rotation, ms) {
+  for (let k = 0; ; k++) {
+    try { return await sdk.Sweep.moveTo(id, { rotation, transition: sdk.Sweep.Transition.FLY, transitionTime: ms }); }
+    catch (e) { if (k >= 3) return status('move: ' + (e.message || e)); await new Promise(r => setTimeout(r, 500)); }
+  }
+}
+async function shot(i) {
+  await landed(); if (moving || !sdk || !i.at) return false;
+  const v = viewFor(i);
+  if (isArea(i) || v.warn === 'no clear view') return areaView(i);
+  const gen = walkGen, dest = v.s, pitch = v.pitch, yaw = v.yaw - frameOff();
+  moving = true;
+  try {
+    if (pose?.mode !== sdk.Mode.Mode.INSIDE) await sdk.Mode.moveTo(sdk.Mode.Mode.INSIDE).catch(() => {});
+    else if (curSweep && curSweep !== dest.id) { // walk there: up to 3 steps on the way, each one facing the next
+      const path = sweepPath(curSweep, dest.id).slice(1, -1), hops = path.length <= 3 ? path : [...new Set([0.25, 0.5, 0.75].map(f => path[Math.floor(f * path.length)]))];
+      let from = pose.position;
+      for (const s of hops) { if (gen !== walkGen) return true; await sweepMove(s.id, { x: -3, y: yawTo(from, s.position) }, 650); from = s.position; }
+    }
+    if (gen !== walkGen) return true;
+    await sweepMove(dest.id, { x: pitch, y: yaw + PAN / 2 }, 1100); // lands a little to one side, then pans across the subject
+  } finally { moving = false; }
+  if (gen === walkGen) sdk.Camera.rotate(PAN, 0, { speed: PAN_SPEED }).catch(() => {}); // positive = clockwise (measured: yaw −10° for +10), so it pans across to the other side
   return true;
 }
 // A whole-room problem (turning circle, hallway width) is best seen from above at an angle: the circle and every wall
@@ -601,7 +833,7 @@ async function areaView(i) {
   // Steep (72°) so the view clears the walls of small rooms; nudged right so the room sits left of the open card.
   const d = Math.min(8, Math.max(6, span * 2.6)), a = 72 * Math.PI / 180, p = W(i.at), side = document.body.classList.contains('card-open') ? d * 0.22 : 0;
   moving = true;
-  try { await sdk.Mode.moveTo(sdk.Mode.Mode.DOLLHOUSE, { position: { x: p.x + side, y: d * Math.sin(a), z: p.z + d * Math.cos(a) }, rotation: { x: -72, y: 0 }, transition: sdk.Mode.TransitionType.FLY }).catch(e => status('move: ' + e.message)); }
+  try { await sdk.Mode.moveTo(sdk.Mode.Mode.DOLLHOUSE, { position: { x: p.x + side, y: levelOf(i) + d * Math.sin(a), z: p.z + d * Math.cos(a) }, rotation: { x: -72, y: 0 }, transition: sdk.Mode.TransitionType.FLY }).catch(e => status('move: ' + e.message)); }
   finally { moving = false; }
   return true;
 }
@@ -614,7 +846,7 @@ async function goTo(i) {
   showCard(i);
   // The entry questions (steps at the entry, door hardware) have no measured spot: look at the entry door the route starts from.
   const to = !i.at && CHECK[i.n]?.room === 'Entry' && ev.route.entry?.at ? { ...i, at: ev.route.entry.at } : i;
-  if (!(await flyTo(to)) && !photos[i.id]) return;
+  if (!(await (mode === 'walk' ? shot(to) : flyTo(to))) && !photos[i.id]) return;
   if (!photos[i.id]) { // one photo per issue, cached (this build leaks memory in takeScreenShot)
     await new Promise(r => setTimeout(r, 900)); // let the panorama sharpen before the photo
     try { photos[i.id] = await sdk.Renderer.takeScreenShot({ width: 960, height: 600 }, { mattertags: true, sweeps: false }); }
@@ -717,9 +949,12 @@ function showCard(i) {
     const bad = i.s !== 'pass';
     tag = { fail: 'Door too narrow', verify: 'Check with a tape', pass: 'Door wide enough', skip: 'Closet door' }[i.s];
     nums = [['This doorway', `${inch(i.w).toFixed(1)}"`, bad], ['Clear when open', `~${clear.toFixed(0)}"`, bad], ['Needed clear', '32"', false]];
-    why = `A manual wheelchair is up to <b>${CHAIR}"</b> wide with hands on the wheels. This opening is ${inch(i.w).toFixed(1)}"; an open door takes about 1½–2", leaving about <b>${clear.toFixed(0)}"</b>. ` +
+    if (i.cut) { // the scan's outline stops at a wall corner: its width is a lower bound, so no verdict and no drawing of a doorway it may not have
+      nums = [['The scan reads', `${inch(i.w).toFixed(1)}" or more`, true], ['Needed clear', '32"', false]];
+      why = `The scan's floor plan ends this doorway at a wall corner, so the real doorway may well be wider than ${inch(i.w).toFixed(1)}" (a front door read as 22" was really about 36"). Measure the clear opening with the door open: <b>32"</b> or more fits a manual wheelchair.`;
+    } else why = `A manual wheelchair is up to <b>${CHAIR}"</b> wide with hands on the wheels. This opening is ${inch(i.w).toFixed(1)}"; an open door takes about 1½–2", leaving about <b>${clear.toFixed(0)}"</b>. ` +
       (i.s === 'fail' ? 'The chair doesn\'t fit through.' : i.s === 'verify' ? 'An opening between 32" and 34" may leave just under 32" clear: measure it with a tape.' : i.s === 'skip' ? 'It only leads to a closet, so it isn\'t scored.' : clear >= CHAIR ? 'A chair fits through.' : 'It meets the 32" reference, but the widest chairs will be tight.');
-    svg = doorSvg(clear); src = 'ADA 404.2.3 (32" clear), HUD Fair Housing Design Manual, Access Board anthropometry study';
+    svg = i.cut ? '' : doorSvg(clear); src = 'ADA 404.2.3 (32" clear), HUD Fair Housing Design Manual, Access Board anthropometry study';
   } else if (i.kind === 'step') {
     tag = i.s === 'pass' ? 'Level threshold' : 'Step at the door';
     nums = [['Step height', ftin(i.value), i.s !== 'pass'], ['Level within', '¾"', false]];
@@ -731,9 +966,10 @@ function showCard(i) {
     nums = [['Room across', i.across_ft, i.s !== 'pass'], ['Turning circle', '5\' 0"', false]];
     why = i.s === 'pass' ? `The room is ${i.across_ft} across, so a 5' circle fits on paper. Furniture isn't subtracted, so check the open floor.` : `A wheelchair needs a 5' circle to turn around. This room is narrower than that, so a turn means backing in and out. Even in a full 5' circle, fewer than half of wheelchair users complete a 360° turn.`;
     svg = turnSvg(across ?? 58); src = 'ADA 304.3 (60" circle), Access Board turning study';
-    if (i.kind === 'hall') { tag = { pass: 'Hallway wide enough', fail: 'Hallway too narrow', verify: 'Check with a tape', none: 'Not measured yet' }[i.s]; nums = [['Hallway', i.across_ft, i.s !== 'pass'], ['Needed', '3\' 2"', false]]; why = 'A wheelchair needs 36" to roll down a hallway and more to turn into a door off it. This is the room box, so furniture isn\'t subtracted.'; svg = ''; src = refs(CHECK[11].anchor); }
+    if (i.s === 'none') { tag = 'Needs measuring'; nums = [['Room across', '—', false], ['Turning circle', '5\' 0"', false]]; why = 'The scan has no full size for this room, so it needs measuring. Measure its narrower side with a tape: a wheelchair needs 5\' 0" across to turn around.'; svg = ''; }
+    if (i.kind === 'hall') { tag = { pass: 'Hallway wide enough', fail: 'Hallway too narrow', verify: 'Check with a tape', none: 'Needs measuring' }[i.s]; nums = [['Hallway', i.across_ft, i.s !== 'pass'], ['Needed', '3\' 2"', false]]; why = 'A wheelchair needs 36" to roll down a hallway and more to turn into a door off it. This is the room box, so furniture isn\'t subtracted.'; svg = ''; src = refs(CHECK[11].anchor); }
   } else {
-    const c = CHECK[i.n]; tag = { pass: 'Passes', fail: 'Fails', verify: 'Check with a tape', none: 'Not measured yet', skip: 'Not scored' }[i.s];
+    const c = CHECK[i.n]; tag = { pass: 'Passes', fail: 'Fails', verify: 'Check with a tape', none: 'Needs measuring', skip: 'Not scored' }[i.s];
     nums = [['Measured', i.measured, i.s === 'fail'], ['Needed', i.need, false]]; why = `${c.rule}. ${c.who}.`; svg = ''; src = refs(c.anchor);
     if (c.how !== 'auto') { const nx = i.s !== 'none' && nextInRoom(i); svg = stepHtml(i) + (nx ? `<button type="button" id="m-next">Next in the ${esc(c.room === 'any' ? 'apartment' : c.room.toLowerCase())}: ${esc(CHECK[nx.n].title)}</button>` : ''); }
   }
@@ -886,7 +1122,7 @@ function renderByRoom() {
     const counts = [crit && `<em class="c-fail">${crit} critical</em>`, fail && `<em class="c-fail">${fail} problem${fail > 1 ? "s" : ""}</em>`, tape && `<em class="c-verify">${tape} to tape</em>`].filter(Boolean);
     const room = named.find(r => r.id === k);
     const box = document.createElement('section'); box.className = `room w-${w}`;
-    box.innerHTML = `<button type="button" class="rhead"${room?.at ? ` title="Go to the ${esc(label[k])}"` : ' disabled style="opacity:1;cursor:default"'}><b>${esc(label[k] || k)}</b><span>${counts.length ? counts.join(' · ') : probs.length ? '' : ok.length ? '<em class="c-pass">no problems found</em>' : 'not measured yet'}</span></button>`;
+    box.innerHTML = `<button type="button" class="rhead"${room?.at ? ` title="Go to the ${esc(label[k])}"` : ' disabled style="opacity:1;cursor:default"'}><b>${esc(label[k] || k)}</b><span>${counts.length ? counts.join(' · ') : probs.length ? '' : ok.length ? '<em class="c-pass">no problems found</em>' : 'needs measuring'}</span></button>`;
     for (const i of probs) box.appendChild(issueRow(i));
     if (todo.length || ok.length) {
       const more = document.createElement('details');
@@ -914,7 +1150,7 @@ function renderList() {
   const sum = summary(checks), byGroup = {};
   for (const i of checks) (byGroup[groupOf(i)] ||= []).push(i);
   plan = planAll(checks, products, { choices, budget });
-  $('score').innerHTML = (ev.noDoorData ? '<div class="nodata">This tour has no doorway data: doors and steps are not measured.</div>' : '') +
+  $('score').innerHTML = (ev.noDoorData ? '<div class="nodata">This tour has no doorway data, so every door needs measuring: its width and the step at its bottom.</div>' : '') +
     verdictHtml(sum) +
     `<div class="tiles"><div class="tile crit" title="Problems on the way to the bathroom, bedroom or kitchen"><b>${sum.critical}</b><span>critical</span></div>` +
     `<div class="tile tape" title="Close to the limit: measure these with a tape"><b>${sum.verify}</b><span>need a tape</span></div>` +
@@ -940,13 +1176,14 @@ function renderList() {
 }
 async function load(sid) {
   status('Loading tour…');
-  model = await (await fetch(`private/tours/${sid}.json`)).json(); solid = solidWalls(model);
+  const res = await fetch(`private/tours/${sid}.json`); model = await res.json(); if (!res.ok) throw new Error(model.error || 'This tour could not be loaded.'); solid = solidWalls(model);
   products = await loadProducts();
   ev = evaluate(model); renderList();
   await connect(sid);
   await sdk.Scene.registerComponents([{ name: 'ie.shape', factory: ieShape }]);
   await tintRooms().catch(e => console.log('[tour] tint: ' + (e.message || e)));
   const d = await draw(issueList.filter(i => i.at)); retint(); watchPins(); watchRuler();
+  try { auditWalk(); } catch (e) { console.warn('[walk] audit failed: ' + (e.message || e)); }
   try { sdk.Pointer.intersection.subscribe(peek); } catch (e) { console.log('[tour] hover rooms: ' + (e.message || e)); }
   status(d.scene && d.tags === issueList.length ? 'Tour ready' : `Tour ready. ${d.scene ? '' : '3D marks unavailable. '}${d.tags} of ${issueList.length} pins shown.`);
   $('skel')?.remove();
@@ -955,9 +1192,9 @@ async function load(sid) {
     shot5: () => showCard(checks.find(c => c.s === 'none' && CHECK[c.n].how === 'ask' && /bath/i.test(CHECK[c.n].room))) };
   // Open on the whole apartment in 3D (Matterport's dollhouse), red areas included; issues fly inside.
   await overview();
-  // ?focus=critical: an embedding page "dives" into the first critical problem.
+  // ?focus=critical: an embedding page "dives" into the first critical problem (the walk, if it starts first, starts there).
   const first = issueList.find(i => i.critical) || issueList[0];
-  if (new URLSearchParams(location.search).get('focus') === 'critical' && first) setTimeout(() => openItem(first), 1500);
+  if (new URLSearchParams(location.search).get('focus') === 'critical' && first?.at) { walkFrom = first; setTimeout(() => { if (mode !== 'walk') openItem(first); }, 1500); }
 }
 // Dollhouse camera framed on the apartment's own walls (from the wall data), looking down at ~50°.
 async function overview() {
@@ -974,13 +1211,17 @@ async function overview() {
 // ---- Agent: Claude answers and drives the tour; the key stays in serve.py ----
 let homeRows = []; // the start page's cards, for questions asked there
 const apartmentFacts = () => {
-  if (!model) return { home: true, apartments: homeRows.map(({ t, r, pa, labelled }) => ({ id: t.id, name: t.name, city: t.city, labelled_accessible: labelled, checks_pass: `${r.pass} of ${r.total} measured`, problems: r.issues.map(i => i.title + (i.critical ? ' (critical)' : '')), purchases_usd: pa.purchases })) };
+  if (!model) return { home: true, apartments: homeRows.map(({ t, r, pa, labelled }) => ({ id: t.id, name: t.name, city: t.city, labelled_accessible: labelled, checks_pass: `${r.pass} of ${r.total} measured`, problems: r.issues.map(i => i.title + (i.critical ? ' (critical)' : '')), purchases_usd: pa.purchases })),
+    // The browse window under them: every CoStar tour, not checked yet. Its place numbers are what "the third one in the list" means.
+    tour_list: { group: Object.keys(BROWSE_GROUP).find(k => BROWSE_GROUP[k] === anyF), words: $('anyQ').value.trim() || null, matching: browseTotal,
+      on_screen: browsed.slice(0, 20).map((m, k) => ({ place: k + 1, id: m.sid, name: tourName(m), city: m.city || null, rooms: +m.room_count || null })) } };
   const keep = ['id', 'kind', 's', 'title', 'detail', 'between', 'room', 'measured', 'need', 'critical'];
   // What the person can tell us by voice: a question with its answer keys, or a height or distance to read off a tape.
   const askOf = c => { const d = CHECK[c.n]; return d?.how === 'ask' ? { question: d.question, answers: Object.fromEntries(d.answers.map(a => [a[0], a[1]])) } : d?.how === 'measure' ? { tape_inches: d.measure } : {}; };
   const fixOf = c => { const r = plan?.rows.find(r => r.item.id === c.id); return r ? { chosen: r.chosen && `${r.chosen.label} (${money(r.chosen)}, ${VERDICT[r.chosen.verdict]})`, options: r.options.map(o => `${o.key}: ${o.label}, ${money(o)}, ${VERDICT[o.verdict]}`) } : undefined; };
   return { name: model.name, other_apartments: list.filter(t => t.id !== sid).map(({ id, name, city }) => ({ id, name, city })), purchase_total_usd: plan?.purchases, not_fixable_by_buying: plan?.noPurchaseFix.length, budget_usd: budget,
     critical_first_ids: issueList.filter(i => i.critical).map(i => i.id),
+    rooms: ev.rooms.filter(r => !/void/i.test(r.name)).map(r => ({ name: r.name, ...(r.dims.width && r.dims.depth ? { size: `${ftin(r.dims.width)} by ${ftin(r.dims.depth)}` } : {}), ...(r.dims.areaFloor ? { floor_sq_ft: Math.round(r.dims.areaFloor * 10.764) } : {}) })),
     verdict: (([, answer, because]) => ({ answer, because }))(verdictOf(summary(checks))), // what the panel shows under "Can a wheelchair user live here?"
     counts: { problems_with_a_pin: issueList.length, critical: issueList.filter(i => i.critical).length, fail: checks.filter(c => c.s === 'fail').length, check_with_a_tape: checks.filter(c => c.s === 'verify').length,
       not_measured_yet: checks.filter(c => c.s === 'none').length, pass: checks.filter(c => c.s === 'pass').length },
@@ -1004,7 +1245,7 @@ const TOOLS = {
     const c = checks.find(c => c.id === id);
     if (!c) return { error: `No check with id ${id}` };
     await landed();
-    if (mode === 'walk' && playing) stopAuto(); // asked for one place during a walkthrough: it pauses there instead of moving on by itself
+    if (mode === 'walk') { await jumpTo(c); return `Showing ${c.title} (${c.s}).${resumeAfter ? ' The walkthrough goes on from here after your answer.' : ''}`; }
     await goTo(c); return `Showing ${c.title} (${c.s}).`;
   },
   async set_view({ mode: m }) { // the dock's own buttons do the work, so voice and mouse can't drift apart
@@ -1012,6 +1253,7 @@ const TOOLS = {
     return `View: ${m}.`;
   },
   async walkthrough({ action }) {
+    if (action === 'pause' || action === 'stop') walkOff = true; else if (action !== 'back') walkOff = asked = false; // paused by them: it waits for "go on"
     if (action === 'stop') { $('w-end').click(); return 'Walkthrough ended.'; }
     if (action === 'back' && mode !== 'walk') { // the place shown before this one, wherever it was
       const was = trail.pop(), to = checks.find(c => c.id === was); if (!to) return 'There is no earlier place to go back to.';
@@ -1038,8 +1280,18 @@ const TOOLS = {
   },
   async set_look({ look }) { setTheme(look === 'daylight' ? 'standard' : look); return `Look: ${look}.`; },
   async set_text({ size }) { setText(size); return `Text size: ${size}.`; },
+  // The tour list on the start page, by voice: a group, optional words, or the next page. Returns what is on screen.
+  async browse({ group, words, more }) {
+    if (model) return { error: 'The tour list is on the start page: call open_page home first' };
+    if (!more) { pickGroup(BROWSE_GROUP[group] ?? anyF); $('anyQ').value = words || ''; }
+    $('browse').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    const r = await browse(!!more);
+    if (!r) return { error: 'The tour list did not load' };
+    return `${browseTotal} tours match; ${browsed.length} are on screen. ${more ? 'Just added' : 'On screen'}, by place in the list: ` +
+      r.models.map((m, k) => `${browsed.length - r.models.length + k + 1}. ${tourName(m)}, ${m.city || 'no city'}${m.room_count ? `, ${m.room_count} rooms` : ''} (id ${m.sid})`).join('; ');
+  },
   async open_apartment({ id }) {
-    const t = list.find(t => t.id === id);
+    const b = browsed.find(m => m.sid === id), t = list.find(t => t.id === id) || b && { id, name: tourName(b) };
     if (!t) return { error: `No apartment with id ${id}` };
     if (model && id === sid) return 'This apartment is already open.';
     navTo = id; return `Opening ${t.name} once the answer has been read.`;
@@ -1077,11 +1329,13 @@ const STEP = {
   show_issue: i => `Showing: ${checks.find(c => c.id === i.id)?.title || i.id}`, set_view: i => `View: ${i.mode}`, walkthrough: i => `Walkthrough: ${i.action}`,
   select_fix: () => 'Choosing the fix', set_budget: i => i.usd == null ? 'Clearing the budget' : `Planning for $${i.usd}`,
   show_panel: i => i.tab === 'hidden' ? 'Hiding the panel' : `Panel: ${i.tab}`, set_look: i => `Look: ${i.look}`, set_text: i => `Text size: ${i.size}`,
-  open_apartment: i => `Opening: ${list.find(t => t.id === i.id)?.name || i.id}`, close: () => 'Closing the card',
+  open_apartment: i => `Opening: ${list.find(t => t.id === i.id)?.name || (b => b && tourName(b))(browsed.find(m => m.sid === i.id)) || i.id}`, close: () => 'Closing the card',
+  browse: i => i.more ? 'More tours' : `Tours: ${{ all: 'all', accessible: 'labelled accessible', homes: 'homes', houston: 'Houston', los_angeles: 'Los Angeles' }[i.group] || 'list'}${i.words ? `, "${i.words}"` : ''}`,
   ui: i => ({ close_card: 'Closing the card', print_plan: 'Printing the plan', issues_by_room: 'Issues by room', issues_all: 'All issues' })[i.action],
   record_check: i => `Saving: ${checks.find(c => c.id === i.id)?.title || i.id}`, open_page: i => i.page === 'home' ? 'Opening: all apartments' : 'Opening: the neighbourhood',
 };
-const HOME_OK = new Set(['open_apartment', 'open_page', 'set_look', 'set_text', 'speak']); // the start page has no tour to drive
+const HOME_OK = new Set(['open_apartment', 'open_page', 'set_look', 'set_text', 'speak', 'browse']); // the start page has no tour to drive
+const BROWSE_GROUP = { all: '', accessible: 'ada', homes: 'homes', houston: 'houston', los_angeles: 'la' }; // voice group → the window's button
 async function runTool(name, input, on) {
   try {
     if (!TOOLS[name]) throw new Error(`No tool ${name}`);
@@ -1092,12 +1346,14 @@ async function runTool(name, input, on) {
 }
 let asking = null, navTo = null; // the running question (a new one, or "stop", aborts it); the apartment Claude asked to open
 let facts = null, sentFacts = ''; // the apartment data Claude got at the start of the chat, and the newest copy it has seen
+const person = () => { try { return sessionStorage.getItem('ie-person') || ''; } catch { return ''; } };
 const stopAsking = () => { asking?.abort(); navTo = null; }; // a stopped request must not change the page later
 const openApartment = id => { if (id.startsWith('page:')) location.href = id === 'page:home' ? './' : 'region.html'; else location.search = `?m=${id}&q=${$('quality').value}`; };
 // One question, typed or spoken. on('step', label) for each thing the tour does; on('say', text) as soon as the answer is known.
 // Returns { text, error, open }: open = the apartment to load once the answer has been read.
 async function ask(text, { on = () => {}, note } = {}) {
-  stopAsking(); const ctl = asking = new AbortController(), mark = convo.length; navTo = null;
+  stopAsking(); const ctl = asking = new AbortController(), mark = convo.length; navTo = null; asked = false; // a "yes" after this answers Claude, not the pause question
+
   say('u', text);
   const screen = model ? `${mode} view, ${cardFor ? 'card open: ' + cardFor.id : 'no card open'}${mode === 'walk' && stops.length ? `, walkthrough stop ${at + 1} of ${stops.length}${guideLine ? `; you just said aloud: "${guideLine}"` : ''}` : ''}` : 'start page';
   // The data Claude got with the first question stays as it is for the whole chat: the API rejects a conversation whose
@@ -1105,7 +1361,8 @@ async function ask(text, { on = () => {}, note } = {}) {
   facts ||= apartmentFacts(); sentFacts ||= JSON.stringify(facts);
   const before = sentFacts, now = JSON.stringify(apartmentFacts()), update = now === sentFacts ? '' : `\n[The apartment data changed (fixes, budget or measurements). Use this copy now: ${now}]`;
   sentFacts = now;
-  convo.push({ role: 'user', content: `${text}\n\n[On screen now: ${screen}${note ? '; ' + note : ''}]${update}` });
+  const about = person(); // what the flyover learned about who the apartment is for ("their dad, manual wheelchair")
+  convo.push({ role: 'user', content: `${text}\n\n[On screen now: ${screen}${note ? '; ' + note : ''}${about ? '; about them: ' + about : ''}]${update}` });
   const thinking = say('t', 'Looking…'); let answer = '', error = '';
   const tell = t => { if (t && !answer) { answer = t; say('a', t); on('say', t); } };
   try {
@@ -1130,12 +1387,19 @@ async function ask(text, { on = () => {}, note } = {}) {
     }
   } catch (e) {
     convo.length = mark; sentFacts = before; // drop the half-finished exchange, so the next question starts from a valid history
-    if (e.name !== 'AbortError') { console.log('[agent]', e.message || e); error = "Claude can't be reached right now. The checks, pins and fixes still work; ask again in a moment."; say('err', error); }
+    if (e.name !== 'AbortError') {
+      console.log('[agent]', e.message || e);
+      // No Claude (offline, venue Wi-Fi, the test server): inside a tour the guide still answers from the page's own data,
+      // about the place on screen or the whole apartment, and the walk goes on. Only the start page says it can't answer.
+      const local = !model ? '' : cardFor ? (lineOf ? baseOf(cardFor).text : cardFor.title)
+        : (([, a, because]) => `${a}: ${because[0].toLowerCase() + because.slice(1)}.${mode === 'walk' ? '' : ' Let me show you around.'}`)(verdictOf(summary(checks)));
+      if (local) tell(local); else { error = "Claude can't be reached right now. The checks, pins and fixes still work; ask again in a moment."; say('err', error); }
+    }
   }
   thinking.remove(); if (asking === ctl) asking = null;
   return { text: answer, error, open: navTo };
 }
-const askTyped = q => ask(q).then(r => r.open && openApartment(r.open));
+const askTyped = q => ask(q).then(r => r.open ? openApartment(r.open) : window.__tourApi?.resume?.(true)); // typed questions start the walk too
 $('ask').onsubmit = e => { e.preventDefault(); const q = $('q').value.trim(); if (q) { $('q').value = ''; askTyped(q); } };
 $('mic').hidden = true; // shown once voice.js has loaded (end of this script)
 
@@ -1153,15 +1417,28 @@ function setMode(m) {
 }
 document.querySelectorAll('#modes button').forEach(b => b.onclick = async () => {
   const m = b.dataset.mode; if (!sdk) return;
+  walkOff = m !== 'walk'; // another view picked by hand (or by voice): talking won't pull them back into the walk until they ask for it
   setMode(m); closeCard();
   // FPV right away: the Drone click is the user gesture pointer lock needs, so lock before any await.
   if (m === 'drone') try { $('fpv').requestPointerLock()?.catch?.(() => {}); } catch {}
   if (m === 'overview') await overview();
   if (m === 'drone') await droneStart();
-  if (m === 'walk') startWalk();
+  if (m === 'walk') startWalk(null, true);
   if (m === 'inside') await sdk.Mode.moveTo(sdk.Mode.Mode.INSIDE).catch(() => {});
   if (m === 'plan') await sdk.Mode.moveTo(sdk.Mode.Mode.FLOORPLAN).catch(() => {});
 });
+
+// Shortcuts, named in each button's tooltip: O overview, D drone, T walkthrough, I inside, P floor plan. Esc stops the drone (in the
+// drone the letters fly; with the mouse captured, the browser's own Esc frees it, which also ends the flight).
+const MODE_KEYS = { o: 'overview', d: 'drone', t: 'walk', i: 'inside', p: 'plan' };
+document.querySelectorAll('#modes button').forEach(b => { const k = Object.keys(MODE_KEYS).find(k => MODE_KEYS[k] === b.dataset.mode); if (k) b.title = `${b.textContent.trim()} (${k.toUpperCase()})`; });
+addEventListener('keydown', e => {
+  if (!model || e.metaKey || e.ctrlKey || e.altKey || e.repeat || e.target.closest?.('input,textarea,select,[contenteditable]')) return;
+  const k = e.key.toLowerCase(), to = m => document.querySelector(`#modes [data-mode="${m}"]`).click();
+  if (mode === 'drone') { if (k === 'escape') to('overview'); return; }
+  if (MODE_KEYS[k]) { e.preventDefault(); to(MODE_KEYS[k]); }
+});
+document.addEventListener('pointerlockchange', () => { if (!document.pointerLockElement && mode === 'drone') document.querySelector('#modes [data-mode="overview"]').click(); });
 
 // ---- Drone: free flight over the 3D model. Matterport lets the dollhouse camera sit anywhere, so we move it in small instant steps. ----
 // Keys as in Unity / Unreal / Sketchfab fly modes: W A S D fly, Space up, Shift down, Q E or ← → turn, R F tilt; drag to look.
@@ -1240,34 +1517,167 @@ $('flyover').onclick = async () => {
   flying = false;
 };
 
-// ---- Walkthrough: every room, plus every problem, in walking order from the entrance. ----
+// ---- Walkthrough: every room, plus every problem, in walking order. It starts by itself once the person talks to the guide
+// (voice.js calls resume(true) after each answer), goes on from whatever they asked to see, and a click in the 3D view holds it. ----
 let stops = [], at = 0, autoTimer = null, playing = false;
+// seen = stops shown in this tour (a walk started again goes on through the rest). walkOff = they paused, clicked or picked another
+// view: talking won't restart it until they say go on. asked = the last thing said was the "keep going?" question, so a plain
+// "yes" or "no" is answered here (no Claude call). walkGen changes on every jump, so a walk that is still stepping stops.
+const seen = new Set(); let walkOff = false, asked = false, introSaid = false, walkGen = 0, walkFrom = null, walkTotal = 0;
 // The guide (voice.js stopLine): says each stop aloud while the camera flies. guideLine = what it said last (Claude gets it, so "yes" or "how much" make sense);
 // resumeAfter = the walk paused because the person spoke, and goes on by itself once they have their answer.
-let guide = null, lineOf = null, guideLine = '', resumeAfter = false;
+let guide = null, lineOf = null, keepsNumbers = () => false, guideLine = '', resumeAfter = false;
 const typeOf = o => products.find(p => p.id === o.product?.id)?.type?.replaceAll('_', ' ');
 const DWELL = c => isProblem(c) ? 8000 : 3500; // ms: time to read a problem card vs. a glance at a room that passes
-function startWalk() {
-  const rooms = checks.filter(c => c.kind === 'turn'), problems = issueList.filter(c => c.kind !== 'turn' && c.at);
-  const pool = [...rooms, ...problems], start = sweeps[0] ? { x: sweeps[0].position.x, y: -sweeps[0].position.z } : pool[0]?.at;
-  stops = []; let here = start;
-  while (pool.length) { // nearest next stop, so the route doesn't zig-zag
-    pool.sort((a, b) => Math.hypot(a.at.x - here.x, a.at.y - here.y) - Math.hypot(b.at.x - here.x, b.at.y - here.y));
-    const next = pool.shift(); stops.push(next); here = next.at;
+// The walk's order: from the entrance (the unit's front door in the floor plan; the first scan point when there is none), always on
+// to the nearest place by WALKING distance over the scan's own links (straight lines went through walls: bedroom, kitchen, bedroom
+// again), finishing a room before leaving it. from = a plan point to start from instead (where they stand, or the place they asked about).
+const walkDists = new Map();
+function metresFrom(id) { // metres from one scan point to every other along Matterport's neighbour links (Dijkstra; a tour has < 200)
+  if (walkDists.has(id)) return walkDists.get(id);
+  const by = new Map(sweeps.map(s => [s.id, s])), dist = new Map([[id, 0]]), todo = new Set([id]);
+  while (todo.size) {
+    let u = null; for (const x of todo) if (u === null || dist.get(x) < dist.get(u)) u = x;
+    todo.delete(u); const su = by.get(u);
+    for (const n of su?.neighbors || []) {
+      const sn = by.get(n); if (!sn) continue;
+      const nd = dist.get(u) + Math.hypot(sn.position.x - su.position.x, sn.position.y - su.position.y, sn.position.z - su.position.z);
+      if (nd < (dist.get(n) ?? Infinity)) { dist.set(n, nd); todo.add(n); }
+    }
   }
-  at = 0; playing = true; resumeAfter = false; showStop();
+  walkDists.set(id, dist); return dist;
 }
-async function showStop() {
-  clearTimeout(autoTimer); progress(0);
-  const c = stops[at]; if (!c) return;
+const flat = (s, p) => Math.hypot(planOf(s).x - p.x, planOf(s).y - p.y);
+const nearestSweep = p => sweeps.filter(s => s.enabled !== false).sort((a, b) => flat(a, p) - flat(b, p))[0] || null;
+function entrySweep() { // the scan point that sees the unit's front door, nearest to it
+  const e = ev.route.entry?.at; if (!e) return sweeps.find(s => s.enabled !== false) || null;
+  const seen = sweeps.filter(s => s.enabled !== false && clearView(planOf(s), e));
+  return (seen.length ? seen : sweeps).slice().sort((a, b) => flat(a, e) - flat(b, e))[0] || null;
+}
+const roomsOf = c => c.rooms || [c.roomId];
+function route(from = null, skip = new Set()) {
+  const rooms = checks.filter(c => c.kind === 'turn' && c.at), problems = issueList.filter(c => c.kind !== 'turn' && c.at);
+  const pool = [...rooms, ...problems].filter(c => !skip.has(c.id) && viewFor(c).s), out = [];
+  let here = from ? nearestSweep(from) : entrySweep(), last = null;
+  while (pool.length && here) {
+    const D = metresFrom(here.id), at = planOf(here);
+    const cost = c => (D.get(viewFor(c).s.id) ?? 50 + flat(viewFor(c).s, at)) // not linked: last, but still in order
+      + (last && !roomsOf(c).some(r => roomsOf(last).includes(r)) ? 1 : 0); // a metre's worth of reluctance to leave the room
+    pool.sort((a, b) => cost(a) - cost(b));
+    const next = pool.shift(); out.push(next); here = viewFor(next).s; last = next;
+  }
+  return untangle(out, from ? nearestSweep(from) : entrySweep());
+}
+// Nearest-next can still double back (a 10 m walk back to the other bedroom near the end). 2-opt: reverse any stretch of the walk
+// that makes it shorter, until nothing does. The start stays where it is; under 30 stops this takes well under a millisecond.
+function untangle(list, start) {
+  if (list.length < 3 || !start) return list;
+  const node = k => k < 0 ? start : viewFor(list[k]).s, gap = (p, q) => (metresFrom(p.id).get(q.id) ?? 50 + flat(q, planOf(p)));
+  const step = (a, b) => gap(node(a), node(b)) + (a >= 0 && !roomsOf(list[b]).some(r => roomsOf(list[a]).includes(r)) ? 1 : 0);
+  for (let better = true, n = 0; better && n < 50; n++) {
+    better = false;
+    for (let i = 0; i < list.length - 1; i++) for (let j = i + 1; j < list.length; j++) {
+      const before = step(i - 1, i) + (j + 1 < list.length ? step(j, j + 1) : 0);
+      const seg = list.slice(i, j + 1).reverse(), trial = [...list.slice(0, i), ...seg, ...list.slice(j + 1)], keep = list; list = trial;
+      const after = step(i - 1, i) + (j + 1 < list.length ? step(j, j + 1) : 0);
+      if (after < before - 0.01) better = true; else list = keep;
+    }
+  }
+  return list;
+}
+// Checked on every tour once its shapes are drawn: the start, the order, and where the camera stands for each stop. Anything
+// doubtful goes to the console and window.__walkAudit (notes/walk_audit.mjs runs it over every tour), and gets the safe view.
+function auditWalk() {
+  const list = route(), start = entrySweep();
+  const stops = list.map((c, k) => { const v = viewFor(c), D = metresFrom((k ? viewFor(list[k - 1]).s : start).id);
+    return { id: c.id, kind: c.kind, title: c.title, room: c.room || c.between, sweep: v.s?.id, pitch: Math.round(v.pitch), metres: Math.round((D.get(v.s.id) ?? NaN) * 10) / 10, warn: v.warn || '' }; });
+  for (const s of stops.filter(s => s.warn === 'no clear view')) { // why: the three nearest scan points, their floor and what blocks them
+    const c = checks.find(x => x.id === s.id), look = c.at, fl = floorOf(c);
+    s.near = sweeps.slice().sort((a, b) => flat(a, look) - flat(b, look)).slice(0, 3).map(w => ({ m: Math.round(flat(w, look) * 10) / 10,
+      floor: Math.round((floorY(w) - levelOf(c)) * 100) / 100, clear: clearView(planOf(w), look, fl), clearAnyFloor: clearView(planOf(w), look) }));
+  }
+  const warnings = stops.filter(s => s.warn || !Number.isFinite(s.metres)).map(s => `${s.title} (${s.id}): ${s.warn || 'not linked to the stop before'}`);
+  window.__walkAudit = { start: start?.id, entry: !!ev.route.entry?.at, stops, warnings, total: stops.reduce((t, s) => t + (s.metres || 0), 0) };
+  if (warnings.length) console.warn('[walk] ' + warnings.join('; '));
+}
+const camAt = () => pose?.mode === sdk?.Mode.Mode.INSIDE ? { x: pose.position.x, y: -pose.position.z } : null; // where they stand now
+// fresh = from the entrance, everything again. from = a place to start at; if it is on screen already it isn't said again.
+function startWalk(from = null, fresh = false) {
+  if (fresh) seen.clear();
+  walkOff = asked = false; walkGen++; clearTimeout(autoTimer); walkTotal = route().length;
+  const start = from?.at ? from : null;
+  let rest = route(fresh ? null : start?.at || camAt(), new Set([...seen, start?.id]));
+  if (!rest.length && !start) { seen.clear(); rest = route(); } // everything seen: round again from the entrance
+  stops = start ? [start, ...rest] : rest; at = 0; playing = true; resumeAfter = false;
+  prepareWalk();
+  if (!start || cardFor?.id !== start.id) return showStop();
+  seen.add(start.id); barFor(start); // they are looking at it: a beat, then on to the next place
+  progress(2500); autoTimer = setTimeout(advance, 2500);
+}
+// They asked about a place, or clicked it, during the walk: the camera goes there now and, after the answer, walks on from there
+// through what it hasn't shown yet. After a click or a "stop" it stays there until they say go on.
+async function jumpTo(c) {
+  stopAuto(); walkGen++; seen.add(c.id);
+  stops = [c, ...route(c.at || camAt(), seen)]; at = 0;
+  resumeAfter = !walkOff && stops.length > 1; barFor(c);
+  await goTo(c);
+}
+// Talking to the guide starts the walk by itself, in every apartment, from what is on screen (or the place the page dived into).
+function autoWalk() {
+  if (!model || !sdk || walkOff || ['walk', 'drone', 'plan'].includes(mode)) return;
+  const from = cardFor?.at ? cardFor : walkFrom; walkFrom = null;
+  setMode('walk'); startWalk(from);
+}
+// A click or a drag in the 3D view, or a click in the issue list, while the walk plays: they are taking over. The guide stops and
+// asks once, in a fixed line (no Claude call); "yes" or "go on" carries on from where they are, anything else is answered as usual.
+const PAUSE_LINE = 'I’ve paused. Do you want me to keep going, or is there something else you’d like to see? Anything you need, I can help.';
+function holdWalk() {
+  if (mode !== 'walk' || !(playing || resumeAfter || autoTimer)) return;
+  stopAuto(); resumeAfter = false; walkOff = true; walkGen++;
+  asked = true; guide?.(guideLine = PAUSE_LINE);
+}
+for (const el of [document.querySelector('main'), $('issues')]) el?.addEventListener('pointerdown', e => {
+  if (e.isTrusted && e.button === 0 && (el.id === 'issues' || e.target.closest?.('matterport-viewer'))) holdWalk();
+}, true);
+const GO_ON = 'yes|yeah|yep|yes please|sure|yes sure|go ahead|carry on|keep walking|yes keep going|yes continue|yes go on|yeah go on|yeah keep going|of course';
+const NOT_NOW = 'no|nope|no thanks|no thank you|something else|not now|not yet';
+const walkWords = () => asked && mode === 'walk' ? [{ keys: GO_ON, tool: 'walkthrough', input: { action: 'play' } },
+  { keys: NOT_NOW, tool: 'speak', input: {}, say: 'Sure. What would you like to see?' }] : [];
+function barFor(c) {
   $('w-play').textContent = playing ? 'Pause' : 'Play';
-  $('w-count').textContent = `Stop ${at + 1} of ${stops.length}` + (c.s === 'pass' ? '' : ', problem');
+  $('w-count').textContent = `Stop ${Math.min(Math.max(seen.size, 1), walkTotal || stops.length)} of ${walkTotal || stops.length}` + (c.s === 'pass' ? '' : ', problem');
   $('w-title').textContent = c.kind === 'turn' ? (c.s === 'pass' ? `${c.room}: room to turn` : c.title) : c.title;
   $('w-prev').disabled = at === 0; $('w-next').textContent = at === stops.length - 1 ? 'Finish' : 'Next';
+}
+// Ethan's words for every stop, written by Claude (/api/walk) from the fact lines stopLine() makes, for the person it's for.
+// Asked once when the tour loads, so the walk starts at once; a line is used only while its fact line is unchanged
+// (a fix chosen since then changes it) and only if every number survived (voice.js keepsNumbers). Otherwise the fact line is said.
+let walkLines = null, walkKey = '';
+const baseOf = c => lineOf(c, plan?.rows.find(r => r.item.id === c.id), typeOf);
+function prepareWalk() {
+  if (!guide || !lineOf || !model || !ev) return; // the start page has no apartment, so no walk
+  const list = route().map(c => ({ id: c.id, base: baseOf(c).text, room: c.room || c.between || '', kind: c.kind })); // always the whole walk: one request per tour, however often the walk is re-routed
+  const key = JSON.stringify([person(), list]); if (key === walkKey) return; walkKey = key;
+  walkLines = fetch('/api/walk', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: model?.name, about: person(), stops: list }) })
+    .then(r => r.ok ? r.json() : null).then(j => j && { intro: j.intro, map: new Map(j.lines.map(l => [l.id, { ...l, base: list.find(x => x.id === l.id)?.base }])) }).catch(() => null);
+}
+async function lineFor(c) {
+  const base = baseOf(c);
+  const w = await Promise.race([walkLines, new Promise(r => setTimeout(r, 4000))]); // not written yet: the fact line, so the walk never waits long
+  const g = w?.map.get(c.id);
+  return g && g.base === base.text && keepsNumbers(base.text, g.line) ? { text: g.line, ask: g.ask || base.ask, intro: w.intro } : { ...base, intro: null };
+}
+async function showStop() {
+  clearTimeout(autoTimer); progress(0); asked = false;
+  const c = stops[at]; if (!c) return;
+  seen.add(c.id); barFor(c);
   if (!guide) { await goTo(c); if (playing && stops[at] === c && mode === 'walk') schedule(c); return; }
-  const line = lineOf(c, plan?.rows.find(r => r.item.id === c.id), typeOf);
-  const text = guideLine = (at === 0 ? `Let's go round: ${stops.length} stops, ${stops.filter(isProblem).length} of them problems. Ask me anything on the way, or say stop. ` : '') + line.text;
-  const talk = guide(text); await goTo(c); await talk; // it talks while the camera flies
+  const flying = goTo(c), line = await lineFor(c); if (stops[at] !== c || mode !== 'walk') return;
+  // The intro once per tour ("Welcome in" first when the flyover brought them here); later walks just carry on.
+  const lead = introSaid ? '' : (EMBED ? 'Welcome in. ' : '') + (line.intro || 'Let’s take a look around. Ask me anything as we go.') + ' ';
+  introSaid = true;
+  const text = guideLine = lead + line.text;
+  const talk = guide(text); await flying; await talk; // it talks while the camera flies
   if (stops[at] !== c || mode !== 'walk' || !playing) return; // moved on, left, or paused because the person spoke
   if (line.ask) { stopAuto(); resumeAfter = true; return; } // "Shall I add it?": wait for the answer
   autoTimer = setTimeout(advance, 900);
@@ -1286,12 +1696,12 @@ function schedule(c) {
 }
 $('w-prev').onclick = () => { if (at > 0) { at--; showStop(); } };
 $('w-next').onclick = () => { if (at < stops.length - 1) { at++; showStop(); } else { setMode('overview'); closeCard(); overview(); } };
-$('w-end').onclick = () => { setMode('overview'); closeCard(); overview(); };
+$('w-end').onclick = () => { walkOff = true; setMode('overview'); closeCard(); overview(); };
 function stopAuto() { playing = false; clearTimeout(autoTimer); autoTimer = null; $('w-play').textContent = 'Play'; progress(0); }
 $('w-play').onclick = () => {
-  if (playing) return stopAuto();
-  playing = true; $('w-play').textContent = 'Pause';
-  if (at >= stops.length - 1) { at = 0; showStop(); } else if (guide) advance(); else schedule(stops[at]); // at the end, Play starts over; with the guide the stop was already said
+  if (playing) { walkOff = true; return stopAuto(); }
+  walkOff = asked = false; playing = true; $('w-play').textContent = 'Pause';
+  if (at >= stops.length - 1) startWalk(null, seen.size >= walkTotal); else if (guide) advance(); else schedule(stops[at]); // at the end, Play goes on through what is left (or starts over); with the guide the stop was already said
 };
 
 // ---- Tabs, looks ----
@@ -1306,45 +1716,11 @@ function setTheme(t) {
   if (!['standard', 'night', 'contrast'].includes(t)) t = 'standard';
   document.documentElement.dataset.theme = t;
   document.querySelectorAll('.looks button').forEach(b => b.setAttribute('aria-pressed', b.dataset.look === t));
-  try { localStorage.setItem('ie-theme', t); } catch {}
+  try { localStorage.setItem('ie-look', t); } catch {} // new key (was ie-theme): looks saved while testing are dropped once, so everyone starts on white
 }
 document.querySelectorAll('.looks button').forEach(b => b.onclick = () => setTheme(b.dataset.look));
 $('budget').onchange = () => { const v = $('budget').value.trim(); budget = v === '' ? null : Math.max(0, +v); replan(); };
 $('print').onclick = () => { showTab('t-plan', 'p-plan'); print(); };
-let savedTheme = null; try { savedTheme = localStorage.getItem('ie-theme'); } catch {}
-setTheme(new URLSearchParams(location.search).get('look') || savedTheme || 'standard');
-
-const list = await (await fetch('private/tours/index.json')).json();
-const demoTour = list.find(t => t.demo) || list[0]; // the demo flag lives in the private index
-const sid = new URLSearchParams(location.search).get('m') || demoTour.id;
-$('pick').innerHTML = list.map(t => `<option value="${t.id}"${t.id === sid ? ' selected' : ''}>${t.name}</option>`).join('');
-// Embedded (the neighbourhood flyover dives in): no links out, and no apartment picker (this tour may not be in its list).
-if (new URLSearchParams(location.search).get('embed') === '1') { document.querySelector('.homelink').hidden = true; $('d-home').hidden = true; $('pick').hidden = true; }
-const quality = new URLSearchParams(location.search).get('q') || 'high';
-$('quality').value = quality;
-// A fresh page per tour or quality keeps the SDK state clean (Matterport reads these settings once, at start).
-const reloadWith = () => location.search = `?m=${$('pick').value}&q=${$('quality').value}`;
-$('pick').onchange = reloadWith; $('quality').onchange = reloadWith;
-const thumb = id => `https://my.matterport.com/api/v1/player/models/${id}/thumb`;
-async function renderHome() {
-  products = await loadProducts();
-  $('home').hidden = false; document.title = 'Inch & Ease';
-  const demo = demoTour;
-  $('demoLink').href = $('navDemo').href = `?m=${demo.id}`;
-  const rows = [];
-  for (const t of list) {
-    const m = await (await fetch(`private/tours/${t.id}.json`)).json(), all = described(evaluate(m).items), sm = summary(all);
-    const r = { issues: all.filter(isProblem), pass: sm.pass, total: sm.measured };
-    rows.push({ t, r, pa: planAll(r.issues, products), labelled: /ADA|Handicap|Accessible/i.test(t.name) });
-  }
-  // Proof numbers come from the data: the worst "accessible"-labelled unit, the cheapest purchase that solves a problem.
-  const fails = x => x.r.issues.filter(i => i.s === 'fail').length;
-  const worstLabelled = rows.filter(x => x.labelled).sort((a, b) => fails(b) - fails(a))[0];
-  const cheapest = Math.min(...rows.flatMap(x => x.pa.rows.filter(p => p.chosen?.price > 0).map(p => p.chosen.price)));
-  $('proof').innerHTML = (worstLabelled && fails(worstLabelled) ? `<div><b class="red">${fails(worstLabelled)} fail</b><span>+ ${worstLabelled.r.issues.filter(i => i.s === 'verify').length} to check with a tape, in a unit labelled "ADA"</span></div>` : '') +
-    (isFinite(cheapest) ? `<div><b>$${cheapest.toFixed(2)}</b><span>cheapest real fix found</span></div>` : '') +
-    `<div><b>${rows.length}</b><span>apartments in Houston and LA</span></div>`;
-  rows.sort((a, b) => (b.t.id === demo.id) - (a.t.id === demo.id) || fails(b) - fails(a));
 function setText(t) {
   if (!['standard', 'large', 'larger'].includes(t)) t = 'standard';
   document.documentElement.dataset.text = t;
@@ -1354,20 +1730,142 @@ function setText(t) {
 document.querySelectorAll('[data-text-size]').forEach(b => b.onclick = () => setText(b.dataset.textSize));
 let savedText = null; try { savedText = localStorage.getItem('ie-text'); } catch {}
 setText(new URLSearchParams(location.search).get('text') || savedText);
+let savedTheme = null; try { savedTheme = localStorage.getItem('ie-look'); } catch {}
+setTheme(new URLSearchParams(location.search).get('look') || savedTheme || 'standard');
+
+const list = await (await fetch('private/tours/index.json')).json();
+const demoTour = list.find(t => t.demo) || list[0]; // the demo flag lives in the private index
+const sid = new URLSearchParams(location.search).get('m') || demoTour.id;
+$('pick').innerHTML = (list.some(t => t.id === sid) ? list : [...list, { id: sid, name: 'CoStar tour ' + sid }]).map(t => `<option value="${t.id}"${t.id === sid ? ' selected' : ''}>${esc(t.name)}</option>`).join('');
+// Embedded (the neighbourhood flyover dives in): no links out, and no apartment picker (this tour may not be in its list).
+if (new URLSearchParams(location.search).get('embed') === '1') { document.querySelector('.homelink').hidden = true; $('d-home').hidden = true; $('pick').hidden = true; }
+const quality = new URLSearchParams(location.search).get('q') || 'high';
+$('quality').value = quality;
+// A fresh page per tour or quality keeps the SDK state clean (Matterport reads these settings once, at start).
+const reloadWith = () => location.search = `?m=${$('pick').value}&q=${$('quality').value}`;
+$('pick').onchange = reloadWith; $('quality').onchange = reloadWith;
+const thumb = id => `https://my.matterport.com/api/v1/player/models/${id}/thumb`;
+// Browse all CoStar tours: a group, then scroll and click. Typing only narrows the list.
+let anyF = '', anyAt = 0, anyReq = 0, anyT, browsed = [], browseTotal = 0; // browsed: the tours in the window now, in order (voice opens them by place or name)
+const tourName = m => m.name.length < 4 && m.address ? m.address.split(',')[0] : m.name; // some tours are named just "02"
+async function browse(more) {
+  const out = $('anyList'), q = $('anyQ').value.trim(), req = ++anyReq;
+  if (!more) { anyAt = 0; out.innerHTML = '<li><small>Loading tours…</small></li>'; }
+  try {
+    const { models, total } = await (await fetch(`/api/models?q=${encodeURIComponent(q)}&f=${anyF}&o=${anyAt}`)).json();
+    if (req !== anyReq) return null; // a newer pick or keystroke already asked again
+    if (!more) { out.innerHTML = models.length ? '' : '<li><small>No tour matches. Try fewer words or another group.</small></li>'; browsed = []; }
+    out.insertAdjacentHTML('beforeend', models.map(m => `<li><a href="?m=${m.sid}&q=${$('quality').value}"><img src="${thumb(m.sid)}" alt="" loading="lazy"><span>${esc(tourName(m))}<small>${esc(m.address.replace(/,\s*US$/, '') || [m.city, m.state].filter(Boolean).join(', ') || m.sid)}${m.room_count ? ` · ${m.room_count} rooms` : ''}</small></span></a></li>`).join(''));
+    anyAt += models.length; browsed.push(...models); browseTotal = total;
+    $('anyCount').textContent = `${total.toLocaleString()} tour${total === 1 ? '' : 's'}${anyAt < total ? `, showing ${anyAt}` : ''}`;
+    $('anyNext').hidden = anyAt >= total;
+    return { models, total };
+  } catch { if (req === anyReq) { out.innerHTML = '<li><small>The tour list needs the local server (tour/serve.py).</small></li>'; $('anyNext').hidden = true; } return null; }
+}
+const pickGroup = f => { anyF = f; document.querySelectorAll('#browse [data-f]').forEach(x => x.setAttribute('aria-pressed', x.dataset.f === f)); };
+$('anyForm').onsubmit = e => { e.preventDefault(); browse(); };
+$('anyQ').oninput = () => { clearTimeout(anyT); anyT = setTimeout(browse, 250); };
+$('anyNext').onclick = () => browse(true);
+document.querySelectorAll('#browse [data-f]').forEach(b => b.onclick = () => { pickGroup(b.dataset.f); browse(); });
+async function renderHome() {
+  products = await loadProducts();
+  $('home').hidden = false; document.title = 'Inch & Ease';
+  const demo = demoTour;
+  $('demoLink').href = $('navDemo').href = `?m=${demo.id}`;
+  const rows = [];
+  for (const t of list) rows.push(await rowOf(t));
+  // Proof numbers come from the data: the worst "accessible"-labelled unit.
+  const worstLabelled = rows.filter(x => x.labelled).sort((a, b) => fails(b) - fails(a))[0];
+  $('proof').innerHTML = (worstLabelled && fails(worstLabelled) ? `<div><b class="red">${fails(worstLabelled)} fail</b><span>in a unit labelled "ADA"</span></div>` : '') +
+    `<div><b>${rows.length}</b><span>apartments in Houston and LA</span></div>`;
+  rows.sort((a, b) => (b.t.id === demo.id) - (a.t.id === demo.id) || fails(b) - fails(a));
   homeRows = rows;
-  for (const { t, r, pa, labelled } of rows) {
-    const worst = r.issues[0], f = worst && pa.rows.find(p => p.item.id === worst.id), n = fails({ r });
-    const pro = f?.options.find(o => o.kind === 'contractor' && o.verdict === 'closes'), fixText = !f ? '' : f.chosen ? `fix: ${money(f.chosen)}` : pro?.price ? `contractor, about $${pro.price.toLocaleString()}` : 'no purchase fixes it';
-    const a = document.createElement('a'); a.className = 'apt'; a.href = `?m=${t.id}`;
-    a.innerHTML = `<div class="img" style="background-image:url(${thumb(t.id)})"><span class="tag ${n ? '' : 'ok'}">${n ? n + ' problem' + (n > 1 ? 's' : '') : 'All pass'}</span></div>
-      <h4>${t.name}</h4><div class="city">${t.city}${labelled ? ', labelled accessible' : ''}</div>
-      <div class="sc"><b>${r.pass}/${r.total}</b><span>checks pass</span></div>
-      <div class="fx">${worst ? `<b>${worst.title}</b><span>${fixText.charAt(0).toUpperCase() + fixText.slice(1)}</span>` : 'Every door, step and room passes'}</div>`;
-    $('grid').appendChild(a);
+  for (const row of rows) $('grid').appendChild(aptCard(row));
+  renderFresh(); renderExamples(); filmOn(); // not awaited: the start page and voice are ready before the extra tours are scored
+  browse();
+}
+// The film on the start page (notes/demo_capture.mjs): the recorded walk, and its lines shown under it as the film reaches them,
+// the newest three. Without the recording (it is Sponsor Data, kept local) the hero simply has no film.
+// The chat types along with the film, letter by letter, on the film's own clock (so a loop or a seek lines up again): the person's
+// words at speaking pace, then "…" while the guide thinks, then its reply, each line finished before the next one starts.
+async function filmOn() {
+  let film; try { film = await (await fetch('private/demo/walk.json')).json(); } catch { return; }
+  const v = $('filmVideo'), list = $('filmTalk'), still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const lines = [];
+  for (const [k, l] of (film.lines || []).entries()) {
+    const prev = lines.at(-1), next = film.lines[k + 1], wait = prev && l.who === 'guide' && prev.who === 'you' ? 0.9 : 0.3;
+    const start = Math.max(l.t, prev ? prev.end + wait : 0), room = next ? Math.max(1, next.t - start - 0.4) : 4;
+    const end = start + (l.who === 'you' ? l.text.length / 18 : Math.min(l.text.length / 32, room)); // ~18 letters a second spoken, up to 32 read
+    lines.push({ ...l, start, end, dots: wait > 0.5 ? start - wait + 0.15 : null });
   }
+  // Bubbles are made once and their text grows in place (rebuilding them every letter replayed their fade-in).
+  const els = new Map(), dots = Object.assign(document.createElement('li'), { className: 'guide dots', innerHTML: '<b>Guide</b><span><i></i><i></i><i></i></span>' });
+  dots.setAttribute('aria-label', 'The guide is answering');
+  let lastT = 0;
+  const render = () => {
+    const t = v.currentTime;
+    if (t < lastT) { els.clear(); list.textContent = ''; } lastT = t; // looped or sought back: start the chat again
+    const on = [...lines.entries()].filter(([, l]) => l.start <= t).slice(-3), keep = new Set(on.map(([k]) => k));
+    for (const [k, el] of els) if (!keep.has(k)) { el.remove(); els.delete(k); }
+    for (const [k, l] of on) {
+      let el = els.get(k);
+      if (!el) { el = document.createElement('li'); el.className = l.who === 'you' ? 'you' : 'guide'; el.innerHTML = `<b>${l.who === 'you' ? 'You' : 'Guide'}</b><span></span>`; list.insertBefore(el, dots.isConnected ? dots : null); els.set(k, el); }
+      const n = still ? l.text.length : Math.min(l.text.length, Math.floor((t - l.start) / (l.end - l.start || 1) * l.text.length));
+      if (el.lastChild.textContent.length !== n) el.lastChild.textContent = l.text.slice(0, n);
+      el.classList.toggle('typing', n < l.text.length);
+    }
+    const waiting = lines.some(l => l.dots != null && l.dots <= t && t < l.start);
+    if (waiting && !dots.isConnected) list.appendChild(dots); else if (!waiting && dots.isConnected) dots.remove();
+  };
+  const loop = () => { render(); if (!v.paused) requestAnimationFrame(loop); };
+  v.addEventListener('play', loop); v.addEventListener('seeked', render);
+  v.poster = 'private/demo/walk.jpg'; v.src = 'private/demo/walk.mp4';
+  v.onerror = () => { $('film').hidden = true; };
+  $('film').hidden = false;
+  if (still) v.controls = true; else v.play().catch(() => { v.controls = true; });
+}
+const fails = x => x.r.issues.filter(i => i.s === 'fail').length;
+async function rowOf(t) {
+  const m = await (await fetch(`private/tours/${t.id}.json`)).json(), all = described(evaluate(m).items), sm = summary(all);
+  const r = { issues: all.filter(isProblem), pass: sm.pass, total: sm.measured };
+  return { t, r, pa: planAll(r.issues, products), labelled: /ADA|Handicap|Accessible/i.test(t.name) };
+}
+function aptCard({ t, r, pa, labelled }) {
+  const worst = r.issues[0], f = worst && pa.rows.find(p => p.item.id === worst.id), n = fails({ r });
+  const pro = f?.options.find(o => o.kind === 'contractor' && o.verdict === 'closes'), fixText = !f ? '' : f.chosen ? `fix: ${money(f.chosen)}` : pro?.price ? `contractor, about $${pro.price.toLocaleString()}` : 'no purchase fixes it';
+  const a = document.createElement('a'); a.className = 'apt'; a.href = `?m=${t.id}`;
+  a.innerHTML = `<div class="img" style="background-image:url(${thumb(t.id)})"><span class="tag ${n ? '' : 'ok'}">${n ? n + ' problem' + (n > 1 ? 's' : '') : 'All pass'}</span></div>
+    <h4>${esc(t.name)}</h4><div class="city">${esc(t.city)}${labelled ? ', labelled accessible' : ''}</div>
+    <div class="sc"><b>${r.pass}/${r.total}</b><span>checks pass</span></div>
+    <div class="fx">${worst ? `<b>${worst.title}</b><span>${fixText.charAt(0).toUpperCase() + fixText.slice(1)}</span>` : 'Every door, step and room passes'}</div>`;
+  return a;
+}
+// Not checked yet: tours never opened here (the server checked each has a floor plan). Clicking one runs the whole check live.
+async function renderFresh() {
+  try {
+    const { models } = await (await fetch('/api/fresh')).json(), g = $('freshGrid');
+    for (const m of models) {
+      const a = document.createElement('a'); a.className = 'apt'; a.href = `?m=${m.sid}&q=${$('quality').value}`;
+      a.innerHTML = `<div class="img" style="background-image:url(${thumb(m.sid)})"><span class="tag new">Not checked yet</span></div>
+        <h4>${esc(m.name)}</h4><div class="city">${esc([m.city, m.state].filter(x => x && x !== 'US').join(', '))}${m.room_count ? ` · ${m.room_count} rooms` : ''}</div>
+        <div class="fx"><b class="go">Open to check it now</b><span>Floor plan read from Matterport, then every check</span></div>`;
+      g.appendChild(a);
+    }
+    if (!models.length) g.previousElementSibling.hidden = g.previousElementSibling.previousElementSibling.hidden = true;
+  } catch { $('freshGrid').hidden = true; }
+}
+// More CoStar tours: every one fetched so far (the server lists only tours that loaded), scored like the checked ones.
+async function renderExamples(show = 9) {
+  try {
+    const { models } = await (await fetch('/api/examples')).json(), g = $('anyGrid');
+    const rows = (await Promise.all(models.map(m => rowOf({ id: m.sid, name: m.name, city: [m.city, m.state].filter(x => x && x !== 'US').join(', ') || 'CoStar tour' }).catch(() => null)))).filter(Boolean);
+    rows.forEach((row, k) => { const a = aptCard(row); a.hidden = k >= show; g.appendChild(a); });
+    const more = $('anyMore'); more.hidden = rows.length <= show; more.textContent = `Show all ${rows.length}`;
+    more.onclick = () => { g.querySelectorAll('.apt[hidden]').forEach(a => a.hidden = false); more.hidden = true; };
+  } catch { $('anyGrid').hidden = true; } // no local server list (e.g. a static copy): the search below still explains itself
 }
 const booted = !new URLSearchParams(location.search).get('m') ? renderHome()
-  : load(sid).catch(e => { status('Error: ' + (e.message || e)); const k = $('skel'); if (k) k.innerHTML = `<p>The 3D tour didn't load. The checks and fixes on the left still work. Check the internet connection, then <button type="button" onclick="location.reload()">Try again</button></p>`; window.__ie = { error: String(e.message || e) }; });
+  : load(sid).catch(e => { status('Error: ' + (e.message || e)); const k = $('skel'); if (k) k.innerHTML = /cannot be checked|not available with the CoStar/.test(e.message) ? `<p>${esc(e.message)} <a href="./#any">Pick another tour</a></p>` : `<p>The 3D tour didn't load. The checks and fixes on the left still work. Check the internet connection, then <button type="button" onclick="location.reload()">Try again</button></p>`; window.__ie = { error: String(e.message || e) }; });
 // Test hook for the voice checks (notes/voice_*.mjs): what Claude is told, the conversation, and what is on screen.
 window.__tour = { facts: apartmentFacts, convo: () => convo, reset() { convo.length = 0; facts = null; sentFacts = ''; },
   state: () => ({ mode, card: cardFor?.id || null, theme: document.documentElement.dataset.theme, tab: document.querySelector('.tabs [aria-selected=true]')?.id || null,
@@ -1379,22 +1877,34 @@ import('./voice.js').then(v => {
   const said = c => (c.kind === 'door' || c.kind === 'step') && c.between ? `${c.between.replaceAll(' ↔ ', ' to ').replace(/\bVoid\b/g, 'Outside')}. ${c.title}` : title(c);
   const api = window.__tourApi = { ask, run: runTool, stop: stopAsking, open: openApartment, mode: () => mode, home: !new URLSearchParams(location.search).get('m'), ready: booted, // the bar is there at once; a request waits for the tour
     nav: () => { const n = navTo; navTo = null; return n; },
+    get chatty() { return !!model; }, // inside a tour, a place said by name is described after the camera flies there (voice.js)
     hold: () => { if (mode === 'walk' && (playing || resumeAfter)) { resumeAfter = true; stopAuto(); } }, // the person started talking
-    resume: () => { if (!resumeAfter) return; resumeAfter = false; if (mode === 'walk' && cardFor === stops[at]) { playing = true; $('w-play').textContent = 'Pause'; advance(); } },
-    get help() { return this.home ? 'Ask which apartment is worst, or say open the one in Los Angeles. Say neighbourhood to compare the streets around them.'
+    // talked = after an answer to something they said (not after a plain command like "night mode"): that starts the walk if none runs.
+    resume: talked => { if (!resumeAfter) return void (talked && autoWalk()); resumeAfter = false; if (mode === 'walk' && cardFor === stops[at]) { playing = true; $('w-play').textContent = 'Pause'; advance(); } },
+    get help() { return this.home ? 'Ask which apartment is worst, or say open the one in Los Angeles. To browse every CoStar tour, say Houston, Los Angeles, accessible or homes, then more, or open the third one. Say neighbourhood to compare the streets around them.'
       : 'Say a room or a door, like the bathroom or the balcony door. Ask anything, like can he get into the bathroom, or fix what you can for two hundred dollars. Say walkthrough, floor plan, night mode, next, or stop.'; },
     places: () => ({ rooms: checks.filter(c => (c.kind === 'turn' || c.kind === 'hall') && c.room).map(c => ({ id: c.id, name: c.room, say: title(c) })),
       doors: checks.filter(c => c.kind === 'door' && c.s !== 'skip').map(c => ({ id: c.id, rooms: (c.between || c.room || '').split(' ↔ '), say: said(c) })),
-      issues: issueList.map(c => ({ id: c.id, say: said(c) })) }) };
+      issues: issueList.map(c => ({ id: c.id, say: said(c) })),
+      // On the start page the browse window's buttons answer at once; "open the third one" and names go to Claude, which sees the list.
+      also: model ? walkWords() : [['all tours|all costar tours|every tour|all of them|show all tours', { group: 'all' }, 'All tours'],
+        ['accessible|accessible ones|accessible tours|accessible units|labelled accessible|labeled accessible|ada|ada tours|ada units|handicap|handicap tours', { group: 'accessible' }, 'Tours labelled accessible'],
+        ['homes|houses|homes only|residential|residential tours', { group: 'homes' }, 'Homes'],
+        ['houston|houston tours|tours in houston|houston ones', { group: 'houston' }, 'Houston tours'],
+        ['los angeles|la|l a|la tours|los angeles tours|tours in los angeles|los angeles ones', { group: 'los_angeles' }, 'Los Angeles tours'],
+        ['more|more tours|show more|load more|next page|more please|see more', { more: true }, 'More tours']].map(([keys, input, say]) => ({ keys, tool: 'browse', input, say })) }) };
   // Inside the neighbourhood flyover (embed=1) there is one voice bar, the flyover's: it drives this tour through __tourApi.
   // Space and Esc pressed in here are passed up to it.
   if (EMBED) {
     for (const type of ['keydown', 'keyup']) addEventListener(type, e => { if ((e.code !== 'Space' && e.key !== 'Escape') || e.target.closest?.('input,textarea,select,[contenteditable]') || mode === 'drone') return;
       e.preventDefault(); parent.dispatchEvent(new KeyboardEvent(type, { code: e.code, key: e.key, repeat: e.repeat, bubbles: true, cancelable: true })); }, true);
+    guide = t => parent.__region?.speak?.(t) ?? Promise.resolve(); lineOf = v.stopLine; keepsNumbers = v.keepsNumbers; // the walk talks through the flyover's voice
+    booted.then(prepareWalk);
     return;
   }
   const voice = v.default(api);
-  guide = voice.speak; lineOf = v.stopLine; // shortcut: the tour embedded in the flyover (EMBED, returned above) walks silently; give it the flyover bar's speak if that matters
+  guide = voice.speak; lineOf = v.stopLine; keepsNumbers = v.keepsNumbers;
+  booted.then(prepareWalk); // Ethan's walk lines are written while the person looks around
   $('mic').hidden = false; $('mic').onclick = voice.toggle;
 }).catch(e => console.log('[tour] voice off: ' + (e.message || e)));
 </script>

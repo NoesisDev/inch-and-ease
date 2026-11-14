@@ -29,6 +29,7 @@
   #top .brand { margin:0; font-size:12px; font-weight:600; color:var(--muted); }
   #top h1 { margin:2px 0 0; font-size:22px; font-weight:700; letter-spacing:-.02em; line-height:1.2; }
   #top p { margin:8px 0 0; color:var(--muted); font-size:13px; }
+  #area-pick { font:inherit; letter-spacing:inherit; color:inherit; background:transparent; border:0; padding:0; margin:0; max-width:100%; cursor:pointer; color-scheme:dark; }
   #legend { display:flex; gap:12px; font-size:12px; font-weight:500; margin-top:12px; color:var(--muted); }
   #legend span { white-space:nowrap; display:flex; gap:6px; align-items:center; } #legend i { width:12px; height:4px; border-radius:2px; display:inline-block; }
   #units { margin:0; padding:8px; list-style:none; overflow:auto; }
@@ -127,14 +128,23 @@ const EX = 1.6; // hills drawn 1.6× taller so the terrain reads from the air
 const SAMPLE_Q = "I'm looking for the best apartment for my father. He uses a wheelchair. Can you tell me about each one?";
 
 // ---- Data: the prefetched area (tour/region_fetch.mjs) + the 21 checks on each apartment's tour ----
-const R = await (await fetch('private/region/region.json')).json();
+// ?r=<slug> picks another neighbourhood (private/region/<slug>/, made by region_fetch.mjs <slug>); regions.json lists them all.
+const RSLUG = /^[\w-]+$/.test(params.get('r') || '') ? params.get('r') : '', RD = 'private/region/' + (RSLUG && RSLUG + '/');
+const REGIONS = await fetch('private/region/regions.json').then(r => r.json()).catch(() => []);
+const goRegion = slug => { location.href = 'region.html' + (slug ? '?r=' + slug : ''); };
+const R = await (await fetch(RD + 'region.json')).json();
 const products = (await (await fetch('/data/products.json')).json()).products;
 const facts = await Promise.all(R.units.map(async u => unitFacts(u, await (await fetch(`private/tours/${u.id}.json`)).json(), products)));
 const ranked = rank(facts), byId = Object.fromEntries(R.units.map(u => [u.id, u]));
 const factOf = Object.fromEntries(facts.map(f => [f.id, f]));
 // Letters by position west → east, so the pins don't give the answer away.
 const letter = Object.fromEntries([...R.units].sort((a, b) => a.lon - b.lon).map((u, k) => [u.id, 'ABCDE'[k]]));
-$('legend-slot').replaceWith($('legend')); $('area-name').textContent = R.name; $('rule').textContent = 'Best first: fewest critical problems, flattest streets, lowest cost'; $('rule').title = RULE.replace(/ → /g, ', then '); $('credits').textContent = R.credits;
+$('legend-slot').replaceWith($('legend')); $('area-name').textContent = R.name;
+if (REGIONS.length > 1) { // the area name becomes a picker
+  const s = document.createElement('select'); s.id = 'area-pick'; s.setAttribute('aria-label', 'Neighbourhood');
+  s.append(...REGIONS.map(r => new Option(r.name, r.slug, false, r.slug === RSLUG))); s.onchange = () => goRegion(s.value); $('area-name').replaceChildren(s);
+}
+$('rule').textContent = 'Best first: fewest critical problems, flattest streets, lowest cost'; $('rule').title = RULE.replace(/ → /g, ', then '); $('credits').textContent = R.credits;
 
 // ---- Geometry: metres east (x) / up (y) / south (z) from the area's centre ----
 const A = R.area, lat0 = (A.s + A.n) / 2, lon0 = (A.w + A.e) / 2, M = 111320, ML = M * Math.cos(lat0 * Math.PI / 180);
@@ -166,7 +176,7 @@ renderer.setPixelRatio(Math.min(2, devicePixelRatio));
 const scene = new THREE.Scene(); scene.background = new THREE.Color(0x0e0e0f); scene.fog = new THREE.Fog(0x0e0e0f, 3500, 9000);
 const camera = new THREE.PerspectiveCamera(42, 1, 5, 20000);
 const loader = new THREE.TextureLoader(), load = src => new Promise((res, rej) => loader.load(src, res, undefined, rej));
-scene.add(drape(A, G.w, G.h, await load('private/region/area.jpg'), 0));
+scene.add(drape(A, G.w, G.h, await load(RD + 'area.jpg'), 0));
 const ribbons = {}, pins = {}, seen = new Set();
 // A pin's label: the letter on a neutral square until the apartment has been checked on screen, then its verdict colour.
 function paintPin(id, on) {
@@ -181,7 +191,7 @@ function paintPin(id, on) {
   const p = pins[id]; p.sp.material.map?.dispose(); p.sp.material.map = tex; p.sp.material.needsUpdate = true; p.pole.material.color.set(hex);
 }
 for (const u of R.units) {
-  scene.add(drape(u.tile, 90, 90, await load(`private/region/tile_${u.id}.jpg`), 1.5)); // sharp 300 m photo around each apartment
+  scene.add(drape(u.tile, 90, 90, await load(`${RD}tile_${u.id}.jpg`), 1.5)); // sharp 300 m photo around each apartment
   // Streets within 250 m as flat ribbons, coloured by slope (hidden until the camera visits).
   const pos = [], col = [], c = new THREE.Color();
   for (const s of u.segs) {
@@ -272,11 +282,14 @@ const say = text => bar.speak(streets(text)); // resolves when the line has been
 
 // ---- The guided flight: Claude writes the words from our numbers; the page flies, shows the numbers and speaks ----
 let history = [];
+// Who the apartment is for ("their dad, manual wheelchair"), as Claude summed it up. The tour opened later reads it too (same tab).
+const person = { get: () => { try { return sessionStorage.getItem('ie-person') || ''; } catch { return ''; } }, set: v => { try { sessionStorage.setItem('ie-person', v); } catch {} } };
 async function script(question) {
   const ctl = new AbortController(), timer = setTimeout(() => ctl.abort(), 20000);
   try {
-    const r = await fetch('/api/region', { method: 'POST', headers: { 'Content-Type': 'application/json' }, signal: ctl.signal, body: JSON.stringify({ question, facts: ranked, rule: RULE, history }) });
-    const j = await r.json(); if (!r.ok || !j.answer) throw new Error(j.error || r.status);
+    const known = person.get(), q = known ? `${question}\n[Known about them so far: ${known}]` : question;
+    const r = await fetch('/api/region', { method: 'POST', headers: { 'Content-Type': 'application/json' }, signal: ctl.signal, body: JSON.stringify({ question: q, facts: ranked, rule: RULE, history }) });
+    const j = await r.json(); if (!r.ok || (!j.answer && !j.intro)) throw new Error(j.error || r.status); // no answer + an intro = Ethan asked something back
     return j;
   } catch (e) {
     console.log('[region] Claude unavailable, using the built-in script: ' + (e.message || e));
@@ -290,6 +303,7 @@ async function flyover(question, on) {
   const s = await script(question);
   if (my !== run) return;
   history = [...history, { q: question, a: [s.intro, ...s.stops.map(x => x.line), s.answer?.line].filter(Boolean).join(' ') }].slice(-4);
+  if (s.person) person.set(s.person);
   const visit = (id, line, close) => { on('step', place(id)); return Promise.all([show(id, close), say(line)]); };
   if (s.intro) await say(s.intro);
   for (const st of s.stops) { if (my !== run || !byId[st.id]) continue; await visit(st.id, st.line); await wait(400); }
@@ -297,8 +311,15 @@ async function flyover(question, on) {
   if (s.answer.dive) loadTour(s.answer.id); // loads while the answer is spoken
   revealed = revealed || s.answer.dive;
   await visit(s.answer.id, s.answer.line, s.answer.dive);
-  if (s.answer.dive) await dive(my);
+  if (s.answer.dive) { await dive(my); await greet(my); }
   return s.answer.line;
+}
+// Just inside: Ethan (the tour's own Claude, which knows every room and check) welcomes them and hands the lead back.
+async function greet(my = run) {
+  await tourReady; if (my !== run || !inner()) return;
+  // No Claude call on the way in (it cost one on every entry): the tour's walk starts at once, from the problem the page dived into,
+  // and says "Welcome in" with the intro written when the tour loaded.
+  inner().resume?.(true);
 }
 
 // ---- The tour of one apartment, in the frame over the map. The same voice bar drives it through its __tourApi ----
@@ -306,7 +327,7 @@ const frame = $('tour'), tourOpen = () => frame.classList.contains('on'), inner 
 let inTour = null, tourReady = null; // the apartment loaded in the frame; settles when that tour can take requests
 function loadTour(id) {
   if (inTour === id) return;
-  inTour = id; frame.src = `index.html?m=${id}&look=night&q=high&focus=critical&embed=1`;
+  inTour = id; frame.src = `index.html?m=${id}&look=standard&q=high&focus=critical&embed=1`;
   tourReady = new Promise(res => frame.addEventListener('load', res, { once: true })).then(async () => { for (let k = 0; k < 300 && !frame.contentWindow.__tourApi; k++) await wait(100); return frame.contentWindow.__tourApi?.ready; });
 }
 async function dive(my = run) {
@@ -352,23 +373,28 @@ function commands() {
   return [{ ...out, keys: LEAVE + '|back|overview|zoom out|map|whole area|whole neighbourhood|whole neighborhood|all of them' },
     { keys: ENTER, tool: 'enter', ...(active ? { say: `Going inside ${spoken(active)}.` } : {}) },
     { keys: 'next|next one|next apartment|continue|keep going', ...to(order[(k + 1) % n]) },
-    { keys: 'previous|previous one|previous apartment|last one', ...to(order[(Math.max(k, 0) - 1 + n) % n]) }];
+    { keys: 'previous|previous one|previous apartment|last one', ...to(order[(Math.max(k, 0) - 1 + n) % n]) },
+    // The other neighbourhoods by name: "Houston", "show Hollywood", "Houston neighbourhood".
+    ...REGIONS.filter(r => r.slug !== RSLUG).map(r => ({ keys: r.say.split('|').flatMap(s => [s, `${s} neighbourhood`, `${s} neighborhood`, `show ${s}`, `open ${s}`, `fly ${s}`, `switch ${s}`]).join('|'), tool: 'open_region', input: { slug: r.slug }, say: `Flying to ${r.name}.` }))];
 }
 async function runTool(tool, input, on) {
   if (inner()) return inner().run(tool, input, on); // the open tour's own tools; its "neighbourhood" calls __region.back()
+  if (tool === 'open_region') { on('step', 'Opening: another neighbourhood'); await new Promise(r => setTimeout(r, 1500)); return void goRegion(input.slug); } // the wait lets "Flying to…" be heard
   if (tool === 'show_issue' && byId[input.id]) { on('step', place(input.id)); return void await show(input.id); }
-  if (tool === 'enter') { if (!active) return { error: 'Pick an apartment first: say its letter, A to E, or its street.' }; on('step', `Going inside: ${byId[active].address}`); return void await enter(active); }
+  if (tool === 'enter') { if (!active) return { error: 'Pick an apartment first: say its letter, A to E, or its street.' }; on('step', `Going inside: ${byId[active].address}`); const my = run; await enter(active); return void await greet(my); }
   if (tool === 'open_page') { if (input.page === 'home') return void (location.href = './'); on('step', 'Showing: the whole neighbourhood'); return void await (tourOpen() ? back() : overview()); }
   return { error: 'That works inside an apartment. Say “go inside” first.' };
 }
 const api = {
   home: true, // no <main> here: the bar goes on the page itself, and the CSS above places it
   get ready() { return tourOpen() ? tourReady : null; },
-  get help() { return inner()?.help || 'Ask which apartment is best for a wheelchair. Say a letter or a street, like apartment B or Hillcrest, then go inside to open its tour. Say back to the map to come out, or stop.'; },
+  get help() { return inner()?.help || 'Ask which apartment is best for a wheelchair. Say a letter or a street, like apartment B or ' + R.units[0].address.split(' ')[1] + ', then go inside to open its tour. Say back to the map to come out, or stop.' + (REGIONS.length > 1 ? ' For another neighbourhood, say ' + REGIONS.filter(r => r.slug !== RSLUG).map(r => r.name).join(' or ') + '.' : ''); },
   mode: () => inner()?.mode(),
+  hold: () => inner()?.hold?.(), resume: t => inner()?.resume?.(t), // a walk inside the tour pauses while the person talks, and goes on after
+  get chatty() { return !!inner()?.chatty; },
   nav: () => inner()?.nav?.() ?? null,
   stop() { $('start').hidden = true; run++; inner()?.stop(); }, // every request starts here, after voice.js has hushed the voice (so does holding Space): talking also closes the start screen
-  places: () => ({ rooms: UNITS, ...inner()?.places(), also: commands() }),
+  places: () => ({ rooms: UNITS, ...inner()?.places(), also: [...commands(), ...(inner()?.places().also || [])] }), // the tour's own words too ("yes" after its pause question)
   run: runTool,
   async ask(text, { on, note } = {}) {
     if (inner()) return inner().ask(text, { on, note });
@@ -410,7 +436,7 @@ $('go').onclick = () => {
   $('start').hidden = true; $('demo').focus();
   if ('speechSynthesis' in window && !window.__mute && !params.has('mute')) speechSynthesis.speak(new SpeechSynthesisUtterance('')); // unlock audio inside the click
 };
-window.__region = { ready: true, ranked: ranked.map(f => f.id), ask: hear, show, back, voice: window.__voice, // test hook; back is also called by the embedded tour ("neighbourhood")
+window.__region = { ready: true, ranked: ranked.map(f => f.id), ask: hear, show, back, voice: window.__voice, speak: t => say(t), // speak: the embedded tour's walk talks through this bar // test hook; back is also called by the embedded tour ("neighbourhood")
   state: () => ({ active, revealed, tourOpen: tourOpen(), inTour, caption: window.__voice.ui.say }) };
 </script>
 </body>

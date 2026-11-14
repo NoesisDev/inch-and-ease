@@ -100,22 +100,42 @@ test('the inline page scripts parse', async () => {
   }
 });
 
-test('the guide says each walkthrough stop with the scan numbers and the plan', async () => {
+test('the guide says what each walkthrough stop means for a wheelchair, in plain words, with the fix and its price but no measurements', async () => {
   const { stopLine } = await import('./voice.js');
   const typeOf = o => ({ ramp1: 'threshold ramp' })[o.product?.id];
   const free = { kind: 'free', label: 'Take the door off its hinges (keep it, rehang it when you move out)', price: 0, verdict: 'closes' };
   const ramp = { kind: 'product', label: '1\' L x 3\' W EZ-ACCESS Ramp', price: 70.99, product: { id: 'ramp1' }, verdict: 'closes' };
   const wide = { kind: 'contractor', label: 'Widen the doorway', low: 600, high: 2000, verdict: 'closes' };
-  assert.equal(stopLine({ kind: 'turn', s: 'fail', critical: true, room: 'Bathroom', measured: '4\' 10"', need: '5\' 0" across' }, { options: [{ kind: 'free', label: 'Remodel the room (not priced)', verdict: 'closes' }] }).text,
-    'This one is critical. The bathroom is 4\' 10" across, and turning around needs 5\' 0". Only this fixes it: remodel the room.');
-  assert.equal(stopLine({ kind: 'turn', s: 'pass', room: 'Kitchen, Living Room, Dining Room', measured: '11\' 9"', need: '5\' 0" across' }).text, 'The kitchen is 11\' 9" across, so there is room to turn around.');
-  assert.equal(stopLine({ kind: 'door', s: 'verify', between: 'Hallway ↔ Bedroom', measured: '2\' 10"', need: '2\' 10" opening' }, { chosen: free, options: [free] }).text,
-    'The door between the hallway and the bedroom is 2\' 10", and it needs 2\' 10". That\'s too close to call from the scan, so check it with a tape. Your plan fixes it: take the door off its hinges, $0.');
-  assert.equal(stopLine({ kind: 'door', s: 'fail', between: 'Kitchen, Living Room ↔ Balcony', measured: '2\' 6"', need: '2\' 10" opening' }, { options: [free, wide].map(o => o === free ? { ...o, verdict: 'helps' } : o) }).text,
-    'The door between the kitchen and the balcony is 2\' 6", and it needs 2\' 10". Only this fixes it: widen the doorway, $600 to $2,000.');
-  const step = { kind: 'step', s: 'verify', between: 'Kitchen ↔ Balcony', measured: '1"', need: 'level (¾")' };
-  assert.equal(stopLine(step, { chosen: ramp, options: [ramp] }, typeOf).text, 'There\'s a 1" step at the door between the kitchen and the balcony, and it should be level. That\'s too close to call from the scan, so check it with a tape. Your plan fixes it: a threshold ramp, $70.99.');
+  const noSizes = t => assert.doesNotMatch(t, /\d+'|\d+"|needs \d|across/, t);
+  const bath = stopLine({ id: 'turn-1', kind: 'turn', s: 'fail', critical: true, room: 'Bathroom', measured: '4\' 10"', need: '5\' 0" across' }, { options: [{ kind: 'free', label: 'Remodel the room (not priced)', verdict: 'closes' }] }).text;
+  assert.match(bath, /^(This is the big one|This one matters most)\. .*bathroom.*\. The fix: remodel the room\.$/i); noSizes(bath);
+  const kitchen = stopLine({ id: 'turn-2', kind: 'turn', s: 'pass', room: 'Kitchen, Living Room, Dining Room', measured: '11\' 9"', need: '5\' 0" across' }).text;
+  assert.match(kitchen, /kitchen/i); noSizes(kitchen);
+  const tape = stopLine({ id: 'door-4', kind: 'door', s: 'verify', between: 'Hallway ↔ Bedroom', measured: '2\' 10"', need: '2\' 10" opening' }, { chosen: free, options: [free] }).text;
+  assert.match(tape, /^The doorway into the bedroom .*(tape|Measure).* Easy fix, and free: take the door off its hinges\.$/); noSizes(tape);
+  const narrow = stopLine({ id: 'door-5', kind: 'door', s: 'fail', between: 'Kitchen, Living Room ↔ Balcony', measured: '2\' 6"', need: '2\' 10" opening' }, { options: [free, wide].map(o => o === free ? { ...o, verdict: 'helps' } : o) }).text;
+  assert.match(narrow, /balcony.* The real fix is a bigger job: widen the doorway, about \$600 to \$2,000\.$/); noSizes(narrow);
+  const step = { id: 'step-3', kind: 'step', s: 'verify', between: 'Kitchen ↔ Balcony', measured: '1"', need: 'level (¾")' };
+  assert.equal(stopLine(step, { chosen: ramp, options: [ramp] }, typeOf).text, 'There\'s a small lip at the doorway into the balcony, worth a quick check. It\'s in your plan: a threshold ramp for $70.99 sorts it out.');
   assert.deepEqual(stopLine(step, { options: [ramp] }, typeOf).ask, true);
   assert.match(stopLine(step, { options: [ramp] }, typeOf).text, /A threshold ramp for \$70\.99 would fix it\. Shall I add it to your plan\?$/);
-  assert.equal(stopLine({ kind: 'door', s: 'fail', between: 'Void ↔ Entry', measured: '2\' 5"', need: '2\' 10" opening' }).text, 'The door to outside is 2\' 5", and it needs 2\' 10".');
+  const out = stopLine({ id: 'door-9', kind: 'door', s: 'fail', between: 'Void ↔ Entry', measured: '2\' 5"', need: '2\' 10" opening' }).text;
+  assert.match(out, /door to outside/i); noSizes(out);
+});
+
+test("keepsNumbers: Ethan's rewrite of a walk line is used only if every number and price survived", async () => {
+  const { keepsNumbers } = await import('./voice.js');
+  const base = `The door to outside is 2' 5", and it needs 2' 10". Only this fixes it: widen the doorway, $600 to $2,000.`;
+  assert.ok(keepsNumbers(base, `We're at the front door. It's 2' 5", but he'd need 2' 10". Widening it is the real fix, $600 to $2,000.`));
+  assert.ok(!keepsNumbers(base, `It's 2' 5" and he needs 2' 10". Widening it costs about $600.`)); // a price dropped
+  assert.ok(!keepsNumbers(base, `It's 29 inches and he needs 34. Widening it is $600 to $2,000.`)); // numbers reworded
+  assert.ok(keepsNumbers(`There's a 1" step at the door. A threshold ramp for $28.90 would fix it.`, `Small thing here: a 1" step. A threshold ramp for $28.90 sorts it.`));
+  assert.ok(keepsNumbers('The kitchen has room to turn around.', 'Lovely kitchen, plenty of room to turn.')); // no numbers: nothing to lose
+});
+
+test("the recogniser's other guesses get a second chance at a command", async () => {
+  const { pickHeard } = await import('./voice.js');
+  assert.deepEqual(pickHeard('show me the flow plan', ['show me the floor plan', 'show me the flower plan']), { text: 'show me the floor plan', q: { tool: 'set_view', input: { mode: 'floorplan' } } });
+  assert.equal(pickHeard('what about the hallway', ['what about the whole way']).q, null); // a question stays a question, for Claude
+  assert.deepEqual(pickHeard('night mode', ['knight mode']).text, 'night mode'); // the first guess wins when it works
 });

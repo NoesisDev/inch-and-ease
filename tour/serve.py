@@ -2,7 +2,7 @@
 # made from .env.local so no key file is stored), /api/agent, which relays one Claude step for the tour page, and /api/region, which writes the flyover script for the region page.
 # The Claude key never reaches the browser; the browser runs the tools in the Matterport tour.
 # Run from the repo root: uv run --with anthropic python tour/serve.py   → http://localhost:8090
-import json, os, sys, functools, http.server
+import json, os, sys, functools, http.server, re, csv, base64, urllib.request, urllib.parse, threading, hashlib, random
 import anthropic
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -11,20 +11,125 @@ ENV = dict(l.strip().split('=', 1) for l in open(os.path.join(ROOT, '.env.local'
 KEY = ENV['ANTHROPIC_API_KEY'].strip().strip('"')
 MP_KEY = ENV.get('MATTERPORT_SDK_KEY', '').strip().strip('"')
 client = anthropic.Anthropic(api_key=KEY)
+# The guide's voice: "Ethan", a public Fish Audio voice (picked by the user Nov 14), on the expressive drama-3 model. /api/speak
+# streams one sentence and keeps it in tour/private/tts/, so a line said twice (and the fillers) costs nothing the second time.
+FISH_KEY = ENV.get('FISH_API_KEY', '').strip().strip('"')
+if not FISH_KEY:
+    try:
+        FISH_KEY = open(os.path.expanduser('~/.hackathon-video/fish.key')).read().strip()
+    except OSError:
+        pass  # no key: /api/speak answers 404 and the page uses the browser's own voice
+VOICE_ID = ENV.get('FISH_GUIDE_VOICE', '536d3a5e000945adb7038665781a4aca').strip().strip('"')
+VOICE_MODEL = ENV.get('FISH_GUIDE_MODEL', 'drama-3').strip().strip('"')
+TTS_DIR = os.path.join(HERE, 'private', 'tts')
+TTS_CAP = 50_000  # bytes of new text per server run (~$0.75 at $15 per million); past it the page falls back to the browser voice
+_tts_used, _tts_lock = 0, threading.Lock()
+# IE_OFFLINE=1: no Claude or Fish calls at all (lines already in tour/private/tts still play), for building and testing without
+# spending the user's tokens. The page then uses its own fact lines, the browser voice, and "Claude can't be reached" for questions.
+OFFLINE = os.environ.get('IE_OFFLINE') == '1'
+# Any CoStar tour: search the sponsor's model list, fetch a model's wall graph from the Matterport Model API the first time it is opened.
+# The list and the fetched files are Sponsor Data: local only, git-ignored, deleted after the event (notes/costar_matterport/README.md).
+INDEX_CSV = os.path.join(ROOT, 'notes', 'costar_matterport', 'raw', 'models_index.csv')
+TOURS = os.path.join(HERE, 'private', 'tours')
+MODEL_Q = """query($id: ID!){ model(id:$id){ id name
+  floors { id label vertices { id position { x y } }
+           edges { id type thickness vertices { id } openings { type width height lowerElevation relativeCenter } } }
+  rooms { id floor { id } classifications { label } boundary { edges { id } } dimensions(units: metric){ areaFloor width depth height } } } }"""  # same as fetch_models.py
+_models, _lock = None, threading.Lock()
+
+def costar_models():
+    global _models
+    if _models is None:
+        with open(INDEX_CSV, newline='') as f:
+            _models = [{k: r[k] for k in ('sid', 'name', 'address', 'city', 'state', 'segment', 'room_count')} for r in csv.DictReader(f)]
+    return _models
+
+LABELLED = re.compile(r'\bADA\b|handicap|accessible', re.I)
+GROUPS = {'ada': lambda r: LABELLED.search(r['name']), 'homes': lambda r: r['segment'] == 'residential',
+          'houston': lambda r: r['city'] == 'Houston', 'la': lambda r: r['city'] == 'Los Angeles'}
+
+def search_models(q, group='', offset=0, limit=20):
+    """Browse or search: (one page, total). Words in any order against name, address, city and id; no words lists the whole group.
+    A pasted Matterport link or a bare id matches that model."""
+    m = re.search(r'[?&]m=([A-Za-z0-9]{11})', q) or re.fullmatch(r'\s*([A-Za-z0-9]{11})\s*', q)
+    rows = costar_models()
+    if m:
+        hit = [r for r in rows if r['sid'] == m.group(1)] or [{'sid': m.group(1), 'name': 'Matterport model ' + m.group(1), 'address': '', 'city': '', 'state': '', 'segment': '', 'room_count': ''}]
+        return hit, len(hit)
+    words, keep = q.lower().split(), GROUPS.get(group, lambda r: True)
+    hit = [r for r in rows if keep(r) and all(w in ' '.join((r['name'], r['address'], r['city'], r['sid'])).lower() for w in words)]
+    # Units with rooms first (lobbies and amenity spaces have 1-2), then accessibility-labelled ones.
+    hit.sort(key=lambda r: (-(int(r['room_count'] or 0) >= 3), -bool(LABELLED.search(r['name'])), r['name']))
+    return hit[offset:offset + limit], len(hit)
+
+assert GROUPS['ada']({'name': '1 King Suite - Handicap'}) and not GROUPS['ada']({'name': '5836 La Mirada Ave'})  # "Mirada" is not "ADA"
+
+def model_api(sid, query):
+    cred = ':'.join(ENV.get(k, '').strip().strip('"') for k in ('MATTERPORT_API_KEY', 'MATTERPORT_API_TOKEN'))
+    req = urllib.request.Request('https://api.matterport.com/api/models/graph', json.dumps({'query': query, 'variables': {'id': sid}}).encode(),
+                                 {'Authorization': 'Basic ' + base64.b64encode(cred.encode()).decode(), 'Content-Type': 'application/json'})
+    try:
+        return (json.load(urllib.request.urlopen(req, timeout=60)).get('data') or {}).get('model')
+    except Exception:
+        raise ValueError('The Matterport data service did not answer. Try again in a moment.')
+
+# Tours never opened here, picked so a judge can watch one get checked from scratch. Only ids are kept (fresh.json), never their
+# data: the check really starts when the card is clicked. Each one was asked once whether it has a floor plan, so none is a dud.
+FRESH = os.path.join(TOURS, 'fresh.json')
+_fresh_lock = threading.Lock()
+
+def fresh_models(n=6):
+    with _fresh_lock:
+        cached = lambda s: os.path.exists(os.path.join(TOURS, s + '.json'))
+        ids = [s for s in (json.load(open(FRESH)) if os.path.exists(FRESH) else []) if not cached(s)]
+        info = {r['sid']: r for r in costar_models()}
+        pool = [r for r in costar_models() if r['city'] in ('Houston', 'Los Angeles') and 4 <= int(r['room_count'] or 0) <= 30
+                and re.search(r'\d ?(BR|BD|bed)|studio|\d{3,5} [A-Z]', r['name'], re.I) and not cached(r['sid']) and r['sid'] not in ids]
+        random.Random(len(os.listdir(TOURS))).shuffle(pool)
+        for r in pool[:25]:
+            if len(ids) >= n:
+                break
+            try:
+                m = model_api(r['sid'], 'query($id: ID!){ model(id:$id){ floors { edges { id } } rooms { id } } }')
+            except ValueError:
+                break
+            if m and any(f.get('edges') for f in m.get('floors') or []) and m.get('rooms'):
+                ids.append(r['sid'])
+        json.dump(ids, open(FRESH, 'w'))
+        return [info[s] for s in ids if s in info]
+
+def fetch_model(sid):
+    """The tour's wall graph, from the cache or the Model API. Raises ValueError with a plain message."""
+    path = os.path.join(TOURS, sid + '.json')
+    with _lock:
+        if os.path.exists(path):
+            return json.load(open(path))
+        m = model_api(sid, MODEL_Q)
+        if not m:
+            raise ValueError('That model is not available with the CoStar keys.')
+        if not any(f.get('edges') for f in m.get('floors') or []) or not m.get('rooms'):
+            raise ValueError('That model has no floor plan data, so it cannot be checked.')
+        json.dump(m, open(path, 'w'))
+        return m
+
 MAX_BODY = 400_000  # a long conversation plus the apartment data stays well under this
 
-SYSTEM = """You are Inch & Ease, a guide inside a 3D Matterport tour of an apartment. The person you talk to uses a manual wheelchair, or is a family member checking the apartment for them.
+SYSTEM = """You are Ethan, the Inch & Ease guide inside a 3D Matterport tour of an apartment. The person you talk to uses a manual wheelchair, or is a family member finding a place for someone who does (often a parent).
+
+Who you are: a warm, easygoing friend who knows this apartment and is showing them round, not a report. Talk like a person: contractions, short sentences, "you", and the person it's for the way they named them ("your dad"), never "the user". Say what living here would be like for them first ("he'd get through the front door fine, but the bathroom's where it gets hard"). Give a measurement only when they ask for it or it decides something; never recite a size against the rule ("it's 2' 10" and it needs 2' 8""): the card on screen shows the numbers. Never introduce yourself or list the steps you'll take: just start helping. Your angle is comfort and ease of everyday life, not compliance: the rules are the minimum, the question is whether each day here would be easy for him. Vary your wording: don't start two answers the same way, and don't repeat a phrase you just used. Most answers end by handing the lead back: offer one or two next things (a room, the walkthrough, how to fix this and what it costs) or ask one short thing about them that changes the answer ("Does he transfer on his own?"). Not every time, and never two questions at once. When they tell you something about the person, use it later. The screen note may say "about them: ..." with what is known so far.
 
 You get the apartment's checks below. Each item has an id, a status (pass, fail, verify = measured but too close to the limit to call: check it with a tape, none = not measured yet, skip = not scored), critical (true = on the route to a bathroom, bedroom or kitchen, a bathroom too small to turn, or a failed transfer check), the measured and needed numbers, and for problems its fix options as "key: label, price, verdict" (verdict = closes it / helps, not enough / doesn't apply / not counted as support). Problems also have pin: the number on their pin in the tour and in the list. counts gives the totals and verdict is the answer the page itself shows to "Can a wheelchair user live here?": use both as they are, don't count or judge again.
 
 The person usually talks to you. Their words come from speech recognition and can be garbled ("bath room door with", "the a d a unit", "walk true", "night more", "the whole way" for the hallway). Take the most likely meaning from the apartment data and the screen note; ask them to say it again only when it could mean two different things. A line "[On screen now: ...]" under their words tells you the view and which card is open, so "this", "here" and "fix it" mean that card.
 
 How to answer:
-- Give your answer with the speak tool: it is read aloud and shown as a caption. Call speak in the SAME turn as the tools that only show something (show_issue, set_view, walkthrough, show_panel, set_look, open_apartment, open_page, ui), so the person hears the answer while the tour moves; your turn ends there. Only select_fix, set_budget and record_check return numbers you need first: call them alone, read the result, then speak.
+- Give your answer with the speak tool: it is read aloud and shown as a caption. Call speak in the SAME turn as the tools that only show something (show_issue, set_view, walkthrough, show_panel, set_look, open_apartment, open_page, ui), so the person hears the answer while the tour moves; your turn ends there. Only select_fix, set_budget, record_check and browse return things you need first: call them alone, read the result, then speak.
 - Hard limit: at most 3 short sentences and 50 words, written to be heard: no lists, no markdown, no ids. Plain words, feet and inches written as 2' 10" and 1". Lead with the answer; the plan and the cards show the details.
 - "Can he live here", "is it ok", "is it accessible", "what do you think of it": start with the verdict answer from the data in its own words ("Not as it is", "Only with fixes", "Probably", "Yes, so far"), then the reason, then what would change it. Never soften a failed critical check with "mostly", "close", "almost" or "probably".
 - Move the tour only when the person asks to see or go somewhere, or asks about one specific place or problem: then call show_issue with its id (the tour flies there and opens the card); for several, show the most serious (critical first). To go to a room, use the id of that room's turning or hallway check. For opinions, comparisons ("which would you pick"), general questions, small talk, insults or things outside your job: speak only, no other tool.
 - During a walkthrough the page itself says each stop aloud; [On screen now] gives the stop and what was just said. A short reply ("yes", "do it", "how much", "why") is about that stop: "yes" to "Shall I add it?" = select_fix with that option. Answer in 1 or 2 sentences, like a person showing someone round. The walkthrough goes on to the next stop by itself after your answer: do not call walkthrough or show_issue unless they ask to stop, skip or see another place, and do not say "say next".
+- The walkthrough starts by itself once they talk to you, in every apartment: never offer to start it. When they name or ask about a room or a problem ("what about the kitchen", "can he use the bathroom"), call show_issue for it in the same turn as speak: the walk goes there, then carries on from there after your answer. If they clicked the tour, the page paused the walk and asked whether to keep going; "yes" or "go on" = walkthrough play.
+- If the screen note says the tour is already flying to a place, it is the place they named: don't call show_issue again; speak 1 or 2 sentences about what that place is like for them and offer what next.
 - "Number 2", "problem 2", "pin 2", "the second one" mean the item with pin 2, never another numbering. If there is no such pin, say how many problems there are and don't move.
 - If the place does not exist here (a garage, a second floor, a second bedroom in a one-bedroom), say so in one sentence and don't move. If two rooms share a name, show the first and say there are two.
 - A plain command (a view, a look, a panel, close, print, next): do it and speak three words at most, or nothing. Don't add findings nobody asked for.
@@ -32,6 +137,7 @@ How to answer:
 - Never tell the person to say a word that does something else: "next" goes to the next problem and "back" to the place before. Offer places by name ("say the bedroom").
 - When the person tells you something the scan can't see ("there is no grab bar", "the toilet seat is 17 inches high", "the bathroom door opens inward"), find the check it answers (it has a question with answers, or tape_inches) and call record_check alone; then speak the result it returns, in inches as they said it. If it is not clear which answer key fits, ask one short question instead of guessing.
 - If the data says home: true, no apartment is open: the person is on the start page choosing between the listed apartments. Compare them from that list. Call open_apartment only when they say open, show, see or go to one; a name that fits exactly one apartment ("the ADA unit in Los Angeles") needs no question back, and words that are one apartment's whole name win over a longer name that contains them ("the ADA unit" is the apartment named "ADA Unit", not "Harvard ADA"). The other tools need an open apartment. The list has nothing about the streets outside: for a question about streets, slopes, hills or the station, call open_page neighbourhood with a few spoken words; that page answers it.
+- On the start page, tour_list is the browse window under the checked apartments: every CoStar tour (14,944), not checked yet. To show other tours ("show me the Houston ones", "any accessible units?", "show more", "find 2 bedroom ones in LA"), call browse alone, then speak: how many match and two or three names from the result. "The third one" or "number 2" on the start page means place 3 or 2 in tour_list.on_screen. open_apartment takes its id too; say it has not been checked yet and opening it runs the check.
 - After open_apartment or open_page the page changes and finishes the rest of the request by itself: speak a few words at most ("Opening the Harvard unit."), and never tell the person to ask again.
 - If the screen note says the page has just opened this apartment for the request, do the part of the request that is left (for example show the bathroom); if nothing is left, give the verdict in one or two sentences.
 - To fix something, call select_fix with the item id and an option key from its list; pick the cheapest option that closes it unless asked otherwise. For "fix what you can for $X", call set_budget with X (critical items are filled first, then the cheapest).
@@ -70,9 +176,13 @@ TOOLS = [
      "input_schema": {"type": "object", "properties": {"look": {"type": "string", "enum": ["daylight", "night", "contrast"]}},
                       "required": ["look"], "additionalProperties": False}},
     {"name": "open_apartment", "strict": True,
-     "description": "Open another apartment's tour (the page reloads after your spoken answer). Use an id from other_apartments, or from apartments on the start page.",
+     "description": "Open another apartment's tour (the page reloads after your spoken answer). Use an id from other_apartments, or from apartments or tour_list.on_screen on the start page.",
      "input_schema": {"type": "object", "properties": {"id": {"type": "string", "description": "Apartment id from the data"}},
                       "required": ["id"], "additionalProperties": False}},
+    {"name": "browse", "strict": True,
+     "description": "Start page only: fill the browse window with CoStar tours and return what is on screen (place, name, city, rooms, id). group: which button; words: narrows by name, address or city (null for none); more: true adds the next 20 to the current list.",
+     "input_schema": {"type": "object", "properties": {"group": {"type": "string", "enum": ["all", "accessible", "homes", "houston", "los_angeles"]},
+                      "words": {"type": ["string", "null"]}, "more": {"type": "boolean"}}, "required": ["group", "words", "more"], "additionalProperties": False}},
     {"name": "open_page", "strict": True,
      "description": "Leave this page: home = the start page with all apartments, neighbourhood = the 3D flyover that compares apartments by the streets around them (slopes, rail station). The page changes after your spoken answer.",
      "input_schema": {"type": "object", "properties": {"page": {"type": "string", "enum": ["home", "neighbourhood"]}},
@@ -91,16 +201,20 @@ TOOLS = [
                       "required": ["text"], "additionalProperties": False}},
 ]
 
-REGION_SYSTEM = """You are Inch & Ease, narrating a drone flyover of a neighbourhood for a family member of a manual wheelchair user. The page flies to each apartment while your line is read aloud.
+REGION_SYSTEM = """You are Ethan, the Inch & Ease guide, flying a drone over a neighbourhood with someone who is looking for an apartment, usually for a family member who uses a manual wheelchair (often a parent). The page flies to each apartment while your line is read aloud. Talk like a friend riding along, not a report: warm, plain, contractions, "you", and the person the way they named them ("your dad"). Say what living there would be like for him; at most one number per apartment, the one that decides it (a price, or how steep the street is), never a list of sizes. Vary how lines start.
 
 You get one fact sheet per apartment, best first, and the ranking rule. inside: pass/measured checks, critical problems and critical_left (critical problems a purchase can't close), purchases_usd (cheapest purchases that close what they can), and top = the worst problems, each with a ready spoken clause (what, fix_spoken). outside: steep_pct = share of nearby streets over 8% slope, flat_pct = share that is flat, station = nearest rail station and its distance in metres, steepest_near = the steepest street close by.
 
 Rules:
 - Use ONLY numbers and names that are in the facts. Never invent a number, price, distance or street.
-- "Which is best" or "tell me about each": one stop per apartment, ordered worst to best (the reverse of the given order), leaving out the best one. The answer is the best one (the first fact sheet) with dive true.
-- Each stop line: 1-2 short spoken sentences, at most 35 words. Start with the street address. Say what's wrong inside (critical first), then what the streets outside are like (steep_pct, flat_pct, the station if there is one).
-- The answer line: at most 2 sentences, why it wins and its one fix with the price. intro: at most 1 sentence.
-- A follow-up question (for example "why not the ADA unit?"): stops may be empty or 1-2 apartments the answer talks about, and dive is false unless the user asks to go inside.
+- First request and they haven't said what the person gets around in (a wheelchair, a walker, a scooter): ask that ONE short question in intro ("Happy to. What does your dad get around in, a wheelchair or a walker?"), with stops empty and answer id "". Ask it only once; if they already said, or say "just show me", go.
+- "Find the best", "which is best", "tell me about each": one stop per apartment, best to worst (the given order). Then the answer flies back to the pick.
+- "Just the best one", "quickly": stops empty, the answer is the pick.
+- Each stop line: 1-2 short spoken sentences, at most 35 words. Start with the street address. Say what it'd be like for him inside (critical first), then the streets outside (steep_pct, flat_pct, the station if there is one).
+- The answer is the pick (the first fact sheet): at most 2 sentences, why it wins and its one fix with the price, ending by handing over ("Want me to take you inside?"), with dive false. dive true only when they ask to go in, or say yes to going in: then stops are empty and the line is a few words ("Alright, let's go in.").
+- intro: at most 1 sentence, or the one question.
+- A follow-up question (for example "why not the ADA unit?"): stops may be empty or 1-2 apartments the answer talks about, and dive is false unless they ask to go inside. A follow-up that isn't about one apartment: answer in intro, answer id "".
+- person: who the apartment is for and what you know about them, in a few words from what they said ("their dad, manual wheelchair, transfers alone"), "" if nothing yet. Keep what earlier turns knew.
 - When an apartment is labelled ADA, say the label only covers the inside, not the streets around it, when that matters.
 - Plain spoken English for text-to-speech: feet and inches, dollars written as $70.99, no markdown, no symbols like ↔ or /. Say "check with a tape", not "verify".
 - Spell street names out (Dr → Drive, St → Street, Ave → Avenue, N → North, S → South). Give distances in feet or blocks, never metres (1 m ≈ 3.3 ft; a block ≈ 300 ft); a station name like "Lincoln/Cypress" is said "Lincoln Cypress".
@@ -108,8 +222,8 @@ Rules:
 - ids must be exactly the ids from the facts."""
 
 LINE = {'type': 'object', 'properties': {'id': {'type': 'string'}, 'line': {'type': 'string'}}, 'required': ['id', 'line'], 'additionalProperties': False}
-REGION_SCHEMA = {'type': 'object', 'additionalProperties': False, 'required': ['intro', 'stops', 'answer'], 'properties': {
-    'intro': {'type': 'string'}, 'stops': {'type': 'array', 'items': LINE},
+REGION_SCHEMA = {'type': 'object', 'additionalProperties': False, 'required': ['intro', 'stops', 'answer', 'person'], 'properties': {
+    'intro': {'type': 'string'}, 'stops': {'type': 'array', 'items': LINE}, 'person': {'type': 'string'},
     'answer': {'type': 'object', 'additionalProperties': False, 'required': ['id', 'line', 'dive'],
                'properties': {'id': {'type': 'string'}, 'line': {'type': 'string'}, 'dive': {'type': 'boolean'}}}}}
 
@@ -138,9 +252,44 @@ def region_script(question, facts, rule, history=None):
     except Exception:
         raise ScriptError('Claude sent no usable script')
     ids = {f['id'] for f in facts}
-    if out['answer']['id'] not in ids:
+    answer = out['answer'] if out['answer']['id'] else None  # "" = a question back or a general answer: no apartment to fly to
+    if answer and answer['id'] not in ids:
         raise ScriptError('Claude named an unknown apartment')
-    return {'intro': out['intro'], 'stops': [s for s in out['stops'] if s['id'] in ids], 'answer': out['answer']}
+    return {'intro': out['intro'], 'stops': [s for s in out['stops'] if s['id'] in ids], 'answer': answer, 'person': out['person'][:200]}
+
+
+WALK_SYSTEM = """You are Ethan, the Inch & Ease guide, walking someone through an apartment in a 3D tour, stop by stop, while the camera flies. Usually they are finding a place for a family member who uses a manual wheelchair; about says what is known about that person.
+
+For each stop you get base: the plain line the tour would otherwise say, with the room and the kind of check. Rewrite each one so it sounds like a friend showing them round and says what it would be like for that person ("So this is the bathroom. He'd get in fine, but turning his chair round in here would be a real squeeze.").
+
+Rules:
+- Don't recite measurements or compare a size with the rule ("it's 2' 10" and it needs 2' 8""): the card on screen shows the numbers. Say what it means for him. Keep every price and fix name from base exactly as written ($70.99, $600 to $2,000). Add no number, size, fact or product.
+- 1-3 short spoken sentences, at most 45 words. Say where you are so they can follow. Vary the openings; never start two lines the same way.
+- A base ending "Shall I add it to your plan?" keeps that question at the end, with ask true.
+- Besides those, at no more than 2 stops where the answer really changes things, end with one short question about the person ("Does he transfer on his own?", "Does he cook much?"), with ask true. Every other line: ask false and no question.
+- A passing room with nothing wrong can be one easy sentence.
+- intro: one short, warm sentence that starts walking ("Come on in, let's start by the front door."). Never introduce yourself or the company, never count the stops or list what's coming.
+- No markdown, no symbols like ↔ or /. Never say "ADA compliant", "accessible" as a verdict, "medical grade" or "prevents falls". Say "check it with a tape" for close calls.
+- ids exactly as given."""
+
+WALK_SCHEMA = {'type': 'object', 'additionalProperties': False, 'required': ['intro', 'lines'], 'properties': {
+    'intro': {'type': 'string'}, 'lines': {'type': 'array', 'items': {'type': 'object', 'additionalProperties': False, 'required': ['id', 'line', 'ask'],
+                                                                  'properties': {'id': {'type': 'string'}, 'line': {'type': 'string'}, 'ask': {'type': 'boolean'}}}}}}
+
+
+def walk_lines(name, about, stops):
+    """The guide's line for every walkthrough stop, in Ethan's words, from the page's own fact lines. The page checks the numbers survived."""
+    r = client.beta.messages.create(
+        model='claude-haiku-5-5', max_tokens=4000,  # fast: the walk starts while this is written
+        thinking={'type': 'disabled'},  # with thinking it took 12-15 s and sometimes ran out of tokens before the JSON was done
+        output_config={'format': {'type': 'json_schema', 'schema': WALK_SCHEMA}},
+        system=WALK_SYSTEM, messages=[{'role': 'user', 'content': json.dumps({'apartment': name, 'about': about, 'stops': stops})}])
+    try:
+        out = json.loads(next(b.text for b in r.content if b.type == 'text'))
+    except Exception:
+        raise ScriptError('Claude sent no usable walk')
+    ids = {s['id'] for s in stops}
+    return {'intro': out['intro'], 'lines': [l for l in out['lines'] if l['id'] in ids]}
 
 
 class Handler(http.server.SimpleHTTPRequestHandler):
@@ -155,11 +304,35 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             data = f'window.MP_KEY={json.dumps(MP_KEY)};'.encode()
             self.send_response(200); self.send_header('Content-Type', 'text/javascript'); self.send_header('Cache-Control', 'no-store')
             self.send_header('Content-Length', str(len(data))); self.end_headers(); return self.wfile.write(data)
+        if self.path.startswith('/api/speak?'):
+            return self.speak(urllib.parse.parse_qs(urllib.parse.urlsplit(self.path).query).get('t', [''])[0])
+        if self.path.split('?')[0] == '/api/fresh':
+            return self.reply(200, {'models': fresh_models()})
+        if self.path.split('?')[0] == '/api/examples':  # every CoStar tour fetched so far (so each one is known to load), beyond the checked list
+            listed = {t['id'] for t in json.load(open(os.path.join(TOURS, 'index.json')))}
+            info = {r['sid']: r for r in costar_models()}
+            have = sorted(f[:-5] for f in os.listdir(TOURS) if re.fullmatch(r'[A-Za-z0-9]{11}\.json', f) and f[:-5] not in listed)
+            out = [info.get(s) or {'sid': s, 'name': 'Matterport model ' + s, 'address': '', 'city': '', 'state': '', 'segment': '', 'room_count': ''} for s in have]
+            out.sort(key=lambda r: (-bool(re.search(r'ADA|handicap|accessible', r['name'], re.I)), -int(r['room_count'] or 0)))
+            return self.reply(200, {'models': out})
+        if self.path.startswith('/api/models?'):
+            p = urllib.parse.parse_qs(urllib.parse.urlsplit(self.path).query)
+            o = p.get('o', ['0'])[0]
+            models, total = search_models(p.get('q', [''])[0][:200], p.get('f', [''])[0], int(o) if o.isdigit() else 0)
+            return self.reply(200, {'models': models, 'total': total})
+        m = re.fullmatch(r'/private/tours/([A-Za-z0-9]{11})\.json', self.path.split('?')[0])
+        if m and not os.path.exists(os.path.join(TOURS, m.group(1) + '.json')):  # a CoStar tour opened for the first time
+            try:
+                fetch_model(m.group(1))
+            except ValueError as e:
+                return self.reply(404, {'error': str(e)})
         super().do_GET()
 
     def do_POST(self):
-        if self.path not in ('/api/agent', '/api/region'):
+        if self.path not in ('/api/agent', '/api/region', '/api/walk'):
             return self.send_error(404)
+        if OFFLINE:
+            return self.reply(503, {'error': 'offline test server: Claude is off'})
         n = int(self.headers.get('Content-Length') or 0)
         if not 0 < n <= MAX_BODY:
             return self.reply(413, {'error': 'request too large'})
@@ -168,6 +341,11 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             if self.path == '/api/agent':
                 messages, apartment = body['messages'], body['apartment']
                 assert isinstance(messages, list) and messages and isinstance(apartment, dict)
+            elif self.path == '/api/walk':
+                name, about, stops = str(body.get('name') or '')[:200], str(body.get('about') or '')[:300], body['stops']
+                assert isinstance(stops, list) and 0 < len(stops) <= 60
+                stops = [{k: str(s[k])[:400] for k in ('id', 'base', 'room', 'kind') if s.get(k) is not None} for s in stops]
+                assert all(s.get('id') and s.get('base') for s in stops)
             else:
                 question, facts, rule, history = body['question'], body['facts'], body['rule'], body.get('history') or []
                 assert isinstance(question, str) and 0 < len(question) <= 2000 and isinstance(rule, str)
@@ -178,6 +356,8 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         try:
             if self.path == '/api/region':
                 return self.reply(200, region_script(question, facts, rule, history))
+            if self.path == '/api/walk':
+                return self.reply(200, walk_lines(name, about, stops))
             r = client.beta.messages.create(
                 model='claude-opus-5-5', max_tokens=4000,
                 output_config={'effort': 'low'},  # short chat turns; keeps the tour snappy
@@ -188,13 +368,53 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         except anthropic.RateLimitError:
             return self.reply(429, {'error': 'Claude is busy, try again in a few seconds'})
         except anthropic.APIStatusError as e:
+            print(f'[{self.path}] Claude API error {e.status_code}: {str(e)[:300]}', file=sys.stderr)
             return self.reply(502, {'error': f'Claude API error {e.status_code}'})
         except anthropic.APIConnectionError:
             return self.reply(502, {'error': 'no connection to Claude'})
         except ScriptError as e:
+            print(f'[{self.path}] {e}', file=sys.stderr)
             return self.reply(502, {'error': str(e)})
         out = r.model_dump(mode='json', exclude_none=True)
         self.reply(200, {'content': out['content'], 'stop_reason': r.stop_reason})
+
+    def speak(self, text):
+        """One sentence in Ethan's voice (mp3), streamed while Fish makes it, then kept on disk."""
+        global _tts_used
+        text = text.strip()[:600]
+        if not FISH_KEY:
+            return self.reply(404, {'error': 'no voice key'})
+        if not text:
+            return self.reply(400, {'error': 'no text'})
+        path = os.path.join(TTS_DIR, hashlib.sha1(f'{VOICE_MODEL}|{VOICE_ID}|{text}'.encode()).hexdigest() + '.mp3')
+        if os.path.exists(path):
+            data = open(path, 'rb').read()
+            self.send_response(200); self.send_header('Content-Type', 'audio/mpeg'); self.send_header('Content-Length', str(len(data))); self.end_headers()
+            return self.wfile.write(data)
+        if OFFLINE:
+            return self.reply(404, {'error': 'offline: only saved lines play'})
+        with _tts_lock:
+            if _tts_used + len(text.encode()) > TTS_CAP:
+                return self.reply(429, {'error': 'voice budget for this run is used up'})
+            _tts_used += len(text.encode())
+        req = urllib.request.Request('https://api.fish.audio/v1/tts', json.dumps({'text': text, 'reference_id': VOICE_ID, 'format': 'mp3', 'mp3_bitrate': 128, 'latency': 'balanced', 'normalize': True}).encode(),
+                                     {'Authorization': 'Bearer ' + FISH_KEY, 'Content-Type': 'application/json', 'model': VOICE_MODEL})
+        try:
+            up = urllib.request.urlopen(req, timeout=20)
+        except Exception as e:
+            print('[speak] Fish failed:', getattr(e, 'code', e), file=sys.stderr)
+            return self.reply(502, {'error': 'the voice service did not answer'})
+        self.send_response(200); self.send_header('Content-Type', 'audio/mpeg'); self.send_header('Cache-Control', 'no-store'); self.end_headers()
+        chunks = []
+        try:
+            while b := up.read(8192):
+                chunks.append(b); self.wfile.write(b); self.wfile.flush()
+        except OSError:
+            return  # the page cut it off (a new answer, or "stop"): only whole sentences are kept
+        os.makedirs(TTS_DIR, exist_ok=True)
+        with open(path + '.part', 'wb') as f:
+            f.write(b''.join(chunks))
+        os.replace(path + '.part', path)
 
     def reply(self, code, obj):
         data = json.dumps(obj).encode()

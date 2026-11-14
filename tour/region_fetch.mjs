@@ -6,7 +6,9 @@
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { fromArrayBuffer } from '../node_modules/geotiff/dist-module/geotiff.js';
 
-const ROOT = new URL('..', import.meta.url).pathname, OUT = ROOT + 'tour/private/region/';
+// A second neighbourhood: node tour/region_fetch.mjs <slug> reads and writes tour/private/region/<slug>/ (region.html?r=<slug>).
+const SLUG = /^[\w-]+$/.test(process.argv[2] || '') ? process.argv[2] + '/' : '';
+const ROOT = new URL('..', import.meta.url).pathname, OUT = ROOT + 'tour/private/region/' + SLUG;
 const env = Object.fromEntries(readFileSync(ROOT + '.env.local', 'utf8').split('\n').filter(l => l.includes('=') && !l.startsWith('#'))
   .map(l => [l.slice(0, l.indexOf('=')).trim(), l.slice(l.indexOf('=') + 1).trim().replace(/^"|"$/g, '')]));
 const { name, units } = JSON.parse(readFileSync(OUT + 'units.json'));
@@ -55,7 +57,7 @@ async function overpass(lat, lon) {
 nwr["railway"="station"](around:1500,${lat},${lon});out center tags;node["highway"="bus_stop"](around:400,${lat},${lon});out;`;
   for (const url of ['https://overpass-api.de/api/interpreter', 'https://overpass.kumi.systems/api/interpreter']) {
     try {
-      const r = await fetch(url, { method: 'POST', headers: { 'User-Agent': 'inch-and-ease hackathon demo' }, body: new URLSearchParams({ data: q }) });
+      const r = await fetch(url, { method: 'POST', headers: { 'User-Agent': 'inch-and-ease hackathon demo' }, body: new URLSearchParams({ data: q }), signal: AbortSignal.timeout(90000) }); // a busy mirror can hang for minutes
       if (r.ok) return (await r.json()).elements;
     } catch {}
   }
@@ -83,7 +85,8 @@ for (const u of units) {
   }
   const total = segs.reduce((s, x) => s + x.len, 0) || 1, share = f => Math.round(100 * segs.filter(f).reduce((s, x) => s + x.len, 0) / total);
   const within = r => segs.filter(x => dist([u.lat, u.lon], x.a) < r);
-  const steepest = within(150).filter(x => x.kind !== 'footway' || x.steps).sort((p, q) => q.slope - p.slope)[0];
+  // Not footways (noisy on a 1 m ground model) and not service ways: those are driveways and parking-garage ramps, not streets.
+  const steepest = within(150).filter(x => !['footway', 'service'].includes(x.kind) || x.steps).sort((p, q) => q.slope - p.slope)[0];
   const station = els.filter(e => e.tags?.railway === 'station').map(e => ({ name: e.tags.name, m: Math.round(dist([u.lat, u.lon], [e.lat ?? e.center.lat, e.lon ?? e.center.lon])) })).sort((p, q) => p.m - q.m)[0];
   const terrain = {
     streets_m: total, flat_pct: share(x => !x.steps && x.slope <= 5), hard_pct: share(x => !x.steps && x.slope > 5 && x.slope <= 8), steep_pct: share(x => x.steps || x.slope > 8),
@@ -96,4 +99,4 @@ for (const u of units) {
 }
 writeFileSync(OUT + 'region.json', JSON.stringify({ name, area, widthM, heightM, ground, units: out,
   credits: 'Imagery and ground model © Vexcel Imaging US, Inc. (CoStar hackathon data). Streets © OpenStreetMap contributors (ODbL).' }));
-console.log('saved tour/private/region/region.json');
+console.log(`saved tour/private/region/${SLUG}region.json`);
