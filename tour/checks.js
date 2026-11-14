@@ -333,7 +333,8 @@ export function summary(items) {
 export function describe(i) {
   const c = CHECK[i.n];
   const need = { door: '2\' 10" opening', step: 'level (¾")', turn: "5' 0\" across", hall: '3\' 2" wide', tubRim: '19" or lower', toiletWall: '16–18"', toiletSeat: '17–19"', curb: '½" or lower', sink: '34" or lower', switchH: '15–48"' }[c.limit];
-  if (i.s === 'none') return { title: c.title + (i.room && c.room !== 'any' ? ` · ${i.room}` : ''), detail: c.how === 'ask' ? 'answer one question' : c.how === 'measure' ? 'measure it in the tour (two clicks)' : 'no data in this scan', measured: '—', need };
+  const needed = need ?? (c.how === 'ask' ? c.answers.find(a => a[2] === 'pass')[1] : 'see the rule');
+  if (i.s === 'none') return { title: c.title + (i.room && c.room !== 'any' ? ` · ${i.room}` : ''), detail: c.how === 'ask' ? 'answer one question' : c.how === 'measure' ? 'measure it in the tour (two clicks)' : 'no data in this scan', measured: '—', need: needed };
   if (i.n === 8) return { title: `Door ${ftin(i.value)} · ${i.between}`, detail: i.s === 'skip' ? 'closet door, not scored' : `opening ${ftin(i.value)}, needs ${need}`, measured: ftin(i.value), need };
   if (i.n === 9) return { title: i.s === 'pass' ? `Level threshold · ${i.between}` : `Step ${ftin(i.value)} · ${i.between}`, detail: `step ${ftin(i.value)}, needs ${need}`, measured: ftin(i.value), need };
   if (i.n === 10) return { title: `${i.room}: ${i.s === 'pass' ? "5' turning circle fits" : i.s === 'verify' ? "5' turn is tight" : "5' turning circle doesn't fit"}`, detail: i.value == null ? 'room size missing' : `room is ${ftin(i.value)} across (box)`, measured: ftin(i.value), need };

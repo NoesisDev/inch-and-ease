@@ -66,6 +66,12 @@
   #skel .sk { background:var(--soft); width:420px; height:14px; animation:pulse 1.2s ease-in-out infinite alternate; } #skel .a { height:220px; } #skel .c { width:260px; }
   @keyframes pulse { to { opacity:.45; } } @media (prefers-reduced-motion: reduce) { #skel .sk { animation:none; } * { transition:none !important; } }
   #chat .err { box-shadow:inset 3px 0 0 var(--fail); background:var(--soft); padding:9px 12px; }
+  #hint { left:50%; top:20px; transform:translateX(-50%); padding:12px 16px; font-weight:600; max-width:60%; z-index:6; }
+  .step .q { font-weight:600; font-size:15px; margin:4px 0 10px; } .answers { display:flex; flex-wrap:wrap; gap:6px; }
+  .answers button[aria-pressed=true] { background:var(--accent); color:var(--accentInk); }
+  .step .primary, button.start { background:var(--accent); color:var(--accentInk); width:100%; margin:4px 0; }
+  .typed { display:flex; align-items:center; gap:6px; margin-top:8px; font-size:13px; color:var(--muted); } .typed input { width:80px; padding:8px; border:0; background:var(--soft); }
+  #m-next { width:100%; margin-top:10px; text-align:left; }
   #legend { left:20px; top:20px; padding:8px 12px; display:flex; gap:14px; font-size:12px; font-weight:600; }
   #legend span { display:flex; align-items:center; gap:6px; } #legend i { width:12px; height:12px; display:inline-block; } #legend i.ring { box-shadow:inset 0 0 0 3px var(--ink); background:var(--fail); }
   .issue.hl { background:var(--soft); box-shadow:inset 3px 0 0 var(--ink); }
@@ -216,6 +222,7 @@
   </footer>
 </aside>
 <main>
+  <div id="hint" class="float" role="status" hidden></div>
   <div id="skel" aria-live="polite"><div class="sk a"></div><div class="sk b"></div><div class="sk c"></div><p>Loading the 3D tour…</p></div>
   <div id="legend" class="float" aria-label="Legend"><span><i style="background:var(--fail)"></i>Fails</span><span><i style="background:var(--verify)"></i>Check with a tape / fix helps</span><span><i style="background:var(--pass)"></i>Fixed</span><span><i class="ring"></i>Critical</span></div>
   <div id="walkbar" class="float" role="region" aria-label="Walkthrough">
@@ -249,7 +256,7 @@
 
 <script type="module">
 import { planAll, hasPricedFix } from './fixes.js';
-import { evaluate, describe, ordered, groupOf, GROUPS, summary, CHECK, ftin } from './checks.js';
+import { evaluate, describe, ordered, groupOf, GROUPS, summary, CHECK, ftin, setValue } from './checks.js';
 // Same limits as the 3D model page: 32" clear door (opening ≥ 82.3 cm passes, ≤ 80.3 cm fails), ½" step, 5' (152.5 cm) turning circle.
 const TURN = 1.525;
 const IN = 0.0254, CHAIR = 30.8, CLEAR_LOSS = 1.75; // 95th-pct manual chair occupied width (Access Board); opening → clear width loss (HUD: 1.5–2")
@@ -403,7 +410,7 @@ async function draw(items) {
       const h = i.kind === 'door' ? i.h + 0.15 : 0.6;
       const [tag] = [].concat(await sdk.Tag.add({ label: i.title, description: i.detail, anchorPosition: W(i.at, h), stemVector: { x: 0, y: 0.25, z: 0 }, color: RGB(HEX[i.s]) }));
       await settle(() => sdk.Tag.allowAction(tag, {})); // Matterport's own popup never opens; our card does
-      (shown[i.id] ||= {}).tag = tag; tagItem[tag] = i; tags++;
+      (shown[i.id] ||= {}).tag = tag; tagItem[tag] = i.id; tags++;
       await setPinLook(i.id, issueList.indexOf(i) + 1, i.s, i.critical);
     } catch (e) { status('Tag failed: ' + (e.message || e)); }
   }
@@ -416,8 +423,9 @@ let lastOpen = { hovered: null, selected: null };
 function watchPins() {
   sdk.Tag.openTags.subscribe({ onChanged(st) {
     const hovered = st.hovered || null, [selected = null] = st.selected || [];
-    if (hovered !== lastOpen.hovered) { if (lastOpen.hovered && tagItem[lastOpen.hovered]) hoverItem(tagItem[lastOpen.hovered], false); if (hovered && tagItem[hovered]) hoverItem(tagItem[hovered], true); }
-    if (selected && selected !== lastOpen.selected && tagItem[selected]) openItem(tagItem[selected]);
+    const byTag = t => checks.find(c => c.id === tagItem[t]);
+    if (hovered !== lastOpen.hovered) { if (byTag(lastOpen.hovered)) hoverItem(byTag(lastOpen.hovered), false); if (byTag(hovered)) hoverItem(byTag(hovered), true); }
+    if (selected && selected !== lastOpen.selected && byTag(selected)) openItem(byTag(selected));
     lastOpen = { hovered, selected }; // copy: the observable hands out one shared object
   } });
 }
@@ -426,7 +434,7 @@ function hoverItem(i, on) {
   const row = document.querySelector(`#issues [data-item="${i.id}"]`); row?.classList.toggle('hl', on);
   const s = shown[i.id]; if (s?.comp) s.comp.inputs.pulse = on || !!i.critical;
 }
-function openItem(i) { if (i.at) { setMode('inside'); goTo(i); } else showCard(i); }
+function openItem(i) { i = checks.find(c => c.id === i.id) || i; if (i.at && i.s !== 'none') { setMode('inside'); goTo(i); } else showCard(i); }
 function recolourAll() {
   for (const i of issueList) {
     const s = shown[i.id]; if (!s) continue; const a = afterOf(i);
@@ -436,22 +444,84 @@ function recolourAll() {
   retint();
 }
 
+let moving = false; const photos = {};
+// Fly inside to a sweep with a clear line of sight, about 2.5 m from the problem. One move at a time: clicks during a move only open the card.
+async function flyTo(i) {
+  if (moving || !sdk || !i.at) return false;
+  const p = W(i.at), dist = s => Math.hypot(s.position.x - p.x, s.position.z - p.z);
+  const seen = sweeps.filter(s => clearView({ x: s.position.x, y: -s.position.z }, i.at));
+  const near = [...(seen.length ? seen : sweeps)].sort((a, b) => Math.abs(dist(a) - 2.5) - Math.abs(dist(b) - 2.5))[0];
+  if (!near) return false;
+  const yaw = Math.atan2(-(p.x - near.position.x), -(p.z - near.position.z)) * 180 / Math.PI;
+  moving = true;
+  try {
+    await sdk.Mode.moveTo(sdk.Mode.Mode.INSIDE).catch(() => {});
+    await sdk.Sweep.moveTo(near.id, { rotation: { x: i.kind === 'door' ? -5 : -30, y: yaw }, transition: sdk.Sweep.Transition.FLY, transitionTime: 1200 }).catch(e => status('move: ' + e.message));
+  } finally { moving = false; }
+  return true;
+}
 async function goTo(i) {
   if (mode !== 'walk') setMode('inside');
   showCard(i);
-  const p = W(i.at), dist = s => Math.hypot(s.position.x - p.x, s.position.z - p.z);
-  // Stand about 2.5 m away so the whole problem is in frame.
-  const seen = sweeps.filter(s => clearView({ x: s.position.x, y: -s.position.z }, i.at));
-  const near = [...(seen.length ? seen : sweeps)].sort((a, b) => Math.abs(dist(a) - 2.5) - Math.abs(dist(b) - 2.5))[0];
-  if (!near) return;
-  const yaw = Math.atan2(-(p.x - near.position.x), -(p.z - near.position.z)) * 180 / Math.PI;
-  await sdk.Mode.moveTo(sdk.Mode.Mode.INSIDE).catch(() => {});
-  await sdk.Sweep.moveTo(near.id, { rotation: { x: i.kind === 'door' ? -5 : -30, y: yaw }, transition: sdk.Sweep.Transition.FLY, transitionTime: 1200 }).catch(e => status('move: ' + e.message));
-  await new Promise(r => setTimeout(r, 900)); // let the panorama sharpen before the photo
-  try {
-    const shot = await sdk.Renderer.takeScreenShot({ width: 960, height: 600 }, { mattertags: true, sweeps: false });
-    const ph = document.querySelector('#card .ph'); if (ph && cardFor === i) ph.outerHTML = `<img alt="The problem in the tour" src="${shot}">`;
-  } catch (e) { status('photo: ' + (e.message || e)); }
+  if (!(await flyTo(i)) && !photos[i.id]) return;
+  if (!photos[i.id]) { // one photo per issue, cached (this build leaks memory in takeScreenShot)
+    await new Promise(r => setTimeout(r, 900)); // let the panorama sharpen before the photo
+    try { photos[i.id] = await sdk.Renderer.takeScreenShot({ width: 960, height: 600 }, { mattertags: true, sweeps: false }); }
+    catch (e) { status('photo: ' + (e.message || e)); return; }
+  }
+  const ph = document.querySelector('#card .ph'); if (ph && cardFor?.id === i.id) ph.outerHTML = `<img alt="The problem in the tour" src="${photos[i.id]}">`;
+}
+
+// ---- Complete the check: answers and two-click measurements for what no scan can see; results join the list with a pin ----
+const HORIZONTAL = new Set([3]); // toilet centre → side wall is a floor distance; the other measurements are heights
+let measuring = null;
+const centre = () => { const b = bounds(); return { x: b.cx, y: -b.cz }; };
+const placeFor = i => i.at || (CHECK[i.n].room === 'Entry' && ev.route.entry?.at) || centre();
+async function record(id, value, source, at) {
+  const k = ev.items.findIndex(i => i.id === id); if (k < 0) return null;
+  ev.items[k] = setValue({ ...ev.items[k], at: at || placeFor(ev.items[k]) }, value, source, ev.route);
+  renderList(); replan();
+  const it = checks.find(c => c.id === id), s = shown[id];
+  if (isProblem(it) && sdk && !s?.tag) { const d = await draw([it]); window.__ie.pins += d.tags; }
+  if (!isProblem(it) && s?.tag) { // changed to a pass: take its pin and shape away
+    await sdk.Tag.remove(s.tag).catch(() => {}); if (s.comp) s.comp.inputs.opacity = 0; delete shown[id]; window.__ie.pins--;
+  }
+  recolourAll();
+  return it;
+}
+// One handler for both Matterport's ruler and typed/fed points: plan position for the pin, the number for the check.
+async function onMeasured(id, p0, p1) {
+  const n = ev.items.find(i => i.id === id)?.n; if (!n) return;
+  const v = HORIZONTAL.has(n) ? Math.hypot(p1.x - p0.x, p1.z - p0.z) : Math.abs(p1.y - p0.y); // Y is up; totalLength would be the slant
+  const it = await record(id, Math.round(v * 1000) / 1000, 'your measurement in the tour', { x: (p0.x + p1.x) / 2, y: -(p0.z + p1.z) / 2 });
+  measuring = null; sdk?.Measurements.toggleMode(false).catch(() => {});
+  if (it) showCard(it);
+}
+async function startMeasure(i) {
+  closeCard(); measuring = i.id;
+  if (i.at) await flyTo(i);
+  try { await sdk.Measurements.toggleMode(true); status(`${CHECK[i.n].measure} Esc cancels.`); $('hint').textContent = CHECK[i.n].measure; $('hint').hidden = false; }
+  catch (e) { status('Ruler not available: ' + (e.message || e)); measuring = null; }
+}
+function watchRuler() {
+  const seen = (idx, m) => { if (measuring && m?.points?.length >= 2) { $('hint').hidden = true; const [a, b] = m.points; onMeasured(measuring, { ...a }, { ...b }); } };
+  sdk.Measurements.data.subscribe({ onAdded: seen, onUpdated: seen });
+}
+addEventListener('keydown', e => { if (e.key === 'Escape' && measuring) { measuring = null; $('hint').hidden = true; sdk?.Measurements.toggleMode(false).catch(() => {}); } });
+// The step inside the card: tap an answer, or measure in the tour (or type the number from a tape).
+function stepHtml(i) {
+  const c = CHECK[i.n];
+  if (c.how === 'ask') return `<div class="step" data-step><p class="q">${esc(c.question)}</p><div class="answers">${c.answers.map(a => `<button type="button" data-answer="${a[0]}" aria-pressed="${i.value === a[0]}">${esc(a[1])}</button>`).join('')}</div></div>`;
+  if (c.how === 'measure') return `<div class="step" data-step><p class="q">${esc(c.measure)}</p><button type="button" class="primary" id="m-tour">Measure in the tour (two clicks)</button>
+    <label class="typed">or type it from a tape <input id="m-in" type="number" min="0" step="0.25" inputmode="decimal" aria-label="Inches"> in <button type="button" id="m-ok">Save</button></label></div>`;
+  return '';
+}
+function nextInRoom(i) { return checks.find(c => c.s === 'none' && c.id !== i.id && CHECK[c.n].how !== 'auto' && CHECK[c.n].room === CHECK[i.n].room); }
+function bindStep(i) {
+  document.querySelectorAll('#card [data-answer]').forEach(b => b.onclick = async () => { const it = await record(i.id, b.dataset.answer, 'your answer'); if (it) showCard(it); });
+  const m = $('m-tour'); if (m) m.onclick = () => startMeasure(i);
+  const ok = $('m-ok'); if (ok) ok.onclick = async () => { const v = parseFloat($('m-in').value); if (v >= 0) { const it = await record(i.id, v * IN, 'your tape measure'); if (it) showCard(it); } };
+  const nx = $('m-next'); if (nx) nx.onclick = () => { const n = nextInRoom(i); if (n) showCard(n); };
 }
 
 const loadProducts = async () => (await (await fetch('/data/products.json')).json()).products;
@@ -512,13 +582,14 @@ function showCard(i) {
   } else {
     const c = CHECK[i.n]; tag = { pass: 'Passes', fail: 'Fails', verify: 'Check with a tape', none: 'Not measured yet', skip: 'Not scored' }[i.s];
     nums = [['Measured', i.measured, i.s === 'fail'], ['Needed', i.need, false]]; why = `${c.rule}. ${c.who}.`; svg = ''; src = c.anchor;
+    if (c.how !== 'auto') { const nx = i.s !== 'none' && nextInRoom(i); svg = stepHtml(i) + (nx ? `<button type="button" id="m-next">Next in the ${esc(c.room === 'any' ? 'apartment' : c.room.toLowerCase())}: ${esc(CHECK[nx.n].title)} →</button>` : ''); }
   }
   $('card').innerHTML = `<button class="x" aria-label="Close">×</button><span class="tag s-${i.s}" style="background:var(--${i.s})">${tag}</span>
     <h3>${i.title}</h3>
     <div class="nums">${nums.map(([k, v, bad]) => `<div class="${bad ? 'bad' : ''}">${k}<b>${v}</b></div>`).join('')}</div>
     <p>${why}</p>
-    ${i.at ? `<div class="ph">Taking a photo from the tour…</div>` : ''}
-    ${svg ? `<h4>${i.s === 'pass' ? 'To scale' : 'Why it won\'t work (to scale)'}</h4>${svg}` : ''}
+    ${i.at && CHECK[i.n].how === 'auto' ? (photos[i.id] ? `<img alt="The problem in the tour" src="${photos[i.id]}">` : `<div class="ph">Taking a photo from the tour…</div>`) : ''}
+    ${svg ? (CHECK[i.n].how === 'auto' ? `<h4>${i.s === 'pass' ? 'To scale' : 'Why it won\'t work (to scale)'}</h4>` : `<h4>Complete the check</h4>`) + svg : ''}
     ${fixHtml(i)}
     ${i.kind === 'door' || i.kind === 'step' ? `<button class="measure" id="measure">Measure it yourself with Matterport's ruler</button>` : ''}
     <p class="src">Number from: ${esc(i.source || 'not measured yet')} · Reference: ${src}${i.source === 'Matterport scan' ? '. Confirm with a tape before you sign.' : '.'}</p>`;
@@ -528,7 +599,7 @@ function showCard(i) {
     try { await sdk.Measurements.toggleMode(true); status("Ruler on: click one side, then the other. Press Esc to stop."); }
     catch (e) { status('Ruler not available: ' + (e.message || e)); }
   });
-  bindFix(i);
+  bindFix(i); bindStep(i);
   $('card').querySelector('.x').onclick = closeCard;
   $('card').classList.add('open'); document.body.classList.add('card-open');
 }
@@ -590,7 +661,7 @@ function renderList() {
   for (const [g, label] of GROUPS) {
     const rows = byGroup[g]; if (!rows) continue;
     const box = document.createElement(g === 'pass' ? 'details' : 'section'); box.className = 'grp';
-    box.innerHTML = g === 'pass' ? `<summary>${label} (${rows.length})</summary>` : `<h5>${label} <span>${rows.length}</span></h5>`;
+    box.innerHTML = g === 'pass' ? `<summary>${label} (${rows.length})</summary>` : `<h5>${label} <span>${rows.length}</span></h5>` + (g === 'none' ? '<button type="button" class="start" id="start-check">Complete the check: bathroom first →</button>' : '');
     for (const i of rows) {
       const pin = issueList.indexOf(i) + 1, el = document.createElement('div');
       el.className = 'issue'; el.tabIndex = 0; el.dataset.item = i.id; el.dataset.check = i.n; el.dataset.status = i.s; if (isProblem(i) && hasPricedFix(i, products)) el.dataset.priced = '';
@@ -601,6 +672,7 @@ function renderList() {
     }
     $('issues').appendChild(box);
   }
+  const st = $('start-check'); if (st) st.onclick = () => { const f = checks.find(c => c.s === 'none' && CHECK[c.n].how !== 'auto' && /bath/i.test(CHECK[c.n].room)) || checks.find(c => c.s === 'none' && CHECK[c.n].how !== 'auto'); if (f) showCard(f); };
   issueList.forEach((i, k) => {
     const chip = document.createElement('button');
     chip.innerHTML = `<span class="num s-${i.s}" style="background:var(--${i.s})">${k + 1}</span>${i.kind === 'door' ? 'Door' : i.kind === 'step' ? 'Step' : (i.room || CHECK[i.n].title).split(',')[0]}`;
@@ -615,10 +687,12 @@ async function load(sid) {
   await connect(sid);
   await sdk.Scene.registerComponents([{ name: 'ie.shape', factory: ieShape }]);
   await tintRooms().catch(e => console.log('[tour] tint: ' + (e.message || e)));
-  const d = await draw(issueList.filter(i => i.at)); retint(); watchPins();
+  const d = await draw(issueList.filter(i => i.at)); retint(); watchPins(); watchRuler();
   status(`Tour ready · red 3D shapes: ${d.scene ? 'yes' : 'no'} · tags: ${d.tags}/${issueList.length}`);
   $('skel')?.remove();
-  window.__ie = { ready: true, pins: d.tags, shapes: d.scene }; // test hook read by the smoke run
+  // Test hooks for the smoke run: measure() feeds two world points through the same handler as Matterport's ruler.
+  window.__ie = { ready: true, pins: d.tags, shapes: d.scene, measure: (id, a, b) => onMeasured(id, a, b),
+    shot5: () => showCard(checks.find(c => c.s === 'none' && CHECK[c.n].how === 'ask' && /bath/i.test(CHECK[c.n].room))) };
   // Open on the whole apartment in 3D (Matterport's dollhouse), red areas included; issues fly inside.
   await overview();
 }
