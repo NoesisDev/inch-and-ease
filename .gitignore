@@ -27,3 +27,6 @@ tour/private/
 # OpenStreetMap answers cached by the area page
 .osm-cache/
 tsconfig.tsbuildinfo
+
+# Claude Code local config
+.claude/

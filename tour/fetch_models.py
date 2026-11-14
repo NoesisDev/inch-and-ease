@@ -8,14 +8,15 @@ Q = """query($id: ID!){ model(id:$id){ id name
   floors { id label vertices { id position { x y } }
            edges { id type thickness vertices { id } openings { type width height lowerElevation relativeCenter } } }
   rooms { id floor { id } classifications { label } boundary { edges { id } } dimensions(units: metric){ areaFloor width depth height } } } }"""
-TOURS = ["7SAPy5naNTU", "WujDsf7FeDh", "jgT5sEp5tAS", "uTsQJ3rMHD2", "Y8pWKRMMq8q"]
+# Tour ids, cities and the demo flag live only in the private index (Sponsor Data), never in tracked files.
+OLD = {t['id']: t for t in json.load(open(f'{HERE}/private/tours/index.json'))}
 index = []
-for sid in TOURS:
+for sid in OLD:
     req = urllib.request.Request('https://api.matterport.com/api/models/graph', json.dumps({'query': Q, 'variables': {'id': sid}}).encode(),
                                  {'Authorization': 'Basic ' + auth, 'Content-Type': 'application/json'})
     m = json.load(urllib.request.urlopen(req, timeout=60))['data']['model']
     json.dump(m, open(f'{HERE}/private/tours/{sid}.json', 'w'))
-    index.append({'id': sid, 'name': m['name']})
+    index.append({**OLD[sid], 'id': sid, 'name': m['name']})
     print(sid, m['name'], len(m['floors']), 'floor(s)')
     time.sleep(0.3)
 json.dump(index, open(f'{HERE}/private/tours/index.json', 'w'), indent=1)

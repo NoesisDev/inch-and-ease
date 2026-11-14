@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Inch & Ease</title>
+<link rel="icon" href="data:,">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -227,7 +228,7 @@ const ft = m => { const i = Math.round(m / 0.0254 * 2) / 2; if (i < 12) return `
 const $ = id => document.getElementById(id);
 const status = t => { $('status').textContent = t; console.log('[tour]', t); };
 const lerp = (a, b, t) => ({ x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t });
-const W = (p, h = 0) => ({ x: p.x, y: h, z: -p.y }); // wall-data plan (x, y) → Matterport world (y up); checked on WujDsf7FeDh room bounds
+const W = (p, h = 0) => ({ x: p.x, y: h, z: -p.y }); // wall-data plan (x, y) → Matterport world (y up); checked on the demo tour's room bounds
 
 function findIssues(m) {
   // Every check, passing ones too (the agent needs them to say "yes, that door is fine").
@@ -316,7 +317,7 @@ async function connect(sid) {
   // The web component runs Matterport's full viewer in this page, which unlocks the Scene API (our own red 3D shapes).
   if (!customElements.get('matterport-viewer')) {
     // Matterport's scene code calls three.hasOwnProperty(), which an ES module namespace lacks, so hand it a plain-object copy.
-    window.THREE = { ...(await import('https://cdn.jsdelivr.net/npm/three@0.184.0/build/three.module.js')) };
+    window.THREE = { ...(await import('./private/mp/vendors/three/0.184.0/three.module.js')) };
     await new Promise((res, rej) => { const s = document.createElement('script'); s.src = 'private/mp/matterport-viewer.umd.js'; s.onload = res; s.onerror = rej; document.head.appendChild(s); });
   }
   const v = document.createElement('matterport-viewer');
@@ -494,6 +495,7 @@ async function load(sid) {
   await connect(sid);
   const d = await draw(issues);
   status(`Tour ready · red 3D shapes: ${d.scene ? 'yes' : 'no'} · tags: ${d.tags}/${issues.length}`);
+  window.__ie = { ready: true, pins: d.tags, shapes: d.scene }; // test hook read by the smoke run
   // Open on the whole apartment in 3D (Matterport's dollhouse), red areas included; issues fly inside.
   await overview();
 }
@@ -676,7 +678,8 @@ let savedTheme = null; try { savedTheme = localStorage.getItem('ie-theme'); } ca
 setTheme(new URLSearchParams(location.search).get('look') || savedTheme || 'standard');
 
 const list = await (await fetch('private/tours/index.json')).json();
-const sid = new URLSearchParams(location.search).get('m') || list[1].id;
+const demoTour = list.find(t => t.demo) || list[0]; // the demo flag lives in the private index
+const sid = new URLSearchParams(location.search).get('m') || demoTour.id;
 $('pick').innerHTML = list.map(t => `<option value="${t.id}"${t.id === sid ? ' selected' : ''}>${t.name}</option>`).join('');
 const quality = new URLSearchParams(location.search).get('q') || 'high';
 $('quality').value = quality;
@@ -687,7 +690,7 @@ const thumb = id => `https://my.matterport.com/api/v1/player/models/${id}/thumb`
 async function renderHome() {
   products = await loadProducts();
   $('home').hidden = false; document.title = 'Inch & Ease · Can you live here?';
-  const demo = list.find(t => /ADA Unit/.test(t.name)) || list[0];
+  const demo = demoTour;
   $('demoLink').href = $('navDemo').href = `?m=${demo.id}`;
   const rows = [];
   for (const t of list) {
@@ -714,7 +717,7 @@ async function renderHome() {
   }
 }
 if (!new URLSearchParams(location.search).get('m')) renderHome();
-else load(sid).catch(e => status('Error: ' + (e.message || e)));
+else load(sid).catch(e => { status('Error: ' + (e.message || e)); window.__ie = { error: String(e.message || e) }; });
 </script>
 </body>
 </html>
