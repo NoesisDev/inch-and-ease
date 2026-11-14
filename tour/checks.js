@@ -247,7 +247,8 @@ export function evaluate(m) {
   }
   for (const r of rooms) {
     const { width: w, depth: d } = r.dims;
-    if (!r.at || (!w && !d)) continue; // shortcut: rooms with no size are scan fragments (e.g. a 0.5 m sliver); skipped, not scored
+    // shortcut: a room missing a side is a scan fragment (e.g. a 0.5 m "Bedroom" sliver) unless it's a hallway; skipped, not scored.
+    if (!r.at || (!w && !d) || (!(w && d) && !/hallway/i.test(r.name))) continue;
     const hall = /hallway/i.test(r.name);
     if (SKIP_TURN.test(r.name) && !hall) continue;
     // Never guess: with one side missing, the short side is only known when the one side we have already fails.

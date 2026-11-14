@@ -58,7 +58,10 @@
   #jumps { display:flex; gap:6px; align-items:center; flex-wrap:wrap; justify-content:center; font-size:12px; color:var(--muted); padding:0 4px 2px; }
   #jumps button { padding:3px 10px 3px 3px; display:flex; gap:7px; align-items:center; font-size:12px; background:var(--soft); }
   #jumps .num { width:20px; height:20px; font-size:11px; }
-  #walkbar { left:20px; top:20px; padding:8px; display:none; gap:6px; align-items:center; max-width:calc(100% - 440px); }
+  #legend { left:20px; top:20px; padding:8px 12px; display:flex; gap:14px; font-size:12px; font-weight:600; }
+  #legend span { display:flex; align-items:center; gap:6px; } #legend i { width:12px; height:12px; display:inline-block; } #legend i.ring { box-shadow:inset 0 0 0 3px var(--ink); background:var(--fail); }
+  .issue.hl { background:var(--soft); box-shadow:inset 3px 0 0 var(--ink); }
+  #walkbar { left:20px; top:64px; padding:8px; display:none; gap:6px; align-items:center; max-width:calc(100% - 440px); }
   #walkbar.on { display:flex; } #walkbar .what { min-width:0; padding:0 8px; } #walkbar .what small { color:var(--muted); display:block; font-size:11px; }
   #walkbar .what div { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-weight:700; }
   #walkbar #w-next { background:var(--accent); color:var(--accentInk); }
@@ -199,6 +202,7 @@
   </footer>
 </aside>
 <main>
+  <div id="legend" class="float" aria-label="Legend"><span><i style="background:var(--fail)"></i>Fails</span><span><i style="background:var(--verify)"></i>Check with a tape / fix helps</span><span><i style="background:var(--pass)"></i>Fixed</span><span><i class="ring"></i>Critical</span></div>
   <div id="walkbar" class="float" role="region" aria-label="Walkthrough">
     <button id="w-prev" aria-label="Previous stop">◀</button>
     <div class="what"><small id="w-count">Stop 1 of 5</small><div id="w-title">…</div></div>
@@ -234,7 +238,6 @@ import { evaluate, describe, ordered, groupOf, GROUPS, summary, CHECK, ftin } fr
 // Same limits as the 3D model page: 32" clear door (opening ≥ 82.3 cm passes, ≤ 80.3 cm fails), ½" step, 5' (152.5 cm) turning circle.
 const TURN = 1.525;
 const IN = 0.0254, CHAIR = 30.8, CLEAR_LOSS = 1.75; // 95th-pct manual chair occupied width (Access Board); opening → clear width loss (HUD: 1.5–2")
-const RED = { r: 0.84, g: 0.27, b: 0.24 }, AMBER = { r: 0.88, g: 0.64, b: 0.11 };
 const ft = m => { const i = Math.round(m / 0.0254 * 2) / 2; if (i < 12) return `${i.toString().replace('.5', '½')}"`; const r = Math.round(i); return `${Math.floor(r / 12)}' ${r % 12}"`; };
 const $ = id => document.getElementById(id);
 const status = t => { $('status').textContent = t; console.log('[tour]', t); };
@@ -245,22 +248,38 @@ const W = (p, h = 0) => ({ x: p.x, y: h, z: -p.y }); // wall-data plan (x, y) �
 const described = items => ordered(items).map(i => ({ ...i, ...describe(i) }));
 const isProblem = i => i.s === 'fail' || i.s === 'verify';
 
-// A red see-through shape drawn inside Matterport's own 3D scene (SDK Scene API, bundle only).
-const redShape = () => ({
-  inputs: { shape: 'box', w: 1, h: 1, d: 0.1, x: 0, y: 0, z: 0, angle: 0, color: 0xd6453d, opacity: 0.45 },
-  outputs: {},
+// Our shapes inside Matterport's own 3D scene (Scene API, bundle only), made with the viewer's own three:
+// a see-through box (door, step) or disc (turning space), or a flat floor tint (room). Colour and pulse change through inputs.
+const CLICK = () => sdk.Scene.InteractionType.CLICK, HOVER = () => sdk.Scene.InteractionType.HOVER;
+const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const ieShape = () => ({
+  inputs: { shape: 'box', w: 1, h: 1, d: 0.1, x: 0, y: 0, z: 0, angle: 0, color: 0xd6453d, opacity: 0.45, pulse: false, pts: null },
+  outputs: {}, events: {}, emits: { clicked: true, hovered: true }, t: 0,
   onInit() {
-    const THREE = this.context.three, i = this.inputs;
-    const geo = i.shape === 'disc' ? new THREE.CylinderGeometry(i.w / 2, i.w / 2, 0.03, 64) : new THREE.BoxGeometry(i.w, i.h, i.d);
-    const mesh = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color: i.color, transparent: true, opacity: i.opacity, depthWrite: false }));
-    const edges = new THREE.LineSegments(new THREE.EdgesGeometry(geo), new THREE.LineBasicMaterial({ color: i.color }));
-    const g = new THREE.Group(); g.add(mesh, edges);
-    g.position.set(i.x, i.y, i.z); g.rotation.y = i.angle;
+    const THREE = this.context.three, i = this.inputs, floor = i.shape === 'floor';
+    this.geo = floor ? new THREE.ShapeGeometry(new THREE.Shape(i.pts.map(p => new THREE.Vector2(p.x, p.y))))
+      : i.shape === 'disc' ? new THREE.CylinderGeometry(i.w / 2, i.w / 2, 0.03, 64) : new THREE.BoxGeometry(i.w, i.h, i.d);
+    this.mat = new THREE.MeshBasicMaterial({ color: i.color, transparent: true, opacity: i.opacity, depthWrite: false, side: THREE.DoubleSide });
+    const mesh = new THREE.Mesh(this.geo, this.mat), g = new THREE.Group(); g.add(mesh);
+    if (floor) { mesh.rotation.x = -Math.PI / 2; g.position.y = i.y; } // plan (x, y) → world (x, h, −y)
+    else {
+      this.lineMat = new THREE.LineBasicMaterial({ color: i.color }); this.edges = new THREE.EdgesGeometry(this.geo);
+      g.add(new THREE.LineSegments(this.edges, this.lineMat)); g.position.set(i.x, i.y, i.z); g.rotation.y = i.angle;
+      this.outputs.collider = mesh; this.events = { [CLICK()]: true, [HOVER()]: true };
+    }
     this.outputs.objectRoot = g;
   },
+  onInputsUpdated() { this.mat.color.setHex(this.inputs.color); this.lineMat?.color.setHex(this.inputs.color); this.mat.opacity = this.inputs.opacity; },
+  onTick(delta) {
+    if (!this.inputs.pulse || still) return;
+    this.t += delta; this.mat.opacity = this.inputs.opacity * (0.45 + 0.55 * Math.abs(Math.sin(this.t / 300)));
+  },
+  onEvent(type, data) { this.notify(type === CLICK() ? 'clicked' : 'hovered', data); },
+  onDestroy() { this.geo.dispose(); this.mat.dispose(); this.edges?.dispose(); this.lineMat?.dispose(); this.outputs.collider = null; },
 });
 
-let sdk, sweeps = [], drawn = [], model, solid = [];
+let sdk, sweeps = [], model, solid = [];
+
 
 // Solid wall pieces in plan coordinates (doorways and open passages cut out), for line-of-sight checks.
 function solidWalls(m) {
@@ -307,31 +326,99 @@ async function connect(sid) {
   sdk.Camera.pose.subscribe(p => { pose = p; });
 }
 
-async function draw(issues) {
-  let scene = false, tags = 0, step = 'register';
+// Colours carry meaning only: red fail, amber tape (or a fix that helps), green fixed, grey not measured.
+const HEX = { fail: 0xd6453d, verify: 0xe0a21b, helps: 0xe0a21b, fixed: 0x2e9d63, pass: 0x2e9d63, none: 0x8a8882 };
+const RGB = h => ({ r: (h >> 16 & 255) / 255, g: (h >> 8 & 255) / 255, b: (h & 255) / 255 });
+const shown = {}; // item id → { comp, tag, room ids }
+const roomTints = {}; // room id → floor component
+// Shapes recolour only for a fix the person chose (the default plan isn't shown as fixed in the room).
+const afterOf = i => { const r = plan?.rows.find(r => r.item.id === i.id); return r?.byYou ? r.after : i.s; };
+const WORST = { fail: 3, verify: 2, helps: 2, fixed: 1, pass: 1, none: 0 };
+// Numbered pin icons, drawn here and handed to Matterport as PNG data. Critical pins get a black ring.
+function pinIcon(n, after, critical) {
+  const c = document.createElement('canvas'); c.width = c.height = 64; const g = c.getContext('2d');
+  g.fillStyle = critical ? '#111' : '#fff'; g.fillRect(0, 0, 64, 64);
+  g.fillStyle = '#' + HEX[after].toString(16).padStart(6, '0'); g.fillRect(critical ? 7 : 3, critical ? 7 : 3, critical ? 50 : 58, critical ? 50 : 58);
+  g.fillStyle = after === 'verify' || after === 'helps' ? '#111' : '#fff'; g.font = '700 34px "Work Sans", system-ui, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
+  g.fillText(String(n), 32, 35); return c.toDataURL('image/png');
+}
+async function setPinLook(id, n, after, critical) {
+  const s = shown[id]; if (!s?.tag) return;
+  const key = `ie-${n}-${after}-${critical ? 'c' : ''}`;
+  try { if (!registered.has(key)) { await sdk.Asset.registerTexture(key, pinIcon(n, after, critical)); registered.add(key); } await sdk.Tag.editIcon(s.tag, key); }
+  catch (e) { console.log('[tour] pin icon: ' + (e.message || e)); } // shortcut: a plain coloured pin stays if the icon is refused
+  sdk.Tag.editColor(s.tag, RGB(HEX[after])).catch(() => {});
+}
+const registered = new Set();
+// Floor tints for every room up front (components can only be added before start), invisible until the room has a problem.
+async function tintRooms() {
+  const [obj] = await sdk.Scene.createObjects(1);
+  for (const r of ev.rooms) {
+    if (r.poly.length < 3 || /void/i.test(r.name)) continue;
+    const c = obj.addNode().addComponent('ie.shape');
+    Object.assign(c.inputs, { shape: 'floor', pts: r.poly, y: 0.06, color: HEX.none, opacity: 0 });
+    roomTints[r.id] = c;
+  }
+  obj.start();
+}
+function retint() {
+  const worst = {};
+  for (const i of issueList) for (const rid of i.rooms || [i.roomId]) if (rid) { const a = afterOf(i); if (!worst[rid] || WORST[a] > WORST[worst[rid]]) worst[rid] = a; }
+  for (const [rid, c] of Object.entries(roomTints)) { const w = worst[rid]; c.inputs.color = HEX[w || 'none']; c.inputs.opacity = w ? 0.3 : 0; }
+}
+// Shapes + numbered pins for the given items (called again for items added later by an answer or a measurement).
+async function draw(items) {
+  let scene = !items.length, tags = 0, step = 'createObjects';
   try {
-    await sdk.Scene.registerComponents([{ name: 'ie.red', factory: redShape }]);
-    step = 'createObjects'; const [obj] = await sdk.Scene.createObjects(1); step = 'addNode';
-    for (const i of issues) {
-      const node = obj.addNode(), color = i.s === 'fail' ? 0xd6453d : 0xe0a21b;
-      // shortcut: floor height taken as 0 m (all five demo tours are one floor); multi-floor needs Floor data.
-      if (i.kind === 'door') Object.assign(node.addComponent('ie.red').inputs, { w: i.w, h: i.h, d: i.t + 0.06, ...W(i.at, i.h / 2), angle: i.angle, color });
-      if (i.kind === 'step') Object.assign(node.addComponent('ie.red').inputs, { w: i.w, h: Math.max(i.value, 0.03), d: i.t + 0.3, ...W(i.at, Math.max(i.value, 0.03) / 2), angle: i.angle, color, opacity: 0.7 });
-      if (i.kind === 'hall') Object.assign(node.addComponent('ie.red').inputs, { shape: 'disc', w: Math.max(i.value || 0.9, 0.6), ...W(i.at, 0.03), color, opacity: 0.35 });
-      if (i.kind === 'turn') Object.assign(node.addComponent('ie.red').inputs, { shape: 'disc', w: TURN, ...W(i.at, 0.03), color, opacity: 0.35 });
+    const [obj] = await sdk.Scene.createObjects(1); step = 'addNode';
+    for (const i of items) {
+      const comp = obj.addNode().addComponent('ie.shape'), color = HEX[i.s];
+      if (i.kind === 'door') Object.assign(comp.inputs, { w: i.w, h: i.h, d: i.t + 0.06, ...W(i.at, i.h / 2), angle: i.angle, color });
+      else if (i.kind === 'step') Object.assign(comp.inputs, { w: i.w, h: Math.max(i.value, 0.03), d: i.t + 0.3, ...W(i.at, Math.max(i.value, 0.03) / 2), angle: i.angle, color, opacity: 0.7 });
+      else Object.assign(comp.inputs, { shape: 'disc', w: i.kind === 'hall' ? Math.max(i.value || 0.9, 0.6) : i.kind === 'turn' ? TURN : 0.5, ...W(i.at, 0.04), color, opacity: 0.35 });
+      comp.inputs.pulse = !!i.critical;
+      shown[i.id] = { comp, rooms: i.rooms || [i.roomId] };
+      obj.spyOnEvent({ path: obj.addEmitPath(comp, 'clicked'), onEvent: () => openItem(i) });
+      obj.spyOnEvent({ path: obj.addEmitPath(comp, 'hovered'), onEvent: d => hoverItem(i, !!d?.hover) });
     }
     step = 'start'; obj.start(); scene = true;
   } catch (e) { status(`3D shapes failed at ${step}: ` + (e.message || e)); console.log('[tour] stack ' + e.stack); }
-  // Pinned tags on top, so each problem has a clickable marker with its numbers.
-  for (const i of issues) {
+  for (const i of items) {
     try {
       const h = i.kind === 'door' ? i.h + 0.15 : 0.6;
-      const opts = { label: i.title, description: i.detail, anchorPosition: W(i.at, h), stemVector: { x: 0, y: 0.25, z: 0 }, color: i.s === 'fail' ? RED : AMBER };
-      const ids = sdk.Tag?.add ? await sdk.Tag.add(opts) : await sdk.Mattertag.add([opts]);
-      drawn.push(...[].concat(ids)); tags++;
+      const [tag] = [].concat(await sdk.Tag.add({ label: i.title, description: i.detail, anchorPosition: W(i.at, h), stemVector: { x: 0, y: 0.25, z: 0 }, color: RGB(HEX[i.s]) }));
+      await settle(() => sdk.Tag.allowAction(tag, {})); // Matterport's own popup never opens; our card does
+      (shown[i.id] ||= {}).tag = tag; tagItem[tag] = i; tags++;
+      await setPinLook(i.id, issueList.indexOf(i) + 1, i.s, i.critical);
     } catch (e) { status('Tag failed: ' + (e.message || e)); }
   }
   return { scene, tags };
+}
+const tagItem = {};
+// A tag id from Tag.add isn't always known to the other Tag calls yet on this build: retry for up to ~2 s.
+async function settle(f) { for (let k = 0; ; k++) { try { return await f(); } catch (e) { if (k > 9) throw e; await new Promise(r => setTimeout(r, 200)); } } }
+let lastOpen = { hovered: null, selected: null };
+function watchPins() {
+  sdk.Tag.openTags.subscribe({ onChanged(st) {
+    const hovered = st.hovered || null, [selected = null] = st.selected || [];
+    if (hovered !== lastOpen.hovered) { if (lastOpen.hovered && tagItem[lastOpen.hovered]) hoverItem(tagItem[lastOpen.hovered], false); if (hovered && tagItem[hovered]) hoverItem(tagItem[hovered], true); }
+    if (selected && selected !== lastOpen.selected && tagItem[selected]) openItem(tagItem[selected]);
+    lastOpen = { hovered, selected }; // copy: the observable hands out one shared object
+  } });
+}
+// List ↔ 3D link: hovering either lights up the other; clicking either flies there.
+function hoverItem(i, on) {
+  const row = document.querySelector(`#issues [data-item="${i.id}"]`); row?.classList.toggle('hl', on);
+  const s = shown[i.id]; if (s?.comp) s.comp.inputs.pulse = on || !!i.critical;
+}
+function openItem(i) { if (i.at) { setMode('inside'); goTo(i); } else showCard(i); }
+function recolourAll() {
+  for (const i of issueList) {
+    const s = shown[i.id]; if (!s) continue; const a = afterOf(i);
+    if (s.comp) s.comp.inputs.color = HEX[a];
+    setPinLook(i.id, issueList.indexOf(i) + 1, a, i.critical);
+  }
+  retint();
 }
 
 async function goTo(i) {
@@ -471,8 +558,7 @@ function moneyLine() {
   m.innerHTML = `<b id="plan-total">$${plan.purchases.toFixed(2)}</b> fixes what a purchase can fix` + (n ? ` · ${n} no purchase fixes` : '') +
     (c.high ? `<br>Contractor work you chose: $${c.low.toLocaleString()}–${c.high.toLocaleString()}` : '') + (budget != null ? `<br>Budget $${budget} · $${plan.left.toFixed(2)} left` : '');
 }
-function replan() { plan = planAll(checks, products, { choices, budget }); moneyLine(); window.__ie && (window.__ie.total = plan.purchases); recolour?.(); }
-let recolour = null;
+function replan() { plan = planAll(checks, products, { choices, budget }); moneyLine(); window.__ie && (window.__ie.total = plan.purchases); recolourAll(); }
 function renderList() {
   checks = described(ev.items); issueList = checks.filter(i => isProblem(i));
   const sum = summary(checks), byGroup = {};
@@ -491,7 +577,8 @@ function renderList() {
       const pin = issueList.indexOf(i) + 1, el = document.createElement('div');
       el.className = 'issue'; el.tabIndex = 0; el.dataset.item = i.id; el.dataset.check = i.n; el.dataset.status = i.s; if (isProblem(i) && hasPricedFix(i, products)) el.dataset.priced = '';
       el.innerHTML = `<span class="num" style="background:var(--${i.s})">${pin || i.n}</span><div>${esc(i.title)}<small>${esc(i.detail)}</small></div>`;
-      el.onclick = el.onkeydown = e => { if (e.type === 'click' || e.key === 'Enter') { if (i.at) { setMode('inside'); goTo(i); } else showCard(i); } };
+      el.onclick = el.onkeydown = e => { if (e.type === 'click' || e.key === 'Enter') openItem(i); };
+      el.onmouseenter = el.onfocus = () => hoverItem(i, true); el.onmouseleave = el.onblur = () => hoverItem(i, false);
       box.appendChild(el);
     }
     $('issues').appendChild(box);
@@ -499,7 +586,7 @@ function renderList() {
   issueList.forEach((i, k) => {
     const chip = document.createElement('button');
     chip.innerHTML = `<span class="num" style="background:var(--${i.s})">${k + 1}</span>${i.kind === 'door' ? 'Door' : i.kind === 'step' ? 'Step' : (i.room || CHECK[i.n].title).split(',')[0]}`;
-    chip.title = i.title; chip.onclick = () => { if (i.at) { setMode('inside'); goTo(i); } else showCard(i); }; $('jumps').appendChild(chip);
+    chip.title = i.title; chip.onclick = () => openItem(i); $('jumps').appendChild(chip);
   });
 }
 async function load(sid) {
@@ -508,7 +595,9 @@ async function load(sid) {
   products = await loadProducts();
   ev = evaluate(model); renderList();
   await connect(sid);
-  const d = await draw(issueList.filter(i => i.at));
+  await sdk.Scene.registerComponents([{ name: 'ie.shape', factory: ieShape }]);
+  await tintRooms().catch(e => console.log('[tour] tint: ' + (e.message || e)));
+  const d = await draw(issueList.filter(i => i.at)); retint(); watchPins();
   status(`Tour ready · red 3D shapes: ${d.scene ? 'yes' : 'no'} · tags: ${d.tags}/${issueList.length}`);
   window.__ie = { ready: true, pins: d.tags, shapes: d.scene }; // test hook read by the smoke run
   // Open on the whole apartment in 3D (Matterport's dollhouse), red areas included; issues fly inside.
