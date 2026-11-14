@@ -8,7 +8,7 @@ An accessibility room planner built solo at HackPrinceton Fall 2026 (Nov 13–15
 
 ## Around the building (`src/`, Next.js)
 
-Type a latitude and longitude in Houston or Los Angeles. The page draws Vexcel's aerial photo, colours every street and path within 250 m by its slope (from Vexcel's ground-elevation model: up to 5% walking route, 5–8% hard push, over 8% past a manual wheelchair's limit), and lists the nearest step-free station, bus stops, mapped kerbs and elevators from OpenStreetMap, plus Vexcel's oblique photos of the building from four sides.
+Type a latitude and longitude in Houston or Los Angeles. The page draws Vexcel's aerial photo, colours every street and path within 250 m by what you can manage (slope from Vexcel's ground-elevation model; pick manual wheelchair, power wheelchair or cane, or set your own uphill/downhill limit: blue both ways, amber one way only, red too steep or steps), and lists the nearest step-free station, bus stops, mapped kerbs and elevators from OpenStreetMap, plus Vexcel's oblique photos of the building from four sides.
 
 ```bash
 npm install
@@ -22,7 +22,7 @@ Vexcel imagery is fetched live through `/api/image` (the key stays on the server
 - [geotiff.js](https://geotiffjs.github.io) 3.0 (reads Vexcel's elevation GeoTIFFs)
 - Vexcel API 2.0 (CoStar hackathon key): ortho, oblique and DTM imagery © Vexcel Imaging US, Inc.
 - Map data © [OpenStreetMap](https://www.openstreetmap.org/copyright) contributors (ODbL), via the Overpass API
-- Slope limits: ADA 2010 Standards (5% walking route, 1:12 ramp); Bolten & Caspi, PLOS ONE 2021 (manual wheelchair 8% uphill)
+- Profile presets and the colour idea: [AccessMap](https://www.accessmap.app) (University of Washington Taskar Center); Bolten & Caspi, PLOS ONE 2021
 
 ## The 3D tour (`tour/`)
 

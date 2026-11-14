@@ -135,7 +135,7 @@
       "id": "installers",
       "rank": 9,
       "headline": false,
-      "say": "Only 18% of contractors called would install a grab bar; the median quote was $394, for a $50 product.",
+      "say": "Of 98 contractors called in Columbus, Ohio, only 18% installed grab bars in homes. Three grab bars (about $67 of parts) got a median quote of $394, and the wait averaged 23 days.",
       "numbers": {
         "share_install": "18.4%",
         "median_quote": "$394",
@@ -144,9 +144,9 @@
       "sources": [
         "wiseman2021"
       ],
-      "status": "agent_full",
+      "status": "verified",
       "data_year": "2019-20",
-      "caveat": "One US city, 98 businesses."
+      "caveat": "One US city (Columbus, OH), 98 businesses, only 43% answered at all. Quote is for 3 grab bars (two 18 in + one 24 in), parts + labour. The abstract calls $394.31 an average, the results call it a median. Re-read by Claude from the PMC full text (PMC8020400) on 14 Nov 2026."
     },
     {
       "id": "where_falls",

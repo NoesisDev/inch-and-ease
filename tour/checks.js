@@ -334,13 +334,15 @@ export function describe(i) {
   const c = CHECK[i.n];
   const need = { door: '2\' 10" opening', step: 'level (¾")', turn: "5' 0\" across", hall: '3\' 2" wide', tubRim: '19" or lower', toiletWall: '16–18"', toiletSeat: '17–19"', curb: '½" or lower', sink: '34" or lower', switchH: '15–48"' }[c.limit];
   const needed = need ?? (c.how === 'ask' ? c.answers.find(a => a[2] === 'pass')[1] : 'see the rule');
-  const rooms = (i.between || '').replaceAll(' ↔ ', ' to '); // "Kitchen to Balcony" on the secondary line
+  const rooms = (i.between || '').replaceAll(' ↔ ', ' to ').replace(/\bVoid\b/g, 'Outside'); // "Kitchen to Balcony" on the secondary line; "Void" = area the scan didn't cover
   if (i.s === 'none') { const todo = c.how === 'ask' ? 'answer one question' : c.how === 'measure' ? 'measure it in the tour (two clicks)' : 'no data in this scan';
     return { title: c.title, detail: i.room && c.room !== 'any' ? `${i.room}, ${todo}` : todo, measured: '—', need: needed }; }
-  if (i.n === 8) return { title: `Door ${ftin(i.value)}`, detail: i.s === 'skip' ? `${rooms}, closet door, not scored` : rooms, measured: ftin(i.value), need };
-  if (i.n === 9) return { title: i.s === 'pass' ? 'Level threshold' : `Step ${ftin(i.value)}`, detail: rooms, measured: ftin(i.value), need };
-  if (i.n === 10) return { title: `${i.room}: ${i.s === 'pass' ? "5' turning circle fits" : i.s === 'verify' ? "5' turn is tight" : "5' turning circle doesn't fit"}`, detail: i.value == null ? 'room size missing' : `room is ${ftin(i.value)} across (box)`, measured: ftin(i.value), need };
-  if (i.n === 11) return { title: `${i.room} ${ftin(i.value)} wide`, detail: `needs ${need}`, measured: ftin(i.value), need };
+  // Titles say what is wrong in plain words; the number follows in brackets.
+  const may = { fail: '', verify: 'may be ' }[i.s];
+  if (i.n === 8) return { title: i.s === 'skip' ? `Closet door (${ftin(i.value)})` : i.s === 'pass' ? `Door wide enough (${ftin(i.value)})` : `Door ${may}too narrow (${ftin(i.value)})`, detail: i.s === 'skip' ? `${rooms}, closet door, not scored` : rooms, measured: ftin(i.value), need };
+  if (i.n === 9) return { title: i.s === 'pass' ? 'Level threshold' : i.s === 'verify' ? `Small step at the door (${ftin(i.value)})` : `Step at the door (${ftin(i.value)})`, detail: rooms, measured: ftin(i.value), need };
+  if (i.n === 10) return { title: i.s === 'pass' ? `${i.room}: room to turn around` : `${i.room} ${may}too small to turn around`, detail: i.value == null ? 'room size missing' : `room is ${ftin(i.value)} across, needs ${need}`, measured: ftin(i.value), need };
+  if (i.n === 11) return { title: i.s === 'pass' ? `${i.room} wide enough (${ftin(i.value)})` : `${i.room} ${may}too narrow (${ftin(i.value)})`, detail: `needs ${need}`, measured: ftin(i.value), need };
   if (i.n === 21) return { title: c.title, detail: i.floors === 1 ? 'one floor, no stairs inside' : i.value ? 'all on the entry floor' : 'an essential room is upstairs', measured: `${i.floors} floor${i.floors > 1 ? 's' : ''}`, need: 'all on one floor' };
   if (c.how === 'ask') { const a = c.answers.find(a => a[0] === i.value); return { title: c.title, detail: `your answer: ${a?.[1] ?? '—'}`, measured: a?.[1] ?? '—', need: c.answers.find(a => a[2] === 'pass')[1] }; }
   return { title: c.title, detail: `${ftin(i.value)} measured, needs ${need}`, measured: ftin(i.value), need };

@@ -1,0 +1,16 @@
+# Upload only the Next.js app (+ the OSM cache). Secrets and sponsor data never leave the Mac.
+.env*
+.git
+.next
+.claude
+node_modules
+notes
+tour
+data
+scripts
+CLAUDE.md
+HANDOFF.md
+GAME_PLAN.md
+START_HERE.md
+AGENTS.md
+tsconfig.tsbuildinfo

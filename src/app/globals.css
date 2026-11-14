@@ -1,0 +1,58 @@
+@import "tailwindcss";
+
+/* Apple system look: SF Pro via the system font, system colours, Liquid Glass panels. */
+@theme {
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", Arial, sans-serif;
+  --color-label: #1d1d1f;
+  --color-secondary: #5f5f66; /* 5.6:1 on white glass */
+  --color-tint: #007aff;
+  --color-ok: #007aff;
+  --color-warn: #c25e00; /* orange text dark enough to read on glass */
+  --color-bad: #d70015;
+}
+
+body {
+  margin: 0;
+  background: #e8e8ed;
+  color: var(--color-label);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  letter-spacing: -0.01em;
+}
+
+/* Frosted panel: translucent fill, strong blur, a light rim and a soft shadow. */
+@utility glass {
+  background: rgb(255 255 255 / 0.62);
+  backdrop-filter: blur(28px) saturate(180%);
+  -webkit-backdrop-filter: blur(28px) saturate(180%);
+  border: 1px solid rgb(255 255 255 / 0.7);
+  box-shadow: 0 1px 0 rgb(255 255 255 / 0.8) inset, 0 10px 40px rgb(0 0 0 / 0.12);
+  border-radius: 28px;
+}
+
+/* Segmented control: a recessed track, the chosen item a raised white pill. */
+@utility segmented {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  padding: 3px;
+  border-radius: 999px;
+  background: rgb(118 118 128 / 0.14);
+}
+@utility segment {
+  min-height: 40px;
+  padding: 0 16px;
+  border-radius: 999px;
+  font-weight: 500;
+  font-size: 15px;
+  color: var(--color-label);
+  transition: background 0.15s, box-shadow 0.15s;
+  &[aria-pressed="true"] {
+    background: white;
+    box-shadow: 0 1px 3px rgb(0 0 0 / 0.12), 0 1px 1px rgb(0 0 0 / 0.04);
+    font-weight: 600;
+  }
+}
+
+input[type="range"] { accent-color: var(--color-tint); }
+input[type="checkbox"] { accent-color: var(--color-tint); }

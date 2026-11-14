@@ -42,34 +42,45 @@
   aside, .float, #card, #home nav { background:var(--glass); -webkit-backdrop-filter:var(--blur); backdrop-filter:var(--blur); border:1px solid var(--edge); box-shadow:var(--shadow); }
 
   /* ---- Side panel: a glass panel inset from the window edge ---- */
-  aside { width:348px; flex:none; margin:12px 0 12px 12px; height:calc(100vh - 24px); border-radius:22px; display:flex; flex-direction:column; overflow:hidden; position:relative; z-index:6; }
-  aside header { padding:18px 20px 4px; } aside .body { flex:1; overflow:auto; padding:0 20px 16px; } aside footer { padding:12px 20px 16px; border-top:1px solid var(--sep); }
+  aside { width:296px; flex:none; margin:8px 0 8px 8px; height:calc(100vh - 16px); border-radius:18px; display:flex; flex-direction:column; overflow:hidden; position:relative; z-index:6; }
+  aside header { padding:12px 16px 2px; } aside .body { flex:1; overflow:auto; padding:0 16px 12px; } aside footer { padding:8px 16px 10px; border-top:1px solid var(--sep); }
   .homelink { color:var(--muted); font-size:13px; text-decoration:none; font-weight:500; display:inline-flex; align-items:center; gap:4px; } .homelink[hidden] { display:none; } .homelink:hover { color:var(--ink); }
   .homelink svg { width:8px; height:12px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
-  h1 { font-size:20px; font-weight:700; letter-spacing:-.02em; margin:10px 0 2px; } h1 span, .logo span { color:var(--fail); }
-  .sub { color:var(--muted); font-size:13px; } aside select { margin-top:12px; }
-  .score { margin:16px 0 4px; }
+  h1 { font-size:16px; font-weight:700; letter-spacing:-.02em; margin:6px 0 0; } h1 span, .logo span { color:var(--fail); }
+  .sub { color:var(--muted); font-size:12px; } aside select { margin-top:8px; padding-top:7px; padding-bottom:7px; }
+  .score { margin:14px 0 2px; }
+  .q { font-size:11px; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:.04em; }
+  .tiles { display:grid; grid-template-columns:1fr 1fr 1.4fr; gap:6px; margin-top:12px; }
+  .tile { background:var(--fill); border-radius:12px; padding:7px 10px; min-width:0; }
+  .tile b { display:block; font-size:18px; font-weight:700; letter-spacing:-.02em; line-height:1.15; } .tile span { display:block; font-size:12px; line-height:1.25; color:var(--muted); }
+  .tile.crit b { color:var(--failInk); } .tile.tape b { color:var(--verifyInk); } .tile.money b { color:var(--passInk); }
+  .answer { margin-top:2px; } .answer b { display:block; font-size:22px; line-height:1.1; font-weight:700; letter-spacing:-.025em; }
+  .answer.a-fail b { color:var(--failInk); } .answer.a-verify b { color:var(--verifyInk); } .answer.a-pass b { color:var(--passInk); }
+  .answer span { display:block; font-size:13px; font-weight:500; margin-top:2px; } .answer span::first-letter { text-transform:uppercase; }
+  .measured { color:var(--muted); font-size:12px; margin-top:4px; }
+  .num.s-none { background:none !important; box-shadow:inset 0 0 0 1.5px var(--none); }
+  .grp details summary { font-size:13px; color:var(--muted); cursor:pointer; margin:6px 0 2px; font-weight:500; }
   .score .big b { display:block; font-size:34px; line-height:1.05; font-weight:700; letter-spacing:-.03em; }
   .score .big span { color:var(--muted); font-size:13px; }
-  .score .stats { display:flex; gap:8px; margin-top:12px; }
-  .score .stat { flex:1; background:var(--fill); border-radius:14px; padding:8px 12px; display:flex; align-items:baseline; gap:6px; }
-  .score .stat b { font-size:19px; font-weight:700; letter-spacing:-.02em; line-height:1.2; } .score .stat span { color:var(--muted); font-size:12px; line-height:1.25; }
+  .score .stats { display:flex; gap:14px; margin-top:8px; }
+  .score .stat { display:flex; align-items:baseline; gap:5px; }
+  .score .stat b { font-size:15px; font-weight:700; letter-spacing:-.02em; line-height:1.2; } .score .stat span { color:var(--muted); font-size:13px; line-height:1.25; }
   .score .stat.crit b { color:var(--failInk); } .score .stat.tape b { color:var(--verifyInk); }
-  .score .money { margin-top:8px; background:var(--fill); border-radius:14px; padding:9px 12px; font-size:13px; }
-  .score .money .m { display:flex; align-items:baseline; gap:8px; } .score .money .m b { font-size:20px; font-weight:700; letter-spacing:-.02em; color:var(--passInk); }
-  .score .money small { display:block; color:var(--muted); font-size:12px; }
+  .score .money { margin-top:6px; font-size:13px; }
+  .score .money .m { display:flex; align-items:baseline; gap:6px; } .score .money .m b { font-size:15px; font-weight:700; letter-spacing:-.02em; color:var(--passInk); }
+  .score .money small { display:block; color:var(--muted); font-size:13px; }
   .score .money .m + small { margin-top:2px; }
   /* iOS segmented controls: a rounded track with a raised selected segment. */
-  .tabs, .looks { display:flex; background:var(--fill); border-radius:10px; padding:2px; gap:2px; }
-  .tabs { margin:16px 0 8px; }
-  .tabs button, .looks button { flex:1; background:none; border-radius:8px; padding:6px 4px; font-size:13px; font-weight:500; white-space:nowrap; color:var(--ink); }
-  .tabs button[aria-selected=true], .looks button[aria-pressed=true] { background:var(--seg); font-weight:600; box-shadow:0 1px 3px rgba(0,0,0,.12), 0 0 0 .5px rgba(0,0,0,.04); }
-  [data-theme=contrast] .tabs button, [data-theme=contrast] .looks button { border:0; }
+  .tabs, .looks, #view { display:flex; background:var(--fill); border-radius:10px; padding:2px; gap:2px; }
+  .tabs { margin:12px 0 6px; }
+  .tabs button, .looks button, #view button { flex:1; background:none; border-radius:8px; padding:5px 4px; font-size:13px; font-weight:500; white-space:nowrap; color:var(--ink); }
+  .tabs button[aria-selected=true], .looks button[aria-pressed=true], #view button[aria-pressed=true] { background:var(--seg); font-weight:600; box-shadow:0 1px 3px rgba(0,0,0,.12), 0 0 0 .5px rgba(0,0,0,.04); }
+  [data-theme=contrast] .tabs button, [data-theme=contrast] .looks button, [data-theme=contrast] #view button { border:0; }
   [data-theme=contrast] .tabs button[aria-selected=true], [data-theme=contrast] .looks button[aria-pressed=true] { color:#000; }
-  .looks button { font-size:12px; }
+  .looks button, #view button { font-size:12px; }
   .issue { display:flex; gap:12px; padding:9px 10px; cursor:pointer; align-items:flex-start; margin:0 -10px; border-radius:12px; transition:background-color var(--ease); font-weight:500; }
   .issue:hover, .issue.hl { background:var(--fill); }
-  .issue small { color:var(--muted); display:block; font-size:12px; font-weight:400; margin-top:1px; }
+  .issue small { color:var(--muted); display:block; font-size:13px; font-weight:400; margin-top:1px; }
   .issue small::first-letter, .apt .fx span::first-letter { text-transform:uppercase; }
   .num { width:22px; height:22px; flex:none; display:grid; place-items:center; color:#fff; font:600 12px/1 var(--font); border-radius:7px; margin-top:1px; }
   .num.s-verify, .num.s-helps, .num.s-pass, .num.s-fixed { color:#1d1d1f !important; }
@@ -79,7 +90,8 @@
   .grp h5, .grp summary { margin:18px 0 4px; font-size:13px; font-weight:600; color:var(--muted); cursor:pointer; }
   .grp h5 span { color:var(--ink); background:var(--fill); border-radius:999px; padding:1px 7px; font-size:12px; margin-left:4px; }
   .nodata { background:var(--fill); border-radius:12px; padding:8px 12px; font-size:13px; margin-bottom:10px; }
-  #status { color:var(--muted); font-size:12px; margin-top:8px; }
+  #status { color:var(--muted); font-size:12px; margin-top:4px; }
+  .disp summary { font-size:12px; font-weight:500; color:var(--muted); cursor:pointer; } .disp[open] summary { margin-bottom:8px; }
   #chat { display:flex; flex-direction:column; gap:8px; margin-bottom:10px; }
   #chat .u { align-self:flex-end; background:var(--accent); color:var(--accentInk); padding:8px 13px; max-width:88%; border-radius:18px 18px 6px 18px; }
   #chat .a { background:var(--fill); padding:8px 13px; max-width:95%; border-radius:18px 18px 18px 6px; } #chat .t { color:var(--muted); font-size:12px; }
@@ -87,14 +99,30 @@
   #ask { display:flex; gap:6px; position:sticky; bottom:0; padding:8px 0 4px; } #ask input { flex:1; padding:10px 14px; border:0; border-radius:999px; background:var(--fill); }
   #mic { width:40px; padding:0; display:grid; place-items:center; flex:none; }
   .hint { color:var(--muted); font-size:13px; margin:8px 0 12px; } .hint button { padding:5px 11px; font-size:12px; margin:4px 4px 0 0; }
+  /* Hide / show the panel: the 3D view takes the whole window. */
+  #side-hide { position:absolute; right:14px; top:14px; width:30px; height:30px; padding:0; display:grid; place-items:center; color:var(--muted); }
+  #side-show { left:10px; top:10px; width:32px; height:32px; padding:0; display:none; place-items:center; border-radius:999px; }
+  body.side-off aside { display:none; } body.side-off #side-show { display:grid; } body.side-off #legend { left:50px; }
+  /* Issues: one list by severity, or one box per room (worst room first). */
+  #view { margin:2px 0 0; background:none; padding:0; justify-content:flex-end; gap:12px; }
+  #view button { flex:none; padding:2px 0; color:var(--muted); border-radius:0; } #view button[aria-pressed=true] { background:none; box-shadow:none; color:var(--ink); font-weight:600; }
+  .room { background:var(--fill); border-radius:16px; padding:4px 12px 6px; margin:8px 0; box-shadow:inset 3px 0 0 var(--rc, transparent); }
+  .room.w-fail { --rc:var(--fail); } .room.w-verify { --rc:var(--verify); } .room.w-pass { --rc:var(--pass); }
+  .room .rhead { display:flex; align-items:baseline; gap:8px; width:calc(100% + 24px); margin:0 -12px; padding:9px 12px 5px; background:none; border-radius:16px 16px 0 0; text-align:left; }
+  .room .rhead b { font-size:15px; font-weight:600; } .room .rhead span { margin-left:auto; font-size:12px; color:var(--muted); font-weight:500; white-space:nowrap; }
+  .room .rhead span em { font-style:normal; font-weight:600; } .room .rhead .c-fail { color:var(--failInk); } .room .rhead .c-verify { color:var(--verifyInk); } .room .rhead .c-pass { color:var(--passInk); }
+  .room .issue { margin:0 -6px; padding:7px 6px; } .room .issue:hover, .room .issue.hl { background:var(--fill2); }
+  .room details summary { font-size:12px; color:var(--muted); cursor:pointer; padding:4px 0 2px; font-weight:500; }
 
   /* ---- The 3D view: a rounded window beside the panel ---- */
-  main { flex:1; position:relative; min-width:0; margin:12px; border-radius:22px; overflow:hidden; background:var(--bg); box-shadow:0 0 0 .5px var(--ring); }
+  main { flex:1; position:relative; min-width:0; margin:8px; border-radius:18px; overflow:hidden; background:var(--bg); box-shadow:0 0 0 .5px var(--ring); }
   main > matterport-viewer { position:absolute; inset:0; }
   .float { position:absolute; z-index:5; color:var(--ink); border-radius:18px; }
-  #dock { left:50%; bottom:16px; transform:translateX(-50%); padding:6px; border-radius:24px; display:flex; flex-direction:column; gap:6px; align-items:center; max-width:calc(100% - 300px); transition:left var(--ease), bottom var(--ease); }
+  #dock { left:50%; bottom:10px; transform:translateX(-50%); padding:4px; border-radius:18px; display:flex; flex-direction:column; gap:4px; align-items:center; max-width:calc(100% - 300px); transition:left var(--ease), bottom var(--ease); }
   #modes { display:flex; gap:2px; }
-  #modes button { display:flex; flex-direction:column; align-items:center; gap:3px; min-width:78px; padding:8px 10px; border-radius:18px; background:none; font-size:12px; font-weight:500; }
+  #modes button { display:flex; align-items:center; gap:6px; padding:6px 12px; border-radius:14px; background:none; font-size:12px; font-weight:500; }
+  #modes .ic { width:15px; height:15px; }
+  #jumps { display:none !important; } body.side-off #jumps { display:flex !important; } body.side-off #dock:has(#drone.on) #jumps { display:none !important; }
   #modes button:hover { background:var(--fill); filter:none; }
   #modes button[aria-pressed=true] { background:var(--accent); color:var(--accentInk); }
   [data-theme=contrast] #modes button { border:0; }
@@ -125,34 +153,48 @@
   @media print {
     :root, html[data-theme] { --ink:#1d1d1f; --muted:#6e6e73; --fill:#f2f2f5; --sep:#e5e5ea; --glass:#fff; --blur:none; --shadow:none; --failInk:#d70015; --verifyInk:#c93400; --passInk:#248a3d; }
     body { display:block; height:auto; overflow:visible; background:#fff; color:#1d1d1f; } main, #home, #card, .tabs, #p-issues, #p-ask, aside footer, #print, #pick, .homelink { display:none !important; }
-    aside { width:auto; height:auto; margin:0; border:0; border-radius:0; box-shadow:none; background:#fff; -webkit-backdrop-filter:none; backdrop-filter:none; overflow:visible; }
+    aside, body.side-off aside { display:block; width:auto; height:auto; margin:0; border:0; border-radius:0; box-shadow:none; background:#fff; -webkit-backdrop-filter:none; backdrop-filter:none; overflow:visible; }
     aside .body { overflow:visible; padding:0 24px; } #p-plan { display:block !important; } .printhead { display:flex; justify-content:space-between; font-size:16px; margin:8px 0 12px; }
     #p-plan .budget input { background:none; } #plan .pr { break-inside:avoid; }
   }
-  #legend { left:16px; top:16px; padding:7px 14px; display:flex; gap:14px; font-size:12px; font-weight:500; border-radius:999px; }
-  #legend span { display:flex; align-items:center; gap:6px; } #legend i { width:10px; height:10px; display:inline-block; border-radius:50%; } #legend i.ring { box-shadow:0 0 0 2px var(--ink); background:var(--fail); }
-  #walkbar { left:16px; top:60px; padding:6px; display:none; gap:6px; align-items:center; max-width:calc(100% - 440px); border-radius:999px; }
-  #walkbar.on { display:flex; } #walkbar .what { min-width:0; padding:0 8px; } #walkbar .what small { color:var(--muted); display:block; font-size:12px; }
+  /* Hover box: top-right corner, under Matterport's settings button; quiet, never takes clicks. */
+  #peek { right:10px; top:64px; width:250px; padding:10px 12px; font-size:12px; pointer-events:none; box-shadow:var(--shadow), inset 3px 0 0 var(--pk, transparent); border-radius:14px; }
+  #peek.w-fail { --pk:var(--fail); } #peek.w-verify { --pk:var(--verify); } #peek.w-pass { --pk:var(--pass); }
+  #peek b { font-size:14px; font-weight:600; display:block; } #peek .pc { display:block; color:var(--muted); margin:1px 0 4px; }
+  #peek.w-fail .pc { color:var(--failInk); } #peek.w-verify .pc { color:var(--verifyInk); } #peek.w-pass .pc { color:var(--passInk); }
+  #peek .pr { display:flex; gap:8px; align-items:center; margin-top:5px; font-weight:500; } #peek .num { width:18px; height:18px; font-size:10px; border-radius:5px; margin:0; }
+  #peek small { display:block; color:var(--muted); margin-top:5px; }
+  #legend { left:10px; top:10px; padding:4px 10px; display:flex; gap:10px; font-size:11px; font-weight:500; border-radius:999px; }
+  #legend span { display:flex; align-items:center; gap:5px; } #legend i { width:8px; height:8px; display:inline-block; border-radius:50%; } #legend i.ring { box-shadow:0 0 0 2px var(--ink); background:var(--fail); }
+  /* Walkthrough bar: inside the bottom dock, in place of the "Go to issue" chips; a thin line fills while a stop plays. */
+  #walkbar { display:none; gap:6px; align-items:center; padding:2px 4px 6px; position:relative; width:min(560px, 100%); }
+  #dock:has(#walkbar.on) #jumps { display:none !important; }
+  #walkbar .prog { position:absolute; left:12px; right:12px; bottom:1px; height:2px; background:var(--fill); border-radius:2px; overflow:hidden; } #w-prog { display:block; height:100%; width:0; background:var(--ink); }
+  #walkbar.on { display:flex; } #walkbar .what { min-width:0; flex:1; padding:0 8px; } #walkbar .what small { color:var(--muted); display:block; font-size:12px; }
   #walkbar .what div { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-weight:600; }
-  #walkbar button { white-space:nowrap; } #walkbar #w-next { background:var(--accent); color:var(--accentInk); font-weight:600; }
+  #walkbar button { white-space:nowrap; padding:6px 12px; } #walkbar #w-play { background:var(--accent); color:var(--accentInk); font-weight:600; min-width:76px; }
   #walkbar #w-prev, #walkbar #w-end { width:34px; height:34px; padding:0; display:grid; place-items:center; flex:none; }
   #walkbar .ic { width:14px; height:14px; stroke-width:2.2; }
-  #drone { left:16px; bottom:130px; padding:14px; display:none; width:236px; font-size:12px; }
-  #drone.on { display:block; } #drone > b { font-size:14px; font-weight:600; } #drone > small { display:block; color:var(--muted); }
-  #drone .pad { display:grid; grid-template-columns:repeat(3, 1fr); gap:6px; margin:10px 0; } #drone .pad button { padding:8px 0; font-size:13px; border-radius:12px; }
-  #drone .keys { display:grid; gap:4px; color:var(--muted); } #drone kbd { font:600 11px var(--font); color:var(--ink); background:var(--fill); padding:2px 6px; border-radius:6px; margin-right:2px; }
+  /* Drone: one quiet line of key hints in the dock, in place of "Go to issue"; fades almost away while flying, back on hover. */
+  #drone { display:none; align-items:center; justify-content:center; flex-wrap:wrap; gap:4px 12px; padding:0 6px 4px; font-size:12px; color:var(--muted); opacity:.8; transition:opacity 400ms ease; }
+  #drone.on { display:flex; } #dock:has(#drone.on) #jumps { display:none; } body.flying #drone { opacity:.2; } #drone:hover, #drone:focus-within { opacity:1; }
+  #drone kbd { font:600 11px var(--font); color:var(--ink); background:var(--fill); padding:2px 5px; border-radius:5px; margin-right:2px; }
+  #drone button { padding:3px 10px; font-size:12px; }
+  /* FPV: in drone mode a clear layer over the 3D view catches the click that locks the mouse; a small dot marks the aim. */
+  #fpv { position:absolute; inset:0; z-index:3; cursor:crosshair; } #fpv[hidden] { display:none; }
+  #fpv.locked::after { content:''; position:absolute; left:50%; top:50%; width:6px; height:6px; margin:-3px 0 0 -3px; border-radius:50%; background:#fff; box-shadow:0 0 0 1.5px rgba(0,0,0,.55); }
 
   /* ---- Issue card ---- */
-  #card { position:fixed; right:24px; top:24px; width:400px; max-height:calc(100vh - 48px); overflow:auto; background:var(--glassStrong); color:var(--ink); padding:20px; display:none; z-index:10; border-radius:22px; }
+  #card { position:fixed; right:16px; top:16px; width:340px; max-height:calc(100vh - 32px); overflow:auto; background:var(--glassStrong); color:var(--ink); padding:16px; display:none; z-index:10; border-radius:22px; }
   #card.open { display:block; }
-  body.card-open #dock { left:calc((100% - 412px) / 2); max-width:calc(100% - 460px); bottom:100px; } body.card-open #jumps { display:none; }
+  body.card-open #dock { left:calc((100% - 352px) / 2); max-width:calc(100% - 380px); } body.card-open #jumps { display:none; }
   .opt input { accent-color:var(--ink); }
   body.card-open #legend { display:none; }
   #card .ev { display:-webkit-box; -webkit-line-clamp:1; -webkit-box-orient:vertical; overflow:hidden; }
   #card .nofix { font-size:13px; color:var(--muted); margin:4px 0 8px; }
   #card .tag { display:inline-block; font:600 12px/1 var(--font); color:#fff; padding:6px 10px; border-radius:999px; }
   #card .tag.s-verify, #card .tag.s-pass, #card .tag.s-helps, #card .tag.s-fixed { color:#1d1d1f; }
-  #card h3 { font-size:22px; line-height:1.15; font-weight:700; letter-spacing:-.02em; margin:12px 40px 2px 0; }
+  #card h3 { font-size:19px; line-height:1.15; font-weight:700; letter-spacing:-.02em; margin:12px 40px 2px 0; }
   #card .where { color:var(--muted); font-size:14px; }
   #card .nums { display:flex; gap:6px; margin:14px 0; }
   #card .nums div { flex:1; background:var(--fill); border-radius:14px; padding:9px 12px; font-size:12px; color:var(--muted); } #card .nums b { display:block; font-size:21px; font-weight:700; letter-spacing:-.02em; color:var(--ink); }
@@ -270,14 +312,14 @@
 <aside>
   <header>
     <a class="homelink" href="./"><svg viewBox="0 0 8 12" aria-hidden="true"><path d="M6.5 1L1.5 6l5 5"/></svg>All apartments</a>
+    <button type="button" id="side-hide" title="Hide the panel ( [ )" aria-label="Hide the panel"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M9 4v16M15 10l-2 2 2 2"/></svg></button>
     <h1>Inch <span>&amp;</span> Ease</h1>
-    <div class="sub">Can a wheelchair user live here?</div>
     <select id="pick" aria-label="Apartment"></select>
     <div class="score" id="score">Loading…</div>
     <div class="tabs" role="tablist"><button role="tab" id="t-issues" aria-selected="true">Issues</button><button role="tab" id="t-plan" aria-selected="false">Plan</button><button role="tab" id="t-ask" aria-selected="false">Ask Claude</button></div>
   </header>
   <div class="body">
-    <section id="p-issues"><div id="issues"></div></section>
+    <section id="p-issues"><div id="view" role="group" aria-label="Show issues"><button type="button" data-view="all">All issues</button><button type="button" data-view="room">By room</button></div><div id="issues"></div></section>
     <section id="p-plan" hidden>
       <div class="printhead"><b id="r-name"></b><span id="r-date"></span></div>
       <label class="budget">Budget <span>$</span><input id="budget" type="number" min="0" step="10" placeholder="none" aria-label="Budget in dollars"></label>
@@ -291,31 +333,20 @@
     </section>
   </div>
   <footer>
+    <details class="disp"><summary>Display</summary>
     <div class="looks" role="group" aria-label="Look"><button type="button" data-look="standard">Daylight</button><button type="button" data-look="night">Night</button><button type="button" data-look="contrast">High contrast</button></div>
     <label class="sub" style="display:flex;gap:8px;align-items:center;margin-top:8px">Quality <select id="quality" aria-label="Quality" style="margin:0;flex:1"><option value="standard">Standard</option><option value="high">High (sharp panoramas)</option><option value="max">Max (sharpest 3D, slower)</option></select></label>
+    </details>
     <div id="status"></div>
   </footer>
 </aside>
 <main>
+  <button type="button" id="side-show" class="float" title="Show the panel ( [ )" aria-label="Show the panel"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M9 4v16M13 10l2 2-2 2"/></svg></button>
+  <div id="fpv" hidden title="Click to steer with the mouse"></div>
   <div id="hint" class="float" role="status" hidden></div>
+  <div id="peek" class="float" role="status" aria-live="polite" hidden></div>
   <div id="skel" aria-live="polite"><div class="sk a"></div><div class="sk b"></div><div class="sk c"></div><p>Loading the 3D tour…</p></div>
   <div id="legend" class="float" aria-label="Legend"><span><i style="background:var(--fail)"></i>Fails</span><span><i style="background:var(--verify)"></i>Check with a tape</span><span><i style="background:var(--pass)"></i>Fixed</span><span><i class="ring"></i>Critical</span></div>
-  <div id="walkbar" class="float" role="region" aria-label="Walkthrough">
-    <button id="w-prev" aria-label="Previous stop"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
-    <div class="what"><small id="w-count">Stop 1 of 5</small><div id="w-title">…</div></div>
-    <button id="w-play" aria-label="Auto-play">Auto play</button>
-    <button id="w-next" aria-label="Next stop">Next</button>
-    <button id="w-end" aria-label="End walkthrough"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
-  </div>
-  <div id="drone" class="float" role="region" aria-label="Drone controls">
-    <b>Drone</b><small>Hold a button to fly</small>
-    <div class="pad">
-      <button data-k="q" title="Turn left (Q)">↺</button><button data-k="w" title="Forward (W)">▲</button><button data-k="e" title="Turn right (E)">↻</button>
-      <button data-k="a" title="Left (A)">◀</button><button data-k="s" title="Back (S)">▼</button><button data-k="d" title="Right (D)">▶</button>
-      <button data-k="r" title="Up (R)">Up</button><button id="flyover" title="Automatic flyover">Auto</button><button data-k="f" title="Down (F)">Down</button>
-    </div>
-    <div class="keys"><div><kbd>W A S D</kbd> move</div><div><kbd>R</kbd><kbd>F</kbd> up and down</div><div><kbd>Q</kbd><kbd>E</kbd> turn</div><div><kbd>Shift</kbd> faster, drag to look</div></div>
-  </div>
   <div id="dock" class="float" role="toolbar" aria-label="Navigation">
     <div id="modes">
       <button data-mode="overview" aria-pressed="true"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-7 9 7v9h-6v-6H9v6H3z"/></svg>Overview</button>
@@ -325,6 +356,18 @@
       <button data-mode="plan" aria-pressed="false"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3h18v18H3zM3 12h9M12 3v18M12 15h9"/></svg>Floor plan</button>
     </div>
     <div id="jumps"></div>
+    <div id="walkbar" role="region" aria-label="Walkthrough">
+      <button id="w-prev" aria-label="Previous stop"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
+      <div class="what"><small id="w-count">Stop 1 of 5</small><div id="w-title">…</div></div>
+      <button id="w-play" aria-label="Pause or play the walkthrough">Pause</button>
+      <button id="w-next" aria-label="Next stop">Next</button>
+      <button id="w-end" aria-label="End walkthrough"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      <div class="prog"><i id="w-prog"></i></div>
+    </div>
+    <div id="drone" role="region" aria-label="Drone keys">
+      <span><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> fly</span><span><kbd>Space</kbd><kbd>Shift</kbd> up, down</span><span><kbd>Q</kbd><kbd>E</kbd> turn</span><span><kbd>R</kbd><kbd>F</kbd> tilt</span><span>The mouse steers. <kbd>Esc</kbd> frees it, click the view to steer again (or drag)</span>
+      <button type="button" id="flyover" title="Fly one circle around the apartment">Auto</button><button type="button" id="d-reset" title="Back to the start view">Reset</button>
+    </div>
   </div>
 </main>
 <div id="card" role="dialog" aria-label="Issue details"></div>
@@ -508,7 +551,7 @@ function watchPins() {
 }
 // List ↔ 3D link: hovering either lights up the other; clicking either flies there.
 function hoverItem(i, on) {
-  const row = document.querySelector(`#issues [data-item="${i.id}"]`); row?.classList.toggle('hl', on);
+  document.querySelectorAll(`#issues [data-item="${i.id}"]`).forEach(row => row.classList.toggle('hl', on)); // a door shows under both its rooms
   const s = shown[i.id]; if (s?.comp) s.comp.inputs.pulse = on || !!i.critical;
 }
 function openItem(i) { i = checks.find(c => c.id === i.id) || i; if (i.at && i.s !== 'none') { setMode('inside'); goTo(i); } else showCard(i); }
@@ -525,6 +568,7 @@ let moving = false; const photos = {};
 // Fly inside to a sweep with a clear line of sight, about 2.5 m from the problem. One move at a time: clicks during a move only open the card.
 async function flyTo(i) {
   if (moving || !sdk || !i.at) return false;
+  if (isArea(i)) return areaView(i);
   const p = W(i.at), dist = s => Math.hypot(s.position.x - p.x, s.position.z - p.z);
   const seen = sweeps.filter(s => clearView({ x: s.position.x, y: -s.position.z }, i.at));
   const near = [...(seen.length ? seen : sweeps)].sort((a, b) => Math.abs(dist(a) - 2.5) - Math.abs(dist(b) - 2.5))[0];
@@ -537,8 +581,20 @@ async function flyTo(i) {
   } finally { moving = false; }
   return true;
 }
+// A whole-room problem (turning circle, hallway width) is best seen from above at an angle: the circle and every wall
+// around it in one picture. Doors and steps stay inside, at eye level.
+const isArea = i => (i.kind === 'turn' || i.kind === 'hall') && isProblem(i); // rooms that pass keep the eye-level view
+async function areaView(i) {
+  const r = ev.rooms.find(r => r.id === i.roomId), span = Math.max(r?.dims?.width || 2.5, r?.dims?.depth || 2.5);
+  // Steep (72°) so the view clears the walls of small rooms; nudged right so the room sits left of the open card.
+  const d = Math.min(8, Math.max(6, span * 2.6)), a = 72 * Math.PI / 180, p = W(i.at), side = document.body.classList.contains('card-open') ? d * 0.22 : 0;
+  moving = true;
+  try { await sdk.Mode.moveTo(sdk.Mode.Mode.DOLLHOUSE, { position: { x: p.x + side, y: d * Math.sin(a), z: p.z + d * Math.cos(a) }, rotation: { x: -72, y: 0 }, transition: sdk.Mode.TransitionType.FLY }).catch(e => status('move: ' + e.message)); }
+  finally { moving = false; }
+  return true;
+}
 async function goTo(i) {
-  if (mode !== 'walk') setMode('inside');
+  if (mode !== 'walk') setMode(isArea(i) ? 'overview' : 'inside');
   showCard(i);
   if (!(await flyTo(i)) && !photos[i.id]) return;
   if (!photos[i.id]) { // one photo per issue, cached (this build leaks memory in takeScreenShot)
@@ -612,14 +668,14 @@ function fixHtml(i) {
   if (!row) return '';
   const opt = o => `<label class="opt ${row.chosen?.key === o.key ? 'chosen' : ''} v-${o.verdict}">
       <input type="radio" name="fix" value="${esc(o.key)}" ${row.chosen?.key === o.key ? 'checked' : ''}>
-      ${o.product ? `<img alt="" src="/data/${esc(o.product.photo)}">` : `<span class="noimg">${o.kind === 'contractor' ? 'Pro' : o.kind === 'free' ? '$0' : '—'}</span>`}
+      ${o.product ? `<img alt="" src="/data/${esc(o.product.photo)}">` : `<span class="noimg">${o.kind === 'contractor' ? 'Hire' : o.kind === 'free' ? '$0' : '—'}</span>`}
       <span class="what"><b>${esc(o.label)}</b>
-        ${[o.product && `${esc(o.product.store.split(' (')[0])}, ${esc(o.product.install)}`, o.change && esc(o.change.replace(' → ', ' to ')), !o.product && o.note && esc(o.note), o.kind === 'contractor' && o.source && esc(o.source), o.kind === 'text' && 'Not in our catalogue, table price'].filter(Boolean).map(t => `<small>${t}</small>`).join('')}
+        ${[o.product && `${esc(o.product.store.split(' (')[0])}, ${esc(o.product.install)}`, o.change && esc(o.change.replace(' → ', ' to ')), !o.product && o.note && esc(o.note), o.kind === 'contractor' && o.source && !/master table/i.test(o.source) && esc(o.source), o.kind === 'text' && 'Typical price, not a store product'].filter(Boolean).map(t => `<small>${t}</small>`).join('')}
         ${o.reason ? `<small class="warn">${esc(o.reason)}</small>` : ''}${o.product?.evidence ? `<small class="ev" title="${esc(o.product.evidence)}">${esc(o.product.evidence)}</small>` : ''}
         <span class="vd">${VERDICT[o.verdict]}</span>${o.product?.url ? ` <a href="${esc(o.product.url)}" target="_blank" rel="noopener">Store ↗</a>` : ''}</span>
       <span class="price">${money(o)}</span></label>`;
   const noProd = !row.options.some(o => o.kind === 'product' && o.verdict !== 'nosupport' && o.verdict !== 'na');
-  return `<h4>Fix options</h4>${noProd ? '<p class="nofix">No product in our catalogue changes this number; the options below are what is left.</p>' : ''}<div class="opts" role="radiogroup" aria-label="Fix options">${row.options.map(opt).join('')}
+  return `<h4>Fix options</h4>${noProd ? '<p class="nofix">Nothing you can buy fixes this. These are your options:</p>' : ''}<div class="opts" role="radiogroup" aria-label="Fix options">${row.options.map(opt).join('')}
     <label class="opt ${row.chosen ? '' : 'chosen'}"><input type="radio" name="fix" value="none" ${row.chosen ? '' : 'checked'}><span class="noimg">–</span><span class="what"><b>Don't fix this now</b></span><span class="price"></span></label></div>`;
 }
 function bindFix(i) {
@@ -724,8 +780,9 @@ let checks = [], convo = [], issueList = [], pose = null, products = [], plan = 
 function moneyLine() {
   const m = $('money'); if (!m) return;
   const c = plan.contractor, n = plan.noPurchaseFix.length;
-  m.innerHTML = `<div class="m"><b id="plan-total">$${plan.purchases.toFixed(2)}</b><span>fixes what a purchase can fix</span></div>` + (n ? `<small>${n} need more than a purchase</small>` : '') +
-    (c.high ? `<small>Contractor work you chose: $${c.low.toLocaleString()}–${c.high.toLocaleString()}</small>` : '') + (budget != null ? `<small>Budget $${budget}, $${plan.left.toFixed(2)} left</small>` : '');
+  m.innerHTML = `<b id="plan-total">$${plan.purchases.toFixed(2)}</b><span>fixes ${plan.closed} of ${plan.rows.length} problems</span>`;
+  m.title = [`$${plan.purchases.toFixed(2)} in parts you can buy fixes ${plan.closed} of ${plan.rows.length} problems`, n && `${n} can't be fixed by buying something`,
+    c.high && `Contractor work you chose: $${c.low.toLocaleString()}–${c.high.toLocaleString()}`, budget != null && `Budget $${budget}, $${plan.left.toFixed(2)} left`].filter(Boolean).join('. ');
 }
 function replan() { plan = planAll(checks, products, { choices, budget }); moneyLine(); window.__ie && (window.__ie.total = plan.purchases); recolourAll(); if (!$('p-plan').hidden) renderPlan(); }
 // Plan and report: chosen fixes with prices, contractor work apart, what stays unsolved and why, every number with its source.
@@ -742,29 +799,115 @@ function renderPlan() {
     <h5>Still open, and why</h5>${open.length ? open.map(r => `<div class="pr"><div><b>${esc(r.item.title)}</b><small>${esc(r.item.detail)}</small><small>${why(r)}</small><small>${src(r.item)}</small></div><span class="st s-${r.item.s}">${r.item.critical ? 'critical' : r.item.s === 'verify' ? 'tape' : 'fails'}</span></div>`).join('') : '<p class="sub">Nothing open.</p>'}
     <p class="foot">${sum.pass} of ${sum.measured} measured checks pass. ${sum.none} not measured yet. Numbers come from the Matterport scan or from you; confirm with a tape before you sign. Prices from the stores listed, collected Nov 2026.</p>`;
 }
+// The panel asks "Can a wheelchair user live here?", so the first thing it shows is the answer, then the reason.
+function verdictHtml(sum) {
+  const crit = issueList.find(i => i.critical), fail = issueList.find(i => i.s === 'fail');
+  const [tone, head, why] = crit ? ['fail', 'Not as it is', crit.title]
+    : fail ? ['fail', 'Only with fixes', fail.title]
+    : sum.verify ? ['verify', 'Probably', `measure ${sum.verify} spot${sum.verify > 1 ? 's' : ''} with a tape to be sure`]
+    : ['pass', 'Yes, so far', 'every measured door, step and room passes'];
+  const full = `${sum.pass} of ${sum.measured} measured checks pass${sum.none ? `, ${sum.none} not checked yet` : ''}`;
+  return `<div class="q">Can a wheelchair user live here?</div><div class="answer a-${tone}" title="${full}"><b>${head}</b><span>${esc(why)}</span></div>`;
+}
+function issueRow(i) {
+  const pin = issueList.indexOf(i) + 1, el = document.createElement('div');
+  el.className = 'issue'; el.tabIndex = 0; el.dataset.item = i.id; el.dataset.check = i.n; el.dataset.status = i.s; if (isProblem(i) && hasPricedFix(i, products)) el.dataset.priced = '';
+  const badge = pin ? pin : i.s === 'none' ? '' : '✓';
+  el.innerHTML = `<span class="num s-${i.s}" style="background:var(--${i.s})" aria-hidden="${!pin}">${badge}</span><div>${esc(i.title)}<small>${esc(i.detail)}</small></div>`;
+  el.onclick = el.onkeydown = e => { if (e.type === 'click' || e.key === 'Enter') openItem(i); };
+  el.onmouseenter = el.onfocus = () => hoverItem(i, true); el.onmouseleave = el.onblur = () => hoverItem(i, false);
+  return el;
+}
+// By room: one box per room, worst first. A door belongs to both rooms it joins, so it shows in both.
+// Problems stay open; "to measure" and passes fold away. The room name flies to the room and lights its floor.
+let view = 'all'; try { view = localStorage.getItem('ie-view') || 'all'; } catch {}
+function roomBuckets() {
+  const named = ev.rooms.filter(r => !/void/i.test(r.name)), label = {}, count = {};
+  for (const r of named) { const same = named.filter(x => x.name === r.name).length; label[r.id] = same > 1 ? `${r.name} ${count[r.name] = (count[r.name] || 0) + 1}` : r.name; }
+  const by = {};
+  for (const i of checks) {
+    const ids = [...new Set((i.rooms || [i.roomId]).filter(id => label[id]))];
+    for (const k of ids.length ? ids : [i.room && i.room !== 'any' ? i.room : 'Whole apartment']) (by[k] ||= []).push(i);
+  }
+  return { named, label, by };
+}
+// Hover a room in the 3D view: a small box in the corner says what is wrong there. Matterport reports the point under
+// the mouse; we find the room outline it falls in. Nothing is placed over the model, so clicks still reach the tour.
+// shortcut: one floor only (rooms on other floors share x/z); use the hit's floor when a multi-floor tour is in the demo.
+const insidePoly = (p, poly) => { let c = false; for (let a = 0, b = poly.length - 1; a < poly.length; b = a++) { const A = poly[a], B = poly[b]; if ((A.y > p.y) !== (B.y > p.y) && p.x < (B.x - A.x) * (p.y - A.y) / (B.y - A.y) + A.x) c = !c; } return c; };
+let peekRoom = null;
+function peek(hit) {
+  if (!ev || mode === 'drone' || document.body.classList.contains('card-open')) { if (peekRoom) { peekRoom = null; $('peek').hidden = true; retint(); } return; }
+  const p = hit?.position && { x: hit.position.x, y: -hit.position.z };
+  const room = p && ev.rooms.find(r => r.poly.length > 2 && !/void/i.test(r.name) && insidePoly(p, r.poly));
+  if ((room?.id || null) === peekRoom) return;
+  peekRoom = room?.id || null; retint();
+  if (!room) { $('peek').hidden = true; return; }
+  const { label, by } = roomBuckets(), rows = by[room.id] || [], probs = rows.filter(isProblem), todo = rows.filter(i => i.s === 'none').length;
+  const crit = probs.filter(i => i.critical).length, fail = probs.filter(i => i.s === 'fail').length - crit, tape = probs.filter(i => i.s === 'verify').length;
+  const w = crit || fail ? 'fail' : tape ? 'verify' : 'pass';
+  const tint = roomTints[room.id]; if (tint) { tint.inputs.color = HEX[w]; tint.inputs.opacity = 0.45; }
+  const counts = [crit && `${crit} critical`, fail && `${fail} problem${fail > 1 ? 's' : ''}`, tape && `${tape} to tape`].filter(Boolean).join(' · ');
+  $('peek').className = `float w-${w}`; $('peek').hidden = false;
+  $('peek').innerHTML = `<b>${esc(label[room.id] || room.name)}</b><span class="pc">${counts || 'No problems found'}</span>` +
+    probs.slice(0, 4).map(i => `<div class="pr"><span class="num s-${i.s}" style="background:var(--${i.s})">${issueList.indexOf(i) + 1}</span>${esc(i.title)}</div>`).join('') +
+    (probs.length > 4 ? `<small>+ ${probs.length - 4} more</small>` : '') + (todo ? `<small>${todo} not checked yet</small>` : '');
+}
+function renderByRoom() {
+  const { named, label, by } = roomBuckets();
+  const rank = i => i.critical ? 0 : { fail: 1, verify: 2, none: 3 }[i.s] ?? 4;
+  const worst = k => Math.min(...by[k].map(rank));
+  const keys = Object.keys(by).sort((a, b) => worst(a) - worst(b) || by[b].filter(isProblem).length - by[a].filter(isProblem).length);
+  for (const k of keys) {
+    const rows = by[k], probs = rows.filter(isProblem), todo = rows.filter(i => i.s === 'none'), ok = rows.filter(i => i.s === 'pass' || i.s === 'skip');
+    const crit = probs.filter(i => i.critical).length, fail = probs.filter(i => i.s === 'fail').length - crit, tape = probs.filter(i => i.s === 'verify').length;
+    const w = crit || fail ? 'fail' : tape ? 'verify' : ok.length && !todo.length ? 'pass' : 'none';
+    const counts = [crit && `<em class="c-fail">${crit} critical</em>`, fail && `<em class="c-fail">${fail} problem${fail > 1 ? "s" : ""}</em>`, tape && `<em class="c-verify">${tape} to tape</em>`].filter(Boolean);
+    const room = named.find(r => r.id === k);
+    const box = document.createElement('section'); box.className = `room w-${w}`;
+    box.innerHTML = `<button type="button" class="rhead"${room?.at ? ` title="Go to the ${esc(label[k])}"` : ' disabled style="opacity:1;cursor:default"'}><b>${esc(label[k] || k)}</b><span>${counts.length ? counts.join(' · ') : probs.length ? '' : ok.length ? '<em class="c-pass">no problems found</em>' : 'not measured yet'}</span></button>`;
+    for (const i of probs) box.appendChild(issueRow(i));
+    if (todo.length || ok.length) {
+      const more = document.createElement('details');
+      more.innerHTML = `<summary>${[todo.length && `${todo.length} to measure or answer`, ok.length && `${ok.length} pass`].filter(Boolean).join(', ')}</summary>`;
+      for (const i of [...todo, ...ok]) more.appendChild(issueRow(i));
+      box.appendChild(more);
+    }
+    if (room?.at) {
+      const h = box.querySelector('.rhead'), tint = roomTints[k];
+      h.onclick = async () => { closeCard(); if (mode !== 'walk') setMode('inside'); await flyTo({ at: room.at, kind: 'room' }); };
+      h.onmouseenter = h.onfocus = () => { if (tint) { tint.inputs.color = HEX[w]; tint.inputs.opacity = 0.5; } };
+      h.onmouseleave = h.onblur = () => retint();
+    }
+    $('issues').appendChild(box);
+  }
+}
+document.querySelectorAll('#view button').forEach(b => b.onclick = () => { view = b.dataset.view; try { localStorage.setItem('ie-view', view); } catch {} renderList(); });
+// Hide / show the side panel; "[" toggles it. Remembered per browser.
+function sidePanel(off) { document.body.classList.toggle('side-off', off); try { localStorage.setItem('ie-side', off ? 'off' : 'on'); } catch {} (off ? $('side-show') : $('side-hide')).focus(); }
+$('side-hide').onclick = () => sidePanel(true); $('side-show').onclick = () => sidePanel(false);
+try { if (localStorage.getItem('ie-side') === 'off') document.body.classList.add('side-off'); } catch {}
+addEventListener('keydown', e => { if (e.key === '[' && !e.target.closest('input,select,textarea')) sidePanel(!document.body.classList.contains('side-off')); });
 function renderList() {
   checks = described(ev.items); issueList = checks.filter(i => isProblem(i));
   const sum = summary(checks), byGroup = {};
   for (const i of checks) (byGroup[groupOf(i)] ||= []).push(i);
   plan = planAll(checks, products, { choices, budget });
   $('score').innerHTML = (ev.noDoorData ? '<div class="nodata">This tour has no doorway data: doors and steps are not measured.</div>' : '') +
-    `<div class="big"><b>${sum.pass} of ${sum.measured}</b><span>measured checks pass</span></div>` +
-    `<div class="stats"><div class="stat crit"><b>${sum.critical}</b><span>critical</span></div>${sum.verify ? `<div class="stat tape"><b>${sum.verify}</b><span>to check</span></div>` : ''}</div>` +
-    (!issueList.length ? '<div class="money"><small>No problems in the automatic checks. 16 checks need a measurement or an answer.</small></div>' : `<div class="money" id="money"></div>`);
+    verdictHtml(sum) +
+    `<div class="tiles"><div class="tile crit" title="Problems on the way to the bathroom, bedroom or kitchen"><b>${sum.critical}</b><span>critical</span></div>` +
+    `<div class="tile tape" title="Close to the limit: measure these with a tape"><b>${sum.verify}</b><span>need a tape</span></div>` +
+    (issueList.length ? `<div class="tile money" id="money"></div>` : `<div class="tile"><b>0</b><span>problems found</span></div>`) + `</div>`;
   moneyLine();
   $('issues').innerHTML = ''; $('jumps').innerHTML = issueList.length ? '<span>Go to issue</span>' : '<span>No problems found</span>';
-  for (const [g, label] of GROUPS) {
+  document.querySelectorAll('#view button').forEach(b => b.setAttribute('aria-pressed', b.dataset.view === view));
+  if (view === 'room') renderByRoom();
+  else for (const [g, label] of GROUPS) {
     const rows = byGroup[g]; if (!rows) continue;
     const box = document.createElement(g === 'pass' ? 'details' : 'section'); box.className = 'grp';
-    box.innerHTML = g === 'pass' ? `<summary>${label} (${rows.length})</summary>` : `<h5>${label} <span>${rows.length}</span></h5>` + (g === 'none' ? '<button type="button" class="start" id="start-check">Complete the check, bathroom first</button>' : '');
-    for (const i of rows) {
-      const pin = issueList.indexOf(i) + 1, el = document.createElement('div');
-      el.className = 'issue'; el.tabIndex = 0; el.dataset.item = i.id; el.dataset.check = i.n; el.dataset.status = i.s; if (isProblem(i) && hasPricedFix(i, products)) el.dataset.priced = '';
-      el.innerHTML = `<span class="num s-${i.s}" style="background:var(--${i.s})">${pin || i.n}</span><div>${esc(i.title)}<small>${esc(i.detail)}</small></div>`;
-      el.onclick = el.onkeydown = e => { if (e.type === 'click' || e.key === 'Enter') openItem(i); };
-      el.onmouseenter = el.onfocus = () => hoverItem(i, true); el.onmouseleave = el.onblur = () => hoverItem(i, false);
-      box.appendChild(el);
-    }
+    box.innerHTML = g === 'pass' ? `<summary>${label} (${rows.length})</summary>` : `<h5>${label} <span>${rows.length}</span></h5>` + (g === 'none' ? '<button type="button" class="start" id="start-check">Complete the check, bathroom first</button><details><summary>Show what is left to check</summary></details>' : '');
+    const into = g === 'none' ? box.querySelector('details') : box;
+    for (const i of rows) into.appendChild(issueRow(i));
     $('issues').appendChild(box);
   }
   const st = $('start-check'); if (st) st.onclick = () => { const f = checks.find(c => c.s === 'none' && CHECK[c.n].how !== 'auto' && /bath/i.test(CHECK[c.n].room)) || checks.find(c => c.s === 'none' && CHECK[c.n].how !== 'auto'); if (f) showCard(f); };
@@ -783,6 +926,7 @@ async function load(sid) {
   await sdk.Scene.registerComponents([{ name: 'ie.shape', factory: ieShape }]);
   await tintRooms().catch(e => console.log('[tour] tint: ' + (e.message || e)));
   const d = await draw(issueList.filter(i => i.at)); retint(); watchPins(); watchRuler();
+  try { sdk.Pointer.intersection.subscribe(peek); } catch (e) { console.log('[tour] hover rooms: ' + (e.message || e)); }
   status(d.scene && d.tags === issueList.length ? 'Tour ready' : `Tour ready. ${d.scene ? '' : '3D marks unavailable. '}${d.tags} of ${issueList.length} pins shown.`);
   $('skel')?.remove();
   // Test hooks for the smoke run: measure() feeds two world points through the same handler as Matterport's ruler.
@@ -801,7 +945,7 @@ async function overview() {
   const xs = pts.map(p => p.x), ys = pts.map(p => p.y);
   const cx = (Math.min(...xs) + Math.max(...xs)) / 2, cy = (Math.min(...ys) + Math.max(...ys)) / 2;
   const size = Math.max(Math.max(...xs) - Math.min(...xs), Math.max(...ys) - Math.min(...ys));
-  const pos = { x: cx, y: size * 1.1, z: -cy + size * 0.64 }; // ~60° down: pins inside small rooms clear the walls
+  const pos = { x: cx, y: size * 0.8, z: -cy + size * 0.46 }; // ~60° down: pins inside small rooms clear the walls
   await sdk.Mode.moveTo(sdk.Mode.Mode.DOLLHOUSE, { position: pos, rotation: { x: -60, y: 0 }, transition: sdk.Mode.TransitionType.FLY })
     .catch(() => sdk.Mode.moveTo(sdk.Mode.Mode.DOLLHOUSE)).catch(e => status('dollhouse: ' + (e.message || e)));
 }
@@ -876,55 +1020,85 @@ function setMode(m) {
   mode = m;
   document.querySelectorAll('#modes button').forEach(b => b.setAttribute('aria-pressed', b.dataset.mode === m));
   $('drone').classList.toggle('on', m === 'drone');
+  $('fpv').hidden = m !== 'drone'; if (m !== 'drone' && document.pointerLockElement) document.exitPointerLock();
   $('walkbar').classList.toggle('on', m === 'walk');
   if (m !== 'walk') stopAuto();
   if (m !== 'drone') flying = false;
+  else document.activeElement?.blur?.(); // Space flies up; it must not press the last clicked button
 }
 document.querySelectorAll('#modes button').forEach(b => b.onclick = async () => {
   const m = b.dataset.mode; if (!sdk) return;
   setMode(m); closeCard();
+  // FPV right away: the Drone click is the user gesture pointer lock needs, so lock before any await.
+  if (m === 'drone') try { $('fpv').requestPointerLock()?.catch?.(() => {}); } catch {}
   if (m === 'overview') await overview();
-  if (m === 'drone') await overview();
+  if (m === 'drone') await droneStart();
   if (m === 'walk') startWalk();
   if (m === 'inside') await sdk.Mode.moveTo(sdk.Mode.Mode.INSIDE).catch(() => {});
   if (m === 'plan') await sdk.Mode.moveTo(sdk.Mode.Mode.FLOORPLAN).catch(() => {});
 });
 
 // ---- Drone: free flight over the 3D model. Matterport lets the dollhouse camera sit anywhere, so we move it in small instant steps. ----
-const held = new Set(); let flying = false, droneBusy = false, drone = null, lastStep = 0;
-const DRONE_KEYS = 'wasdqerf';
+// Keys as in Unity / Unreal / Sketchfab fly modes: W A S D fly, Space up, Shift down, Q E or ← → turn, R F tilt; drag to look.
+// Comfort (Meta locomotion guidance: speed changes cause sickness, steady speed doesn't): one steady speed, eased start and stop,
+// timed by the clock not the frame rate, and the camera stays near the apartment so nobody gets lost in the dark.
+const held = new Set(), look = { x: 0, y: 0 }; let flying = false, drone = null, droneLoop = false;
+// FPV mouse: click the view to lock the pointer, then moving the mouse turns and tilts the camera directly (no easing,
+// like a game); Esc lets go (the browser's own rule for pointer lock).
+// Holding the button and dragging steers too: some embedded browsers refuse pointer lock.
+let dragged = 0;
+$('fpv').onpointerdown = () => { dragged = 0; };
+$('fpv').onclick = () => { if (dragged < 4) try { $('fpv').requestPointerLock()?.catch?.(() => {}); } catch {} };
+document.addEventListener('pointerlockchange', () => $('fpv').classList.toggle('locked', document.pointerLockElement === $('fpv')));
+$('fpv').onmousemove = e => {
+  const locked = document.pointerLockElement === $('fpv'); if (!locked && !(e.buttons & 1)) return;
+  if (!locked) dragged += Math.abs(e.movementX) + Math.abs(e.movementY);
+  look.x += e.movementX; look.y += e.movementY; fly();
+};
+const DRONE_KEYS = ['w', 'a', 's', 'd', 'q', 'e', 'r', 'f', ' ', 'shift'];
+// Drone opens tilted: 35° down from the side of the apartment, like a drone shot, instead of the steep overview.
+async function droneStart() {
+  const b = bounds(), d = b.size * 0.95, a = 35 * Math.PI / 180; drone = null;
+  await sdk.Mode.moveTo(sdk.Mode.Mode.DOLLHOUSE, { position: { x: b.cx, y: d * Math.sin(a), z: b.cz + d * Math.cos(a) }, rotation: { x: -35, y: 0 }, transition: sdk.Mode.TransitionType.FLY })
+    .catch(e => status('drone: ' + (e.message || e)));
+}
 addEventListener('keydown', e => {
   if (mode !== 'drone' || e.target.closest('input,select,textarea')) return;
   const k = e.key.toLowerCase();
-  if (DRONE_KEYS.includes(k) || k.startsWith('arrow')) { held.add(k); e.preventDefault(); e.stopPropagation(); }
+  if (DRONE_KEYS.includes(k) || k.startsWith('arrow')) { held.add(k); e.preventDefault(); e.stopPropagation(); fly(); }
 }, true);
-addEventListener('keyup', e => held.delete(e.key.toLowerCase()), true);
+addEventListener('keyup', e => { const k = e.key.toLowerCase(); held.delete(k); if (mode === 'drone' && k === ' ') e.preventDefault(); }, true); // Space must not "click" the focused button
 addEventListener('blur', () => held.clear());
-document.querySelectorAll('#drone [data-k]').forEach(b => {
-  b.onpointerdown = e => { held.add(b.dataset.k); b.setPointerCapture(e.pointerId); };
-  b.onpointerup = b.onpointercancel = () => held.delete(b.dataset.k);
-});
-setInterval(async () => {
-  if (mode !== 'drone' || droneBusy || !pose || !held.size) { if (!held.size) drone = null; return; }
-  // Start from wherever the camera is now (the person may have dragged it with the mouse).
-  drone ||= { ...pose.position, yaw: pose.rotation.y, pitch: Math.min(-10, pose.rotation.x) };
-  const sp = (held.has('shift') ? 0.45 : 0.15), yaw = drone.yaw * Math.PI / 180;
-  const f = { x: -Math.sin(yaw), z: -Math.cos(yaw) }, r = { x: Math.cos(yaw), z: -Math.sin(yaw) };
-  const mv = (dir, k) => { drone.x += dir.x * k; drone.z += dir.z * k; };
-  if (held.has('w') || held.has('arrowup')) mv(f, sp);
-  if (held.has('s') || held.has('arrowdown')) mv(f, -sp);
-  if (held.has('d')) mv(r, sp);
-  if (held.has('a')) mv(r, -sp);
-  if (held.has('r')) drone.y += sp;
-  if (held.has('f')) drone.y = Math.max(0.6, drone.y - sp);
-  if (held.has('q') || held.has('arrowleft')) drone.yaw += 4;
-  if (held.has('e') || held.has('arrowright')) drone.yaw -= 4;
-  droneBusy = true;
-  await sdk.Mode.moveTo(sdk.Mode.Mode.DOLLHOUSE, { position: { x: drone.x, y: drone.y, z: drone.z }, rotation: { x: drone.pitch, y: drone.yaw }, transition: sdk.Mode.TransitionType.INSTANT }).catch(() => {});
-  droneBusy = false;
-}, 70);
-addEventListener('keydown', e => { if (e.key === 'Shift') held.add('shift'); });
-addEventListener('keyup', e => { if (e.key === 'Shift') held.delete('shift'); });
+const ease = (v, to, dt) => v + (to - v) * (1 - Math.exp(-6 * dt)); // ~0.4 s to full speed or to a stop
+const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
+async function fly() {
+  if (droneLoop || !pose) return; droneLoop = true; document.body.classList.add('flying');
+  const b = bounds(), V = Math.max(1.5, b.size * 0.3), R = b.size * 1.2; // m/s: across the apartment in ~3 s
+  const h = k => held.has(k), ax = (p, n) => (p ? 1 : 0) - (n ? 1 : 0);
+  let last = performance.now();
+  try {
+    while (mode === 'drone') {
+      const now = performance.now(), dt = Math.min((now - last) / 1000, 0.1); last = now;
+      // Start from wherever the camera is now (the person may have dragged it with the mouse).
+      drone ||= { ...pose.position, yaw: pose.rotation.y, pitch: Math.min(-5, pose.rotation.x), vf: 0, vr: 0, vy: 0, vyaw: 0, vp: 0 };
+      const d = drone;
+      d.vf = ease(d.vf, V * ax(h('w') || h('arrowup'), h('s') || h('arrowdown')), dt);
+      d.vr = ease(d.vr, V * ax(h('d'), h('a')), dt);
+      d.vy = ease(d.vy, V * 0.6 * ax(h(' '), h('shift')), dt);
+      d.vyaw = ease(d.vyaw, 60 * ax(h('q') || h('arrowleft'), h('e') || h('arrowright')), dt); // °/s
+      d.vp = ease(d.vp, 40 * ax(h('r'), h('f')), dt);
+      if (!held.size && Math.abs(d.vf) + Math.abs(d.vr) + Math.abs(d.vy) < 0.03 && Math.abs(d.vyaw) + Math.abs(d.vp) < 0.5 && !look.x && !look.y) break;
+      const yaw = d.yaw * Math.PI / 180;
+      d.x = clamp(d.x + (-Math.sin(yaw) * d.vf + Math.cos(yaw) * d.vr) * dt, b.cx - R, b.cx + R);
+      d.z = clamp(d.z + (-Math.cos(yaw) * d.vf - Math.sin(yaw) * d.vr) * dt, b.cz - R, b.cz + R);
+      d.y = clamp(d.y + d.vy * dt, 0.6, b.size * 1.5);
+      d.yaw += d.vyaw * dt - look.x * 0.12; d.pitch = clamp(d.pitch + d.vp * dt - look.y * 0.12, -85, 20); look.x = look.y = 0; // 0.12° per pixel
+      await sdk.Mode.moveTo(sdk.Mode.Mode.DOLLHOUSE, { position: { x: d.x, y: d.y, z: d.z }, rotation: { x: d.pitch, y: d.yaw }, transition: sdk.Mode.TransitionType.INSTANT }).catch(() => {});
+      await new Promise(requestAnimationFrame);
+    }
+  } finally { droneLoop = false; drone = null; document.body.classList.remove('flying'); }
+}
+$('d-reset').onclick = () => droneStart();
 
 // Automatic flyover: one slow circle around the apartment, looking at its centre, then back to the overview.
 function bounds() {
@@ -942,7 +1116,8 @@ $('flyover').onclick = async () => {
 };
 
 // ---- Walkthrough: every room, plus every problem, in walking order from the entrance. ----
-let stops = [], at = 0, autoTimer = null;
+let stops = [], at = 0, autoTimer = null, playing = false;
+const DWELL = c => isProblem(c) ? 8000 : 3500; // ms: time to read a problem card vs. a glance at a room that passes
 function startWalk() {
   const rooms = checks.filter(c => c.kind === 'turn'), problems = issueList.filter(c => c.kind !== 'turn' && c.at);
   const pool = [...rooms, ...problems], start = sweeps[0] ? { x: sweeps[0].position.x, y: -sweeps[0].position.z } : pool[0]?.at;
@@ -951,23 +1126,31 @@ function startWalk() {
     pool.sort((a, b) => Math.hypot(a.at.x - here.x, a.at.y - here.y) - Math.hypot(b.at.x - here.x, b.at.y - here.y));
     const next = pool.shift(); stops.push(next); here = next.at;
   }
-  at = 0; showStop();
+  at = 0; playing = true; showStop();
 }
 async function showStop() {
+  clearTimeout(autoTimer); progress(0);
   const c = stops[at]; if (!c) return;
+  $('w-play').textContent = playing ? 'Pause' : 'Play';
   $('w-count').textContent = `Stop ${at + 1} of ${stops.length}` + (c.s === 'pass' ? '' : ', problem');
   $('w-title').textContent = c.kind === 'turn' ? (c.s === 'pass' ? `${c.room}: room to turn` : c.title) : c.title;
   $('w-prev').disabled = at === 0; $('w-next').textContent = at === stops.length - 1 ? 'Finish' : 'Next';
   await goTo(c);
+  if (playing && stops[at] === c && mode === 'walk') schedule(c);
+}
+function progress(ms) { const b = $('w-prog'); b.style.transition = 'none'; b.style.width = '0'; if (!ms) return; void b.offsetWidth; b.style.transition = `width ${ms}ms linear`; b.style.width = '100%'; }
+function schedule(c) {
+  progress(DWELL(c));
+  autoTimer = setTimeout(() => { if (at < stops.length - 1) { at++; showStop(); } else stopAuto(); }, DWELL(c));
 }
 $('w-prev').onclick = () => { if (at > 0) { at--; showStop(); } };
 $('w-next').onclick = () => { if (at < stops.length - 1) { at++; showStop(); } else { setMode('overview'); closeCard(); overview(); } };
 $('w-end').onclick = () => { setMode('overview'); closeCard(); overview(); };
-function stopAuto() { clearInterval(autoTimer); autoTimer = null; $('w-play').textContent = 'Auto play'; }
+function stopAuto() { playing = false; clearTimeout(autoTimer); autoTimer = null; $('w-play').textContent = 'Play'; progress(0); }
 $('w-play').onclick = () => {
-  if (autoTimer) return stopAuto();
-  $('w-play').textContent = 'Pause';
-  autoTimer = setInterval(() => { if (at < stops.length - 1) { at++; showStop(); } else stopAuto(); }, 9000);
+  if (playing) return stopAuto();
+  playing = true; $('w-play').textContent = 'Pause';
+  if (at >= stops.length - 1) { at = 0; showStop(); } else schedule(stops[at]); // at the end, Play starts over
 };
 
 // ---- Tabs, looks ----
