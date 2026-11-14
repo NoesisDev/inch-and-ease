@@ -26,21 +26,24 @@ Vexcel imagery is fetched live through `/api/image` (the key stays on the server
 
 ## The 3D tour (`tour/`)
 
-A Matterport tour of a real apartment with every wheelchair problem marked in red inside the room, a card with the measured numbers, a photo, a to-scale drawing and the cheapest fix, and Claude to answer questions by driving the tour.
+A Matterport tour of a real apartment, checked for a manual wheelchair user against 21 checks: door widths, door steps, turning space, hallway width and essential rooms on the entry floor come from the scan; the bathroom, entry, bed, kitchen and controls are completed in the tour with a question or a two-click measurement. Every problem is a numbered pin and a tinted room in the 3D view, critical ones first (on the route from the entry to the bathroom, bedroom or kitchen). Each card shows measured vs needed, a photo from the tour, a to-scale drawing and every rung of the fix ladder ($0 options, catalogue products by tier, the contractor range), each re-checked against the limit. The Plan tab keeps a budget, the chosen fixes and what stays open, and prints to one page. Claude answers questions by driving the tour (fly to a problem, choose a fix, set a budget).
+
+Statuses are pass, check with a tape, fail, or not measured yet; nothing is guessed. Results are measured from the scan or by the person, against ADA 2010 reference numbers; confirm with a tape before you sign.
 
 Run it locally (needs the CoStar/Matterport hackathon keys and a Claude API key in `.env.local`):
 
 ```bash
-uv run --with anthropic python tour/fetch_models.py    # pulls the tours' wall/door data into tour/private/ (not committed)
+uv run --with anthropic python tour/fetch_models.py    # pulls the tours listed in tour/private/tours/index.json (not committed)
 # put Matterport's viewer bundle in tour/private/mp: npm pack @matterport/webcomponent@0.1.47, copy built-bundle/ + dist/matterport-viewer.umd.js
 uv run --with anthropic python tour/serve.py           # http://localhost:8090
-node --test tour/fixes.test.mjs                        # fix planner tests
+node --test tour/*.test.mjs                            # checks, severity, fix options, re-check, budget
 ```
 
-Tour data and imagery belong to CoStar / Matterport and are never committed (`tour/private/` is git-ignored).
+Tour data and imagery belong to CoStar / Matterport and are never committed (`tour/private/` is git-ignored; the regression test on the real tours skips without it).
 
 ### Credits
-- [Matterport web component and Showcase SDK](https://matterport.github.io/developer-docs/) (`@matterport/webcomponent` 0.1.47), CoStar/Matterport hackathon data
-- [three.js](https://threejs.org) 0.184 (Matterport scene objects) and 0.170 (`tour/model.html`)
+- [Matterport web component and Showcase SDK](https://matterport.github.io/developer-docs/) (`@matterport/webcomponent` 0.1.47); CoStar / Matterport hackathon data (not included)
+- [three.js](https://threejs.org) 0.184 (Matterport scene objects, loaded from the viewer bundle) and 0.170 (`tour/model.html`)
 - [Anthropic Python SDK](https://github.com/anthropics/anthropic-sdk-python), Claude Opus 5.5
-- Instrument Serif and Inter (Google Fonts)
+- Work Sans (Google Fonts); start-screen photo from [Unsplash](https://unsplash.com/photos/woman-in-wheelchair-at-doorway-mjJwgKMktLg)
+- Limits: 2010 ADA Standards and US Access Board research; Housing Enabler item codes (codes only) and HOME FAST item numbers as anchors; fix evidence cited per product in `data/products.json`

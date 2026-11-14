@@ -10,12 +10,12 @@
 <style>
   /* One look: Swiss, Work Sans, black/white/red, square corners, no divider lines. Plus a high-contrast mode. */
   :root { --bg:#fff; --panel:#fff; --soft:#f4f3f0; --ink:#111; --muted:#5f5f5c; --line:#e7e5e0; --accent:#111; --accentInk:#fff;
-          --fail:#E3241B; --verify:#C98A00; --pass:#0F7B3D; --skip:#8a8882; --none:#8a8882; --float:#fff; --shadow:0 8px 28px rgba(0,0,0,.16);
+          --fail:#E3241B; --verify:#C98A00; --verifyInk:#8A5A00; --pass:#0F7B3D; --skip:#8a8882; --none:#8a8882; --float:#fff; --shadow:0 8px 28px rgba(0,0,0,.16);
           --font:'Work Sans', -apple-system, system-ui, sans-serif; --size:14px; }
   [data-theme=night] { --bg:#0e0e0f; --panel:#151517; --soft:#232326; --ink:#f3f2ee; --muted:#b4b3ad; --line:#34343a; --accent:#f3f2ee; --accentInk:#111;
-          --fail:#ff6a5f; --verify:#f2b531; --pass:#43c97c; --skip:#9a9993; --none:#9a9993; --float:#151517; --shadow:0 10px 30px rgba(0,0,0,.55); }
+          --fail:#ff6a5f; --verify:#f2b531; --verifyInk:#f2b531; --pass:#43c97c; --skip:#9a9993; --none:#9a9993; --float:#151517; --shadow:0 10px 30px rgba(0,0,0,.55); }
   [data-theme=contrast] { --bg:#000; --panel:#000; --soft:#1a1a1a; --ink:#fff; --muted:#e6e6e6; --line:#fff; --accent:#FFD400; --accentInk:#000;
-          --fail:#ff5a4f; --pass:#3ddc84; --verify:#FFD400; --float:#000; --shadow:0 0 0 2px #FFD400; --size:16px; }
+          --fail:#ff5a4f; --pass:#3ddc84; --verify:#FFD400; --verifyInk:#FFD400; --float:#000; --shadow:0 0 0 2px #FFD400; --size:16px; }
   * { box-sizing:border-box; }
   body { margin:0; font:var(--size)/1.5 var(--font); color:var(--ink); background:var(--bg); display:flex; height:100vh; overflow:hidden; -webkit-font-smoothing:antialiased; }
   select, button, input { font:inherit; color:var(--ink); border-radius:0; }
@@ -76,7 +76,7 @@
   #plan .tot { display:flex; gap:16px; margin-bottom:8px; } #plan .tot div { font-size:12px; color:var(--muted); } #plan .tot b { display:block; font-size:24px; font-weight:800; color:var(--ink); letter-spacing:-.02em; }
   #plan h5 { margin:16px 0 4px; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); }
   #plan .pr { display:flex; gap:10px; justify-content:space-between; padding:8px 0; } #plan .pr b { font-size:13px; display:block; } #plan .pr small { display:block; color:var(--muted); font-size:12px; }
-  #plan .pr > span { font-weight:800; white-space:nowrap; } #plan .st { font-size:12px; text-transform:uppercase; } #plan .st.s-fail { color:var(--fail); } #plan .st.s-verify { color:var(--verify); }
+  #plan .pr > span { font-weight:800; white-space:nowrap; } #plan .st { font-size:12px; text-transform:uppercase; } #plan .st.s-fail { color:var(--fail); } #plan .st.s-verify { color:var(--verifyInk); }
   #print { width:100%; margin-top:12px; } .printhead { display:none; }
   @media print {
     body { display:block; height:auto; overflow:visible; background:#fff; color:#111; } main, #home, #card, .tabs, #p-issues, #p-ask, aside footer, #print, #pick, .homelink, #score .money br { display:none !important; }
@@ -124,7 +124,7 @@
   .opt img, .opt .noimg { width:56px !important; height:56px; aspect-ratio:1 !important; object-fit:contain !important; background:#fff !important; display:grid; place-items:center; font-weight:700; color:#111; }
   .opt .what { min-width:0; } .opt b { display:block; font-size:13px; line-height:1.3; } .opt small { color:var(--muted); display:block; font-size:12px; margin-top:2px; }
   .opt small.warn { color:var(--fail); } .opt a { font-size:12px; color:var(--ink); }
-  .opt .vd { display:inline-block; margin-top:4px; font-size:12px; font-weight:700; } .v-closes .vd { color:var(--pass); } .v-helps .vd { color:var(--verify); } .v-na .vd, .v-nosupport .vd { color:var(--muted); }
+  .opt .vd { display:inline-block; margin-top:4px; font-size:12px; font-weight:700; } .v-closes .vd { color:var(--pass); } .v-helps .vd { color:var(--verifyInk); } .v-na .vd, .v-nosupport .vd { color:var(--muted); }
   .opt .price { font-size:18px; font-weight:800; white-space:nowrap; }
   .owner { background:var(--soft); padding:10px 12px; font-size:13px; margin:6px 0; box-shadow:inset 3px 0 0 var(--fail); }
   .verdict { font-weight:700; font-size:14px; margin:4px 0 8px; }
@@ -571,7 +571,8 @@ function bindFix(i) {
 // ---- Issue card: what's wrong, a photo from the tour, and a to-scale drawing of why it won't work ----
 const inch = m => m / IN;
 let cardFor = null;
-function closeCard() { $('card').classList.remove('open'); document.body.classList.remove('card-open'); cardFor = null; }
+let cameFrom = null;
+function closeCard() { $('card').classList.remove('open'); document.body.classList.remove('card-open'); cardFor = null; if (cameFrom?.isConnected) cameFrom.focus({ preventScroll: true }); cameFrom = null; }
 addEventListener('keydown', e => { if (e.key === 'Escape' && $('card').classList.contains('open')) closeCard(); });
 function showCard(i) {
   cardFor = i;
@@ -619,6 +620,7 @@ function showCard(i) {
   bindFix(i); bindStep(i);
   $('card').querySelector('.x').onclick = closeCard;
   $('card').classList.add('open'); document.body.classList.add('card-open');
+  const from = document.activeElement; if (from?.closest('#issues, #jumps')) { cameFrom = document.querySelector(`#issues [data-item="${i.id}"]`) || from; $('card').querySelector('.x').focus({ preventScroll: true }); }
 }
 // Top view: the gap between the door frames vs the wheelchair's width. 6 px per inch.
 function doorSvg(clear) {
@@ -672,7 +674,7 @@ function renderPlan() {
   const src = i => `${esc(i.measured)} · ${esc(i.source || 'not measured')} · ${esc(CHECK[i.n].anchor)}`;
   const chosen = plan.rows.filter(r => r.chosen), open = plan.rows.filter(r => r.after !== 'fixed');
   const why = r => r.chosen?.verdict === 'helps' ? `${esc(r.chosen.label)} helps, not enough` : r.byYou && !r.chosen ? 'you chose not to fix it now'
-    : r.overBudget ? `over budget (cheapest fix ${money(r.default)})` : (() => { const pro = r.options.find(o => o.kind === 'contractor' && o.verdict === 'closes'); return `no purchase fixes it${pro ? `; ${esc(pro.label)}: ${money(pro)}${pro.source ? ` (${esc(pro.source)})` : ''}` : ''}`; })();
+    : r.overBudget ? `over budget (cheapest fix ${money(r.default)})` : (() => { const pro = r.options.find(o => o.kind === 'contractor' && o.verdict === 'closes'); return `no purchase fixes it${pro ? `; ${esc(pro.label)}${pro.low != null ? `: ${money(pro)}` : ''}${pro.source ? ` (${esc(pro.source)})` : ''}` : ''}`; })();
   const sum = summary(checks);
   $('plan').innerHTML = `<div class="tot"><div><b>$${plan.purchases.toFixed(2)}</b>purchases</div><div><b>${plan.closed}</b>of ${plan.rows.length} problems closed</div>${plan.contractor.high ? `<div><b>$${plan.contractor.low.toLocaleString()}–${plan.contractor.high.toLocaleString()}</b>contractor</div>` : ''}</div>
     <h5>Chosen fixes</h5>${chosen.length ? chosen.map(r => `<div class="pr"><div><b>${esc(r.item.title)}</b><small>${esc(r.chosen.label)} · ${VERDICT[r.chosen.verdict]}${r.chosen.product ? ` · ${esc(r.chosen.product.store.split(' (')[0])}` : ''}</small><small>${src(r.item)}</small></div><span>${money(r.chosen)}</span></div>`).join('') : '<p class="sub">None yet.</p>'}
