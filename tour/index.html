@@ -84,6 +84,14 @@
   .fix img { width:64px !important; height:64px; aspect-ratio:1 !important; object-fit:contain !important; background:#fff !important; flex:none; }
   .fix b { display:block; font-size:13px; line-height:1.3; } .fix .price { font-size:20px; font-weight:800; color:var(--pass); white-space:nowrap; margin-left:auto; }
   .fix small { color:var(--muted); display:block; font-size:11px; margin-top:2px; }
+  .opts { display:flex; flex-direction:column; gap:4px; }
+  .opt { display:grid; grid-template-columns:auto 56px 1fr auto; gap:10px; align-items:center; background:var(--soft); padding:10px; cursor:pointer; box-shadow:inset 3px 0 0 transparent; }
+  .opt.chosen { box-shadow:inset 3px 0 0 var(--ink); background:var(--panel); outline:1px solid var(--line); }
+  .opt img, .opt .noimg { width:56px !important; height:56px; aspect-ratio:1 !important; object-fit:contain !important; background:#fff !important; display:grid; place-items:center; font-weight:700; color:#111; }
+  .opt .what { min-width:0; } .opt b { display:block; font-size:13px; line-height:1.3; } .opt small { color:var(--muted); display:block; font-size:12px; margin-top:2px; }
+  .opt small.warn { color:var(--fail); } .opt a { font-size:12px; color:var(--ink); }
+  .opt .vd { display:inline-block; margin-top:4px; font-size:12px; font-weight:700; } .v-closes .vd { color:var(--pass); } .v-helps .vd { color:var(--verify); } .v-na .vd, .v-nosupport .vd { color:var(--muted); }
+  .opt .price { font-size:18px; font-weight:800; white-space:nowrap; }
   .owner { background:var(--soft); padding:10px 12px; font-size:13px; margin:6px 0; box-shadow:inset 3px 0 0 var(--fail); }
   .verdict { font-weight:700; font-size:14px; margin:4px 0 8px; }
 
@@ -221,7 +229,7 @@
 <div id="card" role="dialog" aria-label="Issue details"></div>
 
 <script type="module">
-import { planFix, planAll } from './fixes.js';
+import { planAll, hasPricedFix } from './fixes.js';
 import { evaluate, describe, ordered, groupOf, GROUPS, summary, CHECK, ftin } from './checks.js';
 // Same limits as the 3D model page: 32" clear door (opening ≥ 82.3 cm passes, ≤ 80.3 cm fails), ½" step, 5' (152.5 cm) turning circle.
 const TURN = 1.525;
@@ -346,18 +354,32 @@ async function goTo(i) {
 
 const loadProducts = async () => (await (await fetch('/data/products.json')).json()).products;
 const esc = t => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-// "The fix": the renter product (photo, price, store link) and the owner/contractor option when no product closes the gap.
-function fixHtml(f) {
-  if (!f.verdict) return '';
-  const r = f.renter, o = f.owner;
-  return `<h4>The fix</h4><div class="verdict">${esc(f.verdict)}</div>` +
-    (r ? `<a class="fix" href="${esc(r.url)}" target="_blank" rel="noopener"><img alt="" src="/data/${esc(r.photo)}"><div><b>${esc(r.name)}</b><small>${esc(r.store)} · ${esc(r.note)}</small></div><span class="price">$${r.price.toFixed(2)}</span></a>` : '') +
-    (o ? `<div class="owner"><b>${esc(o.label)}</b>${o.avg ? `: about $${o.avg.toLocaleString()} ($${o.low.toLocaleString()}–$${o.high.toLocaleString()}, ${esc(o.source)})` : ''}</div>` : '');
+// Fix options for one item: every rung of its ladder, each re-checked; choosing one updates the plan and the 3D shape.
+const VERDICT = { closes: 'closes it', helps: 'helps, not enough', na: "doesn't apply here", nosupport: 'not counted as support' };
+const money = o => o.kind === 'contractor' ? (o.low == null ? 'not priced' : `$${o.low.toLocaleString()}–${o.high.toLocaleString()}`) : o.price == null ? 'not priced' : o.price === 0 ? '$0' : `$${o.price.toFixed(2)}`;
+function fixHtml(i) {
+  const row = plan?.rows.find(r => r.item.id === i.id);
+  if (!row) return '';
+  const opt = o => `<label class="opt ${row.chosen?.key === o.key ? 'chosen' : ''} v-${o.verdict}">
+      <input type="radio" name="fix" value="${esc(o.key)}" ${row.chosen?.key === o.key ? 'checked' : ''}>
+      ${o.product ? `<img alt="" src="/data/${esc(o.product.photo)}">` : `<span class="noimg">${o.kind === 'contractor' ? 'Pro' : o.kind === 'free' ? '$0' : '—'}</span>`}
+      <span class="what"><b>${esc(o.label)}</b>
+        <small>${[o.product && `${esc(o.product.store)} · ${esc(o.product.install)}`, o.change && esc(o.change), o.note && esc(o.note), o.kind === 'contractor' && o.source && esc(o.source), o.kind === 'text' && 'not in our catalogue, table price'].filter(Boolean).join(' · ')}</small>
+        ${o.reason ? `<small class="warn">${esc(o.reason)}</small>` : ''}${o.product?.evidence ? `<small>${esc(o.product.evidence)}</small>` : ''}
+        <span class="vd">${VERDICT[o.verdict]}</span>${o.product?.url ? ` <a href="${esc(o.product.url)}" target="_blank" rel="noopener">store ↗</a>` : ''}</span>
+      <span class="price">${money(o)}</span></label>`;
+  return `<h4>Fix options</h4><div class="opts" role="radiogroup" aria-label="Fix options">${row.options.map(opt).join('')}
+    <label class="opt ${row.chosen ? '' : 'chosen'}"><input type="radio" name="fix" value="none" ${row.chosen ? '' : 'checked'}><span class="noimg">–</span><span class="what"><b>Don't fix this now</b></span><span class="price"></span></label></div>`;
+}
+function bindFix(i) {
+  document.querySelectorAll('#card .opt input').forEach(r => r.onchange = () => {
+    choices[i.id] = r.value; replan();
+    document.querySelectorAll('#card .opt').forEach(l => l.classList.toggle('chosen', l.querySelector('input').checked));
+  });
 }
 
 // ---- Issue card: what's wrong, a photo from the tour, and a to-scale drawing of why it won't work ----
 const inch = m => m / IN;
-const legacy = i => ({ ...i, w: i.kind === 'door' ? i.value : i.w, h: i.kind === 'step' ? i.value : i.h });
 let cardFor = null;
 function showCard(i) {
   cardFor = i;
@@ -390,7 +412,7 @@ function showCard(i) {
     <h3>${i.title}</h3>
     <div class="nums">${nums.map(([k, v, bad]) => `<div class="${bad ? 'bad' : ''}">${k}<b>${v}</b></div>`).join('')}</div>
     <p>${why}</p>
-    ${(i.s === 'fail' || i.s === 'verify') && ['door', 'step', 'turn'].includes(i.kind) ? fixHtml(planFix(legacy(i), products)) : ''}
+    ${fixHtml(i)}
     <h4>In this apartment</h4><div class="ph">Taking a photo from the tour…</div>
     <h4>${i.s === 'pass' ? 'To scale' : 'Why it won\'t work (to scale)'}</h4>${svg}
     ${i.kind === 'door' || i.kind === 'step' ? `<button class="measure" id="measure">📏 Measure it yourself with Matterport's ruler</button>` : ''}
@@ -401,6 +423,7 @@ function showCard(i) {
     try { await sdk.Measurements.toggleMode(true); status("Ruler on: click one side, then the other. Press Esc to stop."); }
     catch (e) { status('Ruler not available: ' + (e.message || e)); }
   });
+  bindFix(i);
   $('card').querySelector('.x').onclick = () => { $('card').classList.remove('open'); cardFor = null; };
   $('card').classList.add('open');
 }
@@ -441,15 +464,24 @@ function turnSvg(across) {
     <text x="${cx}" y="211" text-anchor="middle" font-size="12" font-weight="600" fill="#d6453d">room is ${ft(across * IN)} across, circle needs 5' 0"</text></svg>`;
 }
 
-let checks = [], convo = [], issueList = [], pose = null, products = [], plan = null, ev = null;
+let checks = [], convo = [], issueList = [], pose = null, products = [], plan = null, ev = null, choices = {}, budget = null;
+function moneyLine() {
+  const m = $('money'); if (!m) return;
+  const c = plan.contractor, n = plan.noPurchaseFix.length;
+  m.innerHTML = `<b id="plan-total">$${plan.purchases.toFixed(2)}</b> fixes what a purchase can fix` + (n ? ` · ${n} no purchase fixes` : '') +
+    (c.high ? `<br>Contractor work you chose: $${c.low.toLocaleString()}–${c.high.toLocaleString()}` : '') + (budget != null ? `<br>Budget $${budget} · $${plan.left.toFixed(2)} left` : '');
+}
+function replan() { plan = planAll(checks, products, { choices, budget }); moneyLine(); window.__ie && (window.__ie.total = plan.purchases); recolour?.(); }
+let recolour = null;
 function renderList() {
   checks = described(ev.items); issueList = checks.filter(i => isProblem(i));
   const sum = summary(checks), byGroup = {};
   for (const i of checks) (byGroup[groupOf(i)] ||= []).push(i);
-  plan = planAll(issueList.filter(i => ['door', 'step', 'turn'].includes(i.kind)).map(legacy), products);
+  plan = planAll(checks, products, { choices, budget });
   $('score').innerHTML = (ev.noDoorData ? '<div class="nodata">This tour has no doorway data: doors and steps are not measured.</div>' : '') +
     `<b>${sum.pass} of ${sum.measured}</b>measured checks pass · ${sum.critical} critical${sum.verify ? ` · ${sum.verify} to check with a tape` : ''}` +
-    (!issueList.length ? '<div class="money">No problems in the automatic checks. 16 checks need a measurement or an answer.</div>' : `<div class="money"><b>$${plan.renterTotal.toFixed(2)}</b> fixes what a purchase can fix${plan.unsolved ? ` · ${plan.unsolved} need${plan.unsolved > 1 ? '' : 's'} more` : ''}</div>`);
+    (!issueList.length ? '<div class="money">No problems in the automatic checks. 16 checks need a measurement or an answer.</div>' : `<div class="money" id="money"></div>`);
+  moneyLine();
   $('issues').innerHTML = ''; $('jumps').innerHTML = issueList.length ? '<span>Go to issue</span>' : '<span>No problems found</span>';
   for (const [g, label] of GROUPS) {
     const rows = byGroup[g]; if (!rows) continue;
@@ -457,7 +489,7 @@ function renderList() {
     box.innerHTML = g === 'pass' ? `<summary>${label} (${rows.length})</summary>` : `<h5>${label} <span>${rows.length}</span></h5>`;
     for (const i of rows) {
       const pin = issueList.indexOf(i) + 1, el = document.createElement('div');
-      el.className = 'issue'; el.tabIndex = 0; el.dataset.item = i.id; el.dataset.check = i.n; el.dataset.status = i.s;
+      el.className = 'issue'; el.tabIndex = 0; el.dataset.item = i.id; el.dataset.check = i.n; el.dataset.status = i.s; if (isProblem(i) && hasPricedFix(i, products)) el.dataset.priced = '';
       el.innerHTML = `<span class="num" style="background:var(--${i.s})">${pin || i.n}</span><div>${esc(i.title)}<small>${esc(i.detail)}</small></div>`;
       el.onclick = el.onkeydown = e => { if (e.type === 'click' || e.key === 'Enter') { if (i.at) { setMode('inside'); goTo(i); } else showCard(i); } };
       box.appendChild(el);
@@ -497,8 +529,8 @@ async function overview() {
 // ---- Agent: Claude answers and drives the tour; the key stays in serve.py ----
 const apartmentFacts = () => {
   const keep = ['id', 'n', 'kind', 's', 'title', 'detail', 'between', 'room', 'measured', 'need', 'critical'];
-  const fixOf = c => { const f = (c.s === 'fail' || c.s === 'verify') && ['door', 'step', 'turn'].includes(c.kind) && planFix(legacy(c), products); return f ? { verdict: f.verdict, product: f.renter && `${f.renter.name} ($${f.renter.price}, ${f.renter.store})`, owner: f.owner && `${f.owner.label}${f.owner.avg ? `, about $${f.owner.avg} (range $${f.owner.low}-$${f.owner.high})` : ''}` } : undefined; };
-  return { name: model.name, renter_fix_total_usd: plan?.renterTotal, not_fixable_by_buying: plan?.unsolved,
+  const fixOf = c => { const r = plan?.rows.find(r => r.item.id === c.id); return r ? { chosen: r.chosen && `${r.chosen.label} (${money(r.chosen)}, ${VERDICT[r.chosen.verdict]})`, options: r.options.map(o => `${o.key}: ${o.label}, ${money(o)}, ${VERDICT[o.verdict]}`) } : undefined; };
+  return { name: model.name, purchase_total_usd: plan?.purchases, not_fixable_by_buying: plan?.noPurchaseFix.length, budget_usd: budget,
     checks: checks.map(c => ({ ...Object.fromEntries(keep.filter(k => c[k] !== undefined).map(k => [k === 's' ? 'status' : k, c[k]])), fix: fixOf(c) })) };
 };
 const TOOLS = {
@@ -679,19 +711,19 @@ async function renderHome() {
   for (const t of list) {
     const m = await (await fetch(`private/tours/${t.id}.json`)).json(), all = described(evaluate(m).items), sm = summary(all);
     const r = { issues: all.filter(isProblem), pass: sm.pass, total: sm.measured };
-    rows.push({ t, r, pa: planAll(r.issues.filter(i => ['door', 'step', 'turn'].includes(i.kind)).map(legacy), products), labelled: /ADA|Handicap|Accessible/i.test(t.name) });
+    rows.push({ t, r, pa: planAll(r.issues, products), labelled: /ADA|Handicap|Accessible/i.test(t.name) });
   }
   // Proof numbers come from the data: the worst "accessible"-labelled unit, the cheapest purchase that solves a problem.
   const fails = x => x.r.issues.filter(i => i.s === 'fail').length;
   const worstLabelled = rows.filter(x => x.labelled).sort((a, b) => fails(b) - fails(a))[0];
-  const cheapest = Math.min(...rows.flatMap(x => x.pa.plans.filter(p => p.plan.closes && p.plan.cost).map(p => p.plan.cost)));
+  const cheapest = Math.min(...rows.flatMap(x => x.pa.rows.filter(p => p.chosen?.price > 0).map(p => p.chosen.price)));
   $('proof').innerHTML = (worstLabelled && fails(worstLabelled) ? `<div><b class="red">${fails(worstLabelled)} problems</b><span>in a unit labelled "ADA"</span></div>` : '') +
     (isFinite(cheapest) ? `<div><b>$${cheapest.toFixed(2)}</b><span>cheapest real fix found</span></div>` : '') +
     `<div><b>${rows.length}</b><span>apartments, Houston + LA</span></div>`;
   rows.sort((a, b) => (b.t.id === demo.id) - (a.t.id === demo.id) || fails(b) - fails(a));
   for (const { t, r, pa, labelled } of rows) {
-    const worst = r.issues[0], f = worst && pa.plans.find(p => p.issue.id === worst.id)?.plan, n = fails({ r });
-    const fixText = !f ? '' : f.closes ? `fix: $${f.cost.toFixed(2)} ${worst.kind === 'step' ? 'ramp' : 'hinges'}` : f.owner?.avg ? `contractor, about $${f.owner.avg.toLocaleString()}` : 'no product fixes it';
+    const worst = r.issues[0], f = worst && pa.rows.find(p => p.item.id === worst.id), n = fails({ r });
+    const pro = f?.options.find(o => o.kind === 'contractor' && o.verdict === 'closes'), fixText = !f ? '' : f.chosen ? `fix: ${money(f.chosen)}` : pro?.price ? `contractor, about $${pro.price.toLocaleString()}` : 'no purchase fixes it';
     const a = document.createElement('a'); a.className = 'apt'; a.href = `?m=${t.id}`;
     a.innerHTML = `<div class="img" style="background-image:url(${thumb(t.id)})"><span class="tag ${n ? '' : 'ok'}">${n ? n + ' problem' + (n > 1 ? 's' : '') : 'All pass'}</span></div>
       <h4>${t.name}</h4><div class="city">${t.city}${labelled ? ' · labelled accessible' : ''}</div>

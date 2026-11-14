@@ -1,46 +1,89 @@
-// Fix planner: for one measured problem, the cheapest renter-friendly product that closes it (from data/products.json),
-// and the owner / contractor fix when no product can. Pure functions, no DOM, so the page and the tests share them.
-export const IN = 0.0254;
-export const CLEAR_LOSS_IN = 1.75; // an open door eats 1.5-2" of the opening (HUD Fair Housing Act Design Manual)
-export const DOOR_CLEAR_IN = 32;   // ADA 404.2.3 reference
-export const WIDEN_DOOR = { low: 600, high: 2000, avg: 1200, source: 'Angi cost guide' };
+// Fix options and the plan. For one failed or check-with-tape item: every rung of its fix ladder (checks.js REGISTRY), $0 first,
+// up to three catalogue products (one per tier), the contractor / owner option, and items the catalogue lacks as text.
+// Each option's verdict comes from running the check again with the changed number (the re-check), never from the planner.
+// Pure functions, no DOM: the page and the tests share them.
+import { CHECK, LIMITS, statusOf, ftin, IN } from './checks.js';
 
-const cheapestFirst = (a, b) => (a.install !== 'none') - (b.install !== 'none') || a.price_usd - b.price_usd; // no-install first: renters can't drill
-const pick = p => p && { id: p.id, name: p.name, price: p.price_usd, store: p.store, url: p.url, photo: p.photo, install: p.install };
+export const INSTALL = { none: 'no tools', 'tool-free': 'tool-free', screws: 'screws: ask the landlord' };
+const RANK = { none: 0, fail: 1, verify: 2, pass: 3 };
+const V = { closes: 0, helps: 1, na: 2, nosupport: 3 };
 
-export function planFix(check, products) {
-  if (check.kind === 'door') {
-    const clear = check.w / IN - CLEAR_LOSS_IN, gap = DOOR_CLEAR_IN - clear;
-    const hinges = products.filter(p => p.type === 'offset_hinge' && p.spec?.clearance_gained_in).sort((a, b) => a.price_usd - b.price_usd);
-    const h = hinges[0], gained = h?.spec.clearance_gained_in ?? 0, after = clear + gained;
-    if (gap <= 0) return { verdict: 'No fix needed.', renter: null, owner: null, cost: 0 };
-    if (h && gap <= gained)
-      return { verdict: `Swing-clear hinges add ${gained}": about ${after.toFixed(0)}" clear, enough for 32".`, closes: true,
-        renter: { ...pick(h), note: 'Screws into the same holes; keep the old hinges and swap them back when you move out.' }, owner: null, cost: h.price_usd };
-    return { verdict: h ? `Hinges add ${gained}" (about ${after.toFixed(0)}" clear), still ${(gap - gained).toFixed(1)}" short. Only widening the doorway fixes it.` : 'Only widening the doorway fixes it.',
-      closes: false, renter: h ? { ...pick(h), note: 'Helps, but does not reach 32" clear.' } : null,
-      owner: { label: 'Widen the doorway (contractor)', low: WIDEN_DOOR.low, high: WIDEN_DOOR.high, avg: WIDEN_DOOR.avg, source: WIDEN_DOOR.source }, cost: h?.price_usd ?? 0 };
-  }
-  if (check.kind === 'step') {
-    const rise = check.h / IN;
-    const covers = p => {
-      const max = p.spec?.rise_in ?? p.spec?.rise_max_in ?? p.spec?.max_rise_in_recommended, min = p.spec?.rise_min_in ?? 0;
-      return max >= rise && min <= rise + 0.25; // a ramp set slightly higher than the step still sits flat
-    };
-    const r = products.filter(p => (p.type === 'threshold_ramp' || p.type === 'portable_ramp') && covers(p)).sort(cheapestFirst)[0];
-    if (!r) return { verdict: `No ramp in the catalogue covers a ${rise.toFixed(1)}" step.`, renter: null, owner: { label: 'Built ramp (contractor)', low: null, high: null }, cost: 0 };
-    return { verdict: `A ${r.type === 'portable_ramp' ? 'portable' : 'threshold'} ramp covers the ${rise.toFixed(1)}" step.`, closes: true,
-      renter: { ...pick(r), note: r.install === 'none' ? 'Lies in place, no tools; take it with you.' : 'Screws down; ask the landlord first.' }, owner: null, cost: r.price_usd };
-  }
-  if (check.kind === 'turn')
-    return { verdict: 'No product makes a room bigger. Clear the floor, or ask for a different unit.', closes: false, renter: null,
-      owner: { label: 'Remodel the room (not priced)', low: null, high: null }, cost: 0 };
-  return { verdict: '', renter: null, owner: null, cost: 0 };
+// How far a number sits outside its band (0 = inside).
+const off = (n, v) => { const l = LIMITS[CHECK[n].limit]; return !l || typeof v !== 'number' ? null : Math.max(0, (l.min ?? -Infinity) - v, v - (l.max ?? Infinity)); };
+
+// The re-check: the item's check judged again with the changed value.
+export function recheck(item, value, rung = {}) {
+  if (rung.support === false) return { verdict: 'nosupport' };
+  if (value === undefined) return { verdict: rung.helps ? 'helps' : 'na' };
+  const s = statusOf(item.n, value);
+  if (s === 'pass') return { verdict: 'closes', s, value };
+  const a = off(item.n, item.value), b = off(item.n, value);
+  return { verdict: RANK[s] > RANK[item.s] || (a != null && b != null && b < a - 1e-9) ? 'helps' : 'na', s, value };
 }
 
-// The apartment total: what a renter spends on purchases that actually solve a problem (a partial fix like hinges on a
-// door that stays too narrow is shown on its card but not counted), and how many problems no purchase solves.
-export function planAll(issues, products) {
-  const plans = issues.map(i => ({ issue: i, plan: planFix(i, products) }));
-  return { plans, renterTotal: plans.reduce((s, p) => s + (p.plan.closes ? p.plan.cost : 0), 0), unsolved: plans.filter(p => !p.plan.closes).length };
+const change = (item, value) => {
+  if (typeof value !== 'number' || typeof item.value !== 'number') return '';
+  const d = value - item.value, what = { door: 'opening', step: 'step', turn: 'across', hall: 'wide' }[item.kind] || 'measured';
+  return `${d >= 0 ? 'adds' : 'takes off'} ${ftin(Math.abs(d))} → about ${ftin(value)} ${what}`;
+};
+const productOf = p => ({ id: p.id, name: p.name, price: p.price_usd, store: p.store, url: p.url, photo: p.photo, tier: p.tier,
+  install: INSTALL[p.install] || p.install, evidence: p.evidence_note || null });
+
+export function fixOptions(item, products) {
+  if (item.s !== 'fail' && item.s !== 'verify') return [];
+  const out = [];
+  CHECK[item.n].ladder.forEach((r, k) => {
+    const base = { key: `${item.n}.${k}`, kind: r.kind, label: r.label, note: r.note || '', reason: r.reason || '' };
+    if (r.kind === 'product') {
+      const cands = products.filter(p => r.types.includes(p.type)).map(p => {
+        const value = r.effect(item.value, p, item), rc = recheck(item, value, r);
+        return { ...base, key: `${item.n}.${k}.${p.id}`, kind: r.support === false ? 'nosupport' : 'product', label: p.name, price: p.price_usd, product: productOf(p), ...rc, change: change(item, value) };
+      });
+      // One per tier: the best verdict, then the cheapest; at most three.
+      const best = {};
+      for (const c of cands.sort((a, b) => V[a.verdict] - V[b.verdict] || a.price - b.price)) best[c.product.tier === 'only' ? c.product.id : c.product.tier] ||= c;
+      out.push(...Object.values(best).sort((a, b) => V[a.verdict] - V[b.verdict] || a.price - b.price).slice(0, 3));
+      return;
+    }
+    const value = r.effect(item.value, null, item);
+    out.push({ ...base, price: r.kind === 'contractor' ? r.avg ?? r.low : r.price, low: r.low, high: r.high, source: r.source || (r.kind === 'text' ? 'master table price, not in our catalogue' : ''),
+      ...recheck(item, value, r), change: change(item, value) });
+  });
+  return out.sort((a, b) => (b.kind === 'free') - (a.kind === 'free')); // $0 first, ladder order otherwise
 }
+
+const purchase = o => o.kind === 'free' || o.kind === 'product' || o.kind === 'text';
+const cost = o => o?.price ?? 0;
+
+// The plan for the problems: default = the cheapest option a purchase (or $0) can do that closes the check.
+// With a budget: critical items first, then the cheapest, until the money runs out. choices: { itemId: optionKey | 'none' }.
+export function planAll(items, products, { choices = {}, budget = null } = {}) {
+  const rows = items.filter(i => i.s === 'fail' || i.s === 'verify').map(item => {
+    const options = fixOptions(item, products);
+    const def = options.filter(o => purchase(o) && o.verdict === 'closes' && o.price != null).sort((a, b) => a.price - b.price)[0] || null;
+    return { item, options, default: def, chosen: null };
+  });
+  let left = budget ?? Infinity;
+  const order = [...rows].sort((a, b) => (b.item.critical === true) - (a.item.critical === true) || cost(a.default) - cost(b.default));
+  for (const r of order) {
+    const pick = choices[r.item.id];
+    if (pick !== undefined) { r.chosen = pick === 'none' ? null : r.options.find(o => o.key === pick) || null; r.byYou = true; }
+    else if (r.default && cost(r.default) <= left + 1e-9) r.chosen = r.default;
+    else if (r.default) r.overBudget = true;
+    if (r.chosen && purchase(r.chosen)) left -= cost(r.chosen);
+  }
+  for (const r of rows) r.after = r.chosen?.verdict === 'closes' ? 'fixed' : r.chosen?.verdict === 'helps' ? 'helps' : r.item.s;
+  const chosen = rows.map(r => r.chosen).filter(Boolean);
+  const pro = chosen.filter(o => o.kind === 'contractor');
+  return {
+    rows,
+    purchases: Math.round(chosen.filter(purchase).reduce((s, o) => s + cost(o), 0) * 100) / 100,
+    contractor: { low: pro.reduce((s, o) => s + (o.low ?? 0), 0), high: pro.reduce((s, o) => s + (o.high ?? 0), 0), unpriced: pro.filter(o => o.low == null).length },
+    closed: rows.filter(r => r.after === 'fixed').length,
+    noPurchaseFix: rows.filter(r => !r.options.some(o => purchase(o) && o.verdict === 'closes')).map(r => r.item),
+    unsolved: rows.filter(r => r.after !== 'fixed').map(r => r.item),
+    budget, left: budget == null ? null : Math.max(0, left),
+  };
+}
+export const hasPricedFix = (item, products) => fixOptions(item, products).some(o => o.price > 0 && o.verdict !== 'nosupport');
+export { IN };

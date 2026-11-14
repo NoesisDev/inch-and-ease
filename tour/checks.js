@@ -102,7 +102,7 @@ export const REGISTRY = [
   { n: 8, id: 'door', tier: 2, title: 'Door width', room: 'any', how: 'auto', limit: 'door',
     who: 'Wheelchair users', rule: 'Opening ≥ 34" (86.5 cm) passes, under 32" (81.5 cm) fails', anchor: 'ADA 404.2.3 · Housing Enabler B1, C4',
     ladder: [free('Take the door off its hinges (keep it, rehang it when you move out)', v => v + CLEAR_LOSS),
-      prod(['offset_hinge'], (v, p) => v + (p.spec?.clearance_gained_in ?? 2) * IN, { note: 'screws into the same holes; swap back when you move out' }),
+      prod(['offset_hinge'], (v, p) => p.spec?.clearance_gained_in ? v + p.spec.clearance_gained_in * IN : undefined, { note: 'screws into the same holes; swap back when you move out' }),
       pro('Widen the doorway (contractor)', 600, 2000, 1200, 'Angi cost guide', v => Math.max(v, 0.915))] },
   { n: 9, id: 'step', tier: 2, title: 'Door step', room: 'any', how: 'auto', limit: 'step',
     who: 'Wheelchair users', rule: 'Level within ¾" (2 cm) passes, over 2" (5 cm) fails', anchor: 'ADA 404.2.5 · Housing Enabler B2, C1',
