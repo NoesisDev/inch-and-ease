@@ -122,6 +122,7 @@
   #modes { display:flex; gap:2px; }
   #modes button { display:flex; align-items:center; gap:6px; padding:6px 12px; border-radius:14px; background:none; font-size:12px; font-weight:500; }
   #modes .ic { width:15px; height:15px; }
+  #modes #d-home { display:flex; align-items:center; gap:6px; padding:6px 12px; border-radius:14px; font-size:12px; font-weight:500; color:inherit; text-decoration:none; margin-right:7px; position:relative; } #modes #d-home::after { content:''; position:absolute; right:-5px; top:7px; bottom:7px; width:1px; background:var(--edge); } #modes button, #modes #d-home { white-space:nowrap; } #modes #d-home:hover { background:var(--fill); } #modes #d-home[hidden] { display:none; }
   #jumps { display:none !important; } body.side-off #jumps { display:flex !important; } body.side-off #dock:has(#drone.on) #jumps { display:none !important; }
   #modes button:hover { background:var(--fill); filter:none; }
   #modes button[aria-pressed=true] { background:var(--accent); color:var(--accentInk); }
@@ -351,7 +352,8 @@
   <div id="legend" class="float" aria-label="Legend"><span><i style="background:var(--fail)"></i>Fails</span><span><i style="background:var(--verify)"></i>Check with a tape</span><span><i style="background:var(--pass)"></i>Fixed</span><span><i class="ring"></i>Critical</span></div>
   <div id="dock" class="float" role="toolbar" aria-label="Navigation">
     <div id="modes">
-      <button data-mode="overview" aria-pressed="true"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-7 9 7v9h-6v-6H9v6H3z"/></svg>Overview</button>
+      <a id="d-home" href="./" title="Back to all apartments"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-7 9 7v9h-6v-6H9v6H3z"/></svg>Home</a>
+      <button data-mode="overview" aria-pressed="true"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9zM12 12l8-4.5M12 12v9M12 12L4 7.5"/></svg>Overview</button>
       <button data-mode="drone" aria-pressed="false"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="6" r="3"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="18" r="3"/><path d="M8 8l8 8M16 8l-8 8"/></svg>Drone</button>
       <button data-mode="walk" aria-pressed="false"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4l12 8-12 8z"/></svg>Walkthrough</button>
       <button data-mode="inside" aria-pressed="false"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>Inside</button>
@@ -1308,7 +1310,7 @@ const demoTour = list.find(t => t.demo) || list[0]; // the demo flag lives in th
 const sid = new URLSearchParams(location.search).get('m') || demoTour.id;
 $('pick').innerHTML = list.map(t => `<option value="${t.id}"${t.id === sid ? ' selected' : ''}>${t.name}</option>`).join('');
 // Embedded (the neighbourhood flyover dives in): no links out, and no apartment picker (this tour may not be in its list).
-if (new URLSearchParams(location.search).get('embed') === '1') { document.querySelector('.homelink').hidden = true; $('pick').hidden = true; }
+if (new URLSearchParams(location.search).get('embed') === '1') { document.querySelector('.homelink').hidden = true; $('d-home').hidden = true; $('pick').hidden = true; }
 const quality = new URLSearchParams(location.search).get('q') || 'high';
 $('quality').value = quality;
 // A fresh page per tour or quality keeps the SDK state clean (Matterport reads these settings once, at start).
