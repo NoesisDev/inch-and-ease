@@ -1,0 +1,425 @@
+{
+  "about": "Every source the rules, profiles and pitch claims cite. Collected 11–12 Nov 2026, before the event.",
+  "status_meaning": {
+    "verified": "Claude re-opened the source on 12 Nov 2026 and the number matched",
+    "verified_round1": "re-read on 11 Nov 2026 (earlier research round)",
+    "agent_full": "read in full text by a research agent; not re-opened by Claude",
+    "agent_abstract": "read from the abstract by a research agent; not re-opened by Claude"
+  },
+  "sources": [
+    {
+      "id": "abourice2023",
+      "cite": "Abou, L., & Rice, L. A. (2023). Frequency of falls, fall-related injuries, and fear of falling among wheelchair users with spinal cord injury. Journal of Spinal Cord Medicine.",
+      "url": "https://doi.org/10.1080/10790268.2022.2097995",
+      "data_year": "2021",
+      "design": "survey, 59 wheelchair users with SCI",
+      "status": "agent_abstract",
+      "report": "research/academic_nov12/home_mod_effectiveness.md"
+    },
+    {
+      "id": "accessboard_seat",
+      "cite": "U.S. Access Board. Wheelchair seat height research (D'Souza, 2022).",
+      "url": "https://www.access-board.gov/research/human/wheelchair-seat-height/",
+      "data_year": "2005-09 data",
+      "design": "secondary analysis",
+      "status": "verified_round1",
+      "report": "data/Rules_and_Stats_Sources.md"
+    },
+    {
+      "id": "ada2010",
+      "cite": "U.S. Department of Justice (2010). 2010 ADA Standards for Accessible Design (U.S. Access Board online edition).",
+      "url": "https://www.access-board.gov/ada/",
+      "data_year": "2010",
+      "design": "standard",
+      "status": "verified_round1",
+      "report": "data/Rules_and_Stats_Sources.md"
+    },
+    {
+      "id": "allawati2017",
+      "cite": "Al Lawati, Z., Kirby, R. L., Smith, C., et al. (2017). Getting a manual wheelchair over a threshold using the momentum method. Archives of Physical Medicine and Rehabilitation, 98(10).",
+      "url": "https://doi.org/10.1016/j.apmr.2017.04.023",
+      "data_year": "2016",
+      "design": "lab study, novice wheelchair users",
+      "status": "agent_abstract",
+      "report": "research/academic_nov12/anthropometry_standards.md"
+    },
+    {
+      "id": "apple2022",
+      "cite": "Apple Machine Learning Research (2022). 3D parametric room representation with RoomPlan.",
+      "url": "https://machinelearning.apple.com/research/roomplan",
+      "data_year": "2022",
+      "design": "vendor technical report",
+      "status": "verified_round1",
+      "report": "research/planner_nov11/roomplan.md"
+    },
+    {
+      "id": "arhat",
+      "cite": "University of Wisconsin–Madison news (17 Apr 2025): ARHAT augmented-reality home assessment app; Fields et al. (2023), JMIR Aging 6:e44525.",
+      "url": "https://news.wisc.edu/app-under-development-at-uw-could-make-it-easier-more-affordable-to-age-in-place/",
+      "data_year": "2023-25",
+      "design": "prototype + acceptability studies (n=16; 19 in focus groups)",
+      "status": "verified",
+      "report": "research/academic_nov12/assessment_tools_tech.md"
+    },
+    {
+      "id": "bloswick2015",
+      "cite": "Bloswick, D. S., et al. (2015). Analysis of the influence of hospital bed height on kinematic parameters associated with patient falls during egress. Procedia Manufacturing, 3, 280–287.",
+      "url": "https://stacks.cdc.gov/",
+      "data_year": "2014",
+      "design": "lab study, 65 adults",
+      "status": "agent_full",
+      "report": "research/academic_nov12/anthropometry_standards.md"
+    },
+    {
+      "id": "catharia2023",
+      "cite": "Catharia, O., et al. (2023). Smartphone LiDAR data: A case study for numerisation of indoor buildings in railway stations. Sensors, 23(4), 1967.",
+      "url": "https://doi.org/10.3390/s23041967",
+      "data_year": "2022",
+      "design": "3 indoor spaces vs laser scanner",
+      "status": "agent_full",
+      "report": "research/academic_nov12/scan_accuracy.md"
+    },
+    {
+      "id": "census2014",
+      "cite": "Taylor, D. M. (2018). Americans with disabilities: 2014. U.S. Census Bureau, P70-152.",
+      "url": "https://www.census.gov/library/publications/2018/demo/p70-152.html",
+      "data_year": "2014 (SIPP)",
+      "design": "national survey",
+      "status": "verified_round1",
+      "report": "data/Rules_and_Stats_Sources.md"
+    },
+    {
+      "id": "clemson2023",
+      "cite": "Clemson, L., Stark, S., Pighills, A. C., et al. (2023). Environmental interventions for preventing falls in older people living in the community. Cochrane Database of Systematic Reviews, CD013258.",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/36893804/",
+      "data_year": "trials to 2022",
+      "design": "systematic review, 22 RCTs, 8,463 people",
+      "status": "verified",
+      "report": "research/academic_nov12/home_mod_effectiveness.md"
+    },
+    {
+      "id": "cumming2001",
+      "cite": "Cumming, R. G., Thomas, M., Szonyi, G., Frampton, G., Salkeld, G., & Clemson, L. (2001). Adherence to occupational therapist recommendations for home modifications for falls prevention. American Journal of Occupational Therapy, 55(6), 641–648.",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/12959228/",
+      "data_year": "1990s",
+      "design": "cohort within an RCT, 178 people",
+      "status": "verified",
+      "report": "research/academic_nov12/decision_support_novelty.md"
+    },
+    {
+      "id": "dsouza2010",
+      "cite": "D'Souza, C., Steinfeld, E., Paquet, V., & Feathers, D. (2010). Space requirements for wheeled mobility devices in public transportation: An analysis of clear floor space requirements. Transportation Research Record, 2145, 66–71.",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8375507/",
+      "data_year": "2005-09",
+      "design": "anthropometric measurement, 369 wheeled-mobility users",
+      "status": "verified",
+      "report": "research/academic_nov12/anthropometry_standards.md"
+    },
+    {
+      "id": "ersoz2026",
+      "cite": "Ersoz, A. B., & Bosché, F. (2026). A comparative study of mobile device and terrestrial laser scanning-based scan-to-BIM workflows. ISARC 2026, 2242–2249.",
+      "url": "https://doi.org/10.22260/ISARC2026/0286",
+      "data_year": "2025-26",
+      "design": "3 spaces, iPad Pro M4 RoomPlan app vs laser scanner",
+      "status": "verified",
+      "report": "research/academic_nov12/scan_accuracy.md"
+    },
+    {
+      "id": "gell2015",
+      "cite": "Gell, N. M., Wallace, R. B., LaCroix, A. Z., Mroz, T. M., & Patel, K. V. (2015). Mobility device use in older adults and incidence of falls and worry about falling: NHATS 2011–2012. Journal of the American Geriatrics Society, 63(5), 853–859.",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/25953070/",
+      "data_year": "2011-12 (NHATS)",
+      "design": "national cohort, 7,609 Medicare beneficiaries",
+      "status": "verified",
+      "report": "research/academic_nov12/users_needs_market.md"
+    },
+    {
+      "id": "hamm2019",
+      "cite": "Hamm, J., Money, A., & Atwal, A. (2019). Guidetomeasure-OT. International Journal of Medical Informatics, 129, 349–365.",
+      "url": "https://doi.org/10.1016/j.ijmedinf.2019.07.004",
+      "data_year": "2018",
+      "design": "35 occupational therapists measuring",
+      "status": "agent_full",
+      "report": "research/academic_nov12/scan_accuracy.md"
+    },
+    {
+      "id": "huang2025",
+      "cite": "Huang, W., Su, X., Froehlich, J. E., & Zhang, Y. (2025). Accessibility Scout: Personalized accessibility scans of built environments. UIST '25.",
+      "url": "https://arxiv.org/abs/2507.23190",
+      "data_year": "2025",
+      "design": "system + user study n=10",
+      "status": "agent_full",
+      "report": "research/academic_nov12/assessment_tools_tech.md"
+    },
+    {
+      "id": "jchs2019",
+      "cite": "Harvard Joint Center for Housing Studies: accessibility of the US housing stock (American Housing Survey 2019).",
+      "url": "https://www.jchs.harvard.edu/",
+      "data_year": "2019 (AHS)",
+      "design": "national survey",
+      "status": "verified_round1",
+      "report": "data/Rules_and_Stats_Sources.md"
+    },
+    {
+      "id": "keall2015",
+      "cite": "Keall, M. D., Pierse, N., Howden-Chapman, P., et al. (2015). Home modifications to reduce injuries from falls in the Home Injury Prevention Intervention (HIPI) study. The Lancet, 385, 231–238.",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/25255696/",
+      "data_year": "2009-13",
+      "design": "cluster RCT, 842 households",
+      "status": "verified",
+      "report": "research/academic_nov12/home_mod_effectiveness.md"
+    },
+    {
+      "id": "keall2017",
+      "cite": "Keall, M. D., Pierse, N., Howden-Chapman, P., et al. (2017). Cost-benefit analysis of fall injuries prevented by a programme of home modifications. Injury Prevention, 23(1), 22–26.",
+      "url": "https://doi.org/10.1136/injuryprev-2015-041947",
+      "data_year": "2009-13",
+      "design": "cost-benefit of the HIPI trial",
+      "status": "agent_abstract",
+      "report": "research/academic_nov12/home_mod_effectiveness.md"
+    },
+    {
+      "id": "khan2019",
+      "cite": "Khan, A., Pujol, C., Laylor, M., et al. (2019). Falls after spinal cord injury: A systematic review and meta-analysis. Spinal Cord, 57(7), 526–539.",
+      "url": "https://doi.org/10.1038/s41393-019-0274-4",
+      "data_year": "studies to 2018",
+      "design": "systematic review",
+      "status": "agent_abstract",
+      "report": "research/academic_nov12/home_mod_effectiveness.md"
+    },
+    {
+      "id": "koontz2012",
+      "cite": "Koontz, A. M., Toro, M. L., & Cooper, R. A. (2012). The impact of transfer setup on the performance of independent transfers: Phase I final report. HERL, University of Pittsburgh, for the US Access Board.",
+      "url": "https://www.corada.com/documents/transfer-setup-ph1-final-report/whole-document",
+      "data_year": "2010-12",
+      "design": "lab transfers, 116 wheelchair users",
+      "status": "agent_full",
+      "report": "research/academic_nov12/anthropometry_standards.md"
+    },
+    {
+      "id": "lam2021",
+      "cite": "Lam, K., Shi, Y., Boscardin, J., & Covinsky, K. E. (2021). Unmet need for equipment to help with bathing and toileting among older US adults. JAMA Internal Medicine, 181(5), 662–670.",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/33749707/",
+      "data_year": "2015-2019 (NHATS)",
+      "design": "national cohort",
+      "status": "verified",
+      "report": "research/academic_nov12/users_needs_market.md"
+    },
+    {
+      "id": "levine2023",
+      "cite": "Levine, I. C., Montgomery, R. E., & Novak, A. C. (2023). Grab bar use influences fall hazard during bathtub exit. Human Factors, 65(8), 1821–1829.",
+      "url": "https://doi.org/10.1177/00187208211059860",
+      "data_year": "2019-20",
+      "design": "lab study, 63 adults, induced balance loss",
+      "status": "agent_abstract",
+      "report": "research/academic_nov12/home_mod_effectiveness.md"
+    },
+    {
+      "id": "liu2024",
+      "cite": "Liu, X., Baumann, S. E., Rosso, A. L., et al. (2024). Incidence and dynamics of mobility device use among community-dwelling older adults in the United States. Journal of Elder Policy, 3(2), 70–94.",
+      "url": "https://doi.org/10.1002/jey2.12011",
+      "data_year": "2011-2019 (NHATS)",
+      "design": "national cohort",
+      "status": "agent_full",
+      "report": "research/academic_nov12/users_needs_market.md"
+    },
+    {
+      "id": "luetzenburg2021",
+      "cite": "Luetzenburg, G., Kroon, A., & Bjørk, A. A. (2021). Evaluation of the Apple iPhone 12 Pro LiDAR for an application in geosciences. Scientific Reports, 11, 22221.",
+      "url": "https://doi.org/10.1038/s41598-021-01763-9",
+      "data_year": "2021",
+      "design": "field accuracy study",
+      "status": "agent_full",
+      "report": "research/academic_nov12/scan_accuracy.md"
+    },
+    {
+      "id": "mansoubi2026",
+      "cite": "Mansoubi, M., et al. (2026). Consumer LiDAR accuracy for occupational-therapy home assessment. Research Square preprint (not peer reviewed).",
+      "url": "https://doi.org/10.21203/rs.3.rs-8959912/v1",
+      "data_year": "2025",
+      "design": "1 house, iPhone 13 Pro Max vs tape",
+      "status": "agent_full",
+      "report": "research/academic_nov12/scan_accuracy.md"
+    },
+    {
+      "id": "mmwr2011",
+      "cite": "Stevens, J. A., Haas, E. N., & Haileyesus, T. (2011). Nonfatal bathroom injuries among persons aged ≥15 years — United States, 2008. MMWR, 60(22), 729–733.",
+      "url": "https://www.cdc.gov/mmwr/preview/mmwrhtml/mm6022a1.htm",
+      "data_year": "2008 (NEISS)",
+      "design": "national ER data",
+      "status": "agent_full",
+      "report": "research/academic_nov12/home_mod_effectiveness.md"
+    },
+    {
+      "id": "moreland2020",
+      "cite": "Moreland, B. L., Kakara, R., Haddad, Y. K., Shakya, I., & Bergen, G. (2020). A descriptive analysis of location of older adult falls that resulted in emergency department visits in the United States, 2015. American Journal of Lifestyle Medicine, 15(6), 590–597.",
+      "url": "https://doi.org/10.1177/1559827620942187",
+      "data_year": "2015 (NEISS-AIP)",
+      "design": "national ER data",
+      "status": "verified_round1",
+      "report": "research/academic_nov12/home_mod_effectiveness.md"
+    },
+    {
+      "id": "nie2024",
+      "cite": "Nie, Q., Rice, L. A., Sosnoff, J. J., Shen, S., & Rogers, W. A. (2024). Understanding wheelchair use in older adults from the National Health and Aging Trends Study. Archives of Physical Medicine and Rehabilitation, 105(3), 514–524.",
+      "url": "https://doi.org/10.1016/j.apmr.2023.09.006",
+      "data_year": "2011-2019 (NHATS)",
+      "design": "national cohort",
+      "status": "agent_abstract",
+      "report": "research/academic_nov12/users_needs_market.md"
+    },
+    {
+      "id": "noroozi2025",
+      "cite": "Noroozi, S., Weyand, S., Smart, R., & Jakobi, J. M. (2025). Impact of seat height and grab bars on postural stability and muscle activity of older females standing from a toilet. Medicine, 104(11), e41856.",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/40101044/",
+      "data_year": "2024",
+      "design": "lab study, 8 older + 8 young women",
+      "status": "verified",
+      "report": "research/academic_nov12/anthropometry_standards.md"
+    },
+    {
+      "id": "npha2025",
+      "cite": "University of Michigan National Poll on Healthy Aging (2025). Older adults' preparations to age in place [press release].",
+      "url": "https://www.newswise.com/articles/poll-shows-wide-variation-in-older-adults-preparations-to-age-in-place",
+      "data_year": "Feb 2025",
+      "design": "national poll, adults 65+",
+      "status": "agent_full",
+      "report": "research/academic_nov12/users_needs_market.md"
+    },
+    {
+      "id": "phillips1993",
+      "cite": "Phillips, B., & Zhao, H. (1993). Predictors of assistive technology abandonment. Assistive Technology, 5(1), 36–45.",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/10171664/",
+      "data_year": "early 1990s",
+      "design": "survey, 227 adults with disabilities",
+      "status": "verified",
+      "report": "research/academic_nov12/users_needs_market.md"
+    },
+    {
+      "id": "rand2024",
+      "cite": "Rand, M., Pelchat, J., Levine, I. C., et al. (2024). Efficacy of installation of temporary bathing transfer aids by older adults. Gerontology & Geriatric Medicine, 10.",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10938608/",
+      "data_year": "2023",
+      "design": "lab study, 20 older adults",
+      "status": "verified",
+      "report": "research/academic_nov12/users_needs_market.md"
+    },
+    {
+      "id": "rodionov2025",
+      "cite": "Rodionov, F., et al. (2025). FloorplanQA: A benchmark for spatial reasoning in LLMs using structured representations. arXiv:2507.07644.",
+      "url": "https://arxiv.org/abs/2507.07644",
+      "data_year": "2025",
+      "design": "benchmark",
+      "status": "agent_full",
+      "report": "research/academic_nov12/decision_support_novelty.md"
+    },
+    {
+      "id": "rosen2013",
+      "cite": "Rosen, T., Mack, K. A., & Noonan, R. K. (2013). Slipping and tripping: Fall injuries in adults associated with rugs and carpets. Journal of Injury and Violence Research, 5(1), 61–69.",
+      "url": "https://doi.org/10.5249/jivr.v5i1.177",
+      "data_year": "2001-08 (NEISS)",
+      "design": "national ER data",
+      "status": "agent_full",
+      "report": "research/academic_nov12/home_mod_effectiveness.md"
+    },
+    {
+      "id": "rusch2026",
+      "cite": "Rusch, R., George, J., Amar, J. H. N., & Brandis, S. (2026). Using LiDAR technology for occupational therapy home assessment: Case study observations. Construction Economics and Building, 26(2), 1–19.",
+      "url": "https://doi.org/10.5130/324y0w08",
+      "data_year": "2025",
+      "design": "simulated case study, 10 homes, pro laser scanner",
+      "status": "agent_full",
+      "report": "research/academic_nov12/assessment_tools_tech.md"
+    },
+    {
+      "id": "shin2024",
+      "cite": "Shin, J. H., et al. (2024). Quality and accessibility of home assessment mHealth apps for community living: Systematic review. JMIR mHealth and uHealth, 12, e52996.",
+      "url": "https://doi.org/10.2196/52996",
+      "data_year": "2023",
+      "design": "systematic app review, 698 screened → 6",
+      "status": "agent_full",
+      "report": "research/academic_nov12/assessment_tools_tech.md"
+    },
+    {
+      "id": "simning2023",
+      "cite": "Simning, A., Caprio, T. V., & Lam, K. (2023). Older adults receiving rehabilitation services are more likely to get bathing and toileting equipment installed. American Journal of Occupational Therapy, 77(1).",
+      "url": "https://doi.org/10.5014/ajot.2023.050084",
+      "data_year": "2015-2016 (NHATS)",
+      "design": "national cohort",
+      "status": "agent_full",
+      "report": "research/academic_nov12/users_needs_market.md"
+    },
+    {
+      "id": "slaug2024",
+      "cite": "Slaug, B., Granbom, M., & Iwarsson, S. (2024). Estimating accessibility problems in the Swedish housing stock using citizen science. Journal of Applied Gerontology, 44(1), 95–105.",
+      "url": "https://doi.org/10.1177/07334648241262646",
+      "data_year": "2021",
+      "design": "citizen survey, 1,181 homes",
+      "status": "agent_full",
+      "report": "research/academic_nov12/assessment_tools_tech.md"
+    },
+    {
+      "id": "steinfeld2010",
+      "cite": "Steinfeld, E., Maisel, J., Feathers, D., D'Souza, C., et al. (2010). Anthropometry of Wheeled Mobility Project: Final report. IDeA Center, University at Buffalo, for the US Access Board.",
+      "url": "https://www.corada.com/documents/anthropometry-of-WhM-project/whole-document",
+      "data_year": "2005-09",
+      "design": "anthropometric measurement, 495 wheeled-mobility users",
+      "status": "verified",
+      "report": "research/academic_nov12/anthropometry_standards.md"
+    },
+    {
+      "id": "stevens2014",
+      "cite": "Stevens, J. A., Mahoney, J. E., & Ehrenreich, H. (2014). Circumstances and outcomes of falls among high risk community-dwelling older adults. Injury Epidemiology, 1, 5.",
+      "url": "https://doi.org/10.1186/2197-1714-1-5",
+      "data_year": "2008-10",
+      "design": "prospective, 328 fallers, 1,172 falls",
+      "status": "agent_full",
+      "report": "research/academic_nov12/home_mod_effectiveness.md"
+    },
+    {
+      "id": "su2024",
+      "cite": "Su, X., Zhang, H., Cheng, K., Lee, J., Liu, Q., Olson, W., & Froehlich, J. E. (2024). RASSAR: Room accessibility and safety scanning in augmented reality. CHI '24.",
+      "url": "https://arxiv.org/abs/2404.07479",
+      "data_year": "2023",
+      "design": "system + 10 homes x 3 scans + user study n=6",
+      "status": "verified",
+      "report": "research/academic_nov12/assessment_tools_tech.md"
+    },
+    {
+      "id": "thies2023",
+      "cite": "Thies, S. B., Bevan, S., Wassall, M., et al. (2023). Evaluation of a novel biomechanics-informed walking frame. BMC Geriatrics, 23, 734.",
+      "url": "https://doi.org/10.1186/s12877-023-04443-7",
+      "data_year": "2022",
+      "design": "qualitative + lab, walking-frame users",
+      "status": "agent_full",
+      "report": "research/academic_nov12/anthropometry_standards.md"
+    },
+    {
+      "id": "tsai2020",
+      "cite": "Tsai, S., Pirruccio, K., & Ahn, J. (2020). Wheelchair transfer-related fractures among US adults 65+ (NEISS 2007–2017). Public Health, 182, 1–6.",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/32105994/",
+      "data_year": "2007-2017 (NEISS)",
+      "design": "national injury surveillance",
+      "status": "verified",
+      "report": "research/academic_nov12/home_mod_effectiveness.md"
+    },
+    {
+      "id": "wiseman2021",
+      "cite": "Wiseman, J. M., Stamper, D. S., Sheridan, E., et al. (2021). Barriers to the initiation of home modifications for older adults for fall prevention. Geriatric Orthopaedic Surgery & Rehabilitation, 12.",
+      "url": "https://doi.org/10.1177/21514593211002161",
+      "data_year": "2019-20",
+      "design": "phone survey of 98 businesses, one US city",
+      "status": "agent_full",
+      "report": "research/academic_nov12/users_needs_market.md"
+    },
+    {
+      "id": "yang2024",
+      "cite": "Yang, Y., et al. (2024). Holodeck: Language guided generation of 3D embodied AI environments. CVPR 2024.",
+      "url": "https://arxiv.org/abs/2312.09067",
+      "data_year": "2024",
+      "design": "system + human evaluation",
+      "status": "agent_full",
+      "report": "research/academic_nov12/decision_support_novelty.md"
+    }
+  ]
+}

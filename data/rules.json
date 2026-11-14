@@ -1,0 +1,820 @@
+{
+  "about": "Measurements a wheelchair / limited-mobility check can use, with where each number comes from. Numbers are from the 2010 ADA Standards (U.S. Access Board online edition) unless 'basis' says otherwise. Checked against the source text on 2026-11-11.",
+  "legal_note": "The ADA Standards do not apply to a strictly private home or apartment. They are used here as the reference measurements, not as a legal test. Multifamily buildings with 4 or more units first occupied after March 13, 1991 fall under the Fair Housing Act design rules, which are looser inside the unit (see fair_housing_act below). Never tell a judge a home is 'ADA compliant' or 'not ADA compliant'.",
+  "units": "inches as printed in the standard; cm is the standard's own mm figure divided by 10",
+  "source_base": "https://www.access-board.gov/ada/",
+  "checks": [
+    {
+      "id": "door_clear_width",
+      "label": "Doorway is wide enough",
+      "min_in": 32,
+      "min_cm": 81.5,
+      "section": "404.2.3",
+      "basis": "ADA 2010",
+      "rule": "Clear width 32 in minimum, measured between the face of the door and the stop with the door open 90 degrees.",
+      "conditions": [
+        "An opening deeper than 24 in needs 36 in clear."
+      ],
+      "scan": "partly",
+      "scan_note": "The scan gives the width of the door opening, not the clear width with the door open. HUD's Fair Housing Act Design Manual (p. 3.6-3.7) says a 34 in door gives about 31-5/8 in clear and a 32 in door gives only 30 to 30-1/2 in. So subtract roughly 1.5 to 2 in from the scanned door width, or ask the user to measure.",
+      "fix_types": [
+        "offset_hinge"
+      ],
+      "fix_note": "Swing-clear hinges move the door out of the opening and recover roughly the door's thickness. HUD's manual: a 32 in opening becomes about 34 in. 'Up to 2 inches' is fair; 'always 2 inches' is not. If the gap is bigger than that, the only fix is widening the doorway (Angi 2026: $700 to $2,500), which is construction.",
+      "url": "https://www.access-board.gov/ada/chapter/ch04/",
+      "research": {
+        "research_says": "The 95th-percentile occupied width is 30.8 in for manual chairs, 32.6 in for power chairs and 33.1 in for scooters, so a 32 in clear door is tight for the widest 5% of power chairs and scooters. The Access Board study recommends 34 in (agent read; not re-opened by Claude). Canada's 2025 housing standard uses 860 mm (33.9 in) (agent read).",
+        "sources": [
+          "dsouza2010",
+          "steinfeld2010"
+        ],
+        "scan_reliability": "low",
+        "scan_reason": "Door overlap with the laser reference was only 0.32 to 0.40, and storage units were detected as doors (11 doors found, 8 real). RoomPlan does not say whether its door width is the frame, the leaf or the clear opening. RASSAR's door-width check had recall 0.63 (agent read).",
+        "scan_sources": [
+          "ersoz2026",
+          "su2024"
+        ],
+        "verify_with_tape": true
+      },
+      "profiles_core": [
+        "manual_wheelchair",
+        "power_wheelchair",
+        "scooter"
+      ],
+      "profiles_also": [
+        "walker"
+      ]
+    },
+    {
+      "id": "door_threshold",
+      "label": "Door sill is low enough to roll over",
+      "max_in": 0.5,
+      "max_cm": 1.3,
+      "section": "404.2.5, 303",
+      "basis": "ADA 2010",
+      "rule": "Threshold 1/2 in high maximum. Up to 1/4 in may be vertical; 1/4 to 1/2 in must be bevelled no steeper than 1:2; anything over 1/2 in must be ramped.",
+      "conditions": [
+        "An existing threshold may be 3/4 in if bevelled on each side no steeper than 1:2."
+      ],
+      "scan": "no",
+      "scan_note": "The scan does not measure sill height. The user types it in or measures with a ruler.",
+      "fix_types": [
+        "threshold_ramp"
+      ],
+      "url": "https://www.access-board.gov/ada/chapter/ch04/",
+      "research": {
+        "research_says": "No research basis was found for the 1/2 in limit; it is a rule. At a 2 cm (0.8 in) threshold, 46% of novice manual wheelchair users failed their first attempt. Walking frames get lifted at thresholds, which reduces stability (qualitative).",
+        "sources": [
+          "allawati2017",
+          "thies2023"
+        ],
+        "scan_reliability": "none",
+        "scan_reason": "The phone LiDAR can't reliably resolve features under about 5 cm, and RoomPlan does not model sills. Ask the user for the height.",
+        "scan_sources": [
+          "luetzenburg2021"
+        ],
+        "verify_with_tape": true
+      },
+      "profiles_core": [
+        "manual_wheelchair",
+        "power_wheelchair",
+        "scooter",
+        "walker"
+      ],
+      "profiles_also": [
+        "cane",
+        "fall_risk"
+      ]
+    },
+    {
+      "id": "entry_step",
+      "label": "Step at the entrance can be ramped",
+      "max_slope": "1:12",
+      "section": "405.2, Table 405.2",
+      "basis": "ADA 2010",
+      "rule": "Ramp slope no steeper than 1:12 (1 in of rise needs 12 in of ramp).",
+      "conditions": [
+        "Existing buildings with too little space: up to 1:10 for a rise of 6 in or less, up to 1:8 for a rise of 3 in or less. Steeper than 1:8 is prohibited.",
+        "Ramp clear width 36 in minimum (405.5)."
+      ],
+      "scan": "no",
+      "scan_note": "Step height is typed in by the user. Ramp length needed = rise x 12 (or x 8 for a rise up to 3 in in an existing home). Most short threshold ramps sold are steeper than 1:12; show the slope honestly.",
+      "fix_types": [
+        "threshold_ramp",
+        "portable_ramp"
+      ],
+      "url": "https://www.access-board.gov/ada/chapter/ch04/",
+      "research": {
+        "research_says": "Entering the home is the most-reported difficulty (4.2 million US households, 2019). Stairs are 22.9% of older adults' at-home ER falls (30.0% at 65 to 74). Only 38% of adults 65+ have a step-free entry or ramp (2025 poll).",
+        "sources": [
+          "jchs2019",
+          "moreland2020",
+          "npha2025"
+        ],
+        "scan_reliability": "none",
+        "scan_reason": "Outdoor steps are usually outside the scan, and step height is not measured. Ask.",
+        "scan_sources": [],
+        "verify_with_tape": true
+      },
+      "profiles_core": [
+        "scooter"
+      ],
+      "profiles_also": [
+        "manual_wheelchair",
+        "power_wheelchair",
+        "walker",
+        "cane",
+        "fall_risk"
+      ]
+    },
+    {
+      "id": "door_hardware",
+      "label": "Door can be opened without gripping or twisting",
+      "min_in": 34,
+      "max_in": 48,
+      "min_cm": 86.5,
+      "max_cm": 122,
+      "section": "404.2.7, 309.4",
+      "basis": "ADA 2010",
+      "rule": "Hardware usable with one hand, with no tight grasping, pinching or twisting of the wrist; 5 lb force maximum; handle 34 to 48 in above the floor.",
+      "conditions": [],
+      "scan": "no",
+      "scan_note": "The scan does not see handles. Ask one question: round knob or lever?",
+      "fix_types": [
+        "lever_handle",
+        "door_opener"
+      ],
+      "url": "https://www.access-board.gov/ada/chapter/ch04/",
+      "research": {
+        "research_says": "No new research found beyond the ADA rule.",
+        "sources": [],
+        "scan_reliability": "none",
+        "scan_reason": "RoomPlan does not detect handles.",
+        "scan_sources": [
+          "su2024"
+        ],
+        "verify_with_tape": false
+      },
+      "profiles_core": [],
+      "profiles_also": [
+        "manual_wheelchair",
+        "power_wheelchair",
+        "walker"
+      ]
+    },
+    {
+      "id": "door_maneuvering",
+      "label": "Room to get to the door and open it",
+      "section": "404.2.4.1 (table)",
+      "basis": "ADA 2010",
+      "rule": "Swinging door, front approach. Pull side: 60 in (152.5 cm) of clear depth and 18 in (45.5 cm) of clear wall beside the latch. Push side: 48 in (122 cm) of clear depth.",
+      "values": {
+        "pull_depth_in": 60,
+        "pull_latch_side_in": 18,
+        "push_depth_in": 48,
+        "push_latch_side_in": 0
+      },
+      "conditions": [
+        "Push side needs 12 in beside the latch if the door has both a closer and a latch."
+      ],
+      "scan": "partly",
+      "scan_note": "The scan gives the door position and nearby walls and furniture, but not which way the door swings. Check both sides, or ask.",
+      "fix_types": [
+        "door_opener"
+      ],
+      "fix_note": "First fix is free: move the furniture that blocks the latch side.",
+      "url": "https://www.access-board.gov/ada/chapter/ch04/",
+      "research": {
+        "research_says": "No new research found beyond the ADA rule. The clear-floor research (60% fit 30 x 48 in) suggests the approach space is also tight for power chairs and scooters.",
+        "sources": [
+          "dsouza2010"
+        ],
+        "scan_reliability": "medium",
+        "scan_reason": "Walls and furniture boxes are scanned, but door position can be off and swing side is unknown.",
+        "scan_sources": [
+          "ersoz2026"
+        ],
+        "verify_with_tape": false
+      },
+      "profiles_core": [
+        "power_wheelchair"
+      ],
+      "profiles_also": [
+        "manual_wheelchair",
+        "scooter"
+      ]
+    },
+    {
+      "id": "route_width",
+      "label": "Path through the room is wide enough",
+      "min_in": 36,
+      "min_cm": 91.5,
+      "section": "403.5.1",
+      "basis": "ADA 2010",
+      "rule": "Clear path 36 in minimum.",
+      "conditions": [
+        "May narrow to 32 in (81.5 cm) for at most 24 in (61 cm) of length, if the narrow parts are separated by stretches at least 48 in long and 36 in wide."
+      ],
+      "scan": "yes",
+      "scan_note": "Walls and furniture boxes come from the scan. Small items (bins, shoes, cables) do not.",
+      "fix_types": [],
+      "fix_note": "Free fix: move or remove furniture. The plan shows which piece.",
+      "url": "https://www.access-board.gov/ada/chapter/ch04/",
+      "research": {
+        "research_says": "To let 95% of wheelchair users make a 90-degree turn in a corridor needs about 39 in; scooters 43 in (agent read). Modelling a person as an 18 in-radius disk is an established clearance method in layout research.",
+        "sources": [
+          "steinfeld2010"
+        ],
+        "scan_reliability": "medium",
+        "scan_reason": "Errors grow with distance (wall-to-wall error 37 to 255 mm in one study) and distances tend to come out short; small floor items (bins, cables) are not scanned.",
+        "scan_sources": [
+          "catharia2023",
+          "ersoz2026"
+        ],
+        "verify_with_tape": false
+      },
+      "profiles_core": [
+        "manual_wheelchair",
+        "power_wheelchair",
+        "scooter"
+      ],
+      "profiles_also": [
+        "walker"
+      ]
+    },
+    {
+      "id": "turning_space",
+      "label": "Room to turn a wheelchair around",
+      "min_in": 60,
+      "min_cm": 152.5,
+      "section": "304.3, 809.2.2",
+      "basis": "ADA 2010",
+      "rule": "A circle 60 in across, or a T-shape inside a 60 in square with arms and base 36 in wide. In accessible dwelling units every room on the route needs one (809.2.2).",
+      "conditions": [
+        "The space may run under a table or sink that has knee and toe clearance.",
+        "A door may swing into the turning space (304.4)."
+      ],
+      "scan": "yes",
+      "fix_types": [],
+      "fix_note": "Free fix: move furniture.",
+      "url": "https://www.access-board.gov/ada/chapter/ch03/",
+      "research": {
+        "research_says": "Fewer than 50% of manual and power wheelchair users completed a 360-degree turn inside the 60 in circle; no scooter user did. Just over 80% of manual and power users fit a 180-degree turn. Fitting 95% on a 180-degree turn needs at least 7 in more (about 67 in); fitting the whole sample on a 360-degree turn needs 98 in. The US model code ICC A117.1-2017 uses 67 in (agent read); Canada's 2025 housing standard 1800 mm / 70.9 in (agent read).",
+        "sources": [
+          "steinfeld2010"
+        ],
+        "scan_reliability": "medium",
+        "scan_reason": "Room outlines are reliable (room overlap 0.84 to 0.93), but floor area came out 4.9 to 6.3% smaller than the laser reference.",
+        "scan_sources": [
+          "ersoz2026"
+        ],
+        "verify_with_tape": false
+      },
+      "profiles_core": [
+        "manual_wheelchair",
+        "power_wheelchair",
+        "scooter"
+      ],
+      "profiles_also": []
+    },
+    {
+      "id": "bed_clear_floor",
+      "label": "Space beside the bed to park the wheelchair",
+      "values": {
+        "width_in": 30,
+        "length_in": 48,
+        "width_cm": 76,
+        "length_cm": 122
+      },
+      "section": "305.3, 806.2.3",
+      "basis": "ADA 2010 (the bed rule is written for hotel rooms)",
+      "rule": "A clear space 30 by 48 in alongside the bed (parallel approach). Hotel rooms need it on both sides of the bed; one space between two beds is enough.",
+      "conditions": [
+        "The home section of the standard (809) says nothing about beds. One side is the practical minimum for a transfer; that reading is ours, not the standard's."
+      ],
+      "scan": "yes",
+      "fix_types": [],
+      "fix_note": "Free fix: slide the bed or move the nightstand.",
+      "url": "https://www.access-board.gov/ada/chapter/ch08/",
+      "research": {
+        "research_says": "The 30 x 48 in clear floor space fits 60% of wheeled-mobility users (manual 70%, power 49%, scooter 54%). Fitting 95% needs 34 x 58 in.",
+        "sources": [
+          "dsouza2010"
+        ],
+        "scan_reliability": "high",
+        "scan_reason": "Beds are detected in over 93% of cases and the gap to a wall is a short distance; boxes snap to walls, so a gap beside a wall can be off.",
+        "scan_sources": [
+          "apple2022"
+        ],
+        "verify_with_tape": false
+      },
+      "profiles_core": [
+        "manual_wheelchair",
+        "power_wheelchair"
+      ],
+      "profiles_also": []
+    },
+    {
+      "id": "bed_height",
+      "label": "Bed is at a height you can transfer to",
+      "min_in": 20,
+      "max_in": 23,
+      "min_cm": 51,
+      "max_cm": 58.5,
+      "section": null,
+      "basis": "GUIDANCE, NOT LAW. The ADA Standards set no bed height.",
+      "rule": "ADA National Network factsheet 'Accessible Lodging' (2017): 20 to 23 in from the floor to the top of the mattress. Great Plains ADA Center: 17 to 23 in. The real target is the user's own wheelchair seat height.",
+      "reference": "Measured wheelchair seat heights (U.S. Access Board report, 2022): manual chairs mean 19.5 in, powered chairs mean 21.2 in. 17 in is only the 4.5th percentile.",
+      "conditions": [
+        "Best input is the user's own seat height, typed in."
+      ],
+      "scan": "partly",
+      "scan_note": "The scan gives the bed as a box; its height may include the headboard. Ask for the mattress-top height.",
+      "fix_types": [
+        "bed_riser",
+        "bed_frame",
+        "adjustable_bed_base"
+      ],
+      "fix_note": "Risers only raise a bed. A bed that is too high needs a lower frame; the catalogue has none.",
+      "url": "https://adata.org/factsheet/lodging/",
+      "research": {
+        "research_says": "For wheelchair users the best transfer is to a surface within about 2 in of their own seat height (works for at least 86%, agent read); mean seat heights are 19.5 in (manual) and 21.2 in (power). 29.9% of wheelchair-transfer fractures in adults 65+ happen on bed transfers. For people who walk, a bed near knee height or slightly higher is recommended and low beds are a problem (lab, agent read). The bedroom is the single most common place for older adults' at-home falls (25.0%).",
+        "sources": [
+          "koontz2012",
+          "accessboard_seat",
+          "tsai2020",
+          "bloswick2015",
+          "moreland2020"
+        ],
+        "scan_reliability": "high",
+        "scan_reason": "RASSAR's bed-height check was its most reliable (precision and recall 1.00, agent read from the paper's table). The box includes the headboard, so ask for the mattress-top height if the scan looks high.",
+        "scan_sources": [
+          "su2024"
+        ],
+        "verify_with_tape": false
+      },
+      "profiles_core": [
+        "manual_wheelchair",
+        "walker",
+        "cane",
+        "fall_risk"
+      ],
+      "profiles_also": [
+        "power_wheelchair"
+      ]
+    },
+    {
+      "id": "bed_transfer_support",
+      "label": "Something to hold while moving between chair and bed",
+      "section": null,
+      "basis": "No standard. Occupational-therapy practice; confirm with the real person you talk to.",
+      "rule": "No measurement to check. Offered when the user says transfers are hard.",
+      "scan": "no",
+      "fix_types": [
+        "bed_rail",
+        "transfer_pole",
+        "transfer_board"
+      ],
+      "fix_note": "A transfer pole needs a flat ceiling 84 to 120 in high (both poles in the catalogue). The scan gives the ceiling height.",
+      "url": null,
+      "research": {
+        "research_says": "43.2% of wheelchair users' falls happened during transfers in one sample; 29.9% of transfer fractures are on bed transfers.",
+        "sources": [
+          "abourice2023",
+          "tsai2020"
+        ],
+        "scan_reliability": "none",
+        "scan_reason": "Nothing to measure; ask how the person transfers.",
+        "scan_sources": [],
+        "verify_with_tape": false
+      },
+      "profiles_core": [
+        "walker"
+      ],
+      "profiles_also": [
+        "manual_wheelchair",
+        "cane"
+      ]
+    },
+    {
+      "id": "work_surface",
+      "label": "Desk or table you can roll under",
+      "min_in": 28,
+      "max_in": 34,
+      "min_cm": 71,
+      "max_cm": 86.5,
+      "section": "902.3, 306",
+      "basis": "ADA 2010",
+      "rule": "Top 28 to 34 in above the floor, with knee space under it: clear from 9 in up to 27 in (68.5 cm) high and 30 in (76 cm) wide.",
+      "conditions": [],
+      "scan": "partly",
+      "scan_note": "The scan gives a table's height as a box. It does not see whether legs or drawers block the knee space.",
+      "fix_types": [
+        "adjustable_desk",
+        "overbed_table"
+      ],
+      "url": "https://www.access-board.gov/ada/chapter/ch09/",
+      "research": {
+        "research_says": "No new research beyond the ADA rule. RoomPlan labels kitchen counters as storage, so RASSAR's counter-height check almost never fired (recall 0.07).",
+        "sources": [
+          "su2024"
+        ],
+        "scan_reliability": "low",
+        "scan_reason": "Counters misread as storage; desks and tables are detected as boxes.",
+        "scan_sources": [
+          "su2024"
+        ],
+        "verify_with_tape": false
+      },
+      "profiles_core": [
+        "manual_wheelchair"
+      ],
+      "profiles_also": [
+        "power_wheelchair"
+      ]
+    },
+    {
+      "id": "reach_range",
+      "label": "Switches, rods and shelves within reach",
+      "min_in": 15,
+      "max_in": 48,
+      "min_cm": 38,
+      "max_cm": 122,
+      "section": "308, 811.3",
+      "basis": "ADA 2010",
+      "rule": "Things you need to reach sit between 15 and 48 in above the floor when nothing is in the way.",
+      "conditions": [
+        "Reaching sideways over something 10 to 24 in deep: 46 in maximum.",
+        "Reaching forward over something 20 to 25 in deep: 44 in maximum.",
+        "There is no separate closet-rod number; storage just has to meet these reach ranges (811.3)."
+      ],
+      "scan": "no",
+      "scan_note": "The scan does not see switches, outlets or closet rods. Ask, or assume a standard US closet rod (about 66 in) is out of reach; that 66 in figure is common practice, not checked against a source.",
+      "fix_types": [
+        "closet_rod",
+        "reacher",
+        "reach_aid",
+        "switch_aid",
+        "smart_plug",
+        "voice_control"
+      ],
+      "url": "https://www.access-board.gov/ada/chapter/ch03/",
+      "research": {
+        "research_says": "The 48 in high reach fits 95 to 99% of users; the Access Board study suggests raising the low side reach to 28 in (agent read).",
+        "sources": [
+          "steinfeld2010"
+        ],
+        "scan_reliability": "none",
+        "scan_reason": "Switches, rods and shelves are not scanned.",
+        "scan_sources": [
+          "su2024"
+        ],
+        "verify_with_tape": false
+      },
+      "profiles_core": [
+        "manual_wheelchair"
+      ],
+      "profiles_also": [
+        "power_wheelchair",
+        "walker",
+        "cane",
+        "fall_risk"
+      ]
+    },
+    {
+      "id": "seat_height",
+      "label": "Sofa or chair is high enough to get out of",
+      "min_in": 17,
+      "max_in": 19,
+      "min_cm": 43,
+      "max_cm": 48.5,
+      "section": "903.5 (benches), Advisory 803.1",
+      "basis": "ADA 2010 bench seat height, used as a reference. There is no rule for home sofas.",
+      "rule": "Bench seats are 17 to 19 in above the floor, described by the standard as the height of a typical wheelchair seat.",
+      "conditions": [
+        "903.5 itself was not re-read on 2026-11-11; the 17 to 19 in figure was confirmed in Advisory 803.1 and in the tub and shower seat rules (610)."
+      ],
+      "scan": "partly",
+      "scan_note": "The scan gives a sofa as a box including the backrest. Ask for seat height.",
+      "fix_types": [
+        "furniture_riser",
+        "standing_aid",
+        "lift_chair"
+      ],
+      "url": "https://www.access-board.gov/ada/chapter/ch09/",
+      "research": {
+        "research_says": "No home-sofa study found. The living room is the least common place for older adults' at-home falls (4.8%).",
+        "sources": [
+          "moreland2020"
+        ],
+        "scan_reliability": "medium",
+        "scan_reason": "Sofa boxes include the backrest; ask for the seat height. Chairs are RoomPlan's weakest object class.",
+        "scan_sources": [
+          "apple2022"
+        ],
+        "verify_with_tape": true
+      },
+      "profiles_core": [
+        "walker",
+        "cane"
+      ],
+      "profiles_also": [
+        "fall_risk"
+      ]
+    },
+    {
+      "id": "floor_surface",
+      "label": "Nothing on the floor that catches a wheel",
+      "section": "302",
+      "basis": "ADA 2010 (general rule; not re-read on 2026-11-11)",
+      "rule": "Floor surfaces stable, firm and slip resistant; carpet fixed down. No number to measure.",
+      "scan": "no",
+      "fix_types": [
+        "rug_gripper",
+        "cord_cover"
+      ],
+      "url": "https://www.access-board.gov/ada/chapter/ch03/",
+      "research": {
+        "research_says": "Rugs and carpets cause about 38,000 ER visits a year among adults 65+, 72.8% at home, often at the edge between rug and floor (agent read). Removing mats and rugs was the most common occupational-therapist recommendation (48%).",
+        "sources": [
+          "rosen2013",
+          "cumming2001"
+        ],
+        "scan_reliability": "none",
+        "scan_reason": "Rugs and cables are not in the scan; ask or use a photo.",
+        "scan_sources": [
+          "su2024"
+        ],
+        "verify_with_tape": false
+      },
+      "profiles_core": [
+        "walker",
+        "cane",
+        "fall_risk"
+      ],
+      "profiles_also": [
+        "manual_wheelchair",
+        "scooter"
+      ]
+    },
+    {
+      "id": "night_path",
+      "label": "Lit path at night",
+      "section": null,
+      "basis": "No standard. Safety practice.",
+      "rule": "No measurement. Offered as a low-cost extra.",
+      "scan": "no",
+      "fix_types": [
+        "night_light"
+      ],
+      "url": null,
+      "research": {
+        "research_says": "Way-finding lighting is part of the hazard-reduction packages that cut falls in higher-risk people; no study measures the effect of lighting alone.",
+        "sources": [
+          "clemson2023"
+        ],
+        "scan_reliability": "none",
+        "scan_reason": "Lighting is not scanned.",
+        "scan_sources": [],
+        "verify_with_tape": false
+      },
+      "profiles_core": [
+        "walker",
+        "cane",
+        "fall_risk"
+      ],
+      "profiles_also": [
+        "scooter"
+      ]
+    },
+    {
+      "id": "toilet_seat_height",
+      "label": "Toilet seat at transfer height",
+      "min_in": 17,
+      "max_in": 19,
+      "min_cm": 43,
+      "max_cm": 48.5,
+      "section": "604.4",
+      "basis": "ADA 2010",
+      "rule": "Seat 17 to 19 in above the floor, measured to the top of the seat.",
+      "conditions": [
+        "In residential dwelling units 15 to 19 in is allowed."
+      ],
+      "scan": "partly",
+      "scan_note": "The scan gives the toilet as a box including the tank. Ask for seat height. A standard US toilet seat is roughly 15 to 16 in; that figure is common knowledge, not checked against a source.",
+      "fix_types": [
+        "raised_toilet_seat"
+      ],
+      "url": "https://www.access-board.gov/ada/chapter/ch06/",
+      "research": {
+        "research_says": "The ADA 17 to 19 in band has no research basis found. Wheelchair transfer research points higher: 69% transferred to 17 in, 88% to 19 in, 92% to 22 in (agent read). For older women standing up, a normal-height seat with grab bars was the most stable; a raised seat made rising easier but increased sway. Toilet aids are the largest unmet need: 52% of older adults who needed one still had none after 4 years.",
+        "sources": [
+          "koontz2012",
+          "noroozi2025",
+          "lam2021"
+        ],
+        "scan_reliability": "low",
+        "scan_reason": "Toilets are detected, but the box includes the tank; toilet heights were hard to read even from a professional laser scan. Ask for the seat height.",
+        "scan_sources": [
+          "rusch2026"
+        ],
+        "verify_with_tape": true
+      },
+      "profiles_core": [
+        "walker"
+      ],
+      "profiles_also": [
+        "manual_wheelchair",
+        "cane",
+        "fall_risk"
+      ]
+    },
+    {
+      "id": "toilet_grab_bars",
+      "label": "Grab bars at the toilet",
+      "values": {
+        "side_bar_length_min_in": 42,
+        "rear_bar_length_min_in": 36,
+        "height_min_in": 33,
+        "height_max_in": 36,
+        "bar_diameter_min_in": 1.25,
+        "bar_diameter_max_in": 2,
+        "wall_gap_in": 1.5,
+        "load_lb": 250
+      },
+      "section": "604.5, 609",
+      "basis": "ADA 2010",
+      "rule": "Side-wall bar 42 in long minimum, rear-wall bar 36 in minimum, top of the bar 33 to 36 in (84 to 91.5 cm) above the floor, bar 1-1/4 to 2 in thick, exactly 1-1/2 in from the wall, holds 250 lb.",
+      "conditions": [
+        "Rear bar may be 24 in where space is tight.",
+        "In residential dwelling units the bars need not be installed if the walls are reinforced for them."
+      ],
+      "scan": "partly",
+      "scan_note": "The scan gives the toilet position and the walls beside and behind it, so it can tell whether a 42 in side wall exists. It does not see existing bars.",
+      "fix_types": [
+        "grab_bar",
+        "flip_up_grab_bar",
+        "toilet_safety_frame"
+      ],
+      "fix_note": "No side wall within reach: flip-up bar or a safety frame. Wall bars must be screwed into studs or blocking; say so.",
+      "url": "https://www.access-board.gov/ada/chapter/ch06/",
+      "research": {
+        "research_says": "The Access Board's own 2001 review found no objective data behind the 33 to 36 in grab-bar height (agent read); transfer research prefers 30 to 33 in. In a lab, people with a grab bar were 75.8% more likely to recover their balance on a bathtub exit (abstract). 92% of 1,181 Swedish homes lacked a grab bar at the shower or toilet. Only 18.4% of contractors called would install grab bars (median quote $394, one US city).",
+        "sources": [
+          "koontz2012",
+          "levine2023",
+          "slaug2024",
+          "wiseman2021"
+        ],
+        "scan_reliability": "none",
+        "scan_reason": "RoomPlan does not detect grab bars; RASSAR needed a separate camera model. Ask whether bars exist.",
+        "scan_sources": [
+          "su2024"
+        ],
+        "verify_with_tape": false
+      },
+      "profiles_core": [
+        "manual_wheelchair",
+        "walker",
+        "cane",
+        "fall_risk"
+      ],
+      "profiles_also": []
+    },
+    {
+      "id": "toilet_clearance",
+      "label": "Space around the toilet",
+      "values": {
+        "width_in": 60,
+        "depth_in": 56,
+        "width_cm": 152.5,
+        "depth_cm": 142,
+        "centreline_from_side_wall_min_in": 16,
+        "centreline_from_side_wall_max_in": 18
+      },
+      "section": "604.2, 604.3.1",
+      "basis": "ADA 2010",
+      "rule": "Clear space 60 in from the side wall and 56 in from the rear wall; toilet centreline 16 to 18 in from the side wall.",
+      "conditions": [],
+      "scan": "yes",
+      "fix_types": [],
+      "fix_note": "No product fixes this. Report it honestly as needing a contractor.",
+      "url": "https://www.access-board.gov/ada/chapter/ch06/",
+      "research": {
+        "research_says": "No new research beyond the ADA rule. Bathrooms often have mirrors and glass, which roughly triple scan error.",
+        "sources": [],
+        "scan_reliability": "medium",
+        "scan_reason": "Small room, walls and toilet detected; mirrors and glass add error.",
+        "scan_sources": [
+          "catharia2023"
+        ],
+        "verify_with_tape": false
+      },
+      "profiles_core": [
+        "manual_wheelchair"
+      ],
+      "profiles_also": [
+        "power_wheelchair"
+      ]
+    },
+    {
+      "id": "tub_transfer",
+      "label": "Getting into the bath or shower",
+      "min_in": 17,
+      "max_in": 19,
+      "min_cm": 43,
+      "max_cm": 48.5,
+      "section": "610.2, 610.3, 607.2, 608.2",
+      "basis": "ADA 2010",
+      "rule": "Bath and shower seats 17 to 19 in above the bathroom floor. Clear floor in front of a bathtub: the tub's length by 30 in wide. Roll-in shower 30 by 60 in minimum; transfer shower exactly 36 by 36 in.",
+      "conditions": [],
+      "scan": "partly",
+      "scan_note": "The scan gives the bathtub as a box and the free floor in front of it.",
+      "fix_types": [
+        "transfer_bench",
+        "shower_chair",
+        "shower_wheelchair",
+        "handheld_shower",
+        "bath_mat",
+        "grab_bar",
+        "tub_rail"
+      ],
+      "fix_note": "A rolling shower chair only helps with a step-free shower; a bathtub needs a transfer bench.",
+      "url": "https://www.access-board.gov/ada/chapter/ch06/",
+      "research": {
+        "research_says": "A bathroom fall has 2.4 times the odds of injury of a living-room fall (agent read). 35% of older adults who needed bathing equipment still had none after 4 years. In a lab, 19 of 20 rim-mounted tub rails installed by older adults failed the load test; 85% of suction handholds held, but more than half were placed somewhere unexpected.",
+        "sources": [
+          "stevens2014",
+          "lam2021",
+          "rand2024"
+        ],
+        "scan_reliability": "medium",
+        "scan_reason": "Bathtubs are detected; seat and rim heights need asking.",
+        "scan_sources": [],
+        "verify_with_tape": false
+      },
+      "profiles_core": [
+        "manual_wheelchair",
+        "walker",
+        "cane",
+        "fall_risk"
+      ],
+      "profiles_also": []
+    },
+    {
+      "id": "sink_height",
+      "label": "Sink you can roll up to",
+      "max_in": 34,
+      "max_cm": 86.5,
+      "section": "606.3, 603.3",
+      "basis": "ADA 2010",
+      "rule": "Sink rim or counter 34 in maximum, with knee space under it. Mirror above a sink: bottom edge of the glass 40 in (101.5 cm) maximum.",
+      "conditions": [],
+      "scan": "partly",
+      "scan_note": "The scan gives the sink as a box; a vanity cabinet under it blocks the knee space but the scan does not tell cabinet from open space.",
+      "fix_types": [],
+      "fix_note": "No product in the catalogue. Report only.",
+      "url": "https://www.access-board.gov/ada/chapter/ch06/",
+      "research": {
+        "research_says": "No new research beyond the ADA rule.",
+        "sources": [],
+        "scan_reliability": "medium",
+        "scan_reason": "Sinks are detected; counters may be read as storage.",
+        "scan_sources": [
+          "su2024"
+        ],
+        "verify_with_tape": false
+      },
+      "profiles_core": [],
+      "profiles_also": [
+        "manual_wheelchair"
+      ]
+    }
+  ],
+  "wheelchair_reference": {
+    "clear_floor_space_in": [
+      30,
+      48
+    ],
+    "unoccupied_width_in": "just under 26 (mean, all device types pooled; Anthropometry of Wheeled Mobility Project for the U.S. Access Board, 2010)",
+    "occupied_width_note": "10 to 20% of users measured wider than 30 in when seated in the chair",
+    "seat_height_manual_mean_in": 19.5,
+    "seat_height_powered_mean_in": 21.2,
+    "seat_height_source": "https://www.access-board.gov/research/human/wheelchair-seat-height/",
+    "not_found": "A manual wheelchair's overall width from a manufacturer page. Ask the real user for their chair's width."
+  },
+  "fair_housing_act": {
+    "covers": "Buildings with 4 or more units first occupied after March 13, 1991 (all units if there is an elevator, ground-floor units otherwise). Detached houses, duplexes and triplexes are not covered.",
+    "inside_the_unit": "Doors: nominal 32 in clear (a 34 in door giving at least 31-5/8 in is accepted). Route: 36 in. Walls reinforced for grab bars; the bars themselves are not required. Interior doors need no manoeuvring clearance or lever hardware.",
+    "sources": [
+      "https://www.law.cornell.edu/cfr/text/24/100.201",
+      "https://www.huduser.gov/publications/pdf/fairhousing/fairch3.pdf",
+      "https://www.justice.gov/crt/about/hce/documents/jointstatement_accessibility_4-30-13.pdf"
+    ]
+  },
+  "research_note": "Each check has a 'research' block added 12 Nov 2026: what the research says about the number, how reliably the scan measures it (high / medium / low / none: Claude's rating from the cited studies), and whether to ask for a tape check. Source ids are in sources.json.",
+  "verify_band_cm": {
+    "value": 5,
+    "note": "Planning assumption, not from a source: a scanned value within 5 cm of a limit is shown as 'check with a tape'. Replace with the Thursday tape-test error."
+  }
+}

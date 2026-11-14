@@ -1,0 +1,5089 @@
+{
+  "about": "Home-accessibility products for a wheelchair / limited-mobility user. Collected by hand from store pages before the event; prices and sizes are what each page showed on the 'checked' date.",
+  "currency": "USD",
+  "collected": "2026-11-11",
+  "count": 84,
+  "units": "dims_in in inches as printed on the page; dims_cm computed (x 2.54). null = the page did not state it.",
+  "products": [
+    {
+      "id": "door-opener-olide-120b-push-button-hand-programmer",
+      "name": "Olide-120B Push Button Automatic Swing Door Opener With Hand Programmer",
+      "brand": "Olide",
+      "model": "Olide-120B / DSW120",
+      "type": "door_opener",
+      "group": "doorway",
+      "rooms": [
+        "entry",
+        "any"
+      ],
+      "fixes": [
+        "door_hardware",
+        "door_maneuvering"
+      ],
+      "placement": "door",
+      "takes_floor_space": false,
+      "price_usd": 535.16,
+      "price_note": "price of the 'with push button' option (regular $593.07); 'with PIR sensor' $573.07, 'with no touch hand sensor' $588.60, 'with 237W pet sensor' $629.99; free shipping to the United States",
+      "store": "Olidesmart",
+      "url": "https://www.olidesmart.com/products/olide-push-button-automatic-swing-door-opener",
+      "image_url": "http://www.olidesmart.com/cdn/shop/products/olidesmartpushdoorclosersystemwithpushbutton_1200x1200.jpg?v=1613898497",
+      "photo": "photos/door-opener-olide-120b-push-button-hand-programmer.jpg",
+      "dims_in": {
+        "width": null,
+        "depth": null,
+        "height": null
+      },
+      "dims_cm": {
+        "width": null,
+        "depth": null,
+        "height": null
+      },
+      "spec": {
+        "door_weight_max_lb": 264.55,
+        "opening_angle_deg": null,
+        "power": "AC 110V/AC220V, 50~60Hz, 50W; page: 'you can connect AC110V/ AC220V directly to machine'",
+        "plug_in": null,
+        "control": "2 remotes, 2 push buttons, hand programmer",
+        "door_width_min_in": null,
+        "door_width_max_in": 47.2,
+        "max_door_frame_depth_in": null,
+        "kit_contents": [
+          "opener",
+          "2 arms",
+          "2 remotes",
+          "2 push buttons",
+          "1 hand programmer"
+        ]
+      },
+      "weight_capacity_lb": null,
+      "install": "screws",
+      "page_evidence": {
+        "price": "REGULAR PRICE $593.07 SALE PRICE $573.07 (default option 'with PIR sensor'); option 'with push button' $535.16",
+        "dims": "Max door weight: 120kg (\"120kgs(264.55lbs)\"); Max door width: 1200mm; Power input: AC 110V/AC220V, 50~60Hz; Power consumption: 50W"
+      },
+      "source": "product page",
+      "checked": "2026-11-11",
+      "review": "check",
+      "review_reason": "same operator as the other Olide kit: no page says it has a plug",
+      "notes": "Same Olide-120B operator as the catalogue's $639.89 entry, in a cheaper kit; this page lists the kit: 'One set electric door opener includes: Opener, 2 arms, 2 remotes, 2 push buttons,1 hand programmer.' The page does not say whether it has a plug or must be wired in, and it describes use in 'offices, hospitals, elderly homes, banks, commercial locations'. door_width_max_in is my conversion of the page's 1200 mm (the sibling Olide page prints 47.2 in). The per-option prices come from the store's own product data for this page.",
+      "profiles": [
+        "manual_wheelchair",
+        "power_wheelchair",
+        "scooter",
+        "walker"
+      ],
+      "evidence_note": null,
+      "tier": "budget"
+    },
+    {
+      "id": "door-opener-olide-120b-wireless-push-button",
+      "name": "Olidesmart Automatic Swing Door Operator with Slim Wireless Handicap Push Button",
+      "brand": "Olidesmart",
+      "model": "Olide-120B",
+      "type": "door_opener",
+      "group": "doorway",
+      "rooms": [
+        "entry",
+        "any"
+      ],
+      "fixes": [
+        "door_hardware",
+        "door_maneuvering"
+      ],
+      "placement": "door",
+      "takes_floor_space": false,
+      "price_usd": 639.89,
+      "price_note": "price of the Silver variant (Black is the same price); shipping calculated at checkout",
+      "store": "Olidesmart",
+      "url": "https://www.olidesmart.com/products/olidesmart-automatic-swing-door-operator-with-slim-wireless-handicap-push-button",
+      "image_url": "https://www.olidesmart.com/cdn/shop/products/handicapdooropenerwithslimwirelesshandicappedpushswitch_300x300.jpg?v=1607656793",
+      "photo": "photos/door-opener-olide-120b-wireless-push-button.jpg",
+      "dims_in": {
+        "width": null,
+        "depth": null,
+        "height": null
+      },
+      "dims_cm": {
+        "width": null,
+        "depth": null,
+        "height": null
+      },
+      "spec": {
+        "door_weight_max_lb": 265,
+        "opening_angle_deg": 120,
+        "power": "110-220V AC +/-10%, 50W",
+        "control": "remote, wireless push button",
+        "door_width_min_in": 26,
+        "door_width_max_in": 47.2,
+        "max_door_frame_depth_in": 17.7
+      },
+      "weight_capacity_lb": null,
+      "install": "screws",
+      "page_evidence": {
+        "price": "Silver - $639.89 USD; Black - $639.89 USD",
+        "dims": "Max. door bearing weight is 120kg; door width 660mm-1200mm (26\"-47.2\"); max opening angle 120 degrees"
+      },
+      "source": "product page",
+      "checked": "2026-11-11",
+      "review": "check",
+      "review_reason": "sold as a commercial 'ADA' opener; no page or manual says it has a plug, so assume it needs wiring to mains",
+      "notes": "Page states max door weight as 120 kg (265 lb is a unit conversion); it is sold as an ADA handicap door opener and is not described as residential, and the page does not list kit contents, unit size, or whether it plugs in or must be hardwired.",
+      "profiles": [
+        "manual_wheelchair",
+        "power_wheelchair",
+        "scooter",
+        "walker"
+      ],
+      "evidence_note": null,
+      "tier": "mid"
+    },
+    {
+      "id": "door-opener-open-sesame-residential-kit-osrspd",
+      "name": "Open Sesame Automatic Door Opener Kit (Residential Access Standard Package)",
+      "brand": "Open Sesame",
+      "model": "OSRSPD (Model 133 operator)",
+      "type": "door_opener",
+      "group": "doorway",
+      "rooms": [
+        "entry",
+        "any"
+      ],
+      "fixes": [
+        "door_hardware",
+        "door_maneuvering"
+      ],
+      "placement": "door",
+      "takes_floor_space": false,
+      "price_usd": 2695.0,
+      "price_note": "list; page says 'Usually ships in 2-4 days'",
+      "store": "Home Controls",
+      "url": "https://www.homecontrols.com/collections/open-sesame/products/open-sesame-residential-access-standard-package-osrspd",
+      "image_url": "https://www.homecontrols.com/cdn/shop/files/OSRSPD_media-001_ddc61863-fb05-427d-a6f8-47350c45c605_5000x.jpg?v=1786644484",
+      "photo": "photos/door-opener-open-sesame-residential-kit-osrspd.jpg",
+      "dims_in": {
+        "width": null,
+        "depth": null,
+        "height": null
+      },
+      "dims_cm": {
+        "width": null,
+        "depth": null,
+        "height": null
+      },
+      "spec": {
+        "door_weight_max_lb": null,
+        "opening_angle_deg": null,
+        "power": "plug-in 24 V AC adapter with 30 ft cord to a standard wall outlet; internal battery backup",
+        "plug_in": true,
+        "control": "wireless remote (handheld or wheelchair-mounted); optional wall push pads, keypads, keychain remotes",
+        "door_width_min_in": null,
+        "door_width_max_in": null,
+        "max_door_frame_depth_in": null,
+        "kit_contents": [
+          "Model 133 door operator with battery backup and radio receiver",
+          "standard remote control",
+          "electric strike plate (Adams Rite 7440)",
+          "low-voltage wiring kit (plug-in power adapter with 30 ft cord, surface-mount RJ-11 jack)",
+          "mounting hardware and screws"
+        ]
+      },
+      "weight_capacity_lb": null,
+      "install": "screws",
+      "page_evidence": {
+        "price": "$2,695.00; Usually ships in 2-4 days; ADD TO CART",
+        "dims": "not stated (no dimensions or door weight/width limits on the page)"
+      },
+      "source": "product page",
+      "checked": "2026-11-11",
+      "review": "ok",
+      "review_reason": null,
+      "notes": "The only opener found whose page says outright that it plugs into a wall outlet and needs no electrician ('in just a few hours, without hiring an electrician'). Unlatches the door through the included electric strike, then opens, pauses and closes it. The same package at Discount Home Automation showed $2,695.00 and 'Sold out' on the same day.",
+      "profiles": [
+        "manual_wheelchair",
+        "power_wheelchair",
+        "scooter",
+        "walker"
+      ],
+      "evidence_note": null,
+      "tier": "premium"
+    },
+    {
+      "id": "lever-sammons-preston-rubber-doorknob-extension",
+      "name": "Sammons Preston Rubber Doorknob Extension",
+      "brand": "Sammons Preston",
+      "model": "6393 (item # 081170836)",
+      "type": "lever_handle",
+      "group": "doorway",
+      "rooms": [
+        "any"
+      ],
+      "fixes": [
+        "door_hardware"
+      ],
+      "placement": "door",
+      "takes_floor_space": false,
+      "price_usd": 14.78,
+      "price_note": "list (only price shown)",
+      "store": "Performance Health",
+      "url": "https://www.performancehealth.com/rubber-doorknob-extension",
+      "image_url": "https://www.performancehealth.com/media/catalog/product/0/8/081170836_main.png?optimize=low&bg-color=255,255,255&fit=bounds&height=700&width=700&canvas=700:700",
+      "photo": "photos/lever-sammons-preston-rubber-doorknob-extension.png",
+      "dims_in": {
+        "width": null,
+        "depth": 2.5,
+        "height": null
+      },
+      "dims_cm": {
+        "width": null,
+        "depth": 6.3,
+        "height": null
+      },
+      "spec": {
+        "function": "adapter-over-knob",
+        "fits_door_thickness_in": null,
+        "finish": null,
+        "fits_knob_diameter_in": {
+          "min": 2,
+          "max": 2.5
+        },
+        "lever_length_in": 2.5,
+        "material": "soft rubber (contains natural rubber latex)"
+      },
+      "weight_capacity_lb": null,
+      "install": "tool-free",
+      "page_evidence": {
+        "price": "$14.78",
+        "dims": "Measures 2-1/2\" long; fits doorknobs 2\"- 2-1/2\" in diameter"
+      },
+      "source": "product page",
+      "checked": "2026-11-11",
+      "review": "ok",
+      "review_reason": null,
+      "notes": "Snaps over an existing round knob with no adhesive; contains natural rubber latex; page does not state pack quantity.",
+      "profiles": [
+        "manual_wheelchair",
+        "power_wheelchair",
+        "scooter",
+        "walker",
+        "cane",
+        "fall_risk"
+      ],
+      "evidence_note": null,
+      "tier": "budget"
+    },
+    {
+      "id": "lever-ableware-door-knob-extender-5in",
+      "name": "Ableware Lever Door Knob Extender",
+      "brand": "Ableware (Maddak)",
+      "model": "F754161002",
+      "type": "lever_handle",
+      "group": "doorway",
+      "rooms": [
+        "any"
+      ],
+      "fixes": [
+        "door_hardware"
+      ],
+      "placement": "door",
+      "takes_floor_space": false,
+      "price_usd": 24.95,
+      "price_note": "list; 2-4 week lead time",
+      "store": "HealthyKin",
+      "url": "https://www.healthykin.com/p-1356-lever-door-knob-extender.aspx",
+      "image_url": "https://www.healthykin.com/images/Product/large/1356.jpg",
+      "photo": "photos/lever-ableware-door-knob-extender-5in.jpg",
+      "dims_in": {
+        "width": null,
+        "depth": null,
+        "height": null
+      },
+      "dims_cm": {
+        "width": null,
+        "depth": null,
+        "height": null
+      },
+      "spec": {
+        "function": "adapter-over-knob",
+        "fits_door_thickness_in": null,
+        "finish": null,
+        "fits_knob_diameter_in": {
+          "min": 2.125,
+          "max": 2.375
+        },
+        "lever_length_in": 5,
+        "material": null
+      },
+      "weight_capacity_lb": null,
+      "install": "screws",
+      "page_evidence": {
+        "price": "$24.95; 2-4 Week Lead Time",
+        "dims": "\"5\" extension handle\"; \"Fits round shaped doorknobs 2(1/8)\" to 2(3/8)\" diameter\"; \"Can be installed using only a screwdriver; no special tools required\""
+      },
+      "source": "product page",
+      "checked": "2026-11-11",
+      "review": "check",
+      "review_reason": "2-4 week lead time",
+      "notes": "Clamps over a round knob with a screwdriver (so not tool-free). Longest lever of the three knob adapters. 2-4 week lead time rules it out for anything urgent. Brand is shown on the page only as a manufacturer logo link.",
+      "profiles": [
+        "manual_wheelchair",
+        "power_wheelchair",
+        "scooter",
+        "walker",
+        "cane",
+        "fall_risk"
+      ],
+      "evidence_note": null,
+      "tier": "mid"
+    },
+    {
+      "id": "lever-freedom-leveron-doorknob-adapter-2-pack",
+      "name": "Freedom Leveron Doorknob Lever Adapter, 2/Pack",
+      "brand": "Freedom Distributors",
+      "model": "H-201",
+      "type": "lever_handle",
+      "group": "doorway",
+      "rooms": [
+        "any"
+      ],
+      "fixes": [
+        "door_hardware"
+      ],
+      "placement": "door",
+      "takes_floor_space": false,
+      "price_usd": 34.99,
+      "price_note": "per pack of 2; an unlabelled $49.99 is shown above it",
+      "store": "Health Products For You",
+      "url": "https://www.healthproductsforyou.com/p-freedom-leveron-doorknob-lever-adapter.html",
+      "image_url": "https://i.healthproductsforyou.com/fullimage/410-X-410/2/r/289201717leveron-doorknob-lever-adapter-P.png",
+      "photo": "photos/lever-freedom-leveron-doorknob-adapter-2-pack.jpg",
+      "dims_in": {
+        "width": null,
+        "depth": 2,
+        "height": null
+      },
+      "dims_cm": {
+        "width": null,
+        "depth": 5.1,
+        "height": null
+      },
+      "spec": {
+        "function": "adapter-over-knob",
+        "fits_door_thickness_in": null,
+        "finish": null,
+        "fits_knob_diameter_in": {
+          "min": null,
+          "max": 2.375
+        },
+        "lever_length_in": 6.75,
+        "material": "nylon",
+        "pieces_per_pack": 2,
+        "keeps_key_access": true
+      },
+      "weight_capacity_lb": null,
+      "install": "tool-free",
+      "page_evidence": {
+        "price": "$34.99 2/Pack (also $419.99 2/Pack, 6Pk/Case); $49.99 shown without a label",
+        "dims": "6-3/4\"L x 2\"D; \"Accommodates doorknobs up to 2-3/8\" diameter\"; \"The material is nylon.\""
+      },
+      "source": "product page",
+      "checked": "2026-11-11",
+      "review": "ok",
+      "review_reason": null,
+      "notes": "Fits over the existing round knob, no adhesive, knob stays in place. Not strictly tool-free: 'Hand tighten the adapter to the back plate' then 'Use the included L tool to further tighten'. Two levers per pack, so $17.50 a knob. lever_length_in is the page's overall length. Stock status not shown.",
+      "profiles": [
+        "manual_wheelchair",
+        "power_wheelchair",
+        "scooter",
+        "walker",
+        "cane",
+        "fall_risk"
+      ],
+      "evidence_note": null,
+      "tier": "mid"
+    },
+    {
+      "id": "lever-kwikset-tustin-720tnl-passage",
+      "name": "Kwikset 720TNL 15 RCAL RCS Tustin N/H Passage Lever",
+      "brand": "Kwikset",
+      "model": "720TNL 15 RCAL RCS (store SKU KW/200TNL-15)",
+      "type": "lever_handle",
+      "group": "doorway",
+      "rooms": [
+        "any"
+      ],
+      "fixes": [
+        "door_hardware"
+      ],
+      "placement": "door",
+      "takes_floor_space": false,
+      "price_usd": 37.68,
+      "price_note": "list (only price shown)",
+      "store": "Craftmaster Hardware",
+      "url": "https://www.craftmasterhardware.com/shop-by-category/door-locks/cylindrical-locks/kw200tnl-15-kwikset-720tnl-15-rcal-rcs-tustin-nh-passage-lever",
+      "image_url": "https://assets.1.commercebuild.com/380340b6a53e10af3858244e05478075/contents/KW200TNL-15/KW200TNL-15.jpg",
+      "photo": "photos/lever-kwikset-tustin-720tnl-passage.jpg",
+      "dims_in": {
+        "width": null,
+        "depth": null,
+        "height": null
+      },
+      "dims_cm": {
+        "width": null,
+        "depth": null,
+        "height": null
+      },
+      "spec": {
+        "function": "passage",
+        "fits_door_thickness_in": {
+          "min": 1.375,
+          "max": 1.75
+        },
+        "finish": "Satin Nickel (US15), taken from the \"15\" in the title; the page lists several finishes without saying which this SKU is",
+        "backset_in": "adjustable 2-3/8 or 2-3/4"
+      },
+      "weight_capacity_lb": null,
+      "install": "screws",
+      "page_evidence": {
+        "price": "US$37.68",
+        "dims": "Door Range: 1-3/8\" - 1-3/4\" (35mm - 44mm); Dual Backset Latch adjustable for 2-3/8\" or 2-3/4\" backset"
+      },
+      "source": "product page",
+      "checked": "2026-11-11",
+      "review": "ok",
+      "review_reason": null,
+      "notes": "Non-locking hall/closet lever that replaces a round knob in the standard bore; page shows Add to Cart but no stock status and no outer dimensions.",
+      "profiles": [
+        "manual_wheelchair",
+        "power_wheelchair",
+        "scooter",
+        "walker",
+        "cane",
+        "fall_risk"
+      ],
+      "evidence_note": null,
+      "tier": "premium"
+    },
+    {
+      "id": "hinge-healthsmart-expandable-brass-pair",
+      "name": "HealthSmart Expandable Door Hinges, Brass",
+      "brand": "HealthSmart",
+      "model": null,
+      "type": "offset_hinge",
+      "group": "doorway",
+      "rooms": [
+        "any"
+      ],
+      "fixes": [
+        "door_clear_width"
+      ],
+      "placement": "door",
+      "takes_floor_space": false,
+      "price_usd": 27.99,
+      "price_note": "list (only price shown; pack of 2 hinges)",
+      "store": "Target (sold and shipped by DMS Holdings)",
+      "url": "https://www.target.com/p/healthsmart-expandable-door-hinges-brass/-/A-1006182894",
+      "image_url": "https://target.scene7.com/is/image/Target/GUEST_d21546ce-3776-4056-ac7b-ec71c41d9da8?wid=300&hei=300&fmt=pjpeg",
+      "photo": "photos/hinge-healthsmart-expandable-brass-pair.webp",
+      "dims_in": {
+        "width": 3.5,
+        "depth": 5.12,
+        "height": 0.01
+      },
+      "dims_cm": {
+        "width": 8.9,
+        "depth": 13.0,
+        "height": 0.0
+      },
+      "spec": {
+        "clearance_gained_in": 2,
+        "hinges_per_pack": 2,
+        "hinge_size_in": 3.5,
+        "finish": "Brass (decorative brass finish)"
+      },
+      "weight_capacity_lb": null,
+      "install": "screws",
+      "page_evidence": {
+        "price": "$27.99",
+        "dims": ".01 inches (H) x 3.5 inches (W) x 5.12 inches (D); three-hole side measures 2 x 3.5 inches; \"Adds 2 Inches To Doorways\""
+      },
+      "source": "product page",
+      "checked": "2026-11-11",
+      "review": "ok",
+      "review_reason": null,
+      "notes": "Installs using the same screws and holes as the existing hinge; page shows no model number (TCIN 1006182894, UPC 041298200611) and the 0.01 in height is the page's own figure; a pack has 2 hinges, a door with 3 hinges needs more.",
+      "profiles": [
+        "manual_wheelchair",
+        "power_wheelchair",
+        "scooter",
+        "walker"
+      ],
+      "evidence_note": "95th-percentile occupied width: power chair 32.6 in, scooter 33.1 in (dsouza2010), so a door near 32 in clear is where these hinges matter.",
+      "tier": "budget"
+    },
+    {
+      "id": "hinge-mckinney-t2895-swing-clear-3-5",
+      "name": "McKinney T2895 3-1/2 Residential Swing Clear Hinge | 1/4\" Round Corner",
+      "brand": "McKinney",
+      "model": "T2895",
+      "type": "offset_hinge",
+      "group": "doorway",
+      "rooms": [
+        "any"
+      ],
+      "fixes": [
+        "door_clear_width"
+      ],
+      "placement": "door",
+      "takes_floor_space": false,
+      "price_usd": 34.14,
+      "price_note": "list; page does not state whether the price is per hinge or per pack",
+      "store": "DoorwaysPlus",
+      "url": "https://www.doorwaysplus.com/shop/mckinney-t2895-3-1-2-residential-swing-clear-hinge-1-4-round-corner-34718",
+      "image_url": "https://www.doorwaysplus.com/web/image/product.product/118676/image_1024/",
+      "photo": "photos/hinge-mckinney-t2895-swing-clear-3-5.png",
+      "dims_in": {
+        "width": null,
+        "depth": null,
+        "height": 3.5
+      },
+      "dims_cm": {
+        "width": null,
+        "depth": null,
+        "height": 8.9
+      },
+      "spec": {
+        "clearance_gained_in": null,
+        "hinges_per_pack": null,
+        "hinge_size_in": 3.5,
+        "finish": "US15 Satin Nickel (also listed: US4 Satin Brass, US10BE Oil Rub Bronze Equal)",
+        "corner_radius_in": 0.25
+      },
+      "weight_capacity_lb": null,
+      "install": "screws",
+      "page_evidence": {
+        "price": "$ 34.14",
+        "dims": "3.5\" Hi; 1/4\" Radius; \"Swings door clear of the opening to recover full clear opening width\""
+      },
+      "source": "product page",
+      "checked": "2026-11-11",
+      "review": "check",
+      "review_reason": "no page says if the price is per hinge or per pack, or how much clearance it adds (two stores checked)",
+      "notes": "Page gives no inch figure for clearance gained, no pack quantity and no door thickness; lead time 2-3 business days; image URL is the page's relative path made absolute.",
+      "profiles": [
+        "manual_wheelchair",
+        "power_wheelchair",
+        "scooter",
+        "walker"
+      ],
+      "evidence_note": "95th-percentile occupied width: power chair 32.6 in, scooter 33.1 in (dsouza2010), so a door near 32 in clear is where these hinges matter.",
+      "tier": "mid"
+    },
+    {
+      "id": "hinge-mars-wellness-expandable-brass-3-pack",
+      "name": "Mars Wellness Handicap Brass Expandable Door Hinges - Offset Hinges for Doors, 3 Hinges",
+      "brand": "Mars Wellness",
+      "model": null,
+      "type": "offset_hinge",
+      "group": "doorway",
+      "rooms": [
+        "any"
+      ],
+      "fixes": [
+        "door_clear_width"
+      ],
+      "placement": "door",
+      "takes_floor_space": false,
+      "price_usd": 40.99,
+      "price_note": "pack of 3; the 2-hinge pack was $30.99 and Out of Stock",
+      "store": "Target (sold & shipped by BBG Surgical)",
+      "url": "https://www.target.com/p/handicap-brass-expandable-door-hinges-offset-hinges-for-doors-3-hinges/-/A-93163888",
+      "image_url": "https://target.scene7.com/is/image/Target/GUEST_ce4b4012-656a-4206-8ad3-1c5baf551ba0?wid=300&hei=300&fmt=pjpeg",
+      "photo": "photos/hinge-mars-wellness-expandable-brass-3-pack.webp",
+      "dims_in": {
+        "width": null,
+        "depth": null,
+        "height": 3.5
+      },
+      "dims_cm": {
+        "width": null,
+        "depth": null,
+        "height": 8.9
+      },
+      "spec": {
+        "clearance_gained_in": 2,
+        "hinges_per_pack": 3,
+        "hinge_size_in": 3.5,
+        "finish": "decorative brass finish",
+        "replaces_hinge_size_in": "1-1/2 x 3-1/2"
+      },
+      "weight_capacity_lb": null,
+      "install": "screws",
+      "page_evidence": {
+        "price": "$40.99; Sold & shipped by BBG Surgical; In Stock; Number of Pieces: 3",
+        "dims": "\"ADDS 2 INCHES to most any doorway\"; \"replacing your existing 1-1/2\" x 3-1/2\" hinges\""
+      },
+      "source": "product page",
+      "checked": "2026-11-11",
+      "review": "ok",
+      "review_reason": null,
+      "notes": "Pack size and clearance both stated. Three hinges covers a standard three-hinge interior door in one pack (the HealthSmart pack in the catalogue has two). hinge_size_in is the size of hinge it replaces; no product dimensions are given.",
+      "profiles": [
+        "manual_wheelchair",
+        "power_wheelchair",
+        "scooter",
+        "walker"
+      ],
+      "evidence_note": "95th-percentile occupied width: power chair 32.6 in, scooter 33.1 in (dsouza2010), so a door near 32 in clear is where these hinges matter.",
+      "tier": "mid"
+    },
+    {
+      "id": "hinge-briggs-expandable-brass-pair",
+      "name": "Briggs Door Hinges Expandable - Brass (Pair)",
+      "brand": "Briggs",
+      "model": "081698158",
+      "type": "offset_hinge",
+      "group": "doorway",
+      "rooms": [
+        "any"
+      ],
+      "fixes": [
+        "door_clear_width"
+      ],
+      "placement": "door",
+      "takes_floor_space": false,
+      "price_usd": 140.03,
+      "price_note": "per pair",
+      "store": "Performance Health",
+      "url": "https://www.performancehealth.com/door-hinges-expandable-brass",
+      "image_url": "https://www.performancehealth.com/media/catalog/product/b/r/briggs_door_hinges_expandable.jpg",
+      "photo": "photos/hinge-briggs-expandable-brass-pair.jpg",
+      "dims_in": {
+        "width": 2,
+        "depth": null,
+        "height": 3.5
+      },
+      "dims_cm": {
+        "width": 5.1,
+        "depth": null,
+        "height": 8.9
+      },
+      "spec": {
+        "clearance_gained_in": 2,
+        "hinges_per_pack": 2,
+        "hinge_size_in": 3.5,
+        "finish": "brass"
+      },
+      "weight_capacity_lb": null,
+      "install": "screws",
+      "page_evidence": {
+        "price": "$140.03; sell packaging: Pair",
+        "dims": "\"add 2\" to most doorway openings\"; \"3-hole side measures 2\" x 3.5\"\"; \"Install easily using existing screws and holes.\""
+      },
+      "source": "product page",
+      "checked": "2026-11-11",
+      "review": "check",
+      "review_reason": "about five times the price of the same kind of hinge elsewhere; availability needs a login",
+      "notes": "Pack size (pair) and clearance (2 in) both stated, but it costs about five times the HealthSmart pair ($27.99 at Target) for what the pages describe as the same kind of hinge. Useful only as the 'premium' tier. Availability needs a login.",
+      "profiles": [
+        "manual_wheelchair",
+        "power_wheelchair",
+        "scooter",
+        "walker"
+      ],
+      "evidence_note": "95th-percentile occupied width: power chair 32.6 in, scooter 33.1 in (dsouza2010), so a door near 32 in clear is where these hinges matter.",
+      "tier": "premium"
+    },
+    {
+      "id": "portable-ramp-silver-spring-ppsf02-2ft",
+      "name": "Silver Spring 2' Lightweight Portable Wheelchair Ramp, Single-Fold - 800 lb. Capacity",
+      "brand": "Silver Spring",
+      "model": "PPSF02",
+      "type": "portable_ramp",
+      "group": "doorway",
+      "rooms": [
+        "entry"
+      ],
+      "fixes": [
+        "entry_step"
+      ],
+      "placement": "door",
+      "takes_floor_space": true,
+      "price_usd": 119.99,
+      "price_note": "sale (list was $129.99)",
+      "store": "Discount Ramps",
+      "url": "https://www.discountramps.com/mobility/ramps/portable/p/PPSF02/",
+      "image_url": "https://www.discountramps.com/images/xxl/PPSF02.jpg?v=7",
+      "photo": "photos/portable-ramp-silver-spring-ppsf02-2ft.jpg",
+      "dims_in": {
+        "width": 30,
+        "depth": 24,
+        "height": null
+      },
+      "dims_cm": {
+        "width": 76.2,
+        "depth": 61.0,
+        "height": null
+      },
+      "spec": {
+        "length_ft": 2,
+        "usable_width_in": 30,
+        "max_rise_in_recommended": 4,
+        "folded_size_in": {
+          "length": 24,
+          "width": 15,
+          "height": null
+        },
+        "product_weight_lb": 10,
+        "material": "aluminum"
+      },
+      "weight_capacity_lb": 800,
+      "install": "none",
+      "page_evidence": {
+        "price": "$119.99 (List Price: $129.99), pricing shown as of 11/11/2026",
+        "dims": "Measures 2' L x 30\" W; Maximum Rise: 4\"; Folded Length: 24\"; Folded Width: 15\"; Weight: 10 lbs."
+      },
+      "source": "product page",
+      "checked": "2026-11-11",
+      "review": "ok",
+      "review_reason": null,
+      "notes": "Spec table says maximum rise 4 in but a feature line on the same page says \"Will fit up to 12\" rise\" (the 4 in figure is recorded); width is not labelled usable; stock status not shown. Re-read: the 12 in line describes the whole 2-6 ft series; this 2 ft ramp is for rises up to 4 in.",
+      "profiles": [
+        "manual_wheelchair",
+        "power_wheelchair",
+        "scooter",
+        "walker"
+      ],
+      "evidence_note": null,
+      "tier": "budget"
+    },
+    {
+      "id": "portable-ramp-silver-spring-scg6-6ft",
+      "name": "6' Silver Spring Portable Aluminum Wheelchair Ramp, Single-Fold - 600 lb. Capacity",
+      "brand": "Silver Spring",
+      "model": "SCG-6",
+      "type": "portable_ramp",
+      "group": "doorway",
+      "rooms": [
+        "entry"
+      ],
+      "fixes": [
+        "entry_step"
+      ],
+      "placement": "door",
+      "takes_floor_space": true,
+      "price_usd": 159.99,
+      "price_note": "sale (list was $229.99)",
+      "store": "Discount Ramps",
+      "url": "https://www.discountramps.com/handicap_ramp/p/SCG-6/",
+      "image_url": "https://www.discountramps.com/images/xxl/SCG-6.jpg?v=11",
+      "photo": "photos/portable-ramp-silver-spring-scg6-6ft.jpg",
+      "dims_in": {
+        "width": 30,
+        "depth": 72,
+        "height": null
+      },
+      "dims_cm": {
+        "width": 76.2,
+        "depth": 182.9,
+        "height": null
+      },
+      "spec": {
+        "length_ft": 6,
+        "usable_width_in": 29,
+        "max_rise_in_recommended": 12,
+        "folded_size_in": {
+          "length": 72,
+          "width": 15,
+          "height": 2.875
+        },
+        "product_weight_lb": 34,
+        "material": "aluminum"
+      },
+      "weight_capacity_lb": 600,
+      "install": "none",
+      "page_evidence": {
+        "price": "$159.99 (List Price: $229.99, Save $70.00), pricing shown as of 11/11/2026",
+        "dims": "Length: 6'; Width: 30\" (features: \"Measures 6' L x 29\" W\"); Maximum Rise: 12\"; Folded 72\" x 15\" x 2-7/8\"; Weight: 34 lbs."
+      },
+      "source": "product page",
+      "checked": "2026-11-11",
+      "review": "ok",
+      "review_reason": null,
+      "notes": "Folds lengthwise so it stays 72 in long when folded; page gives 30 in width in specs and 29 in in features (29 recorded as usable); 12 in is the page's \"maximum rise\", in stock.",
+      "profiles": [
+        "manual_wheelchair",
+        "power_wheelchair",
+        "scooter",
+        "walker"
+      ],
+      "evidence_note": null,
+      "tier": "mid"
+    },
+    {
+      "id": "portable-ramp-ez-access-suitcase-as3-3ft",
+      "name": "3' EZ-ACCESS SUITCASE Aluminum Singlefold AS Wheelchair Ramp - 800 lb. Capacity",
+      "brand": "EZ-ACCESS",
+      "model": "SUITCASE-AS3",
+      "type": "portable_ramp",
+      "group": "doorway",
+      "rooms": [
+        "entry"
+      ],
+      "fixes": [
+        "entry_step"
+      ],
+      "placement": "door",
+      "takes_floor_space": true,
+      "price_usd": 206.0,
+      "price_note": "list (only price shown)",
+      "store": "Discount Ramps",
+      "url": "https://www.discountramps.com/wheelchair/ramps/portable/p/SUITCASE-AS3/",
+      "image_url": "https://www.discountramps.com/images/xxl/SUITCASE-AS3.jpg?v=20",
+      "photo": "photos/portable-ramp-ez-access-suitcase-as3-3ft.jpg",
+      "dims_in": {
+        "width": 30,
+        "depth": 36,
+        "height": null
+      },
+      "dims_cm": {
+        "width": 76.2,
+        "depth": 91.4,
+        "height": null
+      },
+      "spec": {
+        "length_ft": 3,
+        "usable_width_in": 30,
+        "max_rise_in_recommended": 6,
+        "folded_size_in": {
+          "length": 36,
+          "width": 15,
+          "height": 4.5
+        },
+        "product_weight_lb": 16,
+        "material": "aluminum"
+      },
+      "weight_capacity_lb": 800,
+      "install": "none",
+      "page_evidence": {
+        "price": "$206.00, pricing shown as of 11/11/2026",
+        "dims": "Length: 3'; Width: 30\"; Maximum Rise: 6\"; Folded 36\" x 15\" x 4-1/2\"; Weight: 16 lbs."
+      },
+      "source": "product page",
+      "checked": "2026-11-11",
+      "review": "ok",
+      "review_reason": null,
+      "notes": "Width is not labelled usable on the page; 6 in is the page's \"maximum rise\"; in stock.",
+      "profiles": [
+        "manual_wheelchair",
+        "power_wheelchair",
+        "scooter",
+        "walker"
+      ],
+      "evidence_note": null,
+      "tier": "premium"
+    },
+    {
+      "id": "threshold-vevor-rubber-1in-rise",
+      "name": "VEVOR Upgraded Rubber Threshold Ramp, 1\" Rise",
+      "brand": "VEVOR",
+      "model": null,
+      "type": "threshold_ramp",
+      "group": "doorway",
+      "rooms": [
+        "entry",
+        "any"
+      ],
+      "fixes": [
+        "door_threshold",
+        "entry_step"
+      ],
+      "placement": "door",
+      "takes_floor_space": true,
+      "price_usd": 28.9,
+      "price_note": "list",
+      "store": "Target (sold & shipped by Vevor Store Inc)",
+      "url": "https://www.target.com/p/vevor-upgraded-rubber-threshold-ramp-1-rise-wheelchair-ramp-doorway-natural-curb-ramp-rated-33069-lbs-load-capacity-non-slip-rubber-ramp/-/A-1004147544",
+      "image_url": "https://target.scene7.com/is/image/Target/GUEST_21d8f25a-9384-4e69-9f05-db748545d0ef?wid=300&hei=300&fmt=pjpeg",
+      "photo": "photos/threshold-vevor-rubber-1in-rise.webp",
+      "dims_in": {
+        "width": 44.5,
+        "depth": 9.5,
+        "height": 1
+      },
+      "dims_cm": {
+        "width": 113.0,
+        "depth": 24.1,
+        "height": 2.5
+      },
+      "spec": {
+        "rise_in": 1,
+        "run_length_in": 9.5,
+        "usable_width_in": 44.5,
+        "material": "natural rubber",
+        "can_be_trimmed": null,
+        "product_weight_lb": null,
+        "includes": "2 x M8*10 expansion screws"
+      },
+      "weight_capacity_lb": 33069,
+      "install": "none",
+      "page_evidence": {
+        "price": "$28.90; Sold & shipped by Vevor Store Inc; In Stock",
+        "dims": "1 inches (H) x 9.5 inches (W) x 44.5 inches (D); description: \"44.5\" L\", \"9.5\" W\"; Holds up to: 33069 pounds (description: \"can support up to 15000 kg\")"
+      },
+      "source": "product page",
+      "checked": "2026-11-11",
+      "review": "ok",
+      "review_reason": null,
+      "notes": "The under-$40 threshold ramp for a sill up to 1 in. The page labels the 44.5 in side 'length' and the 9.5 in side 'width'; for a doorway the 44.5 in side goes across the door and 9.5 in is the run, which is how the fields are filled. The load figure is a vehicle rating as printed. Page says both 'needs no tools' and 'Adult Assembly Required, Some Tools Provided' (two expansion screws are included for optional fixing).",
+      "profiles": [
+        "manual_wheelchair",
+        "power_wheelchair",
+        "scooter",
+        "walker"
+      ],
+      "evidence_note": "No research basis for the 1/2 in limit; at a 2 cm sill 46% of novice wheelchair users failed the first try (allawati2017). The scan can't see sills: ask the height and pick the ramp by rise.",
+      "tier": "budget"
+    },
+    {
+      "id": "threshold-silver-spring-rubber-half-inch",
+      "name": "Silver Spring Rubber Solid Threshold Ramp, 1/2\" Maximum Rise",
+      "brand": "Silver Spring",
+      "model": "DH-TR-16",
+      "type": "threshold_ramp",
+      "group": "doorway",
+      "rooms": [
+        "entry",
+        "any"
+      ],
+      "fixes": [
+        "door_threshold",
+        "entry_step"
+      ],
+      "placement": "door",
+      "takes_floor_space": true,
+      "price_usd": 49.99,
+      "price_note": "sale (list $78.99)",
+      "store": "Discount Ramps",
+      "url": "https://www.discountramps.com/mobility/wheelchair-ramps/threshold/p/DH-TR-16/",
+      "image_url": "https://www.discountramps.com/images/xxl/DH-TR-16.jpg?v=4",
+      "photo": "photos/threshold-silver-spring-rubber-half-inch.jpg",
+      "dims_in": {
+        "width": 43.5,
+        "depth": 8.375,
+        "height": null
+      },
+      "dims_cm": {
+        "width": 110.5,
+        "depth": 21.3,
+        "height": null
+      },
+      "spec": {
+        "rise_in": 0.5,
+        "run_length_in": 8.375,
+        "usable_width_in": 43.5,
+        "material": "recycled rubber",
+        "can_be_trimmed": null,
+        "product_weight_lb": 9
+      },
+      "weight_capacity_lb": 1500,
+      "install": "none",
+      "page_evidence": {
+        "price": "$49.99; List Price $78.99; In Stock, Ready to Ship",
+        "dims": "Maximum Rise: 1/2\"; Length: 8-3/8\"; Width: 43-1/2\"; Maximum Capacity: 1,500 lbs.; Weight: 9 lbs. (Key Features say 8-1/3\" L x 43-1/3\" W)"
+      },
+      "source": "product page",
+      "checked": "2026-11-11",
+      "review": "ok",
+      "review_reason": null,
+      "notes": "Half-inch version of the catalogue's 1 in Silver Spring ramp; not under $40 (a search snippet showing $29.99 was stale). The specification table and the feature list differ by a fraction of an inch; specification values used.",
+      "profiles": [
+        "manual_wheelchair",
+        "power_wheelchair",
+        "scooter",
+        "walker"
+      ],
+      "evidence_note": "No research basis for the 1/2 in limit; at a 2 cm sill 46% of novice wheelchair users failed the first try (allawati2017). The scan can't see sills: ask the height and pick the ramp by rise.",
+      "tier": "mid"
+    },
+    {
+      "id": "threshold-silver-spring-rubber-three-quarter-inch",
+      "name": "Silver Spring Rubber Solid Threshold Ramp, 3/4\" Maximum Rise",
+      "brand": "Silver Spring",
+      "model": "DH-TR-14",
+      "type": "threshold_ramp",
+      "group": "doorway",
+      "rooms": [
+        "entry",
+        "any"
+      ],
+      "fixes": [
+        "door_threshold",
+        "entry_step"
+      ],
+      "placement": "door",
+      "takes_floor_space": true,
+      "price_usd": 52.99,
+      "price_note": "sale (list $80.99)",
+      "store": "Discount Ramps",
+      "url": "https://www.discountramps.com/mobility/wheelchair-ramps/threshold/p/DH-TR-14/",
+      "image_url": "https://www.discountramps.com/images/xxl/DH-TR-14.jpg?v=4",
+      "photo": "photos/threshold-silver-spring-rubber-three-quarter-inch.jpg",
+      "dims_in": {
+        "width": 43.5,
+        "depth": 8.3,
+        "height": null
+      },
+      "dims_cm": {
+        "width": 110.5,
+        "depth": 21.1,
+        "height": null
+      },
+      "spec": {
+        "rise_in": 0.75,
+        "run_length_in": 8.3,
+        "usable_width_in": 43.5,
+        "material": "recycled rubber",
+        "can_be_trimmed": null,
+        "product_weight_lb": 6
+      },
+      "weight_capacity_lb": 1500,
+      "install": "none",
+      "page_evidence": {
+        "price": "$52.99; List Price $80.99; In Stock, Ready to Ship",
+        "dims": "Maximum Rise: 3/4\"; Length: 8-3/10\"; Width: 43-1/2\"; Maximum Capacity: 1,500 lbs.; Weight: 6 lbs. (Key Features say 8-1/3\" L x 43-1/3\" W)"
+      },
+      "source": "product page",
+      "checked": "2026-11-11",
+      "review": "ok",
+      "review_reason": null,
+      "notes": "Three-quarter-inch version. The specification table gives 6 lb, lighter than the 1/2 in ramp's 9 lb, which looks like a data slip on the store's side; values recorded as printed.",
+      "profiles": [
+        "manual_wheelchair",
+        "power_wheelchair",
+        "scooter",
+        "walker"
+      ],
+      "evidence_note": "No research basis for the 1/2 in limit; at a 2 cm sill 46% of novice wheelchair users failed the first try (allawati2017). The scan can't see sills: ask the height and pick the ramp by rise.",
+      "tier": "mid"
+    },
+    {
+      "id": "threshold-silver-spring-rubber-1in",
+      "name": "1\" Maximum Rise - Silver Spring Rubber Solid Threshold Ramp",
+      "brand": "Silver Spring",
+      "model": "DH-TR-1",
+      "type": "threshold_ramp",
+      "group": "doorway",
+      "rooms": [
+        "entry",
+        "any"
+      ],
+      "fixes": [
+        "door_threshold",
+        "entry_step"
+      ],
+      "placement": "door",
+      "takes_floor_space": true,
+      "price_usd": 54.99,
+      "price_note": "sale (list was $84.99)",
+      "store": "Discount Ramps",
+      "url": "https://www.discountramps.com/silver-spring-rubber-threshold-ramp/p/DH-TR-1/",
+      "image_url": "https://www.discountramps.com/images/xxl/DH-TR-1.jpg?v=14",
+      "photo": "photos/threshold-silver-spring-rubber-1in.jpg",
+      "dims_in": {
+        "width": 43.5,
+        "depth": 8,
+        "height": null
+      },
+      "dims_cm": {
+        "width": 110.5,
+        "depth": 20.3,
+        "height": null
+      },
+      "spec": {
+        "rise_in": 1,
+        "run_length_in": 8,
+        "usable_width_in": 43.5,
+        "material": "recycled rubber",
+        "can_be_trimmed": null,
+        "product_weight_lb": 11
+      },
+      "weight_capacity_lb": 1500,
+      "install": "none",
+      "page_evidence": {
+        "price": "$54.99 (List Price: $84.99, Save $30.00), pricing shown as of 11/11/2026",
+        "dims": "Maximum Rise: 1\"; Length: 8\"; Width: 43-1/2\""
+      },
+      "source": "product page",
+      "checked": "2026-11-11",
+      "review": "ok",
+      "review_reason": null,
+      "notes": "One-piece, no assembly; page gives a single width figure (not labelled usable) and does not say whether it can be trimmed; in stock.",
+      "profiles": [
+        "manual_wheelchair",
+        "power_wheelchair",
+        "scooter",
+        "walker"
+      ],
+      "evidence_note": "No research basis for the 1/2 in limit; at a 2 cm sill 46% of novice wheelchair users failed the first try (allawati2017). The scan can't see sills: ask the height and pick the ramp by rise.",
+      "tier": "mid"
+    },
+    {
+      "id": "threshold-ez-access-adjustable-alu-1375-275",
+      "name": "1' L x 3' W EZ-ACCESS TRANSITIONS Aluminum Adjustable Self-Supporting Threshold Ramp",
+      "brand": "EZ-ACCESS",
+      "model": "TAER12",
+      "type": "threshold_ramp",
+      "group": "doorway",
+      "rooms": [
+        "entry",
+        "any"
+      ],
+      "fixes": [
+        "door_threshold",
+        "entry_step"
+      ],
+      "placement": "door",
+      "takes_floor_space": true,
+      "price_usd": 70.99,
+      "price_note": "sale (list was $107.99); price of the 2-3/4\" maximum rise variant (item TAER12)",
+      "store": "Discount Ramps",
+      "url": "https://www.discountramps.com/aluminum-threshold-ramps/p/TAER12",
+      "image_url": "https://www.discountramps.com/images/xxl/TAER12.jpg?v=6",
+      "photo": "photos/threshold-ez-access-adjustable-alu-1375-275.jpg",
+      "dims_in": {
+        "width": 36,
+        "depth": 12,
+        "height": null
+      },
+      "dims_cm": {
+        "width": 91.4,
+        "depth": 30.5,
+        "height": null
+      },
+      "spec": {
+        "rise_min_in": 1.375,
+        "rise_max_in": 2.75,
+        "run_length_in": 12,
+        "usable_width_in": 36,
+        "material": "aluminum",
+        "can_be_trimmed": null,
+        "product_weight_lb": 5.25
+      },
+      "weight_capacity_lb": 700,
+      "install": "none",
+      "page_evidence": {
+        "price": "$70.99 (List Price: $107.99, Save $37.00), pricing shown as of 11/11/2026",
+        "dims": "Minimum Rise 1-3/8\"; Maximum Rise 2-3/4\"; 12\" L; Width 36\""
+      },
+      "source": "product page",
+      "checked": "2026-11-11",
+      "review": "ok",
+      "review_reason": null,
+      "notes": "Self-supporting with adjustable legs and pivoting footpads; page does not state the install method (install field is a best fit) or label the width as usable; taller variants (4-3/4\", 5-7/8\") are separate items with other prices.",
+      "profiles": [
+        "manual_wheelchair",
+        "power_wheelchair",
+        "scooter",
+        "walker"
+      ],
+      "evidence_note": "No research basis for the 1/2 in limit; at a 2 cm sill 46% of novice wheelchair users failed the first try (allawati2017). The scan can't see sills: ask the height and pick the ramp by rise.",
+      "tier": "mid"
+    },
+    {
+      "id": "threshold-ez-access-modular-alu-3in",
+      "name": "2.75\" - 3.25\" Rise EZ-ACCESS TRANSITIONS Aluminum Modular Threshold Ramp",
+      "brand": "EZ-ACCESS",
+      "model": "Thresh-3",
+      "type": "threshold_ramp",
+      "group": "doorway",
+      "rooms": [
+        "entry"
+      ],
+      "fixes": [
+        "door_threshold",
+        "entry_step"
+      ],
+      "placement": "door",
+      "takes_floor_space": true,
+      "price_usd": 119.0,
+      "price_note": "sale (list was $129.99)",
+      "store": "Discount Ramps",
+      "url": "https://www.discountramps.com/wheelchair/ramps/threshold/p/Thresh-3/",
+      "image_url": "https://www.discountramps.com/images/xxl/Thresh-3.jpg?v=13",
+      "photo": "photos/threshold-ez-access-modular-alu-3in.jpg",
+      "dims_in": {
+        "width": 34,
+        "depth": 17,
+        "height": null
+      },
+      "dims_cm": {
+        "width": 86.4,
+        "depth": 43.2,
+        "height": null
+      },
+      "spec": {
+        "rise_min_in": 2.75,
+        "rise_max_in": 3.25,
+        "run_length_in": 17,
+        "usable_width_in": 34,
+        "material": "aluminum",
+        "can_be_trimmed": null,
+        "product_weight_lb": 8
+      },
+      "weight_capacity_lb": 700,
+      "install": "screws",
+      "page_evidence": {
+        "price": "$119.00 (List Price: $129.99, Save $10.99), pricing shown as of 11/11/2026",
+        "dims": "Minimum Rise: 2-3/4\"; Maximum Rise: 3-1/4\"; Length: 1' 5\"; Width: 34\""
+      },
+      "source": "product page",
+      "checked": "2026-11-11",
+      "review": "ok",
+      "review_reason": null,
+      "notes": "Modular, needs assembly; pre-drilled holes for optional permanent mounting; the page's comparison table lists length as 18 in while the spec table and features say 17 in.",
+      "profiles": [
+        "manual_wheelchair",
+        "power_wheelchair",
+        "scooter",
+        "walker"
+      ],
+      "evidence_note": "No research basis for the 1/2 in limit; at a 2 cm sill 46% of novice wheelchair users failed the first try (allawati2017). The scan can't see sills: ask the height and pick the ramp by rise.",
+      "tier": "mid"
+    },
+    {
+      "id": "threshold-ez-access-angled-entry-mat-rubber-1-5in",
+      "name": "1.5\" H Black EZ-ACCESS TRANSITIONS Angled Entry Mat",
+      "brand": "EZ-ACCESS",
+      "model": "THRBE-150-BWLC",
+      "type": "threshold_ramp",
+      "group": "doorway",
+      "rooms": [
+        "entry",
+        "any"
+      ],
+      "fixes": [
+        "door_threshold",
+        "entry_step"
+      ],
+      "placement": "door",
+      "takes_floor_space": true,
+      "price_usd": 152.0,
+      "price_note": "list (only price shown); price of the 1-1/2\" rise, black variant",
+      "store": "Discount Ramps",
+      "url": "https://www.discountramps.com/mobility/wheelchair-ramps/threshold/p/THRBE-150-BWLC",
+      "image_url": "https://www.discountramps.com/images/xxl/THRBE-150-BWLC.jpg?v=8",
+      "photo": "photos/threshold-ez-access-angled-entry-mat-rubber-1-5in.jpg",
+      "dims_in": {
+        "width": 40,
+        "depth": 14,
+        "height": 1.5
+      },
+      "dims_cm": {
+        "width": 101.6,
+        "depth": 35.6,
+        "height": 3.8
+      },
+      "spec": {
+        "rise_in": 1.5,
+        "run_length_in": 14,
+        "usable_width_in": null,
+        "material": "rubber",
+        "can_be_trimmed": true,
+        "product_weight_lb": 14
+      },
+      "weight_capacity_lb": 850,
+      "install": "screws",
+      "page_evidence": {
+        "price": "$152.00, pricing shown as of 11/11/2026",
+        "dims": "Maximum Rise: 1-1/2\"; Length: 1' 2\"; Width: 40\"; \"can be trimmed or notched for a perfect, custom fit\""
+      },
+      "source": "product page",
+      "checked": "2026-11-11",
+      "review": "ok",
+      "review_reason": null,
+      "notes": "Page lists 40 in overall width and does not give a usable width (another retailer's search snippet said 36 in, not verified); set in place and secured with the included anchors; a 2-1/2 in rise version exists as a separate item.",
+      "profiles": [
+        "manual_wheelchair",
+        "power_wheelchair",
+        "scooter",
+        "walker"
+      ],
+      "evidence_note": "No research basis for the 1/2 in limit; at a 2 cm sill 46% of novice wheelchair users failed the first try (allawati2017). The scan can't see sills: ask the height and pick the ramp by rise.",
+      "tier": "mid"
+    },
+    {
+      "id": "threshold-ez-access-modular-alu-4in",
+      "name": "3.75\" - 4.25\" Rise EZ-ACCESS TRANSITIONS Aluminum Modular Threshold Ramp",
+      "brand": "EZ-ACCESS",
+      "model": "Thresh-4",
+      "type": "threshold_ramp",
+      "group": "doorway",
+      "rooms": [
+        "entry"
+      ],
+      "fixes": [
+        "door_threshold",
+        "entry_step"
+      ],
+      "placement": "door",
+      "takes_floor_space": true,
+      "price_usd": 165.0,
+      "price_note": "list (only price shown)",
+      "store": "Discount Ramps",
+      "url": "https://www.discountramps.com/wheelchair/ramps/threshold/p/Thresh-4/",
+      "image_url": "https://www.discountramps.com/images/xxl/Thresh-4.jpg?v=13",
+      "photo": "photos/threshold-ez-access-modular-alu-4in.jpg",
+      "dims_in": {
+        "width": 34,
+        "depth": 22.25,
+        "height": null
+      },
+      "dims_cm": {
+        "width": 86.4,
+        "depth": 56.5,
+        "height": null
+      },
+      "spec": {
+        "rise_min_in": 3.75,
+        "rise_max_in": 4.25,
+        "run_length_in": 22.25,
+        "usable_width_in": 34,
+        "material": "aluminum",
+        "can_be_trimmed": null,
+        "product_weight_lb": 11
+      },
+      "weight_capacity_lb": 700,
+      "install": "screws",
+      "page_evidence": {
+        "price": "$165.00, pricing shown as of 11/11/2026",
+        "dims": "Minimum Rise 3-3/4\"; Maximum Rise 4-1/4\"; Length 1' 10-1/4\"; Width 34\""
+      },
+      "source": "product page",
+      "checked": "2026-11-11",
+      "review": "ok",
+      "review_reason": null,
+      "notes": "Modular, needs assembly; pre-drilled holes for optional permanent mounting; the page's comparison table lists length as 21 in while the spec table and features say 22.25 in.",
+      "profiles": [
+        "manual_wheelchair",
+        "power_wheelchair",
+        "scooter",
+        "walker"
+      ],
+      "evidence_note": "No research basis for the 1/2 in limit; at a 2 cm sill 46% of novice wheelchair users failed the first try (allawati2017). The scan can't see sills: ask the height and pick the ramp by rise.",
+      "tier": "premium"
+    },
+    {
+      "id": "lucid-deluxe-adjustable-bed-base-twin-xl",
+      "name": "Comfort Collection Deluxe Adjustable Bed Base - Lucid - Twin XL",
+      "brand": "Lucid",
+      "model": "TCIN 54670964 / UPC 840008338008",
+      "type": "adjustable_bed_base",
+      "group": "bedroom",
+      "rooms": [
+        "bedroom"
+      ],
+      "fixes": [
+        "bed_height"
+      ],
+      "placement": "floor",
+      "takes_floor_space": true,
+      "price_usd": 557.99,
+      "price_note": "price of the Twin XL variant",
+      "store": "Target",
+      "url": "https://www.target.com/p/twin-xl-comfort-collection-l300-adjustable-bed-base-lucid/-/A-54670964",
+      "image_url": "https://target.scene7.com/is/image/Target/GUEST_b611229a-1886-474f-a420-dc4c717c3aa6?wid=300&hei=300&fmt=pjpeg",
+      "photo": "photos/lucid-deluxe-adjustable-bed-base-twin-xl.jpg",
+      "dims_in": {
+        "width": 38,
+        "depth": 80,
+        "height": 14
+      },
+      "dims_cm": {
+        "width": 96.5,
+        "depth": 203.2,
+        "height": 35.6
+      },
+      "spec": {
+        "bed_size": "Twin XL",
+        "overall_height_min_in": 14,
+        "overall_height_max_in": null,
+        "head_and_foot_adjust": true,
+        "height_adjustable": null
+      },
+      "weight_capacity_lb": null,
+      "install": "tool-free",
+      "page_evidence": {
+        "price": "$557.99",
+        "dims": "14 Inches (H) x 38 Inches (W) x 80 Inches (D); controls for independent head and foot incline; Adult Assembly Required, No Tools Needed"
+      },
+      "source": "product page",
+      "checked": "2026-11-11",
+      "review": "check",
+      "review_reason": "head and foot adjust only; one height (14 in), so it does not fix bed height",
+      "notes": "Base only, no mattress; page gives one height (14 in) and says nothing about height adjustment or weight capacity; the title mentions L300/L600 but a brand Q&A answer on the page disputes that, so model is left as the TCIN.",
+      "profiles": [
+        "manual_wheelchair",
+        "power_wheelchair",
+        "walker",
+        "cane",
+        "fall_risk"
+      ],
+      "evidence_note": null,
+      "tier": "budget"
+    },
+    {
+      "id": "hospital-bed-vevor-3-function-full-electric",
+      "name": "VEVOR Premium 3 Function Full Electric Hospital Bed with Backrest, Legrest & Height Adjustment, Mattress, 550 lbs",
+      "brand": "VEVOR",
+      "model": "YXZ-C3 (SKU QDDKLBBXGKJHHW7HZ001V1)",
+      "type": "adjustable_bed_base",
+      "group": "bedroom",
+      "rooms": [
+        "bedroom"
+      ],
+      "fixes": [
+        "bed_height"
+      ],
+      "placement": "floor",
+      "takes_floor_space": true,
+      "price_usd": 1599.9,
+      "price_note": "price of the '3 Function' style; the '2 Function' style is $1,281.90 and its height does not adjust",
+      "store": "VEVOR",
+      "url": "https://www.vevor.com/hospital-beds-c_42835/vevor-premium-3-function-full-electric-hospital-bed-icu-electric-medical-bed-with-backrest-legrest-height-adjustment-5-locking-casters-high-density-mattress-for-home-hospital-550lbs-loading-p_010767372402",
+      "image_url": "https://img.vevorstatic.com/us%2FQDDKLBBXGKJHHW7HZ001V1%2Fgoods_thumb-v3%2Fhospital-bed-m100-1.2.jpg",
+      "photo": "photos/hospital-bed-vevor-3-function-full-electric.jpg",
+      "dims_in": {
+        "width": 37.8,
+        "depth": 84.1,
+        "height": 34
+      },
+      "dims_cm": {
+        "width": 96.0,
+        "depth": 213.6,
+        "height": 86.4
+      },
+      "spec": {
+        "bed_size": "hospital single; mattress 76.6 x 32.7 x 3.94 in",
+        "overall_height_min_in": 18.7,
+        "overall_height_max_in": 29.5,
+        "head_and_foot_adjust": true,
+        "height_adjustable": true,
+        "mattress_included": true,
+        "mattress_thickness_in": 3.94,
+        "guardrail_to_mattress_height_in": 7.87,
+        "includes": [
+          "mattress (10 cm 30D high-density foam)",
+          "IV pole with 4 hooks",
+          "handheld controller",
+          "5 in locking casters"
+        ]
+      },
+      "weight_capacity_lb": 550,
+      "install": "tool-free",
+      "page_evidence": {
+        "price": "Style: 3 Function $1,599.90; In Stock (2 Function $1,281.90)",
+        "dims": "Height Adjustment Range 18.7 - 29.5 inch / 475 - 750 mm; 84.1 x 37.8 x 34 inch / 2135 x 960 x 860 mm; mattress 76.6 x 32.7 x 3.94 inch; 550 lbs / 250 kg"
+      },
+      "source": "product page",
+      "checked": "2026-11-11",
+      "review": "check",
+      "review_reason": "hospital-style bed, not a base for the user's mattress; page does not say if 18.7-29.5 in is to the deck or the mattress top",
+      "notes": "The mid-priced bed whose HEIGHT moves, between the $557.99 head/foot-only base and the $3,482 Golden hi-low. It is a hospital-style bed, not a base for the user's own mattress. The page does not say whether 18.7-29.5 in is measured to the deck or to the mattress top. One read showed the 3 Function option as 'Out of Stock' in the option list while the buy box said 'In Stock'. The store did not ask for a prescription on the page. Install value is my label. Not found: a consumer adjustable base with height adjustment between $600 and $3,000 (Medline MDR107003E, 10-20 in, 450 lb, was $580.40 but 'Out of Stock' at Vitality Medical and marked discontinued at MedMart).",
+      "profiles": [
+        "manual_wheelchair",
+        "power_wheelchair",
+        "walker",
+        "cane",
+        "fall_risk"
+      ],
+      "evidence_note": null,
+      "tier": "mid"
+    },
+    {
+      "id": "golden-passport-hi-low-adjustable-bed",
+      "name": "Golden Passport Hi-Low Adjustable Bed",
+      "brand": "Golden Technologies",
+      "model": "BDA100",
+      "type": "adjustable_bed_base",
+      "group": "bedroom",
+      "rooms": [
+        "bedroom"
+      ],
+      "fixes": [
+        "bed_height"
+      ],
+      "placement": "floor",
+      "takes_floor_space": true,
+      "price_usd": 3482.0,
+      "price_note": "'Starting at' price; the page does not say which bed size it applies to (Twin XL, Queen, Split King offered); an unlabelled $4,302 is shown next to it",
+      "store": "SpinLife",
+      "url": "https://www.spinlife.com/Golden-Technologies-Golden-Passport-Hi-Low-Adjustable-Bed-Adjustable-Bed/spec.cfm?productID=177772",
+      "image_url": "https://www.spinlife.com/images/product/67876.jpg?dt=20231113124700000",
+      "photo": "photos/golden-passport-hi-low-adjustable-bed.jpg",
+      "dims_in": {
+        "width": null,
+        "depth": null,
+        "height": null
+      },
+      "dims_cm": {
+        "width": null,
+        "depth": null,
+        "height": null
+      },
+      "spec": {
+        "bed_size": "Twin XL (also Queen, Split King)",
+        "overall_height_min_in": 10.5,
+        "overall_height_max_in": 28,
+        "head_and_foot_adjust": true,
+        "height_adjustable": true
+      },
+      "weight_capacity_lb": 880,
+      "install": "none",
+      "page_evidence": {
+        "price": "Starting at $3,482.00",
+        "dims": "Bed Height: 10.5\" to 28\"; Weight capacity: 880 lbs.; Weight: 250 lbs.; sizes Twin XL, Queen, & Split King"
+      },
+      "source": "product page",
+      "checked": "2026-11-11",
+      "review": "check",
+      "review_reason": "'starting at' price, size not stated, mattress extra",
+      "notes": "Mattress is optional and extra; page does not say whether 10.5-28 in is deck height or with mattress, gives no Twin XL footprint, and describes head/foot sections and Zero-Gravity positioning without one explicit 'head and foot adjust' line; ships in two pieces of about 120 lb, setup details not stated.",
+      "profiles": [
+        "manual_wheelchair",
+        "power_wheelchair",
+        "walker",
+        "cane",
+        "fall_risk"
+      ],
+      "evidence_note": null,
+      "tier": "premium"
+    },
+    {
+      "id": "ikea-relatera-desk-sit-stand-white-46",
+      "name": "RELATERA Desk sit/stand, white, 46 1/8x23 5/8 \"",
+      "brand": "IKEA",
+      "model": "995.528.65",
+      "type": "adjustable_desk",
+      "group": "bedroom",
+      "rooms": [
+        "bedroom",
+        "living"
+      ],
+      "fixes": [
+        "work_surface"
+      ],
+      "placement": "floor",
+      "takes_floor_space": true,
+      "price_usd": 169.99,
+      "price_note": "price of the 46 1/8x23 5/8 in white variant",
+      "store": "IKEA",
+      "url": "https://www.ikea.com/us/en/p/relatera-desk-sit-stand-white-s99552865/",
+      "image_url": "https://www.ikea.com/us/en/images/products/relatera-desk-sit-stand-white__1293258_pe935140_s5.jpg?f=u",
+      "photo": "photos/ikea-relatera-desk-sit-stand-white-46.jpg",
+      "dims_in": {
+        "width": 50.375,
+        "depth": 23.625,
+        "height": 42.5
+      },
+      "dims_cm": {
+        "width": 128.0,
+        "depth": 60.0,
+        "height": 108.0
+      },
+      "spec": {
+        "height_min_in": 25.625,
+        "height_max_in": 42.5,
+        "top_size_in": [
+          46.125,
+          23.625
+        ],
+        "clear_width_between_legs_in": null
+      },
+      "weight_capacity_lb": 110,
+      "install": "none",
+      "page_evidence": {
+        "price": "$169.99",
+        "dims": "Min. height 25 5/8\"; Max. height 42 1/2\"; Table top width 46 1/8\", depth 23 5/8\"; Width 50 3/8\"; Max. load 110 lb"
+      },
+      "source": "product page",
+      "checked": "2026-11-11",
+      "review": "ok",
+      "review_reason": null,
+      "notes": "Manual crank adjustment; self-assembly; clear width between the legs is not given on the page; page lists overall width 50 3/8 in against a 46 1/8 in top; height shown is the maximum.",
+      "profiles": [
+        "manual_wheelchair",
+        "power_wheelchair",
+        "scooter"
+      ],
+      "evidence_note": null,
+      "tier": "budget"
+    },
+    {
+      "id": "ikea-mittzon-desk-sit-stand-electric-white-47x31",
+      "name": "MITTZON Desk sit/stand, electric white, 47 1/4x31 1/2 \"",
+      "brand": "IKEA",
+      "model": "095.275.78",
+      "type": "adjustable_desk",
+      "group": "bedroom",
+      "rooms": [
+        "bedroom",
+        "living"
+      ],
+      "fixes": [
+        "work_surface"
+      ],
+      "placement": "floor",
+      "takes_floor_space": true,
+      "price_usd": 529.99,
+      "price_note": "price of the 47 1/4x31 1/2 in white variant (the 47 1/4x23 5/8 in version is listed at $499.99)",
+      "store": "IKEA",
+      "url": "https://www.ikea.com/us/en/p/mittzon-desk-sit-stand-electric-white-s09527578/",
+      "image_url": "https://www.ikea.com/us/en/images/products/mittzon-desk-sit-stand-electric-white__1205601_pe907164_s5.jpg",
+      "photo": "photos/ikea-mittzon-desk-sit-stand-electric-white-47x31.jpg",
+      "dims_in": {
+        "width": 47.25,
+        "depth": 31.5,
+        "height": 49.625
+      },
+      "dims_cm": {
+        "width": 120.0,
+        "depth": 80.0,
+        "height": 126.0
+      },
+      "spec": {
+        "height_min_in": 24.375,
+        "height_max_in": 49.625,
+        "top_size_in": [
+          47.25,
+          31.5
+        ],
+        "clear_width_between_legs_in": null
+      },
+      "weight_capacity_lb": 176,
+      "install": "none",
+      "page_evidence": {
+        "price": "$529.99",
+        "dims": "Min. height 24 3/8\"; Max. height 49 5/8\"; 47 1/4\" wide, 31 1/2\" deep; Max. load 176 lb"
+      },
+      "source": "product page",
+      "checked": "2026-11-11",
+      "review": "ok",
+      "review_reason": null,
+      "notes": "Electric dual-motor with 2 memory settings; self-assembly; clear width between the legs is not given on the page; height shown is the maximum.",
+      "profiles": [
+        "manual_wheelchair",
+        "power_wheelchair",
+        "scooter"
+      ],
+      "evidence_note": null,
+      "tier": "premium"
+    },
+    {
+      "id": "bed-frame-tropow-6in-metal-platform-queen",
+      "name": "TROPOW Low Bed Frame Queen Size, 6 Inch Heavy Duty Metal Platform, Low Profile, No Box Spring Needed, White",
+      "brand": "TROPOW",
+      "model": null,
+      "type": "bed_frame",
+      "group": "bedroom",
+      "rooms": [
+        "bedroom"
+      ],
+      "fixes": [
+        "bed_height"
+      ],
+      "placement": "floor",
+      "takes_floor_space": true,
+      "price_usd": 113.85,
+      "price_note": "sale (reg $252.99); Queen selected, King also offered",
+      "store": "Target (sold & shipped by Ruso Weights Inc)",
+      "url": "https://www.target.com/p/low-bed-frame-queen-size-6-inch-heavy-duty-metal-platform-king-bed-frame-low-profile-mattress-foundation-no-box-spring-needed-white/-/A-1004240524",
+      "image_url": "https://target.scene7.com/is/image/Target/GUEST_0dc7d8ca-a945-4646-b082-6961e7ebaf71?wid=300&hei=300&fmt=pjpeg",
+      "photo": "photos/bed-frame-tropow-6in-metal-platform-queen.jpg",
+      "dims_in": {
+        "width": null,
+        "depth": null,
+        "height": 6.8
+      },
+      "dims_cm": {
+        "width": null,
+        "depth": null,
+        "height": 17.3
+      },
+      "spec": {
+        "bed_size": "Queen",
+        "frame_height_in": 6.8,
+        "ground_height_claimed_in": 6,
+        "floor_to_frame_height_field_in": 10,
+        "fits_mattress_thickness_in": [
+          6,
+          12
+        ],
+        "slats_included": true,
+        "mattress_included": false
+      },
+      "weight_capacity_lb": 1000,
+      "install": "tool-free",
+      "page_evidence": {
+        "price": "$113.85 reg $252.99; Sold & shipped by Ruso Weights Inc; In Stock",
+        "dims": "Dimensions (Overall): 6.8 inches (H) x 9.4 inches (W) x 66.8 inches (D); description: \"6-inch ground height\"; specifications: \"Floor to Frame Height: 10 inches\"; \"Suitable for mattresses 6 to 12 inches thick\"; \"Maximum Weight Capacity: 1000 pounds\""
+      },
+      "source": "product page",
+      "checked": "2026-11-11",
+      "review": "check",
+      "review_reason": "marketplace listing with inconsistent figures (6 in and 10 in frame height; footprint not a queen's)",
+      "notes": "Third-party marketplace listing with inconsistent data: the overall width (9.4 in) and depth (66.8 in) are not a queen bed's footprint, so width and depth are left null; the page says both '6-inch ground height' and 'Floor to Frame Height: 10 inches'; title says White while the specifications say Black; 'No Assembly Required' in specifications against 'Easy assembly' in the description. A near-identical GustoWave queen frame was $114.99 on the same day (A-1014353352, 6.69 in H, 'Floor to Frame Height: 4.4 inches', 1000 lb).",
+      "profiles": [
+        "manual_wheelchair",
+        "power_wheelchair",
+        "walker",
+        "cane",
+        "fall_risk"
+      ],
+      "evidence_note": "Bedroom is the most common place for older adults' at-home falls, 25.0% (moreland2020); aim the mattress top at the user's seat or knee height (koontz2012, bloswick2015).",
+      "tier": "budget"
+    },
+    {
+      "id": "bed-frame-ikea-vevelstad-queen-white",
+      "name": "IKEA VEVELSTAD bed frame, white, Queen",
+      "brand": "IKEA",
+      "model": "505.064.36",
+      "type": "bed_frame",
+      "group": "bedroom",
+      "rooms": [
+        "bedroom"
+      ],
+      "fixes": [
+        "bed_height"
+      ],
+      "placement": "floor",
+      "takes_floor_space": true,
+      "price_usd": 149.0,
+      "price_note": "list; Full/Double $129.00, King $199.00 on the same page",
+      "store": "IKEA",
+      "url": "https://www.ikea.com/us/en/p/vevelstad-bed-frame-white-50506436/",
+      "image_url": "https://www.ikea.com/us/en/images/products/vevelstad-bed-frame-white__1035359_pe840535_s5.jpg?f=u",
+      "photo": "photos/bed-frame-ikea-vevelstad-queen-white.jpg",
+      "dims_in": {
+        "width": 62.25,
+        "depth": 81.875,
+        "height": 10.625
+      },
+      "dims_cm": {
+        "width": 158.1,
+        "depth": 208.0,
+        "height": 27.0
+      },
+      "spec": {
+        "bed_size": "Queen",
+        "frame_height_in": 10.625,
+        "footboard_height_in": 10.625,
+        "clearance_under_in": 7.875,
+        "mattress_length_in": 79.5,
+        "mattress_width_in": 59.875,
+        "slats_included": true,
+        "mattress_included": false,
+        "max_load_lb": null,
+        "recommended_mattress_thickness_in": null
+      },
+      "weight_capacity_lb": null,
+      "install": "tool-free",
+      "page_evidence": {
+        "price": "$149.00",
+        "dims": "Height: 10 5/8\"; Length: 81 7/8\"; Width: 62 1/4\"; Footboard height: 10 5/8\"; Height under furniture: 7 7/8\"; Mattress length: 79 1/2\"; Mattress width: 59 7/8\""
+      },
+      "source": "product page",
+      "checked": "2026-11-11",
+      "review": "ok",
+      "review_reason": null,
+      "notes": "Includes slatted bed base and midbeam; mattress sold separately. The page gives one height (10 5/8 in, same as the footboard) and does not say how high the slats sit, so the mattress-top height cannot be read off the page. No max load or mattress thickness stated. Availability showed 'Checking availability...' when read. Install value is my label: the page links assembly instructions and does not say whether tools are needed.",
+      "profiles": [
+        "manual_wheelchair",
+        "power_wheelchair",
+        "walker",
+        "cane",
+        "fall_risk"
+      ],
+      "evidence_note": "Bedroom is the most common place for older adults' at-home falls, 25.0% (moreland2020); aim the mattress top at the user's seat or knee height (koontz2012, bloswick2015).",
+      "tier": "premium"
+    },
+    {
+      "id": "able-life-bedside-safety-handle",
+      "name": "Able Life Bedside Safety Handle & Organizer Pouch for Seniors, Black",
+      "brand": "Able Life",
+      "model": "TCIN 1002280917 / UPC 897564000948",
+      "type": "bed_rail",
+      "group": "bedroom",
+      "rooms": [
+        "bedroom"
+      ],
+      "fixes": [
+        "bed_transfer_support"
+      ],
+      "placement": "beside_bed",
+      "takes_floor_space": false,
+      "price_usd": 49.99,
+      "price_note": "list",
+      "store": "Target (sold and shipped by Stander)",
+      "url": "https://www.target.com/p/able-life-bedside-safety-handle-organizer-pouch-for-seniors-black/-/A-1002280917",
+      "image_url": "https://target.scene7.com/is/image/Target/GUEST_24661ca1-f979-4e71-a0c5-4b96a421d768?wid=300&hei=300&fmt=pjpeg",
+      "photo": "photos/able-life-bedside-safety-handle.webp",
+      "dims_in": {
+        "width": 17,
+        "depth": 21,
+        "height": 20
+      },
+      "dims_cm": {
+        "width": 43.2,
+        "depth": 53.3,
+        "height": 50.8
+      },
+      "spec": {
+        "handle_height_above_mattress_in": null,
+        "overall_height_range_in": [
+          13,
+          20
+        ],
+        "handle_width_in": 17,
+        "fits_mattress_thickness_in": [
+          6,
+          14
+        ],
+        "fits_bed_sizes": null,
+        "attaches_how": "base slides under the mattress; safety strap attaches to the bed frame"
+      },
+      "weight_capacity_lb": 300,
+      "install": "tool-free",
+      "page_evidence": {
+        "price": "$49.99",
+        "dims": "13-20 inches (H) x 17 inches (W) x 21 inches (D); Use with mattresses 6-14 in. thick; Holds up to: 300 pounds"
+      },
+      "source": "product page",
+      "checked": "2026-11-11",
+      "review": "ok",
+      "review_reason": null,
+      "notes": "Not for adjustable beds or extra-soft mattresses; the page gives an overall height range (13-20 in), not a height above the mattress; assembly tools are not stated.",
+      "profiles": [
+        "manual_wheelchair",
+        "walker",
+        "cane",
+        "fall_risk"
+      ],
+      "evidence_note": "43.2% of wheelchair users' falls happened during transfers in one sample (abourice2023).",
+      "tier": "budget"
+    },
+    {
+      "id": "able-life-extendable-bed-rail",
+      "name": "Able Life Extendable Bed Rail for Seniors, Adjustable Bedside Safety Railing and Support Handle, Black",
+      "brand": "Able Life",
+      "model": "TCIN 1012222841 / UPC 850084311215",
+      "type": "bed_rail",
+      "group": "bedroom",
+      "rooms": [
+        "bedroom"
+      ],
+      "fixes": [
+        "bed_transfer_support"
+      ],
+      "placement": "beside_bed",
+      "takes_floor_space": false,
+      "price_usd": 89.99,
+      "price_note": "list",
+      "store": "Target (sold and shipped by Stander)",
+      "url": "https://www.target.com/p/able-life-extendable-bed-rail-for-seniors-adjustable-bedside-safety-railing-and-support-handle-black/-/A-1012222841",
+      "image_url": "https://target.scene7.com/is/image/Target/GUEST_c4429416-c87c-421c-bf81-5bab2c6c2ddf?wid=300&hei=300&fmt=pjpeg",
+      "photo": "photos/able-life-extendable-bed-rail.webp",
+      "dims_in": {
+        "width": 30,
+        "depth": 18,
+        "height": 20
+      },
+      "dims_cm": {
+        "width": 76.2,
+        "depth": 45.7,
+        "height": 50.8
+      },
+      "spec": {
+        "handle_height_above_mattress_in": null,
+        "rail_length_range_in": [
+          20,
+          30
+        ],
+        "fits_mattress_thickness_in": [
+          8,
+          15
+        ],
+        "fits_bed_sizes": null,
+        "attaches_how": "installs beneath the mattress; included safety strap attaches to the bed frame"
+      },
+      "weight_capacity_lb": 300,
+      "install": "tool-free",
+      "page_evidence": {
+        "price": "$89.99",
+        "dims": "20 inches (H) x 20-30 inches (W) x 18 inches (D); Use with mattresses 8-15 in. thick; Holds up to: 300 pounds"
+      },
+      "source": "product page",
+      "checked": "2026-11-11",
+      "review": "ok",
+      "review_reason": null,
+      "notes": "Width is the extended maximum (rail adjusts 20-30 in); not for adjustable or hospital beds; height above mattress and tools needed are not stated.",
+      "profiles": [
+        "manual_wheelchair",
+        "walker",
+        "cane",
+        "fall_risk"
+      ],
+      "evidence_note": "43.2% of wheelchair users' falls happened during transfers in one sample (abourice2023).",
+      "tier": "mid"
+    },
+    {
+      "id": "stander-wonder-ez-adjust-bed-rail",
+      "name": "Stander Wonder EZ Adjust Bed Rail, Adjustable Safety Guard Rail for Seniors, Black",
+      "brand": "Stander",
+      "model": "TCIN 1002280876 / UPC 897564000818",
+      "type": "bed_rail",
+      "group": "bedroom",
+      "rooms": [
+        "bedroom"
+      ],
+      "fixes": [
+        "bed_transfer_support"
+      ],
+      "placement": "beside_bed",
+      "takes_floor_space": false,
+      "price_usd": 119.99,
+      "price_note": "list",
+      "store": "Target (sold and shipped by Stander)",
+      "url": "https://www.target.com/p/stander-ez-adjust-bed-rail-adjustable-safety-guard-rail-for-seniors-black/-/A-1002280876",
+      "image_url": "https://target.scene7.com/is/image/Target/GUEST_f4886d98-079c-451d-8704-db333c22d9e3?wid=300&hei=300&fmt=pjpeg",
+      "photo": "photos/stander-wonder-ez-adjust-bed-rail.webp",
+      "dims_in": {
+        "width": 30,
+        "depth": 25,
+        "height": 23
+      },
+      "dims_cm": {
+        "width": 76.2,
+        "depth": 63.5,
+        "height": 58.4
+      },
+      "spec": {
+        "handle_height_above_mattress_in": null,
+        "rail_length_range_in": [
+          20,
+          30
+        ],
+        "fits_mattress_thickness_in": [
+          10,
+          14
+        ],
+        "fits_bed_sizes": null,
+        "attaches_how": "safety strap secures the rail to the bed frame"
+      },
+      "weight_capacity_lb": 300,
+      "install": "tool-free",
+      "page_evidence": {
+        "price": "$119.99",
+        "dims": "23 inches (H) x 20-30 inches (W) x 25 inches (D); guard rail adjusts in length from 20 to 30 inches; mattresses 10 to 14 in. thick"
+      },
+      "source": "product page",
+      "checked": "2026-11-11",
+      "review": "ok",
+      "review_reason": null,
+      "notes": "Not for adjustable beds or extra-soft mattresses; 23 in is overall height, the page gives no height above the mattress; tools needed are not stated.",
+      "profiles": [
+        "manual_wheelchair",
+        "walker",
+        "cane",
+        "fall_risk"
+      ],
+      "evidence_note": "43.2% of wheelchair users' falls happened during transfers in one sample (abourice2023).",
+      "tier": "premium"
+    },
+    {
+      "id": "iprimio-3in-square-bed-risers-set-of-4",
+      "name": "iPrimio 3-Inch Lift Square Bed Risers, Set of 4, Black",
+      "brand": "iPrimio",
+      "model": "282853",
+      "type": "bed_riser",
+      "group": "bedroom",
+      "rooms": [
+        "bedroom"
+      ],
+      "fixes": [
+        "bed_height"
+      ],
+      "placement": "under_furniture_legs",
+      "takes_floor_space": false,
+      "price_usd": 14.99,
+      "price_note": "list",
+      "store": "Ocean State Job Lot",
+      "url": "https://www.oceanstatejoblot.com/bed-risers/iprimio-3-inch-lift-square-bed-risers-set-of-4-black/282853",
+      "image_url": "https://cdn-tp4.mozu.com/42004-64487/cms/64487/files/57b6614b-e9d3-4ecb-b9f0-ce9e8220c9c7?max=850&quality=70&_mzcb=_1793884728655",
+      "photo": "photos/iprimio-3in-square-bed-risers-set-of-4.jpg",
+      "dims_in": {
+        "width": 4.25,
+        "depth": 4.25,
+        "height": 3.5
+      },
+      "dims_cm": {
+        "width": 10.8,
+        "depth": 10.8,
+        "height": 8.9
+      },
+      "spec": {
+        "lift_options_in": [
+          3
+        ],
+        "pieces_per_set": 4,
+        "fits_leg_or_caster_up_to_in": null
+      },
+      "weight_capacity_lb": 6800,
+      "install": "none",
+      "page_evidence": {
+        "price": "14.99",
+        "dims": "Specifications: 4.25\"W x 4.25\"D x 3.5\"H, lift height 3\", top width 2.5\" (description says 4.5 x 4.5 x 3.5 in)"
+      },
+      "source": "product page",
+      "checked": "2026-11-11",
+      "review": "check",
+      "review_reason": "regional chain, ship-to-store only: cannot be ordered to a home address",
+      "notes": "Page shows 'Buy Online, Ship To Store' only (no home delivery); capacity is quoted per leg; 'top width 2.5 in' is listed but not called a leg-fit size.",
+      "profiles": [
+        "manual_wheelchair",
+        "power_wheelchair",
+        "walker",
+        "cane",
+        "fall_risk"
+      ],
+      "evidence_note": "29.9% of wheelchair-transfer fractures in adults 65+ happen on bed transfers (tsai2020); aim for the user's own seat height (koontz2012).",
+      "tier": "budget"
+    },
+    {
+      "id": "homeitusa-adjustable-bed-risers-3-5-8-black",
+      "name": "Adjustable Bed Risers - Heavy Duty Furniture Riser Set of 4 in Heights of 8, 5, or 3 Inches for Table risers, Bed Frame Risers in Black - Homeitusa",
+      "brand": "Homeitusa",
+      "model": "TCIN 83948178 / UPC 810045233659",
+      "type": "bed_riser",
+      "group": "bedroom",
+      "rooms": [
+        "bedroom"
+      ],
+      "fixes": [
+        "bed_height"
+      ],
+      "placement": "under_furniture_legs",
+      "takes_floor_space": false,
+      "price_usd": 34.99,
+      "price_note": "sale (list was $49.99)",
+      "store": "Target (sold and shipped by Home it USA)",
+      "url": "https://www.target.com/p/adjustable-bed-risers-heavy-duty-furniture-riser-set-of-4-in-heights-of-8-5-or-3-inches-for-table-risers-bed-frame-risers-in-black-homeitusa/-/A-83948178",
+      "image_url": "https://target.scene7.com/is/image/Target/GUEST_c9b1b1bd-5ce7-4b6d-ae9c-bc5108d40654?wid=300&hei=300&fmt=pjpeg",
+      "photo": "photos/homeitusa-adjustable-bed-risers-3-5-8-black.jpg",
+      "dims_in": {
+        "width": 7,
+        "depth": 2.1,
+        "height": 12
+      },
+      "dims_cm": {
+        "width": 17.8,
+        "depth": 5.3,
+        "height": 30.5
+      },
+      "spec": {
+        "lift_options_in": [
+          3,
+          5,
+          8
+        ],
+        "pieces_per_set": 8,
+        "fits_leg_or_caster_up_to_in": 3
+      },
+      "weight_capacity_lb": 1300,
+      "install": "none",
+      "page_evidence": {
+        "price": "$34.99 reg $49.99, $15 off",
+        "dims": "Extra 8\" High, Extra 5\" High or Extra 3\" High; recess opening 3\" X 3\" X 3/4\" deep; overall 12 inches (H) x 7 inches (W) x 2.1 inches (D)"
+      },
+      "source": "product page",
+      "checked": "2026-11-11",
+      "review": "ok",
+      "review_reason": null,
+      "notes": "8-piece set (four large + four small cups) for four legs; the 'overall' dimensions on the listing look like packaging, not one riser's footprint; 1,300 lb is the total for the set.",
+      "profiles": [
+        "manual_wheelchair",
+        "power_wheelchair",
+        "walker",
+        "cane",
+        "fall_risk"
+      ],
+      "evidence_note": "29.9% of wheelchair-transfer fractures in adults 65+ happen on bed transfers (tsai2020); aim for the user's own seat height (koontz2012).",
+      "tier": "premium"
+    },
+    {
+      "id": "drive-medical-non-tilt-overbed-table-silver-vein",
+      "name": "Drive Medical Non Tilt Top Overbed Table, Silver Vein",
+      "brand": "Drive Medical",
+      "model": "TCIN 51688087 / UPC 822383138800",
+      "type": "overbed_table",
+      "group": "bedroom",
+      "rooms": [
+        "bedroom",
+        "living"
+      ],
+      "fixes": [
+        "work_surface"
+      ],
+      "placement": "floor",
+      "takes_floor_space": true,
+      "price_usd": 49.99,
+      "price_note": "list",
+      "store": "Target",
+      "url": "https://www.target.com/p/drive-medical-non-tilt-top-overbed-table-silver-vein/-/A-51688087",
+      "image_url": "https://target.scene7.com/is/image/Target/GUEST_0fb9e15c-dcf3-4b68-be57-14befd71ea5c?wid=300&hei=300&fmt=pjpeg",
+      "photo": "photos/drive-medical-non-tilt-overbed-table-silver-vein.webp",
+      "dims_in": {
+        "width": 30,
+        "depth": 15.5,
+        "height": 45
+      },
+      "dims_cm": {
+        "width": 76.2,
+        "depth": 39.4,
+        "height": 114.3
+      },
+      "spec": {
+        "height_min_in": 28,
+        "height_max_in": 45,
+        "top_size_in": [
+          30,
+          15
+        ],
+        "base_size_in": [
+          26.5,
+          15.5
+        ],
+        "base_clearance_needed_in": 3.625
+      },
+      "weight_capacity_lb": 50,
+      "install": "tool-free",
+      "page_evidence": {
+        "price": "$49.99",
+        "dims": "raised or lowered in infinite positions between 28\"- 45\"; Tabletop 30 in Width x 15 in Depth; Q&A: Base Depth 15.5\" Base Width 26.5\" Base Height 3.625\""
+      },
+      "source": "product page",
+      "checked": "2026-11-11",
+      "review": "ok",
+      "review_reason": null,
+      "notes": "Base size, base height and the 50 lb limit come from the Q&A section of the page, not the spec table (another retailer lists 40 lb for the same table); height is the maximum.",
+      "profiles": [
+        "manual_wheelchair",
+        "power_wheelchair",
+        "scooter",
+        "walker",
+        "cane",
+        "fall_risk"
+      ],
+      "evidence_note": null,
+      "tier": "budget"
+    },
+    {
+      "id": "mount-it-height-adjustable-overbed-table-gas-spring",
+      "name": "Mount-It! Height Adjustable Overbed & Bedside Table w/ Wheels | Overbed Desk Breakfast Tray for Medical & Home Use | Standing Desk w/ Gas Spring",
+      "brand": "Mount-It!",
+      "model": "TCIN 89816084 / UPC 810041738035",
+      "type": "overbed_table",
+      "group": "bedroom",
+      "rooms": [
+        "bedroom",
+        "living"
+      ],
+      "fixes": [
+        "work_surface"
+      ],
+      "placement": "floor",
+      "takes_floor_space": true,
+      "price_usd": 137.99,
+      "price_note": "list",
+      "store": "Target",
+      "url": "https://www.target.com/p/mount-it-height-adjustable-overbed-bedside-table-w-wheels-overbed-desk-breakfast-tray-for-medical-home-use-standing-desk-w-gas-spring/-/A-89816084",
+      "image_url": "https://target.scene7.com/is/image/Target/GUEST_367adcda-ed16-453f-8d7a-15df8ea206ce",
+      "photo": "photos/mount-it-height-adjustable-overbed-table-gas-spring.jpg",
+      "dims_in": {
+        "width": 31.5,
+        "depth": 15.7,
+        "height": 42
+      },
+      "dims_cm": {
+        "width": 80.0,
+        "depth": 39.9,
+        "height": 106.7
+      },
+      "spec": {
+        "height_min_in": 26.3,
+        "height_max_in": 42.1,
+        "top_size_in": [
+          31.5,
+          15.7
+        ],
+        "base_clearance_needed_in": null
+      },
+      "weight_capacity_lb": 17.6,
+      "install": "none",
+      "page_evidence": {
+        "price": "$137.99",
+        "dims": "Height Range: 26.3\" - 42.1\"; top 31.5\" x 15.7\"; 42 inches (H) x 31.5 inches (W) x 15.7 inches (D); desktop weight capacity of 17.6 lbs"
+      },
+      "source": "product page",
+      "checked": "2026-11-11",
+      "review": "ok",
+      "review_reason": null,
+      "notes": "Gas-spring lift; listing says 'No Assembly Required' though reviews mention screws and a hex wrench; base height under the bed is not given.",
+      "profiles": [
+        "manual_wheelchair",
+        "power_wheelchair",
+        "scooter",
+        "walker",
+        "cane",
+        "fall_risk"
+      ],
+      "evidence_note": null,
+      "tier": "premium"
+    },
+    {
+      "id": "transfer-board-drive-wooden-rtl6045-30in",
+      "name": "Drive Medical Wooden Sliding Transfer Board",
+      "brand": "Drive Medical",
+      "model": "RTL6045",
+      "type": "transfer_board",
+      "group": "bedroom",
+      "rooms": [
+        "bedroom",
+        "any"
+      ],
+      "fixes": [
+        "bed_transfer_support"
+      ],
+      "placement": "handheld",
+      "takes_floor_space": false,
+      "price_usd": 39.95,
+      "price_note": "list",
+      "store": "HealthyKin",
+      "url": "https://www.healthykin.com/p-188-wooden-sliding-transfer-board.aspx",
+      "image_url": "https://www.healthykin.com/images/Product/large/188.jpg",
+      "photo": "photos/transfer-board-drive-wooden-rtl6045-30in.jpg",
+      "dims_in": {
+        "width": 8,
+        "depth": 30,
+        "height": 0.75
+      },
+      "dims_cm": {
+        "width": 20.3,
+        "depth": 76.2,
+        "height": 1.9
+      },
+      "spec": {
+        "length_in": 30,
+        "width_in": 8,
+        "material": "solid 3/4 in maple plywood",
+        "cut_outs": 2
+      },
+      "weight_capacity_lb": 440,
+      "install": "none",
+      "page_evidence": {
+        "price": "$39.95; In Stock",
+        "dims": "8\" x 30\"; Constructed of solid 3/4\" maple plywood; Two cut-outs; 440 pound weight capacity"
+      },
+      "source": "product page",
+      "checked": "2026-11-11",
+      "review": "ok",
+      "review_reason": null,
+      "notes": "A second transfer board from a store that ships itself (the catalogue's DMI board is a third-party Target listing whose only review says it did not ship).",
+      "profiles": [
+        "manual_wheelchair",
+        "power_wheelchair"
+      ],
+      "evidence_note": null,
+      "tier": "budget"
+    },
+    {
+      "id": "dmi-wooden-transfer-board-32in",
+      "name": "DMI Wooden Transfer Slide Board with Handles, Heavy Duty Patient Assist, 32x10x1 in, 735 lb",
+      "brand": "DMI",
+      "model": "TCIN 1004606444 / UPC 041298118008",
+      "type": "transfer_board",
+      "group": "bedroom",
+      "rooms": [
+        "bedroom",
+        "any"
+      ],
+      "fixes": [
+        "bed_transfer_support"
+      ],
+      "placement": "handheld",
+      "takes_floor_space": false,
+      "price_usd": 42.99,
+      "price_note": "list",
+      "store": "Target (sold and shipped by DMS Holdings)",
+      "url": "https://www.target.com/p/dmi-transfer-board/-/A-1004606444",
+      "image_url": "https://target.scene7.com/is/image/Target/GUEST_2056504c-4782-4713-9366-72a59a48c812",
+      "photo": "photos/dmi-wooden-transfer-board-32in.webp",
+      "dims_in": {
+        "width": 10,
+        "depth": 32,
+        "height": 1
+      },
+      "dims_cm": {
+        "width": 25.4,
+        "depth": 81.3,
+        "height": 2.5
+      },
+      "spec": {
+        "length_in": 32,
+        "width_in": 10,
+        "material": "wood (Scotch pine)"
+      },
+      "weight_capacity_lb": 735,
+      "install": "none",
+      "page_evidence": {
+        "price": "$42.99",
+        "dims": "1.0 inches (H) x 10.0 inches (W) x 32.0 inches (D)"
+      },
+      "source": "product page",
+      "checked": "2026-11-11",
+      "review": "check",
+      "review_reason": "only review on the page says it did not ship; the Drive board from HealthyKin is the alternative",
+      "notes": "Shown In Stock; the only review on the page is a 1-star complaint that the item did not ship.",
+      "profiles": [
+        "manual_wheelchair",
+        "power_wheelchair"
+      ],
+      "evidence_note": null,
+      "tier": "mid"
+    },
+    {
+      "id": "transfer-board-sammons-preston-slots-24in",
+      "name": "Sammons Preston Transfer Board with Slots, 24 in",
+      "brand": "Sammons Preston",
+      "model": null,
+      "type": "transfer_board",
+      "group": "bedroom",
+      "rooms": [
+        "bedroom",
+        "any"
+      ],
+      "fixes": [
+        "bed_transfer_support"
+      ],
+      "placement": "handheld",
+      "takes_floor_space": false,
+      "price_usd": 54.89,
+      "price_note": "price with the 24\" size selected; 30\" size showed $62.86",
+      "store": "Performance Health",
+      "url": "https://www.performancehealth.com/sammons-preston-transfer-board-with-slots",
+      "image_url": "https://www.performancehealth.com/media/catalog/product/s/a/sammons-preston-transfer-board-slots_1.jpg",
+      "photo": "photos/transfer-board-sammons-preston-slots-24in.jpg",
+      "dims_in": {
+        "width": 8,
+        "depth": 24,
+        "height": null
+      },
+      "dims_cm": {
+        "width": 20.3,
+        "depth": 61.0,
+        "height": null
+      },
+      "spec": {
+        "length_in": 24,
+        "width_in": 8,
+        "material": "maple hardwood, lacquer coating",
+        "thickness_at_ends_in": 0.125,
+        "other_length_in": 30
+      },
+      "weight_capacity_lb": 300,
+      "install": "none",
+      "page_evidence": {
+        "price": "$54.89 - $62.86; with size 24\" selected: $54.89, In Stock; with size 30\" selected: $62.86",
+        "dims": "\"measure 8\" wide\"; \"available in two lengths: 24\" or 30\"\"; tapers to 1/8\" (0.32 cm) at both ends; \"hold up to 300 lbs\""
+      },
+      "source": "product page",
+      "checked": "2026-11-11",
+      "review": "ok",
+      "review_reason": null,
+      "notes": "Item numbers are not shown until a size is chosen. Ship date needs an address; stock showed 'In Stock' with 24 in selected.",
+      "profiles": [
+        "manual_wheelchair",
+        "power_wheelchair"
+      ],
+      "evidence_note": null,
+      "tier": "premium"
+    },
+    {
+      "id": "stander-wonder-pole-slim-white",
+      "name": "Stander Wonder Pole Slim, Tension-mounted Floor to Ceiling Transfer Pole with Padded Handle, White",
+      "brand": "Stander",
+      "model": "TCIN 1011901619 / UPC 897564000146",
+      "type": "transfer_pole",
+      "group": "bedroom",
+      "rooms": [
+        "bedroom",
+        "bathroom",
+        "living"
+      ],
+      "fixes": [
+        "bed_transfer_support"
+      ],
+      "placement": "floor",
+      "takes_floor_space": true,
+      "price_usd": 159.99,
+      "price_note": "list",
+      "store": "Target (sold and shipped by Stander)",
+      "url": "https://www.target.com/p/stander-wonder-pole-slim-tension-mounted-floor-to-ceiling-transfer-pole-with-padded-handle-white/-/A-1011901619",
+      "image_url": "https://target.scene7.com/is/image/Target/GUEST_5ffae765-2109-42cb-9d49-3b1be82202e8?wid=300&hei=300&fmt=pjpeg",
+      "photo": "photos/stander-wonder-pole-slim-white.jpg",
+      "dims_in": {
+        "width": 10,
+        "depth": 22,
+        "height": 120
+      },
+      "dims_cm": {
+        "width": 25.4,
+        "depth": 55.9,
+        "height": 304.8
+      },
+      "spec": {
+        "ceiling_height_min_in": 84,
+        "ceiling_height_max_in": 120,
+        "base_footprint_in": null,
+        "needs_drilling": false
+      },
+      "weight_capacity_lb": 300,
+      "install": "tool-free",
+      "page_evidence": {
+        "price": "$159.99",
+        "dims": "84-120 inches (H) x 10 inches (W) x 22 inches (D); flat ceilings ranging from 7-10 feet in height; no drilling required"
+      },
+      "source": "product page",
+      "checked": "2026-11-11",
+      "review": "ok",
+      "review_reason": null,
+      "notes": "Tension-mounted and tightened with the provided wrench; needs a flat ceiling; floor plate size is not stated (10 x 22 in is the listing's overall size).",
+      "profiles": [
+        "manual_wheelchair",
+        "walker",
+        "cane",
+        "fall_risk"
+      ],
+      "evidence_note": "43.2% of wheelchair users' falls happened during transfers in one sample (abourice2023).",
+      "tier": "budget"
+    },
+    {
+      "id": "transfer-pole-healthcraft-superpole",
+      "name": "HealthCraft SuperPole System (floor-to-ceiling pole)",
+      "brand": "HealthCraft",
+      "model": "SP-S",
+      "type": "transfer_pole",
+      "group": "bedroom",
+      "rooms": [
+        "bedroom",
+        "bathroom",
+        "living"
+      ],
+      "fixes": [
+        "bed_transfer_support"
+      ],
+      "placement": "floor",
+      "takes_floor_space": true,
+      "price_usd": 247.0,
+      "price_note": "price of the plain 'SuperPole'; with SuperBar $305.00, bariatric $399.00, Uni-Fit Extender $79.00",
+      "store": "HealthyKin",
+      "url": "https://www.healthykin.com/p-1891-healthcraft-superpole-system.aspx",
+      "image_url": "https://www.healthykin.com/images/Product/large/1891.jpg",
+      "photo": "photos/transfer-pole-healthcraft-superpole.jpg",
+      "dims_in": {
+        "width": 5,
+        "depth": 5,
+        "height": 99
+      },
+      "dims_cm": {
+        "width": 12.7,
+        "depth": 12.7,
+        "height": 251.5
+      },
+      "spec": {
+        "ceiling_height_min_in": 93,
+        "ceiling_height_max_in": 99,
+        "base_footprint_in": "5 in diameter base plate; 20 in long ceiling plate",
+        "needs_drilling": null,
+        "pole_diameter_in": 1.5,
+        "ceiling_height_with_extender_in": [
+          100,
+          120
+        ],
+        "bariatric_capacity_lb": 450
+      },
+      "weight_capacity_lb": 300,
+      "install": "tool-free",
+      "page_evidence": {
+        "price": "SuperPole $247.00; In Stock; 2-4 Week Lead Time",
+        "dims": "ceiling height min 93\" (236 cm), max 99\" (251 cm); Uni-Fit Extender 100\"-120\"; standard 300 lbs (136 kg); base plate 5\" (12.7 cm) diameter; ceiling plate 20\" (51 cm) long; pole diameter 1.5\""
+      },
+      "source": "product page",
+      "checked": "2026-11-11",
+      "review": "check",
+      "review_reason": "fits 93-99 in ceilings only without the $79 extender; 2-4 week lead time",
+      "notes": "Second brand of tension pole. Unlike the Stander poles (84-120 in), the standard SuperPole only fits ceilings of 93-99 in; taller needs the $79 extender. The page describes a jackscrew that presses the pole between floor and ceiling with rubber pads and never mentions drilling either way, so needs_drilling is null. 2-4 week lead time. The model code SP-S is my reading of the page's part-number list, which is not mapped to variants.",
+      "profiles": [
+        "manual_wheelchair",
+        "walker",
+        "cane",
+        "fall_risk"
+      ],
+      "evidence_note": "43.2% of wheelchair users' falls happened during transfers in one sample (abourice2023).",
+      "tier": "mid"
+    },
+    {
+      "id": "stander-wonder-pole-premium-bronze",
+      "name": "Stander Wonder Pole Premium, Floor to Ceiling Transfer Pole with Adjustable Grab Bars for Bathroom Safety - Bronze",
+      "brand": "Stander",
+      "model": "TCIN 1002280922 / UPC 857249006191",
+      "type": "transfer_pole",
+      "group": "bedroom",
+      "rooms": [
+        "bedroom",
+        "bathroom",
+        "living"
+      ],
+      "fixes": [
+        "bed_transfer_support"
+      ],
+      "placement": "floor",
+      "takes_floor_space": true,
+      "price_usd": 310.0,
+      "price_note": "list",
+      "store": "Target (sold and shipped by Stander)",
+      "url": "https://www.target.com/p/signature-life-sure-stand-security-pole-with-handles-tension-mounted-floor-to-ceiling-grab-bar-bronze/-/A-1002280922",
+      "image_url": "https://target.scene7.com/is/image/Target/GUEST_5ddf082a-0217-4d9b-b3e0-ed271ea9d870?wid=300&hei=300&fmt=pjpeg",
+      "photo": "photos/stander-wonder-pole-premium-bronze.webp",
+      "dims_in": {
+        "width": 10,
+        "depth": 22,
+        "height": 120
+      },
+      "dims_cm": {
+        "width": 25.4,
+        "depth": 55.9,
+        "height": 304.8
+      },
+      "spec": {
+        "ceiling_height_min_in": 84,
+        "ceiling_height_max_in": 120,
+        "base_footprint_in": null,
+        "needs_drilling": false
+      },
+      "weight_capacity_lb": 300,
+      "install": "tool-free",
+      "page_evidence": {
+        "price": "$310.00",
+        "dims": "84-120 inches (H) x 10 inches (W) x 22 inches (D); Adjustable to fit ceiling heights from 7 to 10 feet; no drilling required"
+      },
+      "source": "product page",
+      "checked": "2026-11-11",
+      "review": "ok",
+      "review_reason": null,
+      "notes": "URL slug still says 'Signature Life Sure Stand' but the page title is Wonder Pole Premium; floor plate size and tools needed are not stated.",
+      "profiles": [
+        "manual_wheelchair",
+        "walker",
+        "cane",
+        "fall_risk"
+      ],
+      "evidence_note": "43.2% of wheelchair users' falls happened during transfers in one sample (abourice2023).",
+      "tier": "premium"
+    },
+    {
+      "id": "bath-mat-drive-shower-bathtub-mat",
+      "name": "Drive Medical Shower Bathtub Mat",
+      "brand": "Drive Medical",
+      "model": "12950",
+      "type": "bath_mat",
+      "group": "bathroom",
+      "rooms": [
+        "bathroom"
+      ],
+      "fixes": [
+        "tub_transfer"
+      ],
+      "placement": "tub",
+      "takes_floor_space": false,
+      "price_usd": 19.95,
+      "price_note": "list",
+      "store": "HealthyKin",
+      "url": "https://www.healthykin.com/p-2373-drive-medical-shower-bathtub-mat.aspx",
+      "image_url": "https://www.healthykin.com/images/Product/large/2373.jpg",
+      "photo": "photos/bath-mat-drive-shower-bathtub-mat.jpg",
+      "dims_in": {
+        "width": 15.75,
+        "depth": 35.5,
+        "height": null
+      },
+      "dims_cm": {
+        "width": 40.0,
+        "depth": 90.2,
+        "height": null
+      },
+      "spec": {
+        "size_in": "15.75 x 35.5"
+      },
+      "weight_capacity_lb": null,
+      "install": "none",
+      "page_evidence": {
+        "price": "$19.95",
+        "dims": "15.75\" x 35.5\""
+      },
+      "source": "product page",
+      "checked": "2026-11-11",
+      "review": "ok",
+      "review_reason": null,
+      "notes": "Latex-free rubber mat held by suction cups, so it needs a smooth tub or shower floor.",
+      "profiles": [
+        "walker",
+        "cane",
+        "fall_risk"
+      ],
+      "evidence_note": null,
+      "tier": "only"
+    },
+    {
+      "id": "flip-up-grab-bar-vevor-30-paper-holder",
+      "name": "VEVOR Swing Up Grab Bar with Toilet Paper Holder, 30 Inch",
+      "brand": "VEVOR",
+      "model": "FBL210212 (SKU CSFSWZTKFZ305ODGSV0)",
+      "type": "flip_up_grab_bar",
+      "group": "bathroom",
+      "rooms": [
+        "bathroom"
+      ],
+      "fixes": [
+        "toilet_grab_bars"
+      ],
+      "placement": "wall",
+      "takes_floor_space": false,
+      "price_usd": 48.9,
+      "price_note": "price of the 30 inch option; 24 inch $41.90, 31 inch $59.90",
+      "store": "VEVOR",
+      "url": "https://www.vevor.com/grab-bars-c_13697/folding-toilet-safety-rail-30-in-300-lbs-capacity-transfer-bar-with-paper-holder-p_010829099926",
+      "image_url": "https://img.vevorstatic.com/us%2FCSFSWZTKFZ305ODGSV0%2Fgoods_thumb-v1%2Fsenior-safety-pole-m100-1.2.jpg?timestamp=1741231448000&format=webp",
+      "photo": "photos/flip-up-grab-bar-vevor-30-paper-holder.jpg",
+      "dims_in": {
+        "width": 11,
+        "depth": 30,
+        "height": 2.95
+      },
+      "dims_cm": {
+        "width": 27.9,
+        "depth": 76.2,
+        "height": 7.5
+      },
+      "spec": {
+        "length_in": 30,
+        "bar_diameter_in": null,
+        "wall_clearance_in": null,
+        "finish": "aluminum with nylon/EVA non-slip sleeves",
+        "ada_compliant_claimed": null,
+        "product_weight_lb": 3.57,
+        "rotation_deg": "0-90"
+      },
+      "weight_capacity_lb": 300,
+      "install": "screws",
+      "page_evidence": {
+        "price": "Specification: 30 inch $48.90; In Stock",
+        "dims": "11 x 2.95 x 30 inch / 280 x 75 x 765 mm; 3.57 lbs / 1.62 kg; 300 lbs / 136 kg"
+      },
+      "source": "product page",
+      "checked": "2026-11-11",
+      "review": "check",
+      "review_reason": "page says both 'expansion bolts' and 'without drilling'; 30 in size showed out of stock on one read",
+      "notes": "Budget flip-up bar. The page contradicts itself on fixing: 'expansion bolts ensure a more stable fixation' and also 'quick installation without drilling'; expansion bolts need drilled holes. One read of the page showed the 30 inch option as 'Out of Stock' in the option list while the buy box said 'In Stock'. No bar diameter or ADA claim. Which of 11 / 2.95 / 30 in is width, depth or height is not labelled on the page; the mapping in dims_in is mine.",
+      "profiles": [
+        "manual_wheelchair",
+        "power_wheelchair",
+        "walker",
+        "cane",
+        "fall_risk"
+      ],
+      "evidence_note": "Older women rising from a toilet were most stable at a normal-height seat with bars on both sides (noroozi2025). Needs screws into studs (wiseman2021).",
+      "tier": "budget"
+    },
+    {
+      "id": "flip-up-grab-bar-moen-30-peened",
+      "name": "Moen Home Care 30\" Flip-Up Grab Bar - Peened Stainless Steel",
+      "brand": "Moen",
+      "model": "R8962FD",
+      "type": "flip_up_grab_bar",
+      "group": "bathroom",
+      "rooms": [
+        "bathroom"
+      ],
+      "fixes": [
+        "toilet_grab_bars"
+      ],
+      "placement": "wall",
+      "takes_floor_space": false,
+      "price_usd": 243.74,
+      "price_note": "list",
+      "store": "F.W. Webb",
+      "url": "https://www.fwwebb.com/product/Moen/Home-Care-Grab-Bar/R8962FD/609464",
+      "image_url": "https://fwwebbimage.fwwebb.com/WO/Qmain/609464.jpg",
+      "photo": "photos/flip-up-grab-bar-moen-30-peened.jpg",
+      "dims_in": {
+        "width": null,
+        "depth": 30,
+        "height": null
+      },
+      "dims_cm": {
+        "width": null,
+        "depth": 76.2,
+        "height": null
+      },
+      "spec": {
+        "length_in": 30,
+        "bar_diameter_in": 1.25,
+        "wall_clearance_in": null,
+        "finish": "peened stainless steel",
+        "ada_compliant_claimed": true,
+        "projection_up_in": 11.5
+      },
+      "weight_capacity_lb": 300,
+      "install": "screws",
+      "page_evidence": {
+        "price": "$243.74 / ea",
+        "dims": "Size 30IN; Grip Width 1-1/4IN; extends 11-1/2\" from the wall in the up position; Length 33-1/4IN, Width 3IN, Height 3IN"
+      },
+      "source": "product page",
+      "checked": "2026-11-11",
+      "review": "check",
+      "review_reason": "special order, usually ships in 2-4 weeks",
+      "notes": "Special order item, usually ships in 2-4 weeks; the page's Width/Height of 3 in look like catalogue values, not the real U-shaped bar size. Overview text: 1-1/4 in diameter x 30 in wide, extends 11-1/2 in from the wall when up; the 33-1/4 x 3 x 3 in fields are catalogue values and were removed.",
+      "profiles": [
+        "manual_wheelchair",
+        "power_wheelchair",
+        "walker",
+        "cane",
+        "fall_risk"
+      ],
+      "evidence_note": "Older women rising from a toilet were most stable at a normal-height seat with bars on both sides (noroozi2025). Needs screws into studs (wiseman2021).",
+      "tier": "mid"
+    },
+    {
+      "id": "flip-up-grab-bar-healthcraft-pt-rail-28-white",
+      "name": "HealthCraft P.T. Rail, Hinged, 28 in, Powder Coat White",
+      "brand": "HealthCraft",
+      "model": "PT-WR28L-PCW / PT-WR28R-PCW",
+      "type": "flip_up_grab_bar",
+      "group": "bathroom",
+      "rooms": [
+        "bathroom"
+      ],
+      "fixes": [
+        "toilet_grab_bars"
+      ],
+      "placement": "wall",
+      "takes_floor_space": false,
+      "price_usd": 269.0,
+      "price_note": "price of Hinged, Left or Right Side 28\", Powder Coat White; 32\" $278.00; stainless steel 28\" $449.00, 32\" $458.00",
+      "store": "HealthyKin",
+      "url": "https://www.healthykin.com/p-1894-healthcraft-pt-rail.aspx",
+      "image_url": "https://www.healthykin.com/images/Product/large/1894.jpg",
+      "photo": "photos/flip-up-grab-bar-healthcraft-pt-rail-28-white.jpg",
+      "dims_in": {
+        "width": null,
+        "depth": 28,
+        "height": null
+      },
+      "dims_cm": {
+        "width": null,
+        "depth": 71.1,
+        "height": null
+      },
+      "spec": {
+        "length_in": 28,
+        "bar_diameter_in": 1.5,
+        "wall_clearance_in": null,
+        "finish": "powder coat white",
+        "ada_compliant_claimed": null,
+        "hinged_folds_up": true,
+        "optional_wall_plate": "5.5 x 9 in, $122.00",
+        "optional_floor_mast": "$314.00 (powder coat white)"
+      },
+      "weight_capacity_lb": 400,
+      "install": "screws",
+      "page_evidence": {
+        "price": "Hinged, Left Side 28\", Powder Coat White $269.00; In Stock; 2-4 Week Lead Time",
+        "dims": "28\"/71 cm and 32\"/81 cm, measured from wall to rail tip; bar diameter 1.5\" / 3.8 cm; 400 lbs / 181 kg"
+      },
+      "source": "product page",
+      "checked": "2026-11-11",
+      "review": "check",
+      "review_reason": "2-4 week lead time; rail height not stated",
+      "notes": "Second brand of fold-up toilet rail, higher weight rating than the Moen (300 lb). 2-4 week lead time. The page maps left/right and length to prices but not to individual part numbers. Rail height is not stated.",
+      "profiles": [
+        "manual_wheelchair",
+        "power_wheelchair",
+        "walker",
+        "cane",
+        "fall_risk"
+      ],
+      "evidence_note": "Older women rising from a toilet were most stable at a normal-height seat with bars on both sides (noroozi2025). Needs screws into studs (wiseman2021).",
+      "tier": "premium"
+    },
+    {
+      "id": "grab-bar-drive-chrome-knurled-18",
+      "name": "Drive Medical Chrome Knurled Grab Bar, 18 inch",
+      "brand": "Drive Medical",
+      "model": "RTL12118",
+      "type": "grab_bar",
+      "group": "bathroom",
+      "rooms": [
+        "bathroom"
+      ],
+      "fixes": [
+        "toilet_grab_bars",
+        "tub_transfer"
+      ],
+      "placement": "wall",
+      "takes_floor_space": false,
+      "price_usd": 14.06,
+      "price_note": "sale (list was $16.16); price of the 18 inch, Each variant",
+      "store": "Vitality Medical",
+      "url": "https://www.vitalitymedical.com/chrome-knurled-grab-bar.html",
+      "image_url": "https://www.vitalitymedical.com/media/catalog/product/cache/5a44b864f5b938cc2756756850957102/g/r/grip3.jpg",
+      "photo": "photos/grab-bar-drive-chrome-knurled-18.png",
+      "dims_in": {
+        "width": null,
+        "depth": null,
+        "height": null
+      },
+      "dims_cm": {
+        "width": null,
+        "depth": null,
+        "height": null
+      },
+      "spec": {
+        "length_in": 18,
+        "bar_diameter_in": null,
+        "wall_clearance_in": 1.5,
+        "finish": "chrome, knurled",
+        "ada_compliant_claimed": null
+      },
+      "weight_capacity_lb": 250,
+      "install": "screws",
+      "page_evidence": {
+        "price": "#RTL12118 18 inch Each: List Price: $16.16 Price:$14.06 You Save: $2.10 (13%)",
+        "dims": "18 inch; Distance from wall: 1 1/2\""
+      },
+      "source": "product page",
+      "checked": "2026-11-11",
+      "review": "check",
+      "review_reason": "bar diameter not stated anywhere (capacity 250 lb comes from the maker's page, not the store's)",
+      "notes": "Page gives no weight capacity, bar diameter or ADA claim, and only says it can be installed into wood, tile or plastic walling; same page also sells 12, 16, 24 ($18.13) and 32 inch ($22.18). 250 lb is from Drive's own page for RTL12118; the store page gives none.",
+      "profiles": [
+        "manual_wheelchair",
+        "power_wheelchair",
+        "scooter",
+        "walker",
+        "cane",
+        "fall_risk"
+      ],
+      "evidence_note": "Lab: people with a grab bar were 75.8% more likely to recover balance on a bathtub exit (levine2023). Older women rising from a toilet were most stable at a normal-height seat with bars (noroozi2025). Needs screws into studs: only 18.4% of contractors called would install one, median quote $394 (wiseman2021).",
+      "tier": "budget"
+    },
+    {
+      "id": "grab-bar-moen-home-care-36-peened",
+      "name": "Moen Home Care 36\" Grab Bar - Peened Stainless Steel",
+      "brand": "Moen",
+      "model": "R8936P",
+      "type": "grab_bar",
+      "group": "bathroom",
+      "rooms": [
+        "bathroom"
+      ],
+      "fixes": [
+        "toilet_grab_bars",
+        "tub_transfer"
+      ],
+      "placement": "wall",
+      "takes_floor_space": false,
+      "price_usd": 66.46,
+      "price_note": "list",
+      "store": "F.W. Webb",
+      "url": "https://www.fwwebb.com/product/Moen/Home-Care-Grab-Bar/R8936P/74026",
+      "image_url": "https://fwwebbimage.fwwebb.com/WO/Main/74026.jpg",
+      "photo": "photos/grab-bar-moen-home-care-36-peened.jpg",
+      "dims_in": {
+        "width": 39.25,
+        "depth": 3,
+        "height": 3.25
+      },
+      "dims_cm": {
+        "width": 99.7,
+        "depth": 7.6,
+        "height": 8.3
+      },
+      "spec": {
+        "length_in": 36,
+        "bar_diameter_in": 1.5,
+        "wall_clearance_in": null,
+        "finish": "peened stainless steel",
+        "ada_compliant_claimed": true
+      },
+      "weight_capacity_lb": 500,
+      "install": "screws",
+      "page_evidence": {
+        "price": "$66.46 / ea",
+        "dims": "36\" wide center to center; 1-1/2\" in diameter; extends 3\" from the wall; Length 39-1/4IN, Width 3-1/4IN, Height 3IN"
+      },
+      "source": "product page",
+      "checked": "2026-11-11",
+      "review": "ok",
+      "review_reason": null,
+      "notes": "Concealed mounting screws; page states projection from wall (3 in), not hand clearance.",
+      "profiles": [
+        "manual_wheelchair",
+        "power_wheelchair",
+        "scooter",
+        "walker",
+        "cane",
+        "fall_risk"
+      ],
+      "evidence_note": "Lab: people with a grab bar were 75.8% more likely to recover balance on a bathtub exit (levine2023). Older women rising from a toilet were most stable at a normal-height seat with bars (noroozi2025). Needs screws into studs: only 18.4% of contractors called would install one, median quote $394 (wiseman2021).",
+      "tier": "mid"
+    },
+    {
+      "id": "grab-bar-moen-home-care-42-peened",
+      "name": "Moen Home Care 42\" Grab Bar - Peened Stainless Steel",
+      "brand": "Moen",
+      "model": "R8942P",
+      "type": "grab_bar",
+      "group": "bathroom",
+      "rooms": [
+        "bathroom"
+      ],
+      "fixes": [
+        "toilet_grab_bars",
+        "tub_transfer"
+      ],
+      "placement": "wall",
+      "takes_floor_space": false,
+      "price_usd": 71.58,
+      "price_note": "list",
+      "store": "F.W. Webb",
+      "url": "https://www.fwwebb.com/product/Moen/Home-Care-Grab-Bar/R8942P/74027",
+      "image_url": "https://fwwebbimage.fwwebb.com/WO/Main/74027.jpg",
+      "photo": "photos/grab-bar-moen-home-care-42-peened.jpg",
+      "dims_in": {
+        "width": 45.25,
+        "depth": 3,
+        "height": 3
+      },
+      "dims_cm": {
+        "width": 114.9,
+        "depth": 7.6,
+        "height": 7.6
+      },
+      "spec": {
+        "length_in": 42,
+        "bar_diameter_in": 1.5,
+        "wall_clearance_in": null,
+        "finish": "peened stainless steel",
+        "ada_compliant_claimed": true
+      },
+      "weight_capacity_lb": 500,
+      "install": "screws",
+      "page_evidence": {
+        "price": "$71.58 / ea",
+        "dims": "42\" wide center to center; 1-1/2\" in diameter; extends 3\" from the wall; Length 45-1/4IN, Width 3IN, Height 3IN"
+      },
+      "source": "product page",
+      "checked": "2026-11-11",
+      "review": "ok",
+      "review_reason": null,
+      "notes": "Concealed mounting screws; page states projection from wall (3 in), not hand clearance.",
+      "profiles": [
+        "manual_wheelchair",
+        "power_wheelchair",
+        "scooter",
+        "walker",
+        "cane",
+        "fall_risk"
+      ],
+      "evidence_note": "Lab: people with a grab bar were 75.8% more likely to recover balance on a bathtub exit (levine2023). Older women rising from a toilet were most stable at a normal-height seat with bars (noroozi2025). Needs screws into studs: only 18.4% of contractors called would install one, median quote $394 (wiseman2021).",
+      "tier": "mid"
+    },
+    {
+      "id": "grab-bar-moen-designer-24-chrome",
+      "name": "Moen Home Care 24\" Designer Grab Bar - Chrome",
+      "brand": "Moen",
+      "model": "LR8724D3GCH",
+      "type": "grab_bar",
+      "group": "bathroom",
+      "rooms": [
+        "bathroom"
+      ],
+      "fixes": [
+        "toilet_grab_bars",
+        "tub_transfer"
+      ],
+      "placement": "wall",
+      "takes_floor_space": false,
+      "price_usd": 81.25,
+      "price_note": "list",
+      "store": "F.W. Webb",
+      "url": "https://www.fwwebb.com/product/Moen/Home-Care-Ultima-Grab-Bar/LR8724D3GCH/380406",
+      "image_url": "https://fwwebbimage.fwwebb.com/WO/Main/380406.jpg",
+      "photo": "photos/grab-bar-moen-designer-24-chrome.jpg",
+      "dims_in": {
+        "width": 27.4,
+        "depth": 2.9,
+        "height": 3.4
+      },
+      "dims_cm": {
+        "width": 69.6,
+        "depth": 7.4,
+        "height": 8.6
+      },
+      "spec": {
+        "length_in": 24,
+        "bar_diameter_in": 1.25,
+        "wall_clearance_in": null,
+        "finish": "chrome",
+        "ada_compliant_claimed": true
+      },
+      "weight_capacity_lb": 500,
+      "install": "screws",
+      "page_evidence": {
+        "price": "$81.25 / ea",
+        "dims": "24\" wide center-to-center; 1-1/4\" in diameter; extends 2-3/4\" from the wall; Length 27-2/5IN, Width 3-2/5IN, Height 2-9/10IN"
+      },
+      "source": "product page",
+      "checked": "2026-11-11",
+      "review": "ok",
+      "review_reason": null,
+      "notes": "Concealed screws with SecureMount, page says it mounts with or without studs; page states projection from wall (2-3/4 in), not hand clearance.",
+      "profiles": [
+        "manual_wheelchair",
+        "power_wheelchair",
+        "scooter",
+        "walker",
+        "cane",
+        "fall_risk"
+      ],
+      "evidence_note": "Lab: people with a grab bar were 75.8% more likely to recover balance on a bathtub exit (levine2023). Older women rising from a toilet were most stable at a normal-height seat with bars (noroozi2025). Needs screws into studs: only 18.4% of contractors called would install one, median quote $394 (wiseman2021).",
+      "tier": "premium"
+    },
+    {
+      "id": "handheld-shower-homecraft-diverter-80",
+      "name": "Homecraft Hand Held Showerhead with Diverter Valve",
+      "brand": "Homecraft",
+      "model": "081706423",
+      "type": "handheld_shower",
+      "group": "bathroom",
+      "rooms": [
+        "bathroom"
+      ],
+      "fixes": [
+        "tub_transfer"
+      ],
+      "placement": "tub",
+      "takes_floor_space": false,
+      "price_usd": 62.8,
+      "price_note": "list (Buy 1 price; $60.60 each when buying 4)",
+      "store": "Performance Health",
+      "url": "https://www.performancehealth.com/homecraft-hand-held-showerhead-with-diverter-valve",
+      "image_url": "https://www.performancehealth.com/media/catalog/product/0/8/081706423.png",
+      "photo": "photos/handheld-shower-homecraft-diverter-80.png",
+      "dims_in": {
+        "width": null,
+        "depth": null,
+        "height": null
+      },
+      "dims_cm": {
+        "width": null,
+        "depth": null,
+        "height": null
+      },
+      "spec": {
+        "hose_length_in": 80,
+        "slide_bar_length_in": null
+      },
+      "weight_capacity_lb": null,
+      "install": "tool-free",
+      "page_evidence": {
+        "price": "Buy 1 $62.80",
+        "dims": "Equipped with an 80-inch hose; fits standard 1/2\" threaded showerheads"
+      },
+      "source": "product page",
+      "checked": "2026-11-11",
+      "review": "ok",
+      "review_reason": null,
+      "notes": "No slide bar; threads onto the existing shower arm with a diverter and an on/off control in the handle; page calls it easy to install but does not state tools.",
+      "profiles": [
+        "manual_wheelchair",
+        "power_wheelchair",
+        "scooter",
+        "walker",
+        "cane",
+        "fall_risk"
+      ],
+      "evidence_note": null,
+      "tier": "only"
+    },
+    {
+      "id": "raised-toilet-seat-carex-elevator-3-5",
+      "name": "Carex Elongated Toilet Seat Elevator",
+      "brand": "Carex",
+      "model": "FGB30600 0000 / FGB30700 0000 (page lists both part numbers without saying which is elongated)",
+      "type": "raised_toilet_seat",
+      "group": "bathroom",
+      "rooms": [
+        "bathroom"
+      ],
+      "fixes": [
+        "toilet_seat_height"
+      ],
+      "placement": "toilet",
+      "takes_floor_space": false,
+      "price_usd": 31.95,
+      "price_note": "price of the Elongated variant (Standard variant is $39.95)",
+      "store": "HealthyKin",
+      "url": "https://www.healthykin.com/p-6132-carex-toilet-seat-elevator.aspx",
+      "image_url": "https://www.healthykin.com/images/Product/large/6132.jpg",
+      "photo": "photos/raised-toilet-seat-carex-elevator-3-5.jpg",
+      "dims_in": {
+        "width": null,
+        "depth": null,
+        "height": null
+      },
+      "dims_cm": {
+        "width": null,
+        "depth": null,
+        "height": null
+      },
+      "spec": {
+        "height_added_in": 3.5,
+        "has_arms": false,
+        "fits_bowl": "elongated",
+        "width_between_arms_in": null
+      },
+      "weight_capacity_lb": 300,
+      "install": "screws",
+      "page_evidence": {
+        "price": "Elongated - $31.95; Standard - $39.95",
+        "dims": "Adds 3.5\" to the height of the toilet seat; It can hold up to 300 lbs."
+      },
+      "source": "product page",
+      "checked": "2026-11-11",
+      "review": "ok",
+      "review_reason": null,
+      "notes": "Fits under the existing seat and lid; page says easy 3-step install but does not state tools or outer dimensions, and does not mention arms.",
+      "profiles": [
+        "manual_wheelchair",
+        "power_wheelchair",
+        "walker",
+        "cane",
+        "fall_risk"
+      ],
+      "evidence_note": "Toilet aids are the largest unmet need: 52% of older adults who needed one still had none after 4 years (lam2021). For people who stand up, a raised seat eased rising but increased sway; bars were more stable (noroozi2025). For wheelchair users, transfers work best within about 2 in of their own seat height (koontz2012).",
+      "tier": "budget"
+    },
+    {
+      "id": "raised-toilet-seat-drive-arms-5",
+      "name": "Drive Medical Raised Toilet Seat with Arms",
+      "brand": "Drive Medical",
+      "model": "12013",
+      "type": "raised_toilet_seat",
+      "group": "bathroom",
+      "rooms": [
+        "bathroom"
+      ],
+      "fixes": [
+        "toilet_seat_height"
+      ],
+      "placement": "toilet",
+      "takes_floor_space": false,
+      "price_usd": 68.95,
+      "price_note": "list",
+      "store": "HealthyKin",
+      "url": "https://www.healthykin.com/p-2375-drive-medical-raised-toilet-seat-with-arms.aspx",
+      "image_url": "https://www.healthykin.com/images/Product/large/2375.jpg",
+      "photo": "photos/raised-toilet-seat-drive-arms-5.jpg",
+      "dims_in": {
+        "width": 15.5,
+        "depth": 17,
+        "height": 5
+      },
+      "dims_cm": {
+        "width": 39.4,
+        "depth": 43.2,
+        "height": 12.7
+      },
+      "spec": {
+        "height_added_in": 5,
+        "has_arms": true,
+        "fits_bowl": "elongated",
+        "width_between_arms_in": 21
+      },
+      "weight_capacity_lb": 300,
+      "install": "tool-free",
+      "page_evidence": {
+        "price": "$68.95",
+        "dims": "Seat Width: 15.5\"; Seat Depth: 17\"; Seat Height: 5\"; Width between arms: 21\"; Weight Limit: 300 lbs."
+      },
+      "source": "product page",
+      "checked": "2026-11-11",
+      "review": "ok",
+      "review_reason": null,
+      "notes": "Page says it fits most elongated toilets and the arms install without tools; dims are the seat size, not the outer size with arms.",
+      "profiles": [
+        "manual_wheelchair",
+        "power_wheelchair",
+        "walker",
+        "cane",
+        "fall_risk"
+      ],
+      "evidence_note": "Toilet aids are the largest unmet need: 52% of older adults who needed one still had none after 4 years (lam2021). For people who stand up, a raised seat eased rising but increased sway; bars were more stable (noroozi2025). For wheelchair users, transfers work best within about 2 in of their own seat height (koontz2012).",
+      "tier": "premium"
+    },
+    {
+      "id": "shower-stool-drive-adjustable-bath-stool-rtl12004kd",
+      "name": "Drive Medical Adjustable Height Bath Stool",
+      "brand": "Drive Medical",
+      "model": "RTL12004KD",
+      "type": "shower_chair",
+      "group": "bathroom",
+      "rooms": [
+        "bathroom"
+      ],
+      "fixes": [
+        "tub_transfer"
+      ],
+      "placement": "tub",
+      "takes_floor_space": true,
+      "price_usd": 37.95,
+      "price_note": "list",
+      "store": "HealthyKin",
+      "url": "https://www.healthykin.com/p-2358-drive-medical-adjustable-height-bath-stool.aspx",
+      "image_url": "https://www.healthykin.com/images/Product/large/2358.jpg",
+      "photo": "photos/shower-stool-drive-adjustable-bath-stool-rtl12004kd.jpg",
+      "dims_in": {
+        "width": 13.5,
+        "depth": 13.5,
+        "height": null
+      },
+      "dims_cm": {
+        "width": 34.3,
+        "depth": 34.3,
+        "height": null
+      },
+      "spec": {
+        "seat_height_min_in": 13.5,
+        "seat_height_max_in": 17,
+        "footprint_in": "13.5 x 13.5",
+        "has_back": null,
+        "seat_width_in": 13,
+        "seat_depth_in": 13
+      },
+      "weight_capacity_lb": 300,
+      "install": "tool-free",
+      "page_evidence": {
+        "price": "$37.95; In Stock",
+        "dims": "Seat height adjustable 13.5\" to 17\"; seat width 13\", seat depth 13\"; width outside legs 13.5\", depth outside legs 13.5\"; 300 lbs."
+      },
+      "source": "product page",
+      "checked": "2026-11-11",
+      "review": "ok",
+      "review_reason": null,
+      "notes": "The no-back option: sold as a 'bath stool'; the page lists no backrest and never says so in words, so has_back is null. Smallest footprint of the shower seats (13.5 x 13.5 in). Top seat height is 17 in, lower than a typical wheelchair seat. Install value is my label; the page does not describe assembly.",
+      "profiles": [
+        "walker",
+        "cane",
+        "fall_risk"
+      ],
+      "evidence_note": null,
+      "tier": "budget"
+    },
+    {
+      "id": "shower-chair-drive-deluxe-aluminum",
+      "name": "Drive Medical Deluxe Aluminum Shower Chair",
+      "brand": "Drive Medical",
+      "model": "RTL12202KDR",
+      "type": "shower_chair",
+      "group": "bathroom",
+      "rooms": [
+        "bathroom"
+      ],
+      "fixes": [
+        "tub_transfer"
+      ],
+      "placement": "tub",
+      "takes_floor_space": true,
+      "price_usd": 41.95,
+      "price_note": "list",
+      "store": "HealthyKin",
+      "url": "https://www.healthykin.com/p-5267-drive-medical-deluxe-aluminum-shower-chair.aspx",
+      "image_url": "https://www.healthykin.com/images/Product/large/5267.jpg",
+      "photo": "photos/shower-chair-drive-deluxe-aluminum.jpg",
+      "dims_in": {
+        "width": 19.5,
+        "depth": 19.5,
+        "height": null
+      },
+      "dims_cm": {
+        "width": 49.5,
+        "depth": 49.5,
+        "height": null
+      },
+      "spec": {
+        "seat_height_min_in": 15.5,
+        "seat_height_max_in": 19.5,
+        "footprint_in": "19.5 x 19.5",
+        "has_back": true
+      },
+      "weight_capacity_lb": 400,
+      "install": "tool-free",
+      "page_evidence": {
+        "price": "$41.95",
+        "dims": "Outside leg dimensions: 19.5\" (W) x 19.5\" (D); Seat 19.25\" (W) x 11.5\" (D); Seat height 15.5\" - 19.5\"; Weight limit: 400 lbs."
+      },
+      "source": "product page",
+      "checked": "2026-11-11",
+      "review": "ok",
+      "review_reason": null,
+      "notes": "Tool-free assembly of the back, seat and legs; page lists part number 146-RTL12202KDR.",
+      "profiles": [
+        "walker",
+        "cane",
+        "fall_risk"
+      ],
+      "evidence_note": null,
+      "tier": "mid"
+    },
+    {
+      "id": "shower-chair-drive-folding-back-rtl12606",
+      "name": "Drive Medical Shower Chair with Folding Back",
+      "brand": "Drive Medical",
+      "model": "RTL12606",
+      "type": "shower_chair",
+      "group": "bathroom",
+      "rooms": [
+        "bathroom"
+      ],
+      "fixes": [
+        "tub_transfer"
+      ],
+      "placement": "tub",
+      "takes_floor_space": true,
+      "price_usd": 71.95,
+      "price_note": "list",
+      "store": "HealthyKin",
+      "url": "https://www.healthykin.com/p-5444-drive-medical-shower-chair-with-folding-back.aspx",
+      "image_url": "https://www.healthykin.com/images/Product/large/5444.jpg",
+      "photo": "photos/shower-chair-drive-folding-back-rtl12606.jpg",
+      "dims_in": {
+        "width": null,
+        "depth": null,
+        "height": null
+      },
+      "dims_cm": {
+        "width": null,
+        "depth": null,
+        "height": null
+      },
+      "spec": {
+        "seat_height_min_in": 17,
+        "seat_height_max_in": 23,
+        "footprint_in": "outside legs 17.375 - 18.875",
+        "has_back": true,
+        "seat_width_in": 21.5,
+        "seat_depth_in": 13.125,
+        "folding_back": true
+      },
+      "weight_capacity_lb": 300,
+      "install": "tool-free",
+      "page_evidence": {
+        "price": "$71.95; In Stock",
+        "dims": "Seat height: 17\"-23\"; Seat dimensions: 21.5\" (W) x 13.125\" (L); Dimensions outside legs: 17.375\" - 18.875\"; Weight limit: 300 lbs."
+      },
+      "source": "product page",
+      "checked": "2026-11-11",
+      "review": "ok",
+      "review_reason": null,
+      "notes": "With back (folds down; legs come off). The page gives the outside-leg size as a single range without saying which is width and which is depth, so dims_in is null.",
+      "profiles": [
+        "walker",
+        "cane",
+        "fall_risk"
+      ],
+      "evidence_note": null,
+      "tier": "premium"
+    },
+    {
+      "id": "shower-wheelchair-drive-rehab-commode-5in-casters",
+      "name": "Drive Medical Aluminum Rehab Shower Commode Chair, with 5\" casters",
+      "brand": "Drive Medical",
+      "model": "NRS185007",
+      "type": "shower_wheelchair",
+      "group": "bathroom",
+      "rooms": [
+        "bathroom"
+      ],
+      "fixes": [
+        "tub_transfer"
+      ],
+      "placement": "floor",
+      "takes_floor_space": true,
+      "price_usd": 826.95,
+      "price_note": "price of the With 5\" Casters variant (With 24\" Rear Wheels variant is $871.95)",
+      "store": "HealthyKin",
+      "url": "https://www.healthykin.com/p-4184-drive-medical-aluminum-rehab-shower-commode-chair.aspx",
+      "image_url": "https://www.healthykin.com/images/Product/large/4184.jpg",
+      "photo": "photos/shower-wheelchair-drive-rehab-commode-5in-casters.jpg",
+      "dims_in": {
+        "width": 22.25,
+        "depth": null,
+        "height": null
+      },
+      "dims_cm": {
+        "width": 56.5,
+        "depth": null,
+        "height": null
+      },
+      "spec": {
+        "overall_width_in": 22.25,
+        "seat_height_in": null,
+        "seat_width_in": 18,
+        "fits_over_toilet": true,
+        "seat_height_min_in": 20,
+        "seat_height_max_in": 22,
+        "seat_depth_in": 17
+      },
+      "weight_capacity_lb": 275,
+      "install": "none",
+      "page_evidence": {
+        "price": "With 5\" Casters - $826.95; With 24\" Rear Wheels - $871.95",
+        "dims": "Overall width: With 5\" casters: 22 1/4\" | With 24\" Wheels: 24 1/2\"; Seat width: 18\"; Seat depth: 17\"; Back height: 19.25\"; can be positioned over a standard toilet"
+      },
+      "source": "product page",
+      "checked": "2026-11-11",
+      "review": "ok",
+      "review_reason": null,
+      "notes": "This page gives no seat height (it says seat height adjusts 4 in without tools); Vitality Medical's page for the same model lists seat-to-floor 19.5-21.5 in and chair length 42 in. Seat-to-floor 20-22 in is from Drive's own page for NRS185007 (the 5 in caster version).",
+      "profiles": [
+        "manual_wheelchair",
+        "power_wheelchair"
+      ],
+      "evidence_note": null,
+      "tier": "only"
+    },
+    {
+      "id": "toilet-safety-frame-drive-rtl12000",
+      "name": "Drive Medical Toilet Safety Frame",
+      "brand": "Drive Medical",
+      "model": "RTL12000",
+      "type": "toilet_safety_frame",
+      "group": "bathroom",
+      "rooms": [
+        "bathroom"
+      ],
+      "fixes": [
+        "toilet_grab_bars"
+      ],
+      "placement": "toilet",
+      "takes_floor_space": true,
+      "price_usd": 38.95,
+      "price_note": "list",
+      "store": "HealthyKin",
+      "url": "https://www.healthykin.com/p-2381-drive-medical-toilet-safety-frame.aspx",
+      "image_url": "https://www.healthykin.com/images/Product/large/2381.jpg",
+      "photo": "photos/toilet-safety-frame-drive-rtl12000.jpg",
+      "dims_in": {
+        "width": null,
+        "depth": 18.5,
+        "height": null
+      },
+      "dims_cm": {
+        "width": null,
+        "depth": 47.0,
+        "height": null
+      },
+      "spec": {
+        "arm_height_min_in": 28,
+        "arm_height_max_in": 32,
+        "width_between_arms_min_in": 19,
+        "width_between_arms_max_in": 23.5
+      },
+      "weight_capacity_lb": 300,
+      "install": "screws",
+      "page_evidence": {
+        "price": "$38.95",
+        "dims": "Depth of Frame: 18.5\"; Width Between Arms: 19\" to 23.5\"; Height Setting: 28\" to 32\"; Weight Capacity: 300 lbs."
+      },
+      "source": "product page",
+      "checked": "2026-11-11",
+      "review": "ok",
+      "review_reason": null,
+      "notes": "Stands on its own legs and attaches to the toilet with a bracket; page lists part number 146-RTL12000 and does not state tools or overall width.",
+      "profiles": [
+        "walker",
+        "cane",
+        "fall_risk"
+      ],
+      "evidence_note": "Toilet aids are the largest unmet need (lam2021); arm supports give the bar effect without drilling (noroozi2025 tested wall bars, not frames).",
+      "tier": "budget"
+    },
+    {
+      "id": "toilet-safety-frame-medicalkingusa-stand-alone",
+      "name": "MedicalKingUsa Toilet Safety Rail, Adjustable Detachable Stand Alone Toilet Safety Frame with Handles",
+      "brand": "MedicalKingUsa",
+      "model": null,
+      "type": "toilet_safety_frame",
+      "group": "bathroom",
+      "rooms": [
+        "bathroom"
+      ],
+      "fixes": [
+        "toilet_grab_bars"
+      ],
+      "placement": "toilet",
+      "takes_floor_space": true,
+      "price_usd": 47.28,
+      "price_note": "sale (reg $79.99)",
+      "store": "Target (sold & shipped by Home it USA)",
+      "url": "https://www.target.com/p/toilet-safety-rail-adjustable-detachable-toilet-safety-frame-with-handles-stand-alone-for-elderly-handicapped-fits-most-toilets-medicalkingusa/-/A-89174840",
+      "image_url": "https://target.scene7.com/is/image/Target/GUEST_7f67dfcd-c88d-4ee1-9134-df085bd4bb8b?wid=300&hei=300&fmt=pjpeg",
+      "photo": "photos/toilet-safety-frame-medicalkingusa-stand-alone.jpg",
+      "dims_in": {
+        "width": 21,
+        "depth": 15,
+        "height": 25.5
+      },
+      "dims_cm": {
+        "width": 53.3,
+        "depth": 38.1,
+        "height": 64.8
+      },
+      "spec": {
+        "arm_height_min_in": 24,
+        "arm_height_max_in": 31,
+        "width_between_arms_min_in": 20,
+        "width_between_arms_max_in": 25,
+        "freestanding": true,
+        "feet": "suction cups at the base of the legs"
+      },
+      "weight_capacity_lb": 300,
+      "install": "none",
+      "page_evidence": {
+        "price": "$47.28 reg $79.99; Sold & shipped by Home it USA; In Stock",
+        "dims": "25.5 inches (H) x 21 inches (W) x 15 inches (D); \"Adjust the height of our toilet rails from 24-31\"; \"its width from 20-25\"\"; Holds up to: 300 pounds"
+      },
+      "source": "product page",
+      "checked": "2026-11-11",
+      "review": "ok",
+      "review_reason": null,
+      "notes": "Third-party marketplace listing. The page calls the 20-25 in figure the rail's 'width'; I have filed it under width between arms. Overall height 25.5 in sits inside the stated 24-31 in handle range, so the overall figures are likely one setting.",
+      "profiles": [
+        "walker",
+        "cane",
+        "fall_risk"
+      ],
+      "evidence_note": "Toilet aids are the largest unmet need (lam2021); arm supports give the bar effect without drilling (noroozi2025 tested wall bars, not frames).",
+      "tier": "mid"
+    },
+    {
+      "id": "toilet-safety-frame-stander-wonder-freestanding",
+      "name": "Stander Wonder Toilet Safety Rail, Adjustable Detachable Toilet Safety Frame with Handles",
+      "brand": "Stander",
+      "model": null,
+      "type": "toilet_safety_frame",
+      "group": "bathroom",
+      "rooms": [
+        "bathroom"
+      ],
+      "fixes": [
+        "toilet_grab_bars"
+      ],
+      "placement": "toilet",
+      "takes_floor_space": true,
+      "price_usd": 89.99,
+      "price_note": "list",
+      "store": "Target (sold & shipped by Stander)",
+      "url": "https://www.target.com/p/stander-wonder-toilet-safety-rail-adjustable-detachable-toilet-safety-frame-with-handles-fits-most-toilets/-/A-1008397333",
+      "image_url": "https://target.scene7.com/is/image/Target/GUEST_7aa92326-1e88-4325-9128-d0fbd1a3c5ae?wid=300&hei=300&fmt=pjpeg",
+      "photo": "photos/toilet-safety-frame-stander-wonder-freestanding.webp",
+      "dims_in": {
+        "width": 25.75,
+        "depth": 26,
+        "height": 36
+      },
+      "dims_cm": {
+        "width": 65.4,
+        "depth": 66.0,
+        "height": 91.4
+      },
+      "spec": {
+        "arm_height_min_in": 28,
+        "arm_height_max_in": 36,
+        "width_between_arms_min_in": null,
+        "width_between_arms_max_in": null,
+        "freestanding": true,
+        "upc": "850058541198"
+      },
+      "weight_capacity_lb": 300,
+      "install": "none",
+      "page_evidence": {
+        "price": "$89.99; Sold & shipped by Stander; In Stock",
+        "dims": "28-36 inches (H) x 25.75 inches (W) x 26 inches (D); \"Adjustable handle height from 28-36 in.\"; Holds up to: 300 pounds"
+      },
+      "source": "product page",
+      "checked": "2026-11-11",
+      "review": "ok",
+      "review_reason": null,
+      "notes": "Freestanding: 'requires no drilling or permanent installation', 'Slides easily over the toilet without attachments or hardware', so it suits renters; the catalogue's Drive frame bolts to the toilet. Takes 25.75 x 26 in of floor. Width between the arms is not stated. dims height is the top of the 28-36 in range.",
+      "profiles": [
+        "walker",
+        "cane",
+        "fall_risk"
+      ],
+      "evidence_note": "Toilet aids are the largest unmet need (lam2021); arm supports give the bar effect without drilling (noroozi2025 tested wall bars, not frames).",
+      "tier": "premium"
+    },
+    {
+      "id": "transfer-bench-drive-12011kd-1",
+      "name": "Drive Medical Tub Transfer Bench",
+      "brand": "Drive Medical",
+      "model": "12011KD-1",
+      "type": "transfer_bench",
+      "group": "bathroom",
+      "rooms": [
+        "bathroom"
+      ],
+      "fixes": [
+        "tub_transfer"
+      ],
+      "placement": "tub",
+      "takes_floor_space": true,
+      "price_usd": 75.95,
+      "price_note": "list",
+      "store": "HealthyKin",
+      "url": "https://www.healthykin.com/p-2367-drive-medical-tub-transfer-bench.aspx",
+      "image_url": "https://www.healthykin.com/images/Product/large/2367.jpg",
+      "photo": "photos/transfer-bench-drive-12011kd-1.jpg",
+      "dims_in": {
+        "width": 32,
+        "depth": 23,
+        "height": null
+      },
+      "dims_cm": {
+        "width": 81.3,
+        "depth": 58.4,
+        "height": null
+      },
+      "spec": {
+        "seat_height_min_in": 17.5,
+        "seat_height_max_in": 22.5,
+        "overall_width_in": 32,
+        "overall_depth_in": 23,
+        "sliding_seat": false
+      },
+      "weight_capacity_lb": 400,
+      "install": "tool-free",
+      "page_evidence": {
+        "price": "$75.95 (In Stock)",
+        "dims": "Outside legs: 32\" (W) x 23\" (D); Seat dimensions: 26\" (W) x 19\" (D); Seat height: 17.5\" - 22.5\"; Weight limit: 400 lbs."
+      },
+      "source": "product page",
+      "checked": "2026-11-11",
+      "review": "ok",
+      "review_reason": null,
+      "notes": "Reversible for left or right tubs, tool-free assembly; page lists part number 146-12011KD-1.",
+      "profiles": [
+        "manual_wheelchair",
+        "power_wheelchair",
+        "walker",
+        "fall_risk"
+      ],
+      "evidence_note": null,
+      "tier": "budget"
+    },
+    {
+      "id": "transfer-bench-eagle-swivel-sliding-77662",
+      "name": "Eagle Health Sliding Transfer Bench with Swivel Seat",
+      "brand": "Eagle Health",
+      "model": "77662",
+      "type": "transfer_bench",
+      "group": "bathroom",
+      "rooms": [
+        "bathroom"
+      ],
+      "fixes": [
+        "tub_transfer"
+      ],
+      "placement": "tub",
+      "takes_floor_space": true,
+      "price_usd": 225.0,
+      "price_note": "sale (list was $255.68); price of the 77662 variant (40\" base, no cut-out)",
+      "store": "Vitality Medical",
+      "url": "https://www.vitalitymedical.com/eagle-health-swivel-sliding-transfer-bench-regular-extra-long.html",
+      "image_url": "https://www.vitalitymedical.com/media/catalog/product/cache/5a44b864f5b938cc2756756850957102/7/7/77662_45_angle_with_a-min.jpg",
+      "photo": "photos/transfer-bench-eagle-swivel-sliding-77662.jpg",
+      "dims_in": {
+        "width": null,
+        "depth": 20.5,
+        "height": 36.75
+      },
+      "dims_cm": {
+        "width": null,
+        "depth": 52.1,
+        "height": 93.3
+      },
+      "spec": {
+        "seat_height_min_in": 18.75,
+        "seat_height_max_in": 23,
+        "overall_width_in": null,
+        "overall_depth_in": 20.5,
+        "sliding_seat": true,
+        "base_size_label_in": 40
+      },
+      "weight_capacity_lb": 400,
+      "install": "tool-free",
+      "page_evidence": {
+        "price": "77662: List Price: $255.68 Price: $225.00 You Save: $30.68 (12%)",
+        "dims": "Base Length: 39 to 40 Inches; Base Depth: 18.5 to 20.5 Inches; Seat Height: 18.75 to 23 Inches; Back Height From Floor: 32.5 to 36.75 Inches; Sliding Distance: 15 Inches"
+      },
+      "source": "product page",
+      "checked": "2026-11-11",
+      "review": "ok",
+      "review_reason": null,
+      "notes": "Seat slides 15 in and swivels with a lock every 90 degrees; dims are the top of the stated ranges; cut-out seat version 77663 is $302. Overall width is not stated; 40 in is the base size in the variant name.",
+      "profiles": [
+        "manual_wheelchair",
+        "power_wheelchair",
+        "walker",
+        "fall_risk"
+      ],
+      "evidence_note": null,
+      "tier": "premium"
+    },
+    {
+      "id": "suction-grab-bar-healthsmart-12in-chrome",
+      "name": "HealthSmart 12 in Suction Grab Bar, Bathroom Safety, Color Indicator, Chrome",
+      "brand": "HealthSmart",
+      "model": null,
+      "type": "tub_rail",
+      "group": "bathroom",
+      "rooms": [
+        "bathroom"
+      ],
+      "fixes": [
+        "tub_transfer"
+      ],
+      "placement": "tub",
+      "takes_floor_space": false,
+      "price_usd": 26.99,
+      "price_note": "list",
+      "store": "Target (sold & shipped by DMS Holdings)",
+      "url": "https://www.target.com/p/healthsmart-suction-cup-grab-bar-chrome-12in/-/A-1004524332",
+      "image_url": "https://target.scene7.com/is/image/Target/GUEST_dbcd3dd5-3f03-40e2-8762-134f26a1404f?wid=300&hei=300&fmt=pjpeg",
+      "photo": "photos/suction-grab-bar-healthsmart-12in-chrome.jpg",
+      "dims_in": {
+        "width": 7,
+        "depth": 15,
+        "height": 4
+      },
+      "dims_cm": {
+        "width": 17.8,
+        "depth": 38.1,
+        "height": 10.2
+      },
+      "spec": {
+        "attachment": "two suction cups with flip levers, no drilling",
+        "nominal_length_in": 12,
+        "needs_drilling": false,
+        "surface": "most non-porous surfaces",
+        "seal_indicator": "green indicator shows a secure seal",
+        "manufacturer_warning": null,
+        "product_weight_lb": 1.6
+      },
+      "weight_capacity_lb": 250,
+      "install": "tool-free",
+      "page_evidence": {
+        "price": "$26.99; Sold & shipped by DMS Holdings; In Stock",
+        "dims": "4.0 inches (H) x 7.0 inches (W) x 15.0 inches (D); Holds up to: 250 pounds; \"Hold the grab bar to most non-porous surfaces. No tools required.\""
+      },
+      "source": "product page",
+      "checked": "2026-11-11",
+      "review": "check",
+      "review_reason": "suction cup bar: the page prints 250 lb and no safety warning; do not present as a weight-bearing grab bar",
+      "notes": "Suction bar. The Target page prints 'Holds up to: 250 pounds' and carries NO safety warning at all (nothing about balance-only use or re-checking the seal), so manufacturer_warning is null; treat the 250 lb figure with caution and do not present a suction bar as a weight-bearing transfer aid. Title says 12 in, overall depth says 15 in. Seller is DMS Holdings, the same third-party seller as the DMI transfer board whose only review says it did not ship. A Briggs 16 in two-suction bar at Performance Health was $55.80 with no weight limit stated.",
+      "profiles": [
+        "walker",
+        "cane",
+        "fall_risk"
+      ],
+      "evidence_note": "Suction handhold: 85% installed by older adults held the load test, but more than half were placed somewhere unexpected (rand2024). Show where to put it.",
+      "tier": "budget"
+    },
+    {
+      "id": "tub-rail-drive-clamp-on-adjustable-white",
+      "name": "Drive Medical Clamp-On Adjustable Bathtub Grab Bar & Bathtub Safety Rail, White",
+      "brand": "Drive Medical",
+      "model": "RTL12036-ADJ (named in the description; not given as a model field)",
+      "type": "tub_rail",
+      "group": "bathroom",
+      "rooms": [
+        "bathroom"
+      ],
+      "fixes": [
+        "tub_transfer"
+      ],
+      "placement": "tub",
+      "takes_floor_space": false,
+      "price_usd": 52.55,
+      "price_note": "list",
+      "store": "Target (sold & shipped by ExpressMed)",
+      "url": "https://www.target.com/p/drive-medical-clamp-on-adjustable-bathtub-grab-bar-bathtub-safety-rail-white/-/A-88545673",
+      "image_url": "https://target.scene7.com/is/image/Target/GUEST_3995836c-bed0-4773-bf52-aa6acf5aa3a4?wid=300&hei=300&fmt=pjpeg",
+      "photo": "photos/tub-rail-drive-clamp-on-adjustable-white.jpg",
+      "dims_in": {
+        "width": 15.4,
+        "depth": 19,
+        "height": null
+      },
+      "dims_cm": {
+        "width": 39.1,
+        "depth": 48.3,
+        "height": null
+      },
+      "spec": {
+        "attachment": "clamp over the tub wall, no drilling",
+        "grip_height_min_in": 14.5,
+        "grip_height_max_in": 17,
+        "clamp_width_min_in": 3,
+        "clamp_width_max_in": 7,
+        "needs_drilling": false,
+        "manufacturer_warning": "Please note this safety rail is not for use on fiberglass tubs."
+      },
+      "weight_capacity_lb": 300,
+      "install": "tool-free",
+      "page_evidence": {
+        "price": "$52.55; Sold & shipped by ExpressMed; In Stock",
+        "dims": "137 inches (H) x 15.4 inches (W) x 19 inches (D); grip bar height \"14.5\"- 17\"\"; clamp width \"3\" (smallest) | 7\" (widest)\"; Holds up to: 300 pounds"
+      },
+      "source": "product page",
+      "checked": "2026-11-11",
+      "review": "check",
+      "review_reason": "maker's warning: not for fiberglass tubs",
+      "notes": "Renter-friendly tub rail. Manufacturer warning on the page: not for use on fiberglass tubs. The page's overall height of 137 in cannot be right, so height is null. The description says '14 to 17 inches' in one place and '14.5\"- 17\"' in another. The same Drive clamp-on rail was $91.27 at Performance Health (item 081502038, 'Handle height is 14.5\" above tub wall', 'Width adjust from 3\"-7\"', no weight rating given there). UPC 822383246376.",
+      "profiles": [
+        "walker",
+        "cane",
+        "fall_risk"
+      ],
+      "evidence_note": "Rim-mounted tub rail: in a lab, 19 of 20 installed by older adults failed the load test (rand2024). Show an install warning or suggest help with fitting.",
+      "tier": "premium"
+    },
+    {
+      "id": "stander-recliner-risers-set",
+      "name": "Stander Recliner Risers Set",
+      "brand": "Stander",
+      "model": "2096",
+      "type": "furniture_riser",
+      "group": "living",
+      "rooms": [
+        "living"
+      ],
+      "fixes": [
+        "seat_height"
+      ],
+      "placement": "under_furniture_legs",
+      "takes_floor_space": false,
+      "price_usd": 39.39,
+      "price_note": "sale (list was $55.15)",
+      "store": "Health Products For You",
+      "url": "https://www.healthproductsforyou.com/p-standers-recliner-risers-set.html",
+      "image_url": "https://i.healthproductsforyou.com/fullimage/410-X-410/1/t/19920161622standers-recliner-risers-set-P.png",
+      "photo": "photos/stander-recliner-risers-set.jpg",
+      "dims_in": {
+        "width": 2.5,
+        "depth": 6,
+        "height": 1.75
+      },
+      "dims_cm": {
+        "width": 6.3,
+        "depth": 15.2,
+        "height": 4.4
+      },
+      "spec": {
+        "lift_options_in": [
+          1.75
+        ],
+        "pieces_per_set": 4,
+        "fits_leg_up_to_in": null,
+        "extra_lift_with_tilt_limiters_in": [
+          3,
+          4
+        ],
+        "fits": "recliners with a wood base only, not metal"
+      },
+      "weight_capacity_lb": 800,
+      "install": "screws",
+      "page_evidence": {
+        "price": "$39.39 Each (also shows $55.15, unlabeled)",
+        "dims": "Riser dimensions: 1.75\"H x 2.5\"W x 6\"L; Raise a chair 1.75\" ... additional 3\"-4\" of lift; Weight capacity: 800lb (including furniture)"
+      },
+      "source": "product page",
+      "checked": "2026-11-11",
+      "review": "check",
+      "review_reason": "fits recliners with a wood base only; second price on the page is unlabelled",
+      "notes": "Heavy-duty option for recliners only; set has 4 risers, 2 rocker limiters and 16 screws, and the 800 lb includes the furniture.",
+      "profiles": [
+        "walker",
+        "cane",
+        "fall_risk"
+      ],
+      "evidence_note": null,
+      "tier": "budget"
+    },
+    {
+      "id": "gordon-ellis-furniture-extenders",
+      "name": "Furniture Extenders",
+      "brand": "Gordon Ellis",
+      "model": "081171305",
+      "type": "furniture_riser",
+      "group": "living",
+      "rooms": [
+        "living",
+        "bedroom"
+      ],
+      "fixes": [
+        "seat_height"
+      ],
+      "placement": "under_furniture_legs",
+      "takes_floor_space": false,
+      "price_usd": 101.65,
+      "price_note": "list",
+      "store": "Performance Health",
+      "url": "https://www.performancehealth.com/furniture-extenders-extenders",
+      "image_url": "https://www.performancehealth.com/media/catalog/product/0/8/081171305.main.jpg?optimize=low&bg-color=255,255,255&fit=bounds&height=700&width=700&canvas=700:700",
+      "photo": "photos/gordon-ellis-furniture-extenders.jpg",
+      "dims_in": {
+        "width": null,
+        "depth": null,
+        "height": 8
+      },
+      "dims_cm": {
+        "width": null,
+        "depth": null,
+        "height": 20.3
+      },
+      "spec": {
+        "lift_options_in": [
+          3,
+          4,
+          5
+        ],
+        "pieces_per_set": 4,
+        "fits_leg_up_to_in": 2,
+        "fits_leg_from_in": 1,
+        "spacer_blocks_included": 8
+      },
+      "weight_capacity_lb": 705,
+      "install": "tool-free",
+      "page_evidence": {
+        "price": "$101.65",
+        "dims": "Extenders measure 8\"-high and raise furniture height by 3\" when used alone; spacer blocks raise to 4\" or 5\"; 1\"-2\" diameter legs; Total weight capacity of 4 extenders is 705 lbs."
+      },
+      "source": "product page",
+      "checked": "2026-11-11",
+      "review": "ok",
+      "review_reason": null,
+      "notes": "For sofas, chairs or beds with round legs 1 to 2 inches in diameter; 705 lb is the total for all 4.",
+      "profiles": [
+        "walker",
+        "cane",
+        "fall_risk"
+      ],
+      "evidence_note": null,
+      "tier": "premium"
+    },
+    {
+      "id": "lift-chair-vevor-power-lift-recliner-chenille-dark-gray",
+      "name": "VEVOR Power Lift Recliner Chair, Large Electric Lift Chair with Heat and Massage, Infinite Position Adjustment, Chenille Fabric, Dark Gray",
+      "brand": "VEVOR",
+      "model": null,
+      "type": "lift_chair",
+      "group": "living",
+      "rooms": [
+        "living"
+      ],
+      "fixes": [
+        "seat_height"
+      ],
+      "placement": "floor",
+      "takes_floor_space": true,
+      "price_usd": 377.99,
+      "price_note": "list",
+      "store": "Target (sold & shipped by Vevor Store Inc)",
+      "url": "https://www.target.com/p/vevor-power-lift-recliner-chair-large-electric-lift-chair-with-heat-and-massage-infinite-position-adjustment-chenille-fabric-dark-gray/-/A-1010427787",
+      "image_url": "https://target.scene7.com/is/image/Target/GUEST_f5f5d585-874e-4fbc-b947-a6bf6b4ad520?wid=300&hei=300&fmt=pjpeg",
+      "photo": "photos/lift-chair-vevor-power-lift-recliner-chenille-dark-gray.jpg",
+      "dims_in": {
+        "width": 38.2,
+        "depth": 36.6,
+        "height": 45.2
+      },
+      "dims_cm": {
+        "width": 97.0,
+        "depth": 93.0,
+        "height": 114.8
+      },
+      "spec": {
+        "seat_height_in": null,
+        "seat_width_in": 22,
+        "seat_depth_in": 22.4,
+        "overall_width_in": 38.2,
+        "wall_clearance_needed_in": null
+      },
+      "weight_capacity_lb": 350,
+      "install": "none",
+      "page_evidence": {
+        "price": "$377.99; Sold & shipped by Vevor Store Inc; In Stock",
+        "dims": "45.2 inches (H) x 38.2 inches (W) x 36.6 inches (D); seat width 22 inches; seat depth 22.4 inches; Seats up to: 350"
+      },
+      "source": "product page",
+      "checked": "2026-11-11",
+      "review": "check",
+      "review_reason": "seat height not stated (the page's seat-height field is the overall height)",
+      "notes": "Budget lift recliner. The page's seat-height field reads 45.2 in, which is the overall height, so seat height is null. Wall clearance not stated. 'Adult Assembly Required, Tools Not Provided'. Install value follows the catalogue's convention for lift chairs.",
+      "profiles": [
+        "walker",
+        "cane",
+        "fall_risk"
+      ],
+      "evidence_note": null,
+      "tier": "budget"
+    },
+    {
+      "id": "lift-chair-golden-spinlife-classic-pr458-3-position",
+      "name": "Golden Technologies SpinLife Classic PR-458 3-Position Lift Chair",
+      "brand": "Golden Technologies",
+      "model": "PR458LUXE",
+      "type": "lift_chair",
+      "group": "living",
+      "rooms": [
+        "living"
+      ],
+      "fixes": [
+        "seat_height"
+      ],
+      "placement": "floor",
+      "takes_floor_space": true,
+      "price_usd": 699.0,
+      "price_note": "an unlabelled $1,198 is shown next to it; FREE Shipping",
+      "store": "SpinLife",
+      "url": "https://www.spinlife.com/spec.cfm?productID=117747",
+      "image_url": "https://www.spinlife.com/images/product/51641.jpg?dt=20250228094800000",
+      "photo": "photos/lift-chair-golden-spinlife-classic-pr458-3-position.jpg",
+      "dims_in": {
+        "width": null,
+        "depth": null,
+        "height": null
+      },
+      "dims_cm": {
+        "width": null,
+        "depth": null,
+        "height": null
+      },
+      "spec": {
+        "seat_height_in": null,
+        "seat_width_in": 20,
+        "seat_depth_in": 20,
+        "overall_width_in": null,
+        "wall_clearance_needed_in": null,
+        "positions": 3
+      },
+      "weight_capacity_lb": 400,
+      "install": "none",
+      "page_evidence": {
+        "price": "$699.00 (also shows $1,198 without a label); FREE Shipping; \"In-Stock custom chairs ship in 2-3 business days!\"",
+        "dims": "Seat size 20\"W x 20\"D; Weight Capacity: 400 lbs"
+      },
+      "source": "product page",
+      "checked": "2026-11-11",
+      "review": "check",
+      "review_reason": "no overall size, seat height or wall clearance on the page",
+      "notes": "Mid-priced lift chair from a national mobility store. The page read gave no overall size, seat-to-floor height or wall clearance, so check the manufacturer's sheet before placing it in a room plan.",
+      "profiles": [
+        "walker",
+        "cane",
+        "fall_risk"
+      ],
+      "evidence_note": null,
+      "tier": "mid"
+    },
+    {
+      "id": "catnapper-soother-power-lift-recliner",
+      "name": "Catnapper Soother Power Lift Recliner - Chocolate",
+      "brand": "Catnapper",
+      "model": "4825-2001-09",
+      "type": "lift_chair",
+      "group": "living",
+      "rooms": [
+        "living"
+      ],
+      "fixes": [
+        "seat_height"
+      ],
+      "placement": "floor",
+      "takes_floor_space": true,
+      "price_usd": 1199.97,
+      "price_note": "sale (list was $1,599.97)",
+      "store": "P.C. Richard & Son",
+      "url": "https://www.pcrichard.com/catnapper-soother-power-lift-recliner-chocolate/4825-2001-09.html",
+      "image_url": "https://www.pcrichard.com/dw/image/v2/BFXM_PRD/on/demandware.static/-/Sites-pcrichard-master-product-catalog/default/dwd45c9e11/images/hires/Z_4825-2001-09.jpg?sw=800&sh=800&sm=fit",
+      "photo": "photos/catnapper-soother-power-lift-recliner.jpg",
+      "dims_in": {
+        "width": 36,
+        "depth": 39,
+        "height": 43
+      },
+      "dims_cm": {
+        "width": 91.4,
+        "depth": 99.1,
+        "height": 109.2
+      },
+      "spec": {
+        "seat_height_in": 21,
+        "seat_width_in": 21,
+        "seat_depth_in": 21,
+        "overall_width_in": 36,
+        "wall_clearance_needed_in": 17
+      },
+      "weight_capacity_lb": 350,
+      "install": "none",
+      "page_evidence": {
+        "price": "$1,199.97 (Price reduced from $1,599.97)",
+        "dims": "Seat height 21 Inches; inside arm to arm 21 Inches; overall width 36, depth 39, height 43 Inches; required distance from wall 17 Inches; 350 lbs."
+      },
+      "source": "product page",
+      "checked": "2026-11-11",
+      "review": "ok",
+      "review_reason": null,
+      "notes": "Needs a wall outlet and 17 in behind it; store delivery ($39.97) is regional, freight delivery is offered elsewhere. Store ships within the contiguous US; furniture outside its local area arrives by curbside freight (free or $99, not stated which applies).",
+      "profiles": [
+        "walker",
+        "cane",
+        "fall_risk"
+      ],
+      "evidence_note": null,
+      "tier": "premium"
+    },
+    {
+      "id": "stander-ez-stand-n-go",
+      "name": "EZ Stand-N-Go",
+      "brand": "Stander",
+      "model": "2200",
+      "type": "standing_aid",
+      "group": "living",
+      "rooms": [
+        "living"
+      ],
+      "fixes": [
+        "seat_height"
+      ],
+      "placement": "beside_seat",
+      "takes_floor_space": false,
+      "price_usd": 138.88,
+      "price_note": "sale (list was $140)",
+      "store": "SpinLife",
+      "url": "https://www.spinlife.com/Stander-EZ-Stand-N-Go-For-The-Home/spec.cfm?productID=111464",
+      "image_url": "https://www.spinlife.com/images/product/69285.png?dt=20240716151300000",
+      "photo": "photos/stander-ez-stand-n-go.png",
+      "dims_in": {
+        "width": null,
+        "depth": null,
+        "height": null
+      },
+      "dims_cm": {
+        "width": null,
+        "depth": null,
+        "height": null
+      },
+      "spec": {
+        "handle_height_min_in": null,
+        "handle_height_max_in": null,
+        "base_size_in": null,
+        "goes_under": "sofa / chair / recliner (on top of or between the seat cushions)",
+        "handle_above_frame_in": [
+          7,
+          11
+        ],
+        "fits_cushion_width_in": [
+          19,
+          26
+        ],
+        "fits_cushion_depth_in": [
+          24,
+          27
+        ],
+        "fits_cushion_height_in": [
+          12,
+          21
+        ]
+      },
+      "weight_capacity_lb": 300,
+      "install": "tool-free",
+      "page_evidence": {
+        "price": "$138.88 (next to $140)",
+        "dims": "Handle Heights: 7\"-11\" above the horizontal frame; Fits Cushion Widths: 19\"-26\"; Fits Cushion Depths: 24\"-27\"; Fits Cushion Heights: 12\"-21\""
+      },
+      "source": "product page",
+      "checked": "2026-11-11",
+      "review": "ok",
+      "review_reason": null,
+      "notes": "Two handles, one each side of one seat; handle height is given above the frame, not from the floor, and the page does not say if tools are needed.",
+      "profiles": [
+        "walker",
+        "cane",
+        "fall_risk"
+      ],
+      "evidence_note": null,
+      "tier": "budget"
+    },
+    {
+      "id": "stander-couchcane-with-organizer-pouch",
+      "name": "Stander CouchCane With Organizer Pouch",
+      "brand": "Stander",
+      "model": "2001",
+      "type": "standing_aid",
+      "group": "living",
+      "rooms": [
+        "living"
+      ],
+      "fixes": [
+        "seat_height"
+      ],
+      "placement": "beside_seat",
+      "takes_floor_space": false,
+      "price_usd": 178.31,
+      "price_note": "sale (list was $222.89)",
+      "store": "Health Products For You",
+      "url": "https://www.healthproductsforyou.com/p-standers-couchcane-with-organizer-pouch.html",
+      "image_url": "https://i.healthproductsforyou.com/fullimage/410-X-410/5/h/51120161737with-organizer-pouch-P.png",
+      "photo": "photos/stander-couchcane-with-organizer-pouch.jpg",
+      "dims_in": {
+        "width": null,
+        "depth": null,
+        "height": null
+      },
+      "dims_cm": {
+        "width": null,
+        "depth": null,
+        "height": null
+      },
+      "spec": {
+        "handle_height_min_in": 29,
+        "handle_height_max_in": 32,
+        "base_size_in": null,
+        "goes_under": "sofa / chair (also lift chair)",
+        "fits_couch_feet_distance_in": [
+          21,
+          33
+        ],
+        "handle_width_in": 15
+      },
+      "weight_capacity_lb": 250,
+      "install": "tool-free",
+      "page_evidence": {
+        "price": "$178.31 Each (also shows $222.89, unlabeled)",
+        "dims": "Cane height: Adjustable from 29 inch to 32 inch; Fits couch feet distance: 21\" to 33\"; Width of handle: 15\"; Weight capacity: 300lb"
+      },
+      "source": "product page",
+      "checked": "2026-11-11",
+      "review": "check",
+      "review_reason": "store prints the older spec (300 lb, 29-32 in handle); the maker now lists 250 lb and 31-40.5 in; which version ships is unknown",
+      "notes": "The sofa's front and back feet sit on the base to hold it; this page does not state tools, and other retailers list 250 lb and a newer 31 to 40.5 in version, so confirm the version before buying. Capacity set to 250 lb, the maker's current figure for item 2001 (stander.com); this store's page still prints 300 lb.",
+      "profiles": [
+        "walker",
+        "cane",
+        "fall_risk"
+      ],
+      "evidence_note": null,
+      "tier": "premium"
+    },
+    {
+      "id": "closet-rod-rev-a-shelf-cpdr-1826-pull-down",
+      "name": "Rev-A-Shelf 21.5 to 26 Inch Pull Down Adjustable Side Mounted Closet Rod (CPDR-1826)",
+      "brand": "Rev-A-Shelf",
+      "model": "CPDR-1826",
+      "type": "closet_rod",
+      "group": "reach",
+      "rooms": [
+        "bedroom"
+      ],
+      "fixes": [
+        "reach_range"
+      ],
+      "placement": "closet",
+      "takes_floor_space": false,
+      "price_usd": 185.99,
+      "price_note": "sale (reg $236.99)",
+      "store": "Target (sold & shipped by Spreetail)",
+      "url": "https://www.target.com/p/rev-a-shelf-pull-down-closet-rod/-/A-83924442",
+      "image_url": "https://target.scene7.com/is/image/Target/GUEST_40e660e1-1594-447e-9a39-5511a17763d9?wid=300&hei=300&fmt=pjpeg",
+      "photo": "photos/closet-rod-rev-a-shelf-cpdr-1826-pull-down.jpg",
+      "dims_in": {
+        "width": 21.5,
+        "depth": 4,
+        "height": 34.75
+      },
+      "dims_cm": {
+        "width": 54.6,
+        "depth": 10.2,
+        "height": 88.3
+      },
+      "spec": {
+        "fits_opening_width_min_in": 21.5,
+        "fits_opening_width_max_in": 26,
+        "pulls_down_by_in": null,
+        "load_lb": 25,
+        "min_opening_depth_in": 14,
+        "min_opening_height_in": 34.75
+      },
+      "weight_capacity_lb": 25,
+      "install": "screws",
+      "page_evidence": {
+        "price": "$185.99 reg $236.99; Sold & shipped by Spreetail; In Stock",
+        "dims": "Title: \"21.5 to 26 Inch\"; Dimensions (Overall): 4 inches (L), 34.75 inches (H) x 21.5 inches (W); Holds up to: 25 pounds; highlights (copied from the 26-35 in model): \"Frameless Minimum Cabinet Opening: 26\"W x 14\"D x 34.75\"H\""
+      },
+      "source": "product page",
+      "checked": "2026-11-11",
+      "review": "ok",
+      "review_reason": null,
+      "notes": "The narrow size (21.5-26 in openings). The Target listing mixes in highlight text from the 26-35 in model ('adjust the rod between 26 to 35 inches'); the title, model number and overall width say 21.5-26 in, which Rockler's page for CPDR-1826 confirms ('21-1/2\" to 26\" (#1001991)'). The 14 in depth and 34.75 in height minimums come from that copied highlight line.",
+      "profiles": [
+        "manual_wheelchair",
+        "power_wheelchair",
+        "scooter"
+      ],
+      "evidence_note": null,
+      "tier": "budget"
+    },
+    {
+      "id": "rev-a-shelf-cpdr-2635-pull-down-closet-rod",
+      "name": "Rev-A-Shelf 26\"-35\" Pull Down Adjustable Side Mounted Closet Rod for Kitchen/ Bathroom Cabinets with Telescoping Handle & Hardware, Chrome, CPDR-2635",
+      "brand": "Rev-A-Shelf",
+      "model": "CPDR-2635",
+      "type": "closet_rod",
+      "group": "reach",
+      "rooms": [
+        "bedroom"
+      ],
+      "fixes": [
+        "reach_range"
+      ],
+      "placement": "closet",
+      "takes_floor_space": false,
+      "price_usd": 188.99,
+      "price_note": "sale (list was $240.99)",
+      "store": "Target (sold and shipped by Spreetail)",
+      "url": "https://www.target.com/p/rev-a-shelf-26-35-pull-down-adjustable-side-mounted-closet-rod-for-kitchen-bathroom-cabinets-w-telescoping-handle-hardware-chrome-cpdr-2635/-/A-78780113",
+      "image_url": "https://target.scene7.com/is/image/Target/GUEST_8ee1b11d-e277-46df-a986-cc806a40ff65?wid=300&hei=300&fmt=pjpeg",
+      "photo": "photos/rev-a-shelf-cpdr-2635-pull-down-closet-rod.jpg",
+      "dims_in": {
+        "width": 26,
+        "depth": 4,
+        "height": 34.75
+      },
+      "dims_cm": {
+        "width": 66.0,
+        "depth": 10.2,
+        "height": 88.3
+      },
+      "spec": {
+        "fits_opening_width_min_in": 26,
+        "fits_opening_width_max_in": 35,
+        "pulls_down_by_in": null,
+        "load_lb": 25,
+        "min_opening_depth_in": 14,
+        "min_opening_height_in": 34.75
+      },
+      "weight_capacity_lb": 25,
+      "install": "screws",
+      "page_evidence": {
+        "price": "$188.99 reg $240.99 ($52 off)",
+        "dims": "adjust the rod between 26 to 35 inches in width; 26\"W x 4\"D x 34.75\"H; Frameless Minimum Cabinet Opening: 26\"W x 14\"D x 34.75\"H; Holds up to: 25 pounds"
+      },
+      "source": "product page",
+      "checked": "2026-11-11",
+      "review": "ok",
+      "review_reason": null,
+      "notes": "Side-mounts between two closet panels or walls with included hardware; needs 14 in depth and 34.75 in height; how far the rod lowers is not stated; the page's spec table gives different overall figures (14 L x 34.75 H x 35 W).",
+      "profiles": [
+        "manual_wheelchair",
+        "power_wheelchair",
+        "scooter"
+      ],
+      "evidence_note": null,
+      "tier": "mid"
+    },
+    {
+      "id": "closet-rod-rev-a-shelf-cpdr-3548-pull-down",
+      "name": "Rev-A-Shelf 48\" Pull-Down Closet Rod, Chrome, Wire (CPDR-3548)",
+      "brand": "Rev-A-Shelf",
+      "model": "CPDR-3548",
+      "type": "closet_rod",
+      "group": "reach",
+      "rooms": [
+        "bedroom"
+      ],
+      "fixes": [
+        "reach_range"
+      ],
+      "placement": "closet",
+      "takes_floor_space": false,
+      "price_usd": 246.99,
+      "price_note": "each; ships from manufacturer; the 26\" CPDR-1826 is $236.99 on the same page",
+      "store": "Rockler",
+      "url": "https://www.rockler.com/pull-down-closet-rods-cpdr-series",
+      "image_url": "https://www.rockler.com/media/catalog/product/1/0/1001991-01-1000.jpg?quality=80&bg-color=255,255,255&fit=bounds&height=265&width=265&canvas=265:265",
+      "photo": "photos/closet-rod-rev-a-shelf-cpdr-3548-pull-down.jpg",
+      "dims_in": {
+        "width": null,
+        "depth": null,
+        "height": null
+      },
+      "dims_cm": {
+        "width": null,
+        "depth": null,
+        "height": null
+      },
+      "spec": {
+        "fits_opening_width_min_in": 35,
+        "fits_opening_width_max_in": 48,
+        "pulls_down_by_in": null,
+        "load_lb": null,
+        "min_opening_depth_in": null,
+        "min_opening_height_in": null,
+        "pull_rod_length_in": [
+          34,
+          50
+        ]
+      },
+      "weight_capacity_lb": null,
+      "install": "screws",
+      "page_evidence": {
+        "price": "48\" Pull-Down Closet Rod, Chrome, Wire (CPDR-3548) Item #1001993 Ships from Manufacturer $246.99 Each",
+        "dims": "\"openings from 21-1/2\" to 26\" (#1001991), 26\" to 35\" (#1001992) and 35\"- 48\" (#1001993)\"; \"The pull-rod is adjustable from 34\" to 50\"\""
+      },
+      "source": "product page",
+      "checked": "2026-11-11",
+      "review": "check",
+      "review_reason": "no load rating or minimum depth on the page",
+      "notes": "The wide size (35-48 in openings) of the same rod the catalogue has in 26-35 in. The page text read gave no load rating or minimum depth; it says the telescoping pull rod is meant 'to accommodate universal design and handicap accessible applications'. Ships within the 48 contiguous states, 25% restocking fee. The image is the product-group photo (it is the 26 in item's picture). Estimated ship date shown: 11/16/2026.",
+      "profiles": [
+        "manual_wheelchair",
+        "power_wheelchair",
+        "scooter"
+      ],
+      "evidence_note": null,
+      "tier": "premium"
+    },
+    {
+      "id": "reach-kidswitch-toggle-switch-extension-set3",
+      "name": "Kidswitch Toggle Light Switch Extension Handle",
+      "brand": "Kidswitch",
+      "model": "JKS-KIDSWITCH-TGGLE",
+      "type": "reach_aid",
+      "group": "reach",
+      "rooms": [
+        "any"
+      ],
+      "fixes": [
+        "reach_range"
+      ],
+      "placement": "wall",
+      "takes_floor_space": false,
+      "price_usd": 23.55,
+      "price_note": "price of the Set of 3 Extension Handles variant ($7.85 each)",
+      "store": "Kyle Switch Plates",
+      "url": "https://www.kyleswitchplates.com/kidswitch-toggle-light-switch-extension-handle/",
+      "image_url": "https://cdn11.bigcommerce.com/s-wlejmk/images/stencil/500x659/products/1091/6500/toggle_light_switch_extender_for_kids__28173.1361492957.jpg?c=2",
+      "photo": "photos/reach-kidswitch-toggle-switch-extension-set3.jpg",
+      "dims_in": {
+        "width": 3,
+        "depth": null,
+        "height": 13.75
+      },
+      "dims_cm": {
+        "width": 7.6,
+        "depth": null,
+        "height": 34.9
+      },
+      "spec": {
+        "what_it_does": "hanging handle that lowers a toggle light switch",
+        "reach_change_in": 12,
+        "switch_type": "toggle only",
+        "pieces_per_pack": 3
+      },
+      "weight_capacity_lb": null,
+      "install": "screws",
+      "page_evidence": {
+        "price": "Now: $23.55; Set of 3 Extension Handles ($7.85 ea.)",
+        "dims": "12\" extension; handle measures 13.75\" x 3\"; toggle to bottom of handle about 11.5\""
+      },
+      "source": "product page",
+      "checked": "2026-11-11",
+      "review": "ok",
+      "review_reason": null,
+      "notes": "Works on flip-up/down toggle switches only (rocker switches are not mentioned); marketed for children; mounts with the included screws and bushings on the switch plate; brand is taken from the product name. The page names adults with limited reach or in a wheelchair as users. Toggle switches only, not rocker switches.",
+      "profiles": [
+        "manual_wheelchair",
+        "power_wheelchair",
+        "scooter"
+      ],
+      "evidence_note": null,
+      "tier": "only"
+    },
+    {
+      "id": "dmi-non-folding-reacher-32in",
+      "name": "DMI Non-Folding Reacher Grabber Tool, Elderly & Disabled, 32\", Magnetic Claw, Arm Extension",
+      "brand": "DMI",
+      "model": "TCIN 1004417441 / UPC 041298017660",
+      "type": "reacher",
+      "group": "reach",
+      "rooms": [
+        "any"
+      ],
+      "fixes": [
+        "reach_range"
+      ],
+      "placement": "handheld",
+      "takes_floor_space": false,
+      "price_usd": 19.99,
+      "price_note": "list",
+      "store": "Target (sold and shipped by DMS Holdings)",
+      "url": "https://www.target.com/p/dmi-aluminum-reacher/-/A-1004417441",
+      "image_url": "https://target.scene7.com/is/image/Target/GUEST_c97cfedd-8ed1-4f61-8c04-52dcde99d260?wid=300&hei=300&fmt=pjpeg",
+      "photo": "photos/dmi-non-folding-reacher-32in.webp",
+      "dims_in": {
+        "width": 5,
+        "depth": 32,
+        "height": 1
+      },
+      "dims_cm": {
+        "width": 12.7,
+        "depth": 81.3,
+        "height": 2.5
+      },
+      "spec": {
+        "length_in": 32
+      },
+      "weight_capacity_lb": null,
+      "install": "none",
+      "page_evidence": {
+        "price": "$19.99",
+        "dims": "extends reach by 32 inches; 1.0 inches (H) x 5.0 inches (W) x 32.0 inches (D); 2 and 1/2 inch jaw opening"
+      },
+      "source": "product page",
+      "checked": "2026-11-11",
+      "review": "ok",
+      "review_reason": null,
+      "notes": "Magnetic tip, 2.5 in jaw opening, does not fold; the description also contains a stray '36 by 1 by 48 inches' figure that conflicts with the spec table.",
+      "profiles": [
+        "manual_wheelchair",
+        "power_wheelchair",
+        "scooter",
+        "walker",
+        "cane",
+        "fall_risk"
+      ],
+      "evidence_note": null,
+      "tier": "only"
+    },
+    {
+      "id": "kasa-smart-wifi-plug-mini-2-pack-ep10p2",
+      "name": "TP-Link Kasa Smart Wi-Fi Plug Mini, 2-Pack (EP10P2)",
+      "brand": "TP-Link Kasa",
+      "model": "EP10P2",
+      "type": "smart_plug",
+      "group": "reach",
+      "rooms": [
+        "any"
+      ],
+      "fixes": [
+        "reach_range"
+      ],
+      "placement": "outlet",
+      "takes_floor_space": false,
+      "price_usd": 24.99,
+      "price_note": "list",
+      "store": "Quill",
+      "url": "https://www.quill.com/tp-link-kasa-smart-wi-fi-plug-mini-2-pack-ep10p2/cbs/55495875.html",
+      "image_url": "https://www.quill.com/is/image/Quill/2F18A8A9-51B0-4B78-B4E44256783F9B40_s7?wid=1536&hei=1536",
+      "photo": "photos/kasa-smart-wifi-plug-mini-2-pack-ep10p2.jpg",
+      "dims_in": {
+        "width": null,
+        "depth": null,
+        "height": null
+      },
+      "dims_cm": {
+        "width": null,
+        "depth": null,
+        "height": null
+      },
+      "spec": {
+        "pieces": 2,
+        "works_with": [
+          "Amazon Alexa",
+          "Google Assistant",
+          "Samsung SmartThings"
+        ],
+        "needs_hub": false,
+        "max_load": "1800W / 15A"
+      },
+      "weight_capacity_lb": null,
+      "install": "none",
+      "page_evidence": {
+        "price": "$24.99 Per each",
+        "dims": "not stated"
+      },
+      "source": "product page",
+      "checked": "2026-11-11",
+      "review": "ok",
+      "review_reason": null,
+      "notes": "Needs home Wi-Fi and a phone app for setup; no Apple Home support listed for this model.",
+      "profiles": [
+        "manual_wheelchair",
+        "power_wheelchair",
+        "scooter"
+      ],
+      "evidence_note": null,
+      "tier": "only"
+    },
+    {
+      "id": "switch-aid-ikea-tretakt-plug-with-remote",
+      "name": "IKEA TRETAKT plug with remote control, smart",
+      "brand": "IKEA",
+      "model": "505.697.30",
+      "type": "switch_aid",
+      "group": "reach",
+      "rooms": [
+        "any"
+      ],
+      "fixes": [
+        "reach_range"
+      ],
+      "placement": "outlet",
+      "takes_floor_space": false,
+      "price_usd": 18.99,
+      "price_note": "list",
+      "store": "IKEA",
+      "url": "https://www.ikea.com/us/en/p/tretakt-plug-with-remote-control-smart-50569730/",
+      "image_url": "https://www.ikea.com/us/en/images/products/tretakt-plug-with-remote-control-smart__1286500_pe933579_s5.jpg?f=u",
+      "photo": "photos/switch-aid-ikea-tretakt-plug-with-remote.jpg",
+      "dims_in": {
+        "width": null,
+        "depth": null,
+        "height": null
+      },
+      "dims_cm": {
+        "width": null,
+        "depth": null,
+        "height": null
+      },
+      "spec": {
+        "what_it_does": "plug-in outlet switched by a pre-paired handheld remote, so a lamp or small appliance can be turned on and off from a seated position without reaching the wall switch",
+        "reach_change_in": null,
+        "switch_type": "wireless remote + smart plug",
+        "pieces_per_pack": 2,
+        "needs_wiring": false,
+        "needs_hub": null,
+        "range_yd": 11,
+        "max_load": "1800W",
+        "batteries": "1 x AAA (LADDA HR03 recommended), sold separately"
+      },
+      "weight_capacity_lb": null,
+      "install": "none",
+      "page_evidence": {
+        "price": "$18.99",
+        "dims": "\"maximum range of 11 yards\" when not blocked by walls; Max output power: 1800W; packaging 2 1/2\" x 2 1/2\" x 3\", 4 oz; product dimensions not stated"
+      },
+      "source": "product page",
+      "checked": "2026-11-11",
+      "review": "ok",
+      "review_reason": null,
+      "notes": "No-wiring reach fix: the kit is 'pre-paired'. The page says it can also connect to the DIRIGERA hub for extra features and does not spell out that a hub is unnecessary for basic use. It switches whatever is plugged in, not the ceiling light on the wall switch. No rocker-switch extender for wheelchair users was found on a readable store page.",
+      "profiles": [
+        "manual_wheelchair",
+        "power_wheelchair",
+        "scooter"
+      ],
+      "evidence_note": null,
+      "tier": "only"
+    },
+    {
+      "id": "amazon-echo-dot-5th-gen-charcoal",
+      "name": "Amazon - Echo Dot (5th Gen, 2022 Release) Smart Speaker with Alexa - Charcoal",
+      "brand": "Amazon",
+      "model": "B09B8V1LZ3",
+      "type": "voice_control",
+      "group": "reach",
+      "rooms": [
+        "any"
+      ],
+      "fixes": [
+        "reach_range"
+      ],
+      "placement": "outlet",
+      "takes_floor_space": false,
+      "price_usd": 79.99,
+      "price_note": "list",
+      "store": "P.C. Richard & Son",
+      "url": "https://www.pcrichard.com/amazon-echo-dot-5th-gen-2022-release-smart-speaker-with-alexa-charcoal/B09B8V1LZ3.html",
+      "image_url": "https://www.pcrichard.com/dw/image/v2/BFXM_PRD/on/demandware.static/-/Sites-pcrichard-master-product-catalog/default/dw140d8cb5/images/hires/Z_B09B8V1LZ3.jpg?sw=300&sh=300&sm=fit",
+      "photo": "photos/amazon-echo-dot-5th-gen-charcoal.jpg",
+      "dims_in": {
+        "width": 3.9,
+        "depth": 3.9,
+        "height": 3.5
+      },
+      "dims_cm": {
+        "width": 9.9,
+        "depth": 9.9,
+        "height": 8.9
+      },
+      "spec": {
+        "what_it_is": "Alexa smart speaker that switches compatible smart plugs and lamps by voice"
+      },
+      "weight_capacity_lb": null,
+      "install": "none",
+      "page_evidence": {
+        "price": "$79.99",
+        "dims": "3.9(w) X 3.5(h) X 3.9(d), units not given on the page"
+      },
+      "source": "product page",
+      "checked": "2026-11-11",
+      "review": "ok",
+      "review_reason": null,
+      "notes": "This store's price is well above what other shops' search results showed for the same speaker ($39.99 to $49.99), so shop around. $79.99 confirmed as today's price on a second retailer's live page; lower prices seen earlier were old search snippets.",
+      "profiles": [
+        "manual_wheelchair",
+        "power_wheelchair",
+        "scooter",
+        "walker",
+        "cane",
+        "fall_risk"
+      ],
+      "evidence_note": null,
+      "tier": "only"
+    },
+    {
+      "id": "uline-cord-protector-5ft-standard-black",
+      "name": "Cord Protector - 5', Standard, Black",
+      "brand": "Uline",
+      "model": "H-4127BL",
+      "type": "cord_cover",
+      "group": "floor",
+      "rooms": [
+        "any"
+      ],
+      "fixes": [
+        "floor_surface"
+      ],
+      "placement": "floor",
+      "takes_floor_space": false,
+      "price_usd": 24.0,
+      "price_note": "list",
+      "store": "Uline",
+      "url": "https://www.uline.com/Product/Detail/H-4127BL/Cable-Management/Cord-Protector-5-Standard-Black",
+      "image_url": "https://img.uline.com/is/image/uline/H-4127BL?$LargeRHD$",
+      "photo": "photos/uline-cord-protector-5ft-standard-black.webp",
+      "dims_in": {
+        "width": 3,
+        "depth": 60,
+        "height": 0.75
+      },
+      "dims_cm": {
+        "width": 7.6,
+        "depth": 152.4,
+        "height": 1.9
+      },
+      "spec": {
+        "length_in": 60,
+        "width_in": 3,
+        "height_in": 0.75,
+        "channel_size_in": "3/4 x 1/2 (W x H)"
+      },
+      "weight_capacity_lb": null,
+      "install": "tool-free",
+      "page_evidence": {
+        "price": "$24 each (1); $23 (5+)",
+        "dims": "5'; OUTSIDE DIM. W x H 3 x 3/4\"; inside 3/4 x 1/2\""
+      },
+      "source": "product page",
+      "checked": "2026-11-11",
+      "review": "ok",
+      "review_reason": null,
+      "notes": "Flexible PVC, pre-slit underneath, cut to length; the page suggests double-sided carpet tape (sold separately) to hold it down.",
+      "profiles": [
+        "manual_wheelchair",
+        "power_wheelchair",
+        "scooter",
+        "walker",
+        "cane",
+        "fall_risk"
+      ],
+      "evidence_note": null,
+      "tier": "only"
+    },
+    {
+      "id": "ikea-ankarlagg-led-nightlight-motion-sensor",
+      "name": "ANKARLÄGG LED nightlight with sensor, battery operated",
+      "brand": "IKEA",
+      "model": "606.128.27",
+      "type": "night_light",
+      "group": "floor",
+      "rooms": [
+        "bedroom",
+        "bathroom",
+        "any"
+      ],
+      "fixes": [
+        "night_path"
+      ],
+      "placement": "outlet",
+      "takes_floor_space": false,
+      "price_usd": 3.99,
+      "price_note": "list",
+      "store": "IKEA",
+      "url": "https://www.ikea.com/us/en/p/ankarlaegg-led-nightlight-with-sensor-battery-operated-60612827/",
+      "image_url": "https://www.ikea.com/us/en/images/products/ankarlaegg-led-nightlight-with-sensor-battery-operated__1473048_pe997681_s5.jpg?f=u",
+      "photo": "photos/ikea-ankarlagg-led-nightlight-motion-sensor.jpg",
+      "dims_in": {
+        "width": 3,
+        "depth": null,
+        "height": 4.125
+      },
+      "dims_cm": {
+        "width": 7.6,
+        "depth": null,
+        "height": 10.5
+      },
+      "spec": {
+        "pieces": 1,
+        "motion_sensor": true,
+        "power": "2 x AAA batteries, sold separately",
+        "sensor_range_in": 118.125
+      },
+      "weight_capacity_lb": null,
+      "install": "tool-free",
+      "page_evidence": {
+        "price": "$3.99",
+        "dims": "Height 4 1/8\"; Width 3\"; turns on when the sensor detects movement within 3 meters (118 1/8\")"
+      },
+      "source": "product page",
+      "checked": "2026-11-11",
+      "review": "ok",
+      "review_reason": null,
+      "notes": "Motion sensor but battery powered, not plug-in; sticks on with the included adhesive pad and only lights in the dark.",
+      "profiles": [
+        "scooter",
+        "walker",
+        "cane",
+        "fall_risk"
+      ],
+      "evidence_note": "Way-finding lighting is part of hazard packages that cut falls 38% in higher-risk people; no study isolates lighting (clemson2023).",
+      "tier": "budget"
+    },
+    {
+      "id": "ikea-morkradd-led-nightlight-2-pack",
+      "name": "MÖRKRÄDD LED nightlight with sensor, white",
+      "brand": "IKEA",
+      "model": "703.501.27",
+      "type": "night_light",
+      "group": "floor",
+      "rooms": [
+        "bedroom",
+        "bathroom",
+        "any"
+      ],
+      "fixes": [
+        "night_path"
+      ],
+      "placement": "outlet",
+      "takes_floor_space": false,
+      "price_usd": 8.99,
+      "price_note": "list",
+      "store": "IKEA",
+      "url": "https://www.ikea.com/us/en/p/moerkraedd-led-nightlight-with-sensor-white-70350127/",
+      "image_url": "https://www.ikea.com/us/en/images/products/moerkraedd-led-nightlight-with-sensor-white__0546112_pe655896_s5.jpg?f=u",
+      "photo": "photos/ikea-morkradd-led-nightlight-2-pack.jpg",
+      "dims_in": {
+        "width": 1.75,
+        "depth": null,
+        "height": null
+      },
+      "dims_cm": {
+        "width": 4.4,
+        "depth": null,
+        "height": null
+      },
+      "spec": {
+        "pieces": 2,
+        "motion_sensor": false,
+        "sensor": "light sensor (on in the dark, off when light)",
+        "power": "plug-in"
+      },
+      "weight_capacity_lb": null,
+      "install": "none",
+      "page_evidence": {
+        "price": "$8.99/2 pack",
+        "dims": "Diameter 1 3/4\""
+      },
+      "source": "product page",
+      "checked": "2026-11-11",
+      "review": "ok",
+      "review_reason": null,
+      "notes": "Plug-in 2-pack with a dusk sensor, not a motion sensor: it stays on all night.",
+      "profiles": [
+        "scooter",
+        "walker",
+        "cane",
+        "fall_risk"
+      ],
+      "evidence_note": "Way-finding lighting is part of hazard packages that cut falls 38% in higher-risk people; no study isolates lighting (clemson2023).",
+      "tier": "mid"
+    },
+    {
+      "id": "night-light-ge-ultrabrite-motion-activated-12201",
+      "name": "GE Enbrighten UltraBrite Motion Activated LED Night Light, White",
+      "brand": "GE (Jasco)",
+      "model": "12201",
+      "type": "night_light",
+      "group": "floor",
+      "rooms": [
+        "bedroom",
+        "bathroom",
+        "any"
+      ],
+      "fixes": [
+        "night_path"
+      ],
+      "placement": "outlet",
+      "takes_floor_space": false,
+      "price_usd": 10.99,
+      "price_note": "list; 'In stock, ready to ship'",
+      "store": "Jasco (byjasco.com, the maker's own store)",
+      "url": "https://byjasco.com/products/ge-enbrighten-ultrabrite-motion-activated-led-night-light-white",
+      "image_url": "http://byjasco.com/cdn/shop/files/9b5da651baed4a373752bd1aa5c039ee.jpg?v=1738272873",
+      "photo": "photos/night-light-ge-ultrabrite-motion-activated-12201.jpg",
+      "dims_in": {
+        "width": null,
+        "depth": null,
+        "height": null
+      },
+      "dims_cm": {
+        "width": null,
+        "depth": null,
+        "height": null
+      },
+      "spec": {
+        "pieces": 1,
+        "motion_sensor": true,
+        "power": null,
+        "sensor_range_in": 300,
+        "auto_off_seconds": 90,
+        "lumens": 40,
+        "light_sensor": true
+      },
+      "weight_capacity_lb": null,
+      "install": "tool-free",
+      "page_evidence": {
+        "price": "$10.99; 12201; In stock, ready to ship",
+        "dims": "\"automatically turns on when motion is detected up to 25 feet away and turns off after 90 seconds of inactivity\"; \"40-lumen\"; \"it will only operate in low-light conditions\"; no dimensions on the page"
+      },
+      "source": "product page",
+      "checked": "2026-11-11",
+      "review": "check",
+      "review_reason": "page never says plug-in or names the power source",
+      "notes": "Motion-activated, mains-powered GE night light, but neither this page nor Quill's page for the same light uses the words 'plug-in' or names the power source, so power is null; confirm from the photo or packaging before calling it plug-in. sensor_range_in is 25 ft converted. Same light at Quill (model JAS12201): $21.99 each, delivery Nov 20-30. Target's plug-in motion night-light listings found by search (YANSUN, DORESshop, Viviendo, SnapPower) all returned 'Item not available' today.",
+      "profiles": [
+        "scooter",
+        "walker",
+        "cane",
+        "fall_risk"
+      ],
+      "evidence_note": "Way-finding lighting is part of hazard packages that cut falls 38% in higher-risk people; no study isolates lighting (clemson2023).",
+      "tier": "premium"
+    },
+    {
+      "id": "ikea-stopp-filt-rug-underlay-5x8",
+      "name": "STOPP FILT Rug underlay with anti-slip, 5'5\"x7'9\"",
+      "brand": "IKEA",
+      "model": "901.322.61",
+      "type": "rug_gripper",
+      "group": "floor",
+      "rooms": [
+        "living",
+        "bedroom",
+        "any"
+      ],
+      "fixes": [
+        "floor_surface"
+      ],
+      "placement": "floor",
+      "takes_floor_space": false,
+      "price_usd": 14.99,
+      "price_note": "price of the 5'5\"x7'9\" variant",
+      "store": "IKEA",
+      "url": "https://www.ikea.com/us/en/p/stopp-filt-rug-underlay-with-anti-slip-90132261/",
+      "image_url": "https://www.ikea.com/us/en/images/products/stopp-filt-rug-underlay-with-anti-slip__39410_pe097520_s5.jpg?f=u",
+      "photo": "photos/ikea-stopp-filt-rug-underlay-5x8.jpg",
+      "dims_in": {
+        "width": 65,
+        "depth": 93,
+        "height": null
+      },
+      "dims_cm": {
+        "width": 165.1,
+        "depth": 236.2,
+        "height": null
+      },
+      "spec": {
+        "size_or_length": "5'5\" x 7'9\" (65 x 93 in)",
+        "pieces": 1
+      },
+      "weight_capacity_lb": null,
+      "install": "none",
+      "page_evidence": {
+        "price": "$14.99/41.764 sq feet",
+        "dims": "Length: 7'9\"; Width: 5'5\""
+      },
+      "source": "product page",
+      "checked": "2026-11-11",
+      "review": "ok",
+      "review_reason": null,
+      "notes": "Can be cut or folded to fit smaller rugs; thickness is not stated on the page.",
+      "profiles": [
+        "manual_wheelchair",
+        "power_wheelchair",
+        "scooter",
+        "walker",
+        "cane",
+        "fall_risk"
+      ],
+      "evidence_note": "Rugs and carpets: about 38,000 ER visits a year among adults 65+, mostly at home, often at the rug edge (rosen2013). Removing rugs was the most common OT recommendation (cumming2001).",
+      "tier": "only"
+    }
+  ]
+}

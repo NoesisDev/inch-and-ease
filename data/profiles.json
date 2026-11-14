@@ -1,0 +1,354 @@
+{
+  "about": "Who the planner is for. Each profile says which checks matter most (core), which also apply, what to ask the user, and the research numbers behind it. Source ids are in sources.json.",
+  "how_to_use": "Ask which profile fits (or several). Run core checks first; show 'also' checks after. Where a profile gives a measured body/device number, it overrides the generic ADA reference for that person.",
+  "profiles": [
+    {
+      "id": "manual_wheelchair",
+      "label": "Manual wheelchair user",
+      "who": "Pushes their own chair or is pushed; transfers to bed, toilet and seat, usually sideways.",
+      "how_many": [
+        {
+          "value": "5.5 million US adults use a wheelchair (manual and power together)",
+          "source": "census2014",
+          "data_year": "2014"
+        },
+        {
+          "value": "wheelchair use among adults 65+ rose from 4.7 to 7.1 per 100 (2011 to 2019)",
+          "source": "nie2024",
+          "data_year": "2011-2019"
+        }
+      ],
+      "body_and_device": {
+        "occupied_width_95th_pct_in": 30.8,
+        "clear_floor_for_95pct_in": [
+          32,
+          56
+        ],
+        "share_fitting_ada_clear_floor_30x48": 0.7,
+        "seat_height_mean_in": 19.5,
+        "turning": "Fewer than 50% of manual and power users completed a 360-degree turn inside the 60 in circle; just over 80% fit a 180-degree turn.",
+        "sources": [
+          "dsouza2010",
+          "steinfeld2010",
+          "accessboard_seat"
+        ]
+      },
+      "ask_the_user": [
+        "Chair width at the widest point, with hands on the rims (in)",
+        "Seat height from the floor (in)",
+        "How you transfer: sideways slide, standing pivot, board, or with help",
+        "Have you fallen in the last year?"
+      ],
+      "core_checks": [
+        "door_clear_width",
+        "door_threshold",
+        "route_width",
+        "turning_space",
+        "bed_clear_floor",
+        "bed_height",
+        "toilet_clearance",
+        "toilet_grab_bars",
+        "tub_transfer",
+        "work_surface",
+        "reach_range"
+      ],
+      "also_checks": [
+        "door_maneuvering",
+        "door_hardware",
+        "entry_step",
+        "toilet_seat_height",
+        "bed_transfer_support",
+        "floor_surface",
+        "sink_height"
+      ],
+      "personal_rule": "Transfer surfaces (bed, toilet, bench) work best within about 2 in of the user's own seat height; use the answer, not a fixed band.",
+      "personal_rule_source": [
+        "koontz2012"
+      ],
+      "risks": [
+        {
+          "fact": "About 69% of community-dwelling wheelchair users with spinal cord injury fall within a year.",
+          "source": "khan2019"
+        },
+        {
+          "fact": "In one sample 74.6% of falls happened inside the house and 43.2% during transfers.",
+          "source": "abourice2023"
+        },
+        {
+          "fact": "About 3,924 ER visits a year for fractures during wheelchair transfers among US adults 65+; 29.9% involve beds; 44.1% happen at home.",
+          "source": "tsai2020"
+        }
+      ]
+    },
+    {
+      "id": "power_wheelchair",
+      "label": "Power wheelchair user",
+      "who": "Drives a motorised chair; usually wider, longer and higher than a manual chair; often less able to transfer alone.",
+      "how_many": [
+        {
+          "value": "part of the 5.5 million US adult wheelchair users",
+          "source": "census2014",
+          "data_year": "2014"
+        }
+      ],
+      "body_and_device": {
+        "occupied_width_95th_pct_in": 32.6,
+        "clear_floor_for_95pct_in": [
+          33.5,
+          58
+        ],
+        "share_fitting_ada_clear_floor_30x48": 0.49,
+        "seat_height_mean_in": 21.2,
+        "turning": "Fewer than 50% completed a 360-degree turn inside the 60 in circle.",
+        "sources": [
+          "dsouza2010",
+          "steinfeld2010",
+          "accessboard_seat"
+        ]
+      },
+      "ask_the_user": [
+        "Chair width and length (in)",
+        "Seat height from the floor (in)",
+        "Do you transfer alone, with help, or with a lift?"
+      ],
+      "core_checks": [
+        "door_clear_width",
+        "door_threshold",
+        "route_width",
+        "turning_space",
+        "bed_clear_floor",
+        "door_maneuvering"
+      ],
+      "also_checks": [
+        "bed_height",
+        "door_hardware",
+        "entry_step",
+        "toilet_clearance",
+        "work_surface",
+        "reach_range"
+      ],
+      "personal_rule": "A 32 in clear door is narrower than the widest 5% of occupied power chairs (32.6 in). Check against the user's own chair width.",
+      "personal_rule_source": [
+        "dsouza2010"
+      ],
+      "risks": [
+        {
+          "fact": "The ADA's 30 x 48 in clear floor space fits only 49% of power chair users.",
+          "source": "dsouza2010"
+        }
+      ]
+    },
+    {
+      "id": "scooter",
+      "label": "Mobility scooter user",
+      "who": "Usually walks a little; uses a scooter for distance. Scooters are long and turn wide.",
+      "how_many": [
+        {
+          "value": "2.3% of adults 65+ used a scooter (2011)",
+          "source": "gell2015",
+          "data_year": "2011",
+          "status_note": "per-device share read by agent from full text; the abstract gives only 24% for any device"
+        }
+      ],
+      "body_and_device": {
+        "occupied_width_95th_pct_in": 33.1,
+        "clear_floor_for_95pct_in": [
+          34,
+          57
+        ],
+        "share_fitting_ada_clear_floor_30x48": 0.54,
+        "turning": "None completed a 360-degree turn inside the 60 in circle; fewer than 50% fit a 180-degree turn.",
+        "sources": [
+          "dsouza2010",
+          "steinfeld2010"
+        ]
+      },
+      "ask_the_user": [
+        "Scooter width and length (in)",
+        "Do you park the scooter and walk inside the home?"
+      ],
+      "core_checks": [
+        "door_clear_width",
+        "door_threshold",
+        "entry_step",
+        "route_width",
+        "turning_space"
+      ],
+      "also_checks": [
+        "door_maneuvering",
+        "floor_surface",
+        "night_path"
+      ],
+      "personal_rule": "Indoors many scooter users walk; check the walking profile for rooms they don't drive into.",
+      "personal_rule_source": [],
+      "risks": []
+    },
+    {
+      "id": "walker",
+      "label": "Walker or rollator user",
+      "who": "Walks with a frame; stands up and sits down at every transfer; trips at sills and rug edges.",
+      "how_many": [
+        {
+          "value": "18.4 million US adults use a cane, crutches or a walker",
+          "source": "census2014",
+          "data_year": "2014"
+        },
+        {
+          "value": "11.6% of adults 65+ used a walker (2011); use rises steeply with age",
+          "source": "gell2015",
+          "data_year": "2011",
+          "status_note": "per-device share read by agent from full text"
+        }
+      ],
+      "body_and_device": {
+        "note": "No study found that measures the door, path or turning space walker users need. The ADA numbers are used as a floor; they come from wheelchair research.",
+        "threshold_note": "Walking frames get lifted at door thresholds and carpet edges, which reduces stability (qualitative).",
+        "sources": [
+          "thies2023"
+        ]
+      },
+      "ask_the_user": [
+        "Have you fallen in the last year?",
+        "Is getting up from the toilet, bed or sofa hard?",
+        "Do you use the walker inside the home?"
+      ],
+      "core_checks": [
+        "door_threshold",
+        "floor_surface",
+        "toilet_grab_bars",
+        "toilet_seat_height",
+        "tub_transfer",
+        "bed_height",
+        "bed_transfer_support",
+        "night_path",
+        "seat_height"
+      ],
+      "also_checks": [
+        "door_clear_width",
+        "route_width",
+        "entry_step",
+        "door_hardware",
+        "reach_range"
+      ],
+      "personal_rule": "For people who stand up from the toilet, a normal-height seat with grab bars was the most stable option in a lab study; a raised seat made rising easier but increased sway.",
+      "personal_rule_source": [
+        "noroozi2025"
+      ],
+      "risks": [
+        {
+          "fact": "Home hazard reduction cut the falls rate by 38% in older people at higher risk of falling (high-certainty evidence).",
+          "source": "clemson2023"
+        }
+      ]
+    },
+    {
+      "id": "cane",
+      "label": "Cane user",
+      "who": "Walks with a cane; balance and getting up are the main problems.",
+      "how_many": [
+        {
+          "value": "16.4% of adults 65+ used a cane (2011)",
+          "source": "gell2015",
+          "data_year": "2011",
+          "status_note": "per-device share read by agent from full text"
+        }
+      ],
+      "body_and_device": {
+        "note": "No space standard exists for cane users; the checks are about falls, getting up and lighting.",
+        "sources": []
+      },
+      "ask_the_user": [
+        "Have you fallen in the last year?",
+        "Is getting up from the toilet, bed or sofa hard?"
+      ],
+      "core_checks": [
+        "floor_surface",
+        "toilet_grab_bars",
+        "tub_transfer",
+        "night_path",
+        "bed_height",
+        "seat_height"
+      ],
+      "also_checks": [
+        "door_threshold",
+        "entry_step",
+        "toilet_seat_height",
+        "bed_transfer_support",
+        "reach_range"
+      ],
+      "personal_rule": "Same as walker users for toilet transfers (grab bars first).",
+      "personal_rule_source": [
+        "noroozi2025"
+      ],
+      "risks": []
+    },
+    {
+      "id": "fall_risk",
+      "label": "Older adult at risk of falling (no device)",
+      "who": "Has fallen recently or been in hospital; no mobility device yet. Device use starts and changes often.",
+      "how_many": [
+        {
+          "value": "24% of adults 65+ used some mobility device (2011)",
+          "source": "gell2015",
+          "data_year": "2011"
+        },
+        {
+          "value": "51% of new device-use episodes end within a year and 30% change device mix",
+          "source": "liu2024",
+          "data_year": "2011-2019"
+        }
+      ],
+      "body_and_device": {
+        "note": "Bed height near knee height or slightly higher; low beds are a problem for fall-prone people (lab).",
+        "sources": [
+          "bloswick2015"
+        ]
+      },
+      "ask_the_user": [
+        "Have you fallen in the last year, or been in hospital recently?",
+        "Which room worries you most?"
+      ],
+      "core_checks": [
+        "floor_surface",
+        "toilet_grab_bars",
+        "tub_transfer",
+        "night_path",
+        "bed_height"
+      ],
+      "also_checks": [
+        "door_threshold",
+        "entry_step",
+        "toilet_seat_height",
+        "seat_height",
+        "reach_range"
+      ],
+      "personal_rule": "The fall-prevention evidence only holds for people selected for risk (a recent fall or hospital stay). Ask; don't assume.",
+      "personal_rule_source": [
+        "clemson2023"
+      ],
+      "risks": [
+        {
+          "fact": "79.2% of older adults' falls that reach the ER happen at home: bedroom 25.0%, stairs 22.9%, bathroom 22.7%, living room 4.8%.",
+          "source": "moreland2020"
+        }
+      ]
+    }
+  ],
+  "not_covered": [
+    {
+      "group": "Blind and low-vision people",
+      "why": "Their main home barriers are lighting, contrast, glare and labelling, which a RoomPlan scan does not capture. RASSAR (CHI 2024) covers some of them with a camera model; this planner does not.",
+      "source": "su2024"
+    },
+    {
+      "group": "Deaf and hard-of-hearing people",
+      "why": "Their needs are alerts (visual doorbells, smoke alarms), not room geometry.",
+      "source": null
+    },
+    {
+      "group": "People with cognitive disabilities or dementia",
+      "why": "Needs are wayfinding, labelling and supervision; no scan measurement applies.",
+      "source": null
+    }
+  ]
+}

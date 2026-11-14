@@ -1,0 +1,320 @@
+{
+  "about": "Pitch and video numbers, ranked. 'say' is wording the sources support. rank 1-5 = the headline set chosen on 12 Nov 2026. Source ids are in sources.json.",
+  "claims": [
+    {
+      "id": "unmet_5m",
+      "rank": 1,
+      "headline": true,
+      "say": "About 5 million older Americans who need a grab bar, shower seat or raised toilet seat don't have one, and half of those who need a toilet aid still don't have it four years later.",
+      "numbers": {
+        "people": "about 5 million",
+        "share": "42%",
+        "toilet_never_after_4y": "52%",
+        "bathing_never_after_4y": "35%"
+      },
+      "sources": [
+        "lam2021"
+      ],
+      "status": "verified",
+      "data_year": "2015-2019",
+      "caveat": "Adults 65+ who would clearly benefit. Say 'older Americans', not 'disabled people'."
+    },
+    {
+      "id": "not_income",
+      "rank": 2,
+      "headline": true,
+      "say": "It isn't mainly money: unmet need was higher among younger, healthier older adults. They don't know what to get.",
+      "numbers": {},
+      "sources": [
+        "lam2021"
+      ],
+      "status": "verified",
+      "data_year": "2015-2019",
+      "caveat": "The paper lists younger age, fewer conditions and no recent hospital stay as predictors; the 'don't know what to get' reading is the authors' explanation (knowledge gaps, stigma, nobody asks)."
+    },
+    {
+      "id": "turning_circle",
+      "rank": 3,
+      "headline": true,
+      "say": "The standard 60-inch turning circle fits fewer than half of wheelchair users for a full turn. So we check against your chair, not a generic number.",
+      "numbers": {
+        "360_turn_fit": "<50%",
+        "180_turn_fit": ">80%",
+        "clear_floor_fit": "60%"
+      },
+      "sources": [
+        "steinfeld2010",
+        "dsouza2010"
+      ],
+      "status": "verified",
+      "data_year": "2005-2009",
+      "caveat": "Measured in the US for the Access Board; 495 and 369 users."
+    },
+    {
+      "id": "works_if_targeted",
+      "rank": 4,
+      "headline": true,
+      "say": "Fixing hazards at home works: a Cochrane review of 22 trials found 38% fewer falls in people at higher risk. A cheap rails-and-grab-bars programme cut medically treated fall injuries by 26%.",
+      "numbers": {
+        "falls_rate_ratio_high_risk": "0.62 (0.56-0.70)",
+        "hipi_injury_rate_ratio": "0.74 (0.58-0.94)"
+      },
+      "sources": [
+        "clemson2023",
+        "keall2015"
+      ],
+      "status": "verified",
+      "data_year": "trials to 2022",
+      "caveat": "Only in people selected for risk (no effect in unselected people). No effect on fractures or hospital stays. No trial of an app or a single product."
+    },
+    {
+      "id": "detect_not_act",
+      "rank": 5,
+      "headline": true,
+      "say": "Spotting problems is solved: a CHI 2024 scanner finds them with 86% precision. What nobody does is the next step: which product, what it costs, within your budget.",
+      "numbers": {
+        "rassar_precision": 0.86,
+        "rassar_recall": 0.83,
+        "rassar_user_scan_accuracy": 0.61
+      },
+      "sources": [
+        "su2024",
+        "arhat"
+      ],
+      "status": "verified",
+      "data_year": "2023",
+      "caveat": "ARHAT also suggests design fixes. The gap is specific products, prices, budget and an independent re-check."
+    },
+    {
+      "id": "half_done",
+      "rank": 6,
+      "headline": false,
+      "say": "Even after an occupational therapist visits, only about half of the recommended changes get made. People who believed the change prevents falls were the ones who made it.",
+      "numbers": {
+        "adherence": "52% (216 of 419)"
+      },
+      "sources": [
+        "cumming2001"
+      ],
+      "status": "verified",
+      "data_year": "1990s",
+      "caveat": "Australian sample of 178 people; old data."
+    },
+    {
+      "id": "abandonment",
+      "rank": 7,
+      "headline": false,
+      "say": "29% of assistive devices end up abandoned; choosing without asking the user predicts it.",
+      "numbers": {
+        "abandoned": "29.3%"
+      },
+      "sources": [
+        "phillips1993"
+      ],
+      "status": "verified",
+      "data_year": "early 1990s",
+      "caveat": "Old US data; newer studies find 14 to 19%."
+    },
+    {
+      "id": "self_install",
+      "rank": 8,
+      "headline": false,
+      "say": "When older adults fitted a rim-mounted (clamp-on) tub rail themselves, 19 of 20 failed a load test.",
+      "numbers": {
+        "tub_rail_fail": "19 of 20",
+        "suction_handhold_held": "85%"
+      },
+      "sources": [
+        "rand2024"
+      ],
+      "status": "verified",
+      "data_year": "2023",
+      "caveat": "Lab study, 20 people. It is why the planner warns on install."
+    },
+    {
+      "id": "installers",
+      "rank": 9,
+      "headline": false,
+      "say": "Only 18% of contractors called would install a grab bar; the median quote was $394, for a $50 product.",
+      "numbers": {
+        "share_install": "18.4%",
+        "median_quote": "$394",
+        "wait_days": 23
+      },
+      "sources": [
+        "wiseman2021"
+      ],
+      "status": "agent_full",
+      "data_year": "2019-20",
+      "caveat": "One US city, 98 businesses."
+    },
+    {
+      "id": "where_falls",
+      "rank": 10,
+      "headline": false,
+      "say": "Four in five older adults' falls that reach the ER happen at home; the bedroom, stairs and bathroom each account for about a quarter.",
+      "numbers": {
+        "at_home": "79.2%",
+        "bedroom": "25.0%",
+        "stairs": "22.9%",
+        "bathroom": "22.7%",
+        "living_room": "4.8%"
+      },
+      "sources": [
+        "moreland2020"
+      ],
+      "status": "verified_round1",
+      "data_year": "2015",
+      "caveat": "About half of at-home ER records name no room."
+    },
+    {
+      "id": "bathroom_injury",
+      "rank": 11,
+      "headline": false,
+      "say": "A fall in the bathroom is more than twice as likely to cause an injury as one in the living room.",
+      "numbers": {
+        "odds_ratio": "2.4 (1.2-4.9)"
+      },
+      "sources": [
+        "stevens2014"
+      ],
+      "status": "agent_full",
+      "data_year": "2008-10",
+      "caveat": "328 high-risk older fallers."
+    },
+    {
+      "id": "bed_transfers",
+      "rank": 12,
+      "headline": false,
+      "say": "Getting in and out of bed is where 30% of wheelchair-transfer fractures happen in older adults.",
+      "numbers": {
+        "per_year": 3924,
+        "bed_share": "29.9%",
+        "at_home": "44.1%"
+      },
+      "sources": [
+        "tsai2020"
+      ],
+      "status": "verified",
+      "data_year": "2007-2017",
+      "caveat": "Adults 65+, ER-treated fractures only."
+    },
+    {
+      "id": "who_uses_what",
+      "rank": 13,
+      "headline": false,
+      "say": "18.4 million US adults use a cane, crutches or a walker, against 5.5 million who use a wheelchair.",
+      "numbers": {
+        "cane_walker": "18.4M",
+        "wheelchair": "5.5M"
+      },
+      "sources": [
+        "census2014"
+      ],
+      "status": "verified_round1",
+      "data_year": "2014",
+      "caveat": "Newest Census count; 12 years old, say the year."
+    },
+    {
+      "id": "scan_honesty",
+      "rank": 14,
+      "headline": false,
+      "say": "Phone scans get room shapes right but door sizes wrong more often than you'd think, so the planner flags anything close to a limit for a tape check.",
+      "numbers": {
+        "room_overlap": "0.84-0.93",
+        "door_overlap": "0.32-0.40",
+        "floor_area_short": "4.9-6.3%"
+      },
+      "sources": [
+        "ersoz2026"
+      ],
+      "status": "verified",
+      "data_year": "2025-26",
+      "caveat": "iPad Pro M4 in 3 spaces; pair it with your own tape-test number."
+    },
+    {
+      "id": "llm_geometry",
+      "rank": 15,
+      "headline": false,
+      "say": "We keep the AI away from measurements: in research, AI-written furniture coordinates did no better than random, while AI rules plus a solver did twice as well.",
+      "numbers": {
+        "llm_coords": 0.364,
+        "random": 0.369,
+        "llm_plus_solver": 0.706
+      },
+      "sources": [
+        "yang2024",
+        "rodionov2025"
+      ],
+      "status": "agent_full",
+      "data_year": "2024-25",
+      "caveat": "Holodeck is a scene-generation benchmark, not accessibility."
+    }
+  ],
+  "do_not_say": [
+    {
+      "say_not": "The first app to scan a room for accessibility",
+      "why": "RASSAR (CHI 2024) and ARHAT (UW) already do.",
+      "sources": [
+        "su2024",
+        "arhat"
+      ]
+    },
+    {
+      "say_not": "The first to suggest fixes from a scan",
+      "why": "ARHAT, myAccessibleHome and DwellSafe suggest fixes.",
+      "sources": [
+        "arhat"
+      ]
+    },
+    {
+      "say_not": "ADA compliant / not ADA compliant",
+      "why": "The ADA Standards don't apply to private homes; say 'meets the ADA reference width'.",
+      "sources": [
+        "ada2010"
+      ]
+    },
+    {
+      "say_not": "As accurate as an occupational therapist",
+      "why": "Even a professional laser scan read by an OT agreed only fairly with an in-person OT on hazards (kappa 0.38).",
+      "sources": [
+        "rusch2026"
+      ]
+    },
+    {
+      "say_not": "This grab bar (or any single product) prevents X% of falls",
+      "why": "No trial measures a single product.",
+      "sources": [
+        "clemson2023",
+        "keall2015"
+      ]
+    },
+    {
+      "say_not": "Reduces fractures or hospital stays",
+      "why": "Cochrane 2023: little or no difference (low certainty).",
+      "sources": [
+        "clemson2023"
+      ]
+    },
+    {
+      "say_not": "Proven to help wheelchair users",
+      "why": "No home-modification trial in wheelchair users exists.",
+      "sources": [
+        "clemson2023"
+      ]
+    },
+    {
+      "say_not": "Centimetre-accurate / clinical-grade measurement",
+      "why": "No study tests RoomPlan door widths against a tape; studies show 2 to 5 cm typical error and doors detected poorly.",
+      "sources": [
+        "ersoz2026",
+        "mansoubi2026"
+      ]
+    },
+    {
+      "say_not": "CAPABLE saved Medicare $22,000",
+      "why": "Primary source not found.",
+      "sources": []
+    }
+  ]
+}

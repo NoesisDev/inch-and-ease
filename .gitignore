@@ -1,0 +1,22 @@
+# Private planning: never goes to the public repo
+notes/
+START_HERE.md
+
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Build and OS noise
+node_modules/
+.next/
+.vercel/
+.DS_Store
+build/
+DerivedData/
+xcuserdata/
+
+# Coaching files for Claude: private
+CLAUDE.md
+HANDOFF.md
+GAME_PLAN.md
