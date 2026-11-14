@@ -230,7 +230,7 @@ export default function SlopeMap({ img, segs, pois, home, facts, grid, size }:
       )}
       <div className={view === "map" ? "relative overflow-hidden rounded-[20px]" : "hidden"}>
         {/* eslint-disable-next-line @next/next/no-img-element -- proxied Vexcel JPEG */}
-        <img src={img} alt="Vexcel aerial photo of the area, north up" className="block w-full" />
+        <img src={img} alt="Vexcel aerial photo of the area, north up" className="block aspect-square w-full bg-black/10 text-transparent" />
         <svg viewBox="0 0 1000 1000" preserveAspectRatio="none" className="absolute inset-0 h-full w-full" role="img" aria-label={`Streets coloured for this profile: ${pct("both")} usable both ways, ${pct("one")} ${oneWayLabel}, ${pct("no")} too steep`}>
           {segs.map((s, i) => (
             <g key={i}>

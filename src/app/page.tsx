@@ -100,7 +100,7 @@ function AreaView({ a }: { a: Area }) {
           {["north", "east", "south", "west"].map((d) => (
             <figure key={d} className="m-0">
               {/* eslint-disable-next-line @next/next/no-img-element -- proxied Vexcel JPEG */}
-              <img src={img(`oblique-${d}`, 40)} alt={`Vexcel oblique photo looking ${d}`} className="block aspect-square w-full rounded-[20px] bg-black/5 object-cover" />
+              <img src={img(`oblique-${d}`, 40)} alt={`Vexcel oblique photo looking ${d}`} className="block aspect-square w-full rounded-[20px] bg-black/5 object-cover text-transparent" />
               <figcaption className="mt-2 text-[13px] text-secondary">Looking {d}</figcaption>
             </figure>
           ))}
