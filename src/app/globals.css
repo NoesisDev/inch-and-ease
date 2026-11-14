@@ -1,33 +1,37 @@
 @import "tailwindcss";
 
-/* Apple system look: SF Pro via the system font, system colours, Liquid Glass panels. */
+/* Brand "Evergreen" (same as the tour's start page): cream paper, evergreen ink, sage accents, hairlines instead of glass. */
 @theme {
-  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", Arial, sans-serif;
-  --color-label: #1d1d1f;
-  --color-secondary: #5f5f66; /* 5.6:1 on white glass */
-  --color-tint: #007aff;
+  --font-sans: var(--font-work), -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+  --font-display: var(--font-grotesk), -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+  --color-label: #16302a;
+  --color-secondary: #4a5f58; /* 6:1 on the cream page */
+  --color-tint: #1f4d3f;
+  --color-brand: #1f4d3f;
+  --color-sage: #7fa393;
+  --color-paper: #f7f6f2;
+  --color-line: #b9cac1;
+  --color-kicker: #e3ebe6;
   --color-ok: #007aff;
-  --color-warn: #c25e00; /* orange text dark enough to read on glass */
-  --color-bad: #d70015;
+  --color-warn: #c25e00;
+  --color-bad: #b3261e;
 }
 
 body {
   margin: 0;
-  background: #e8e8ed;
+  background: var(--color-paper);
   color: var(--color-label);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
-  letter-spacing: -0.01em;
 }
+h1, h2, h3, h4 { font-family: var(--font-display); letter-spacing: -0.03em; }
 
-/* Frosted panel: translucent fill, strong blur, a light rim and a soft shadow. */
+/* Panel: a flat white card with a hairline (name kept so every panel picks up the new look). */
 @utility glass {
-  background: rgb(255 255 255 / 0.62);
-  backdrop-filter: blur(28px) saturate(180%);
-  -webkit-backdrop-filter: blur(28px) saturate(180%);
-  border: 1px solid rgb(255 255 255 / 0.7);
-  box-shadow: 0 1px 0 rgb(255 255 255 / 0.8) inset, 0 10px 40px rgb(0 0 0 / 0.12);
-  border-radius: 28px;
+  background: white;
+  border: 1px solid rgb(185 202 193 / 0.7);
+  box-shadow: 0 1px 2px rgb(22 48 42 / 0.05), 0 12px 32px -20px rgb(22 48 42 / 0.25);
+  border-radius: 10px;
 }
 
 /* Segmented control: a recessed track, the chosen item a raised white pill. */
