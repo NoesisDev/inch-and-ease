@@ -10,7 +10,7 @@
 <style>
   /* One look: Swiss, Work Sans, black/white/red, square corners, no divider lines. Plus a high-contrast mode. */
   :root { --bg:#fff; --panel:#fff; --soft:#f4f3f0; --ink:#111; --muted:#5f5f5c; --line:#e7e5e0; --accent:#111; --accentInk:#fff;
-          --fail:#E3241B; --verify:#C98A00; --pass:#0F7B3D; --skip:#8a8882; --float:#fff; --shadow:0 8px 28px rgba(0,0,0,.16);
+          --fail:#E3241B; --verify:#C98A00; --pass:#0F7B3D; --skip:#8a8882; --none:#8a8882; --float:#fff; --shadow:0 8px 28px rgba(0,0,0,.16);
           --font:'Work Sans', -apple-system, system-ui, sans-serif; --size:14px; }
   [data-theme=contrast] { --bg:#000; --panel:#000; --soft:#1a1a1a; --ink:#fff; --muted:#e6e6e6; --line:#fff; --accent:#FFD400; --accentInk:#000;
           --fail:#ff5a4f; --pass:#3ddc84; --verify:#FFD400; --float:#000; --shadow:0 0 0 2px #FFD400; --size:16px; }
@@ -37,6 +37,8 @@
   .issue { display:flex; gap:12px; padding:12px 10px; cursor:pointer; align-items:flex-start; margin:0 -10px; } .issue:hover { background:var(--soft); }
   .num { width:24px; height:24px; flex:none; display:grid; place-items:center; color:#fff; font:700 12px/1 var(--font); }
   .issue small { color:var(--muted); display:block; }
+  .grp h5, .grp summary { margin:16px 0 4px; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); cursor:pointer; }
+  .grp h5 span { color:var(--ink); } .nodata { background:var(--soft); padding:8px 10px; font-size:13px; margin-bottom:10px; }
   .hc { width:100%; text-align:left; display:flex; justify-content:space-between; background:var(--bg); }
   .hc[aria-pressed=true] { background:var(--accent); color:var(--accentInk); }
   #status { color:var(--muted); font-size:11px; margin-top:8px; }
@@ -220,8 +222,9 @@
 
 <script type="module">
 import { planFix, planAll } from './fixes.js';
+import { evaluate, describe, ordered, groupOf, GROUPS, summary, CHECK, ftin } from './checks.js';
 // Same limits as the 3D model page: 32" clear door (opening ≥ 82.3 cm passes, ≤ 80.3 cm fails), ½" step, 5' (152.5 cm) turning circle.
-const DOOR_PASS = 0.823, DOOR_FAIL = 0.803, TURN = 1.525, STEP = 0.02;
+const TURN = 1.525;
 const IN = 0.0254, CHAIR = 30.8, CLEAR_LOSS = 1.75; // 95th-pct manual chair occupied width (Access Board); opening → clear width loss (HUD: 1.5–2")
 const RED = { r: 0.84, g: 0.27, b: 0.24 }, AMBER = { r: 0.88, g: 0.64, b: 0.11 };
 const ft = m => { const i = Math.round(m / 0.0254 * 2) / 2; if (i < 12) return `${i.toString().replace('.5', '½')}"`; const r = Math.round(i); return `${Math.floor(r / 12)}' ${r % 12}"`; };
@@ -230,45 +233,9 @@ const status = t => { $('status').textContent = t; console.log('[tour]', t); };
 const lerp = (a, b, t) => ({ x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t });
 const W = (p, h = 0) => ({ x: p.x, y: h, z: -p.y }); // wall-data plan (x, y) → Matterport world (y up); checked on the demo tour's room bounds
 
-function findIssues(m) {
-  // Every check, passing ones too (the agent needs them to say "yes, that door is fine").
-  const checks = []; let n = { door: 0, step: 0, turn: 0 };
-  for (const f of m.floors) {
-    const V = Object.fromEntries(f.vertices.map(v => [v.id, v.position]));
-    const E = Object.fromEntries(f.edges.map(e => [e.id, e.vertices.map(v => v.id)]));
-    const edgeRooms = {};
-    for (const r of m.rooms.filter(r => r.floor?.id === f.id)) {
-      const name = (r.classifications || []).map(c => c.label).join(', ') || 'Room', d = r.dimensions;
-      for (const e of r.boundary?.edges || []) (edgeRooms[e.id] ||= []).push(name);
-      const ids = [...new Set((r.boundary?.edges || []).flatMap(e => E[e.id] || []))];
-      if (!ids.length || !d?.width || !d?.depth || /void|closet|balcony/i.test(name)) continue;
-      const c = ids.reduce((s, id) => ({ x: s.x + V[id].x / ids.length, y: s.y + V[id].y / ids.length }), { x: 0, y: 0 });
-      const across = Math.min(d.width, d.depth), s = across >= TURN ? 'pass' : 'fail';
-      checks.push({ id: `turn-${++n.turn}`, kind: 'turn', s, room: name, at: c, dims: { w: d.width, d: d.depth }, across_ft: ft(across),
-        title: s === 'pass' ? `${name}: 5' turning circle fits` : `${name}: 5' turning circle doesn't fit`, detail: `room is ${ft(across)} across (box)` });
-    }
-    for (const e of f.edges) {
-      const a = V[e.vertices[0].id], b = V[e.vertices[1].id];
-      for (const o of e.openings || []) {
-        if (o.type !== 'doorway' || o.width <= 0.5) continue;
-        const rooms = [...new Set(edgeRooms[e.id] || [])], between = rooms.join(' ↔ ') || 'entry';
-        const at = lerp(a, b, o.relativeCenter), angle = Math.atan2(b.y - a.y, b.x - a.x), top = o.height || 2.03, t = e.thickness || 0.12;
-        // shortcut: closet doors aren't on a wheelchair route, so they're listed but not scored; a walk-in closet would need a real check.
-        const closet = rooms.some(r => /closet/i.test(r));
-        const s = closet ? 'skip' : o.width >= DOOR_PASS ? 'pass' : o.width <= DOOR_FAIL ? 'fail' : 'verify';
-        checks.push({ id: `door-${++n.door}`, kind: 'door', s, between, at, angle, w: o.width, h: top, t, opening: ft(o.width), clear_est: ft(o.width - CLEAR_LOSS * IN),
-          title: `Door ${ft(o.width)} · ${between}`, detail: closet ? 'closet door, not scored' : s === 'pass' ? 'meets the 32" clear reference' : `needs a ${ft(DOOR_PASS)} opening (32" clear)` });
-        if (closet) continue;
-        const step = o.lowerElevation || 0;
-        checks.push({ id: `step-${++n.step}`, kind: 'step', s: step > STEP ? 'fail' : 'pass', between, at, angle, w: o.width, h: step, t, height: ft(Math.max(step, 0)),
-          title: step > STEP ? `Step ${ft(step)} · ${between}` : `No step · ${between}`, detail: step > STEP ? 'over the ½" limit' : 'level' });
-      }
-    }
-  }
-  const scored = checks.filter(c => c.s !== 'skip'), order = { fail: 0, verify: 1 };
-  const issues = scored.filter(c => c.s !== 'pass').sort((p, q) => order[p.s] - order[q.s]);
-  return { checks, issues, pass: scored.filter(c => c.s === 'pass').length, total: scored.length };
-}
+// Every check comes from checks.js (21 checks, thresholds, route, critical); items get their plain-words title here.
+const described = items => ordered(items).map(i => ({ ...i, ...describe(i) }));
+const isProblem = i => i.s === 'fail' || i.s === 'verify';
 
 // A red see-through shape drawn inside Matterport's own 3D scene (SDK Scene API, bundle only).
 const redShape = () => ({
@@ -341,7 +308,8 @@ async function draw(issues) {
       const node = obj.addNode(), color = i.s === 'fail' ? 0xd6453d : 0xe0a21b;
       // shortcut: floor height taken as 0 m (all five demo tours are one floor); multi-floor needs Floor data.
       if (i.kind === 'door') Object.assign(node.addComponent('ie.red').inputs, { w: i.w, h: i.h, d: i.t + 0.06, ...W(i.at, i.h / 2), angle: i.angle, color });
-      if (i.kind === 'step') Object.assign(node.addComponent('ie.red').inputs, { w: i.w, h: Math.max(i.h, 0.03), d: i.t + 0.3, ...W(i.at, i.h / 2), angle: i.angle, color, opacity: 0.7 });
+      if (i.kind === 'step') Object.assign(node.addComponent('ie.red').inputs, { w: i.w, h: Math.max(i.value, 0.03), d: i.t + 0.3, ...W(i.at, Math.max(i.value, 0.03) / 2), angle: i.angle, color, opacity: 0.7 });
+      if (i.kind === 'hall') Object.assign(node.addComponent('ie.red').inputs, { shape: 'disc', w: Math.max(i.value || 0.9, 0.6), ...W(i.at, 0.03), color, opacity: 0.35 });
       if (i.kind === 'turn') Object.assign(node.addComponent('ie.red').inputs, { shape: 'disc', w: TURN, ...W(i.at, 0.03), color, opacity: 0.35 });
     }
     step = 'start'; obj.start(); scene = true;
@@ -389,6 +357,7 @@ function fixHtml(f) {
 
 // ---- Issue card: what's wrong, a photo from the tour, and a to-scale drawing of why it won't work ----
 const inch = m => m / IN;
+const legacy = i => ({ ...i, w: i.kind === 'door' ? i.value : i.w, h: i.kind === 'step' ? i.value : i.h });
 let cardFor = null;
 function showCard(i) {
   cardFor = i;
@@ -403,21 +372,25 @@ function showCard(i) {
     svg = doorSvg(clear); src = 'ADA 404.2.3 (32" clear) · HUD Fair Housing Design Manual · Access Board anthropometry study';
   } else if (i.kind === 'step') {
     tag = i.s === 'pass' ? 'Level threshold' : 'Step at the door';
-    nums = [['Step height', ft(Math.max(i.h, 0)), i.s !== 'pass'], ['Limit', '½"', false]];
-    why = i.s === 'pass' ? 'The threshold is level within ½", so a wheelchair rolls straight over it.' : `Anything over ½" has to be ramped. Even at a 0.8" threshold, 46% of new manual wheelchair users failed on their first try. This one is <b>${ft(i.h)}</b>.`;
-    svg = stepSvg(inch(i.h)); src = 'ADA 404.2.5 / 303 · threshold study in data/rules.json';
-  } else {
-    const across = inch(Math.min(...[i.dims?.w, i.dims?.d].filter(Boolean)) || 0) || null;
+    nums = [['Step height', ftin(i.value), i.s !== 'pass'], ['Level within', '¾"', false]];
+    why = i.s === 'pass' ? 'The threshold is level, so a wheelchair rolls straight over it.' : `A step has to be ramped. Even at a 0.8" threshold, 46% of new manual wheelchair users failed on their first try. This one is <b>${ftin(i.value)}</b> (the scan reads door bottoms to about ±1", so under 2" means check with a tape).`;
+    svg = stepSvg(inch(i.value)); src = 'ADA 404.2.5 / 303 · threshold study in data/rules.json';
+  } else if (i.kind === 'turn' || i.kind === 'hall') {
+    const across = i.value == null ? null : inch(i.value); i.across_ft = ftin(i.value);
     tag = i.s === 'pass' ? 'Room to turn' : 'No room to turn';
     nums = [['Room across', i.across_ft, i.s !== 'pass'], ['Turning circle', '5\' 0"', false]];
     why = i.s === 'pass' ? `The room is ${i.across_ft} across, so a 5' circle fits on paper. Furniture isn't subtracted, so check the open floor.` : `A wheelchair needs a 5' circle to turn around. This room is narrower than that, so a turn means backing in and out. Even in a full 5' circle, fewer than half of wheelchair users complete a 360° turn.`;
     svg = turnSvg(across ?? 58); src = 'ADA 304.3 (60" circle) · Access Board turning study';
+    if (i.kind === 'hall') { tag = { pass: 'Hallway wide enough', fail: 'Hallway too narrow', verify: 'Check with a tape', none: 'Not measured yet' }[i.s]; nums = [['Hallway', i.across_ft, i.s !== 'pass'], ['Needed', '3\' 2"', false]]; why = 'A wheelchair needs 36" to roll down a hallway and more to turn into a door off it. This is the room box, so furniture isn\'t subtracted.'; svg = ''; src = CHECK[11].anchor; }
+  } else {
+    const c = CHECK[i.n]; tag = { pass: 'Passes', fail: 'Fails', verify: 'Check with a tape', none: 'Not measured yet', skip: 'Not scored' }[i.s];
+    nums = [['Measured', i.measured, i.s === 'fail'], ['Needed', i.need, false]]; why = `${c.rule}. ${c.who}.`; svg = ''; src = c.anchor;
   }
   $('card').innerHTML = `<button class="x" aria-label="Close">×</button><span class="tag" style="background:var(--${i.s})">${tag}</span>
     <h3>${i.title}</h3>
     <div class="nums">${nums.map(([k, v, bad]) => `<div class="${bad ? 'bad' : ''}">${k}<b>${v}</b></div>`).join('')}</div>
     <p>${why}</p>
-    ${i.s === 'fail' || i.s === 'verify' ? fixHtml(planFix(i, products)) : ''}
+    ${(i.s === 'fail' || i.s === 'verify') && ['door', 'step', 'turn'].includes(i.kind) ? fixHtml(planFix(legacy(i), products)) : ''}
     <h4>In this apartment</h4><div class="ph">Taking a photo from the tour…</div>
     <h4>${i.s === 'pass' ? 'To scale' : 'Why it won\'t work (to scale)'}</h4>${svg}
     ${i.kind === 'door' || i.kind === 'step' ? `<button class="measure" id="measure">📏 Measure it yourself with Matterport's ruler</button>` : ''}
@@ -468,33 +441,43 @@ function turnSvg(across) {
     <text x="${cx}" y="211" text-anchor="middle" font-size="12" font-weight="600" fill="#d6453d">room is ${ft(across * IN)} across, circle needs 5' 0"</text></svg>`;
 }
 
-let checks = [], convo = [], issueList = [], pose = null, products = [], plan = null;
+let checks = [], convo = [], issueList = [], pose = null, products = [], plan = null, ev = null;
+function renderList() {
+  checks = described(ev.items); issueList = checks.filter(i => isProblem(i));
+  const sum = summary(checks), byGroup = {};
+  for (const i of checks) (byGroup[groupOf(i)] ||= []).push(i);
+  plan = planAll(issueList.filter(i => ['door', 'step', 'turn'].includes(i.kind)).map(legacy), products);
+  $('score').innerHTML = (ev.noDoorData ? '<div class="nodata">This tour has no doorway data: doors and steps are not measured.</div>' : '') +
+    `<b>${sum.pass} of ${sum.measured}</b>measured checks pass · ${sum.critical} critical${sum.verify ? ` · ${sum.verify} to check with a tape` : ''}` +
+    (!issueList.length ? '<div class="money">No problems in the automatic checks. 16 checks need a measurement or an answer.</div>' : `<div class="money"><b>$${plan.renterTotal.toFixed(2)}</b> fixes what a purchase can fix${plan.unsolved ? ` · ${plan.unsolved} need${plan.unsolved > 1 ? '' : 's'} more` : ''}</div>`);
+  $('issues').innerHTML = ''; $('jumps').innerHTML = issueList.length ? '<span>Go to issue</span>' : '<span>No problems found</span>';
+  for (const [g, label] of GROUPS) {
+    const rows = byGroup[g]; if (!rows) continue;
+    const box = document.createElement(g === 'pass' ? 'details' : 'section'); box.className = 'grp';
+    box.innerHTML = g === 'pass' ? `<summary>${label} (${rows.length})</summary>` : `<h5>${label} <span>${rows.length}</span></h5>`;
+    for (const i of rows) {
+      const pin = issueList.indexOf(i) + 1, el = document.createElement('div');
+      el.className = 'issue'; el.tabIndex = 0; el.dataset.item = i.id; el.dataset.check = i.n; el.dataset.status = i.s;
+      el.innerHTML = `<span class="num" style="background:var(--${i.s})">${pin || i.n}</span><div>${esc(i.title)}<small>${esc(i.detail)}</small></div>`;
+      el.onclick = el.onkeydown = e => { if (e.type === 'click' || e.key === 'Enter') { if (i.at) { setMode('inside'); goTo(i); } else showCard(i); } };
+      box.appendChild(el);
+    }
+    $('issues').appendChild(box);
+  }
+  issueList.forEach((i, k) => {
+    const chip = document.createElement('button');
+    chip.innerHTML = `<span class="num" style="background:var(--${i.s})">${k + 1}</span>${i.kind === 'door' ? 'Door' : i.kind === 'step' ? 'Step' : (i.room || CHECK[i.n].title).split(',')[0]}`;
+    chip.title = i.title; chip.onclick = () => { if (i.at) { setMode('inside'); goTo(i); } else showCard(i); }; $('jumps').appendChild(chip);
+  });
+}
 async function load(sid) {
   status('Loading tour…');
   model = await (await fetch(`private/tours/${sid}.json`)).json(); solid = solidWalls(model);
   products = await loadProducts();
-  const r = findIssues(model); checks = r.checks;
-  const { issues, pass, total } = r;
-  plan = planAll(issues, products);
-  const nFail = issues.filter(i => i.s === 'fail').length, nTape = issues.filter(i => i.s === 'verify').length;
-  $('score').innerHTML = `<b>${pass}/${total}</b>checks pass · ${nFail} fail${nTape ? ` · ${nTape} to check with a tape` : ''}` +
-    (!issues.length ? '' : `<div class="money">${!plan.renterTotal ? `No purchase fixes ${plan.unsolved > 1 ? `these ${plan.unsolved} problems` : 'this problem'}.`
-      : `Renter fixes: <b>$${plan.renterTotal.toFixed(2)}</b>${plan.unsolved ? ` · ${plan.unsolved} need${plan.unsolved > 1 ? '' : 's'} more than a purchase` : ' · fixes everything'}`}</div>`);
-  issueList = issues;
-  $('issues').innerHTML = issues.length ? '' : '<div class="sub">No issues found by these checks.</div>';
-  $('jumps').innerHTML = issues.length ? '<span>Go to issue</span>' : '<span>No issues found</span>';
-  issues.forEach((i, k) => {
-    const el = document.createElement('div'); el.className = 'issue'; el.tabIndex = 0;
-    el.innerHTML = `<span class="num" style="background:var(--${i.s})">${k + 1}</span><div>${i.title}<small>${i.detail}</small></div>`;
-    el.onclick = el.onkeydown = e => { if (e.type === 'click' || e.key === 'Enter') { setMode('inside'); goTo(i); } };
-    $('issues').appendChild(el);
-    const chip = document.createElement('button');
-    chip.innerHTML = `<span class="num" style="background:var(--${i.s})">${k + 1}</span>${i.kind === 'door' ? 'Door' : i.kind === 'step' ? 'Step' : i.room.split(',')[0]}`;
-    chip.title = i.title; chip.onclick = () => { setMode('inside'); goTo(i); }; $('jumps').appendChild(chip);
-  });
+  ev = evaluate(model); renderList();
   await connect(sid);
-  const d = await draw(issues);
-  status(`Tour ready · red 3D shapes: ${d.scene ? 'yes' : 'no'} · tags: ${d.tags}/${issues.length}`);
+  const d = await draw(issueList.filter(i => i.at));
+  status(`Tour ready · red 3D shapes: ${d.scene ? 'yes' : 'no'} · tags: ${d.tags}/${issueList.length}`);
   window.__ie = { ready: true, pins: d.tags, shapes: d.scene }; // test hook read by the smoke run
   // Open on the whole apartment in 3D (Matterport's dollhouse), red areas included; issues fly inside.
   await overview();
@@ -513,8 +496,8 @@ async function overview() {
 
 // ---- Agent: Claude answers and drives the tour; the key stays in serve.py ----
 const apartmentFacts = () => {
-  const keep = ['id', 'kind', 's', 'title', 'detail', 'between', 'room', 'opening', 'clear_est', 'height', 'across_ft'];
-  const fixOf = c => { const f = (c.s === 'fail' || c.s === 'verify') && planFix(c, products); return f ? { verdict: f.verdict, product: f.renter && `${f.renter.name} ($${f.renter.price}, ${f.renter.store})`, owner: f.owner && `${f.owner.label}${f.owner.avg ? `, about $${f.owner.avg} (range $${f.owner.low}-$${f.owner.high})` : ''}` } : undefined; };
+  const keep = ['id', 'n', 'kind', 's', 'title', 'detail', 'between', 'room', 'measured', 'need', 'critical'];
+  const fixOf = c => { const f = (c.s === 'fail' || c.s === 'verify') && ['door', 'step', 'turn'].includes(c.kind) && planFix(legacy(c), products); return f ? { verdict: f.verdict, product: f.renter && `${f.renter.name} ($${f.renter.price}, ${f.renter.store})`, owner: f.owner && `${f.owner.label}${f.owner.avg ? `, about $${f.owner.avg} (range $${f.owner.low}-$${f.owner.high})` : ''}` } : undefined; };
   return { name: model.name, renter_fix_total_usd: plan?.renterTotal, not_fixable_by_buying: plan?.unsolved,
     checks: checks.map(c => ({ ...Object.fromEntries(keep.filter(k => c[k] !== undefined).map(k => [k === 's' ? 'status' : k, c[k]])), fix: fixOf(c) })) };
 };
@@ -635,7 +618,7 @@ $('flyover').onclick = async () => {
 // ---- Walkthrough: every room, plus every problem, in walking order from the entrance. ----
 let stops = [], at = 0, autoTimer = null;
 function startWalk() {
-  const rooms = checks.filter(c => c.kind === 'turn'), problems = issueList.filter(c => c.kind !== 'turn');
+  const rooms = checks.filter(c => c.kind === 'turn'), problems = issueList.filter(c => c.kind !== 'turn' && c.at);
   const pool = [...rooms, ...problems], start = sweeps[0] ? { x: sweeps[0].position.x, y: -sweeps[0].position.z } : pool[0]?.at;
   stops = []; let here = start;
   while (pool.length) { // nearest next stop, so the route doesn't zig-zag
@@ -694,8 +677,9 @@ async function renderHome() {
   $('demoLink').href = $('navDemo').href = `?m=${demo.id}`;
   const rows = [];
   for (const t of list) {
-    const m = await (await fetch(`private/tours/${t.id}.json`)).json(), r = findIssues(m);
-    rows.push({ t, r, pa: planAll(r.issues, products), labelled: /ADA|Handicap|Accessible/i.test(t.name) });
+    const m = await (await fetch(`private/tours/${t.id}.json`)).json(), all = described(evaluate(m).items), sm = summary(all);
+    const r = { issues: all.filter(isProblem), pass: sm.pass, total: sm.measured };
+    rows.push({ t, r, pa: planAll(r.issues.filter(i => ['door', 'step', 'turn'].includes(i.kind)).map(legacy), products), labelled: /ADA|Handicap|Accessible/i.test(t.name) });
   }
   // Proof numbers come from the data: the worst "accessible"-labelled unit, the cheapest purchase that solves a problem.
   const fails = x => x.r.issues.filter(i => i.s === 'fail').length;
@@ -706,7 +690,7 @@ async function renderHome() {
     `<div><b>${rows.length}</b><span>apartments, Houston + LA</span></div>`;
   rows.sort((a, b) => (b.t.id === demo.id) - (a.t.id === demo.id) || fails(b) - fails(a));
   for (const { t, r, pa, labelled } of rows) {
-    const worst = r.issues[0], f = worst && pa.plans[0].plan, n = fails({ r });
+    const worst = r.issues[0], f = worst && pa.plans.find(p => p.issue.id === worst.id)?.plan, n = fails({ r });
     const fixText = !f ? '' : f.closes ? `fix: $${f.cost.toFixed(2)} ${worst.kind === 'step' ? 'ramp' : 'hinges'}` : f.owner?.avg ? `contractor, about $${f.owner.avg.toLocaleString()}` : 'no product fixes it';
     const a = document.createElement('a'); a.className = 'apt'; a.href = `?m=${t.id}`;
     a.innerHTML = `<div class="img" style="background-image:url(${thumb(t.id)})"><span class="tag ${n ? '' : 'ok'}">${n ? n + ' problem' + (n > 1 ? 's' : '') : 'All pass'}</span></div>
