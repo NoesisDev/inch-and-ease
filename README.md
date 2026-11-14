@@ -28,6 +28,8 @@ Vexcel imagery is fetched live through `/api/image` (the key stays on the server
 
 A Matterport tour of a real apartment, checked for a manual wheelchair user against 21 checks: door widths, door steps, turning space, hallway width and essential rooms on the entry floor come from the scan; the bathroom, entry, bed, kitchen and controls are completed in the tour with a question or a two-click measurement. Every problem is a numbered pin and a tinted room in the 3D view, critical ones first (on the route from the entry to the bathroom, bedroom or kitchen). Each card shows measured vs needed, a photo from the tour, a to-scale drawing and every rung of the fix ladder ($0 options, catalogue products by tier, the contractor range), each re-checked against the limit. The Plan tab keeps a budget, the chosen fixes and what stays open, and prints to one page. Claude answers questions by driving the tour (fly to a problem, choose a fix, set a budget).
 
+**Compare a neighbourhood** (`tour/region.html`): a drone view over five real apartments in one area: the aerial photo draped on the ground model, every street within 250 m coloured by slope. Ask by voice or text ("which one is best for my father, he uses a wheelchair?"): Claude writes the narration from the measured numbers only (`/api/region`, structured output), the camera flies to each apartment from hardest to best while the line is spoken, and ends by diving into the winner's 3D tour on its critical problem. Ranking rule, shown on screen: critical problems left after the cheapest fixes, then steep streets, then cost. Area data is prefetched with `node tour/region_fetch.mjs` into `tour/private/region/` (not committed).
+
 Statuses are pass, check with a tape, fail, or not measured yet; nothing is guessed. Results are measured from the scan or by the person, against ADA 2010 reference numbers; confirm with a tape before you sign.
 
 Run it locally (needs the CoStar/Matterport hackathon keys and a Claude API key in `.env.local`):
@@ -45,5 +47,6 @@ Tour data and imagery belong to CoStar / Matterport and are never committed (`to
 - [Matterport web component and Showcase SDK](https://matterport.github.io/developer-docs/) (`@matterport/webcomponent` 0.1.47); CoStar / Matterport hackathon data (not included)
 - [three.js](https://threejs.org) 0.184 (Matterport scene objects, loaded from the viewer bundle) and 0.170 (`tour/model.html`)
 - [Anthropic Python SDK](https://github.com/anthropics/anthropic-sdk-python), Claude Opus 5.5
+- Vexcel API (CoStar hackathon key): aerial photo and ground model for the neighbourhood view, © Vexcel Imaging US, Inc. (not included); streets © [OpenStreetMap](https://www.openstreetmap.org/copyright) contributors via Overpass
 - Work Sans (Google Fonts); start-screen photo from [Unsplash](https://unsplash.com/photos/woman-in-wheelchair-at-doorway-mjJwgKMktLg)
 - Limits: 2010 ADA Standards and US Access Board research; Housing Enabler item codes (codes only) and HOME FAST item numbers as anchors; fix evidence cited per product in `data/products.json`

@@ -176,7 +176,7 @@
 <body>
 <div id="home" hidden>
   <div class="page">
-    <nav><span class="logo">Inch <span>&amp;</span> Ease</span><a href="#apartments">Apartments</a><a href="#how">How it works</a>
+    <nav><span class="logo">Inch <span>&amp;</span> Ease</span><a href="#apartments">Apartments</a><a href="#how">How it works</a><a href="region.html">Compare a neighbourhood</a>
       <div class="looks" role="group" aria-label="Look"><button type="button" data-look="standard">Daylight</button><button type="button" data-look="night">Night</button><button type="button" data-look="contrast">High contrast</button></div><a class="cta" id="navDemo" href="#">Open the demo</a></nav>
     <section class="hero">
       <div>
@@ -393,7 +393,7 @@ const registered = new Set();
 async function tintRooms() {
   const [obj] = await sdk.Scene.createObjects(1);
   for (const r of ev.rooms) {
-    if (r.poly.length < 3 || /void/i.test(r.name)) continue;
+    if (r.poly.length < 3 || /void|hallway/i.test(r.name)) continue; // hallways are often the building corridor, outside the unit
     const c = obj.addNode().addComponent('ie.shape');
     Object.assign(c.inputs, { shape: 'floor', pts: r.poly, y: 0.06, color: HEX.none, opacity: 0 });
     roomTints[r.id] = c;
@@ -728,6 +728,9 @@ async function load(sid) {
     shot5: () => showCard(checks.find(c => c.s === 'none' && CHECK[c.n].how === 'ask' && /bath/i.test(CHECK[c.n].room))) };
   // Open on the whole apartment in 3D (Matterport's dollhouse), red areas included; issues fly inside.
   await overview();
+  // ?focus=critical: an embedding page "dives" into the first critical problem.
+  const first = issueList.find(i => i.critical) || issueList[0];
+  if (new URLSearchParams(location.search).get('focus') === 'critical' && first) setTimeout(() => openItem(first), 1500);
 }
 // Dollhouse camera framed on the apartment's own walls (from the wall data), looking down at ~50°.
 async function overview() {
@@ -929,6 +932,8 @@ const list = await (await fetch('private/tours/index.json')).json();
 const demoTour = list.find(t => t.demo) || list[0]; // the demo flag lives in the private index
 const sid = new URLSearchParams(location.search).get('m') || demoTour.id;
 $('pick').innerHTML = list.map(t => `<option value="${t.id}"${t.id === sid ? ' selected' : ''}>${t.name}</option>`).join('');
+// Embedded (the neighbourhood flyover dives in): no links out, and no apartment picker (this tour may not be in its list).
+if (new URLSearchParams(location.search).get('embed') === '1') { document.querySelector('.homelink').hidden = true; $('pick').hidden = true; }
 const quality = new URLSearchParams(location.search).get('q') || 'high';
 $('quality').value = quality;
 // A fresh page per tour or quality keeps the SDK state clean (Matterport reads these settings once, at start).

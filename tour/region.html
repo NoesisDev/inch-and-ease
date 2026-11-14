@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Inch & Ease · Compare a neighbourhood</title>
+<link rel="icon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  /* Same tokens as the tour's Night look: colour carries meaning only (red fail, amber one problem left, green nothing critical left). */
+  :root { --bg:#0e0e0f; --panel:#151517; --soft:#232326; --ink:#f3f2ee; --muted:#b4b3ad; --fail:#ff6a5f; --verify:#f2b531; --pass:#43c97c;
+          --font:'Work Sans', -apple-system, system-ui, sans-serif; }
+  * { box-sizing:border-box; }
+  html, body { margin:0; height:100%; overflow:hidden; background:var(--bg); color:var(--ink); font:15px/1.45 var(--font); -webkit-font-smoothing:antialiased; }
+  button, input { font:inherit; color:inherit; border:0; border-radius:0; }
+  button { cursor:pointer; background:var(--soft); padding:10px 14px; font-weight:600; }
+  button:focus-visible, input:focus-visible, a:focus-visible { outline:3px solid var(--verify); outline-offset:2px; }
+  canvas#c { position:fixed; inset:0; width:100%; height:100%; display:block; }
+  .float { position:fixed; z-index:5; background:rgba(21,21,23,.92); box-shadow:0 10px 30px rgba(0,0,0,.5); }
+
+  #top { left:24px; top:24px; padding:14px 18px; max-width:520px; }
+  #top h1 { margin:0; font-size:20px; font-weight:800; letter-spacing:-.02em; } #top h1 span { color:var(--fail); }
+  #top p { margin:4px 0 0; color:var(--muted); font-size:13px; }
+  #units { left:24px; top:150px; margin:0; padding:8px; list-style:none; width:300px; }
+  #units button { width:100%; display:grid; grid-template-columns:28px 1fr auto; gap:10px; align-items:center; text-align:left; background:none; padding:8px; }
+  #units button[aria-current=true] { background:var(--soft); }
+  #units .k { width:28px; height:28px; display:grid; place-items:center; font-weight:800; color:#111; }
+  #units small { display:block; color:var(--muted); font-weight:400; font-size:12px; } #units .rk { font-weight:800; font-size:13px; color:var(--muted); }
+
+  #card { right:24px; top:24px; width:380px; padding:20px 22px; display:none; }
+  #card.on { display:block; }
+  #card .tag { display:inline-block; font:700 12px/1 var(--font); letter-spacing:.08em; text-transform:uppercase; padding:6px 9px; color:#111; }
+  #card h2 { margin:10px 0 2px; font-size:22px; font-weight:800; letter-spacing:-.02em; line-height:1.15; } #card .sub { color:var(--muted); font-size:13px; }
+  #card .two { display:grid; grid-template-columns:1fr 1fr; gap:6px; margin:14px 0 10px; }
+  #card .two div { background:var(--soft); padding:10px 12px; font-size:12px; color:var(--muted); } #card .two b { display:block; font-size:28px; font-weight:800; letter-spacing:-.03em; color:var(--ink); line-height:1.1; }
+  #card .two .bad b { color:var(--fail); } #card .two .ok b { color:var(--pass); } #card .two .mid b { color:var(--verify); }
+  #card ul { margin:6px 0 0; padding:0 0 0 16px; font-size:13px; } #card li { margin:4px 0; } #card .src { margin-top:10px; font-size:12px; color:var(--muted); }
+
+  #caption { left:50%; bottom:110px; transform:translateX(-50%); width:min(880px, calc(100% - 48px)); padding:16px 22px; font-size:22px; line-height:1.4; font-weight:500; text-align:center; display:none; }
+  #caption.on { display:block; } #caption .you { color:var(--muted); }
+  #controls { left:50%; bottom:24px; transform:translateX(-50%); padding:8px; display:flex; gap:6px; align-items:center; width:min(880px, calc(100% - 48px)); }
+  #mic { background:var(--fail); color:#fff; display:flex; gap:8px; align-items:center; white-space:nowrap; } #mic[aria-pressed=true] { background:#fff; color:#111; }
+  #mic svg { width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:2; }
+  #ask { flex:1; display:flex; } #ask input { flex:1; min-width:0; padding:10px 12px; background:var(--soft); }
+  #demo { white-space:nowrap; flex:none; } #mic { flex:none; }
+  #legend { display:flex; gap:12px; font-size:12px; font-weight:600; margin-top:8px; color:var(--muted); }
+  #legend span { display:flex; gap:6px; align-items:center; } #legend i { width:14px; height:4px; display:inline-block; }
+  #credits { position:fixed; left:24px; bottom:4px; z-index:5; font-size:12px; color:var(--muted); text-shadow:0 1px 2px #000; }
+
+  #tour { position:fixed; inset:0; width:100%; height:100%; border:0; z-index:20; opacity:0; pointer-events:none; transition:opacity .6s; background:var(--bg); }
+  #tour.on { opacity:1; pointer-events:auto; }
+  #back { position:fixed; left:50%; top:16px; transform:translateX(-50%); z-index:30; display:none; background:#fff; color:#111; }
+  #back.on { display:block; }
+  #fade { position:fixed; inset:0; z-index:15; background:var(--bg); opacity:0; pointer-events:none; transition:opacity .5s; } #fade.on { opacity:1; }
+
+  #start[hidden] { display:none; }
+  #start { position:fixed; inset:0; z-index:40; display:grid; place-items:center; background:rgba(14,14,15,.82); }
+  #start > div { width:min(560px, calc(100% - 48px)); background:var(--panel); padding:32px; }
+  #start h2 { margin:0 0 8px; font-size:30px; font-weight:800; letter-spacing:-.03em; } #start p { color:var(--muted); margin:0 0 16px; }
+  #start ol { margin:0 0 20px; padding-left:20px; } #start li { margin:6px 0; } #start kbd { font:600 13px var(--font); background:var(--soft); padding:1px 6px; }
+  #go { background:var(--fail); color:#fff; font-size:17px; padding:14px 22px; } #status { color:var(--muted); font-size:13px; margin-top:10px; min-height:20px; }
+  @media (prefers-reduced-motion: reduce) { * { transition:none !important; } }
+</style>
+</head>
+<body>
+<canvas id="c" aria-label="3D aerial view of the neighbourhood with the apartments marked" role="img"></canvas>
+<header id="top" class="float"><h1>Inch <span>&amp;</span> Ease · <span id="area-name" style="color:inherit"></span></h1><p id="rule"></p><div id="legend-slot"></div></header>
+<ol id="units" class="float" aria-label="Apartments in this area"></ol>
+<aside id="card" class="float" aria-live="polite"></aside>
+<div id="caption" class="float" role="status" aria-live="polite"></div>
+<div id="controls" class="float">
+  <button id="mic" type="button" aria-pressed="false" aria-label="Hold to ask by voice (or hold Space)"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>Hold to ask</button>
+  <form id="ask"><input id="q" autocomplete="off" placeholder="…or type a question" aria-label="Question"></form>
+  <button id="demo" type="button" title="Ask the sample question (D)">Sample question</button>
+</div>
+<div id="legend" aria-label="Street colours"><span><i style="background:var(--pass)"></i>Street ≤ 5%</span><span><i style="background:var(--verify)"></i>5–8%</span><span><i style="background:var(--fail)"></i>Over 8% or steps</span></div>
+<div id="credits"></div>
+<div id="fade"></div>
+<iframe id="tour" title="3D tour of the chosen apartment"></iframe>
+<button id="back" type="button">← Back to the neighbourhood (B)</button>
+<div id="start"><div>
+  <h2>Which apartment is best for your father?</h2>
+  <p>A drone flight over five real apartments: what fails inside, how steep the streets are outside, and the one to pick.</p>
+  <p>Press <b>Start</b>, then ask by voice (hold the red button or <kbd>Space</kbd>), type a question, or press <b>Sample question</b>.</p>
+  <p><kbd>A</kbd>–<kbd>E</kbd> fly to an apartment · <kbd>Esc</kbd> stop · <kbd>B</kbd> back from a tour · <kbd>F</kbd> full screen</p>
+  <button id="go" type="button" disabled>Loading the neighbourhood…</button><div id="status" role="status"></div>
+</div></div>
+
+<script type="module">
+import * as THREE from './private/mp/vendors/three/0.184.0/three.module.js';
+import { unitFacts, rank, tone, fallbackScript, RULE } from './region.js';
+
+const $ = id => document.getElementById(id);
+const esc = t => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const params = new URLSearchParams(location.search), still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const COL = { pass: 0x43c97c, verify: 0xf2b531, fail: 0xff6a5f };
+const EX = 1.6; // hills drawn 1.6× taller so the terrain reads from the air
+const SAMPLE_Q = "I'm looking for the best apartment for my father. He uses a wheelchair. Can you tell me about each one?";
+
+// ---- Data: the prefetched area (tour/region_fetch.mjs) + the 21 checks on each apartment's tour ----
+const R = await (await fetch('private/region/region.json')).json();
+const products = (await (await fetch('/data/products.json')).json()).products;
+const facts = await Promise.all(R.units.map(async u => unitFacts(u, await (await fetch(`private/tours/${u.id}.json`)).json(), products)));
+const ranked = rank(facts), byId = Object.fromEntries(R.units.map(u => [u.id, u]));
+const factOf = Object.fromEntries(facts.map(f => [f.id, f]));
+// Letters by position west → east, so the pins don't give the answer away.
+const letter = Object.fromEntries([...R.units].sort((a, b) => a.lon - b.lon).map((u, k) => [u.id, 'ABCDE'[k]]));
+$('legend-slot').replaceWith($('legend')); $('area-name').textContent = R.name; $('rule').textContent = `${R.units.length} apartments · ${RULE}`; $('credits').textContent = R.credits;
+
+// ---- Geometry: metres east (x) / up (y) / south (z) from the area's centre ----
+const A = R.area, lat0 = (A.s + A.n) / 2, lon0 = (A.w + A.e) / 2, M = 111320, ML = M * Math.cos(lat0 * Math.PI / 180);
+const G = R.ground, zmin = G.z.reduce((m, v) => v != null && v < m ? v : m, Infinity); // no spread: 130k values overflow the stack
+const xz = (lat, lon) => ({ x: (lon - lon0) * ML, z: -(lat - lat0) * M });
+function hAt(lat, lon) { // bilinear on the 10 m ground grid
+  const fx = (lon - A.w) / (A.e - A.w) * (G.w - 1), fy = (A.n - lat) / (A.n - A.s) * (G.h - 1);
+  const x0 = Math.max(0, Math.min(G.w - 2, Math.floor(fx))), y0 = Math.max(0, Math.min(G.h - 2, Math.floor(fy))), tx = fx - x0, ty = fy - y0;
+  const v = (x, y) => G.z[y * G.w + x] ?? zmin;
+  return ((v(x0, y0) * (1 - tx) + v(x0 + 1, y0) * tx) * (1 - ty) + (v(x0, y0 + 1) * (1 - tx) + v(x0 + 1, y0 + 1) * tx) * ty - zmin) * EX;
+}
+const P = (lat, lon, lift = 0) => { const p = xz(lat, lon); return new THREE.Vector3(p.x, hAt(lat, lon) + lift, p.z); };
+// A draped grid over a lat/lon box with a photo on it.
+function drape(b, nx, ny, tex, lift) {
+  const pos = [], uv = [], idx = [];
+  for (let r = 0; r < ny; r++) for (let c = 0; c < nx; c++) {
+    const lat = b.n - (b.n - b.s) * r / (ny - 1), lon = b.w + (b.e - b.w) * c / (nx - 1), p = P(lat, lon, lift);
+    pos.push(p.x, p.y, p.z); uv.push(c / (nx - 1), 1 - r / (ny - 1));
+  }
+  for (let r = 0; r < ny - 1; r++) for (let c = 0; c < nx - 1; c++) { const i = r * nx + c; idx.push(i, i + nx, i + 1, i + 1, i + nx, i + nx + 1); }
+  const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2)); g.setIndex(idx);
+  tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = 8;
+  return new THREE.Mesh(g, new THREE.MeshBasicMaterial({ map: tex, polygonOffset: true, polygonOffsetFactor: -lift, polygonOffsetUnits: -lift }));
+}
+
+// ---- Scene ----
+const renderer = new THREE.WebGLRenderer({ canvas: $('c'), antialias: true });
+renderer.setPixelRatio(Math.min(2, devicePixelRatio));
+const scene = new THREE.Scene(); scene.background = new THREE.Color(0x0e0e0f); scene.fog = new THREE.Fog(0x0e0e0f, 3500, 9000);
+const camera = new THREE.PerspectiveCamera(42, 1, 5, 20000);
+const loader = new THREE.TextureLoader(), load = src => new Promise((res, rej) => loader.load(src, res, undefined, rej));
+scene.add(drape(A, G.w, G.h, await load('private/region/area.jpg'), 0));
+const ribbons = {}, pins = {}, seen = new Set();
+// A pin's label: the letter on a neutral square until the apartment has been checked on screen, then its verdict colour.
+function paintPin(id, on) {
+  const t = on ? tone(factOf[id]) : null, hex = t ? '#' + COL[t].toString(16).padStart(6, '0') : '#f3f2ee', u = byId[id];
+  const cv = document.createElement('canvas'); cv.width = 512; cv.height = 128; const x = cv.getContext('2d');
+  x.fillStyle = '#151517'; x.fillRect(0, 0, 512, 128); x.fillStyle = hex; x.fillRect(0, 0, 128, 128);
+  x.fillStyle = '#111'; x.font = '800 84px "Work Sans", system-ui'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText(letter[id], 64, 70);
+  x.fillStyle = '#f3f2ee'; x.textAlign = 'left'; x.font = '700 40px "Work Sans", system-ui'; x.fillText(u.address, 150, 64, 350);
+  const tex = new THREE.CanvasTexture(cv); tex.colorSpace = THREE.SRGBColorSpace;
+  const p = pins[id]; p.sp.material.map?.dispose(); p.sp.material.map = tex; p.sp.material.needsUpdate = true; p.pole.material.color.set(hex);
+}
+for (const u of R.units) {
+  scene.add(drape(u.tile, 90, 90, await load(`private/region/tile_${u.id}.jpg`), 1.5)); // sharp 300 m photo around each apartment
+  // Streets within 250 m as flat ribbons, coloured by slope (hidden until the camera visits).
+  const pos = [], col = [], c = new THREE.Color();
+  for (const s of u.segs) {
+    const a = P(s.a[0], s.a[1], 4), b = P(s.b[0], s.b[1], 4), d = new THREE.Vector3().subVectors(b, a).setY(0).normalize(), n = new THREE.Vector3(-d.z, 0, d.x).multiplyScalar(3.5);
+    c.setHex(s.steps || s.slope > 8 ? COL.fail : s.slope > 5 ? COL.verify : COL.pass);
+    for (const p of [a.clone().add(n), a.clone().sub(n), b.clone().add(n), b.clone().sub(n), b.clone().add(n), a.clone().sub(n)]) { pos.push(p.x, p.y, p.z); col.push(c.r, c.g, c.b); }
+  }
+  const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setAttribute('color', new THREE.Float32BufferAttribute(col, 3));
+  const m = new THREE.Mesh(g, new THREE.MeshBasicMaterial({ vertexColors: true, transparent: true, opacity: 0, depthWrite: false, side: THREE.DoubleSide }));
+  scene.add(m); ribbons[u.id] = m;
+  // Pin: a pole and a label that always faces the camera.
+  const base = P(u.lat, u.lon);
+  const pole = new THREE.Mesh(new THREE.CylinderGeometry(2.5, 2.5, 140, 8), new THREE.MeshBasicMaterial({ color: 0xf3f2ee }));
+  pole.position.copy(base).add(new THREE.Vector3(0, 70, 0)); scene.add(pole);
+  const sp = new THREE.Sprite(new THREE.SpriteMaterial({ depthTest: false, sizeAttenuation: false }));
+  sp.scale.set(0.2, 0.05, 1); sp.center.set(0.125, 0); sp.position.copy(base).add(new THREE.Vector3(0, 145, 0)); sp.renderOrder = 10; scene.add(sp);
+  pins[u.id] = { base, sp, pole }; paintPin(u.id, false);
+}
+
+// ---- Camera: a slow drone orbit, and eased flights between views ----
+let view = { pos: new THREE.Vector3(), target: new THREE.Vector3() }, flight = null, orbit = !still, angle = -0.6, active = null;
+const orbitView = a => ({ pos: new THREE.Vector3(Math.sin(a) * 2700, 1900, Math.cos(a) * 2700), target: new THREE.Vector3(0, 0, 0) });
+const ease = t => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+function flyTo(to, ms = 3800) {
+  orbit = false;
+  return new Promise(res => { flight = { from: { pos: view.pos.clone(), target: view.target.clone() }, to, t0: performance.now(), ms: still ? 1 : ms, res }; });
+}
+// A view of one apartment from the side the camera is already on, ~450 m out and 330 m up.
+function unitView(id, close = false) {
+  const b = pins[id].base, dir = new THREE.Vector3().subVectors(view.pos, b).setY(0).normalize();
+  if (!isFinite(dir.x)) dir.set(0, 0, 1);
+  const dist = close ? 160 : 460, up = close ? 140 : 330;
+  return { pos: b.clone().add(dir.multiplyScalar(dist)).add(new THREE.Vector3(0, up, 0)), target: b.clone().add(new THREE.Vector3(0, 30, 0)) };
+}
+view = orbitView(angle);
+function resize() { const w = innerWidth, h = innerHeight; renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix(); }
+addEventListener('resize', resize); resize();
+let last = performance.now();
+renderer.setAnimationLoop(now => {
+  const dt = now - last; last = now;
+  if (flight) {
+    const k = Math.min(1, (now - flight.t0) / flight.ms), e = ease(k);
+    view.pos.lerpVectors(flight.from.pos, flight.to.pos, e); view.target.lerpVectors(flight.from.target, flight.to.target, e);
+    if (k >= 1) { const r = flight.res; flight = null; r(); }
+  } else if (orbit) { angle += dt * 0.00004; view = orbitView(angle); }
+  for (const [id, m] of Object.entries(ribbons)) m.material.opacity += ((id === active ? 0.95 : 0) - m.material.opacity) * Math.min(1, dt / 300);
+  camera.position.copy(view.pos); camera.lookAt(view.target);
+  renderer.render(scene, camera);
+});
+
+// ---- Panels: the apartments list, and the card for the one being shown ----
+function renderUnits(reveal = false) {
+  const order = reveal ? ranked : [...R.units].sort((a, b) => letter[a.id].localeCompare(letter[b.id])).map(u => factOf[u.id]);
+  $('units').innerHTML = order.map(f => `<li><button type="button" data-id="${f.id}" aria-current="${f.id === active}"><span class="k" style="background:${seen.has(f.id) ? `var(--${tone(f)})` : 'var(--ink)'}">${letter[f.id]}</span>
+    <span>${esc(f.address)}<small>${seen.has(f.id) ? `${f.inside.critical_left ? `${f.inside.critical_left} critical left` : 'nothing critical left'} · ${f.outside.flat_pct}% flat streets` : 'not shown yet'}</small></span>${reveal ? `<span class="rk">#${ranked.indexOf(f) + 1}</span>` : ''}</button></li>`).join('');
+  document.querySelectorAll('#units button').forEach(b => b.onclick = () => show(b.dataset.id));
+}
+function card(id) {
+  const f = factOf[id], o = f.outside, t = tone(f), left = f.inside.critical_left;
+  $('card').innerHTML = `<span class="tag" style="background:var(--${t})">${letter[id]} · ${left ? `${left} critical left` : 'Nothing critical left'}</span>
+    <h2>${esc(f.address)}</h2><div class="sub">${esc(f.name)}</div>
+    <div class="two"><div class="${left ? (left > 1 ? 'bad' : 'mid') : 'ok'}">Inside<b>${f.inside.pass} / ${f.inside.measured}</b>measured checks pass</div>
+      <div class="${o.steep_pct >= 10 ? 'bad' : o.steep_pct >= 3 ? 'mid' : 'ok'}">Streets within 250 m<b>${o.flat_pct}%</b>flat · ${o.steep_pct}% over 8%</div></div>
+    <ul>${f.inside.top.map(p => `<li>${p.critical ? '<b>Critical:</b> ' : ''}${esc(p.what.replace(/^./, c => c.toUpperCase()))}; ${esc(p.fix_spoken)}.</li>`).join('') || '<li>Every measured check passes.</li>'}
+      <li>${o.station ? `Rail station ${o.station.m} m away (${esc(o.station.name)})` : 'No rail station within 1.5 km'} · steepest street nearby ${o.steepest_near?.slope ?? '–'}%</li></ul>
+    <div class="src">Inside: Matterport scan, 21 checks (16 need a visit). Outside: Vexcel ground model + OpenStreetMap streets. Confirm with a tape before you sign.</div>`;
+  $('card').classList.add('on');
+}
+async function show(id, close = false) { active = id; if (!seen.has(id)) { seen.add(id); paintPin(id, true); } renderUnits(revealed); card(id); await flyTo(unitView(id, close)); }
+let revealed = false; renderUnits();
+
+// ---- Voice out: the browser's own speech (works offline), always with captions ----
+let voice = null, run = 0;
+const pickVoice = () => { const vs = speechSynthesis.getVoices(); voice = ['Samantha', 'Ava', 'Allison', 'Google US English', 'Microsoft Aria'].map(n => vs.find(v => v.name.startsWith(n))).find(Boolean) || vs.find(v => /^en[-_]US/.test(v.lang)) || null; };
+if ('speechSynthesis' in window) { pickVoice(); speechSynthesis.onvoiceschanged = pickVoice; }
+const SPEAK = { Dr: 'Drive', St: 'Street', Ave: 'Avenue', Blvd: 'Boulevard', N: 'North', S: 'South', E: 'East', W: 'West' };
+const speakable = t => t.replace(/\b(Dr|St|Ave|Blvd|N|S|E|W)\b\.?(?=[\s,.:;]|$)/g, m => SPEAK[m.replace('.', '')]).replace(/\//g, ' ').replace(/(\d+)' (\d+(?:½)?)"/g, '$1 foot $2').replace(/(\d+(?:½)?)"/g, '$1 inches');
+function caption(html) { $('caption').innerHTML = html; $('caption').classList.toggle('on', !!html); }
+function say(text, my) {
+  caption(esc(text));
+  const words = text.split(/\s+/).length, min = Math.max(2200, words * 330);
+  return new Promise(res => {
+    const t0 = performance.now(), done = () => setTimeout(res, Math.max(0, min * 0.6 - (performance.now() - t0)));
+    if (!('speechSynthesis' in window) || params.get('mute')) return setTimeout(res, min);
+    const u = new SpeechSynthesisUtterance(speakable(text)); if (voice) u.voice = voice; u.rate = 1.02;
+    u.onend = done; u.onerror = () => setTimeout(res, min); speechSynthesis.speak(u);
+    setTimeout(() => { if (my !== run) res(); }, 200);
+  });
+}
+function stop() { run++; if ('speechSynthesis' in window) speechSynthesis.cancel(); caption(''); }
+
+// ---- The guided flight: Claude writes the words from our numbers; the page flies, shows the numbers and speaks ----
+let history = [];
+async function script(question) {
+  const ctl = new AbortController(), timer = setTimeout(() => ctl.abort(), 20000);
+  try {
+    const r = await fetch('/api/region', { method: 'POST', headers: { 'Content-Type': 'application/json' }, signal: ctl.signal, body: JSON.stringify({ question, facts: ranked, rule: RULE, history }) });
+    const j = await r.json(); if (!r.ok || !j.answer) throw new Error(j.error || r.status);
+    return j;
+  } catch (e) {
+    console.log('[region] Claude unavailable, using the built-in script: ' + (e.message || e));
+    return /best|each|which|compare|all/i.test(question) ? fallbackScript(ranked) : { intro: "I can't reach Claude right now. Ask me which apartment is best and I'll walk you through them.", stops: [], answer: null };
+  } finally { clearTimeout(timer); }
+}
+async function ask(question) {
+  stop(); const my = ++run;
+  caption(`<span class="you">You:</span> ${esc(question)}`);
+  if (!flight) orbit = !still;
+  const [s] = await Promise.all([script(question), new Promise(r => setTimeout(r, 1500))]);
+  if (my !== run) return;
+  history = [...history, { q: question, a: [s.intro, ...s.stops.map(x => x.line), s.answer?.line].filter(Boolean).join(' ') }].slice(-4);
+  if (s.intro) await say(s.intro, my);
+  for (const st of s.stops) { if (my !== run || !byId[st.id]) continue; await Promise.all([show(st.id), say(st.line, my)]); await new Promise(r => setTimeout(r, 400)); }
+  if (my !== run || !s.answer || !byId[s.answer.id]) return;
+  if (s.answer.dive) $('tour').src = `index.html?m=${s.answer.id}&look=night&q=high&focus=critical&embed=1`; // loads while the answer is spoken
+  revealed = revealed || s.answer.dive;
+  await Promise.all([show(s.answer.id, s.answer.dive), say(s.answer.line, my)]);
+  if (my === run && s.answer.dive) dive();
+}
+async function dive() {
+  caption(''); $('fade').classList.add('on');
+  await flyTo({ pos: pins[active].base.clone().add(new THREE.Vector3(0, 60, 0)), target: pins[active].base.clone() }, 1400);
+  $('tour').classList.add('on'); $('back').classList.add('on'); $('back').focus();
+  setTimeout(() => $('fade').classList.remove('on'), 700);
+}
+function back() { $('tour').classList.remove('on'); $('back').classList.remove('on'); if (active) show(active); }
+
+// ---- Voice in: hold the button or Space; the browser's speech recognition (Chrome) ----
+const Rec = window.SpeechRecognition || window.webkitSpeechRecognition;
+let rec = null, heard = '';
+function listen(on) {
+  if (!Rec) { if (on) caption('Voice input needs Chrome. Type your question below, or press D.'); return; }
+  if (on && !rec) {
+    stop(); heard = ''; rec = new Rec(); rec.lang = 'en-US'; rec.interimResults = true; rec.continuous = true;
+    rec.onresult = e => { heard = [...e.results].map(r => r[0].transcript).join(' '); caption(`<span class="you">You:</span> ${esc(heard)}`); };
+    rec.onend = () => { rec = null; $('mic').setAttribute('aria-pressed', 'false'); if (heard.trim()) ask(heard.trim()); };
+    rec.start(); $('mic').setAttribute('aria-pressed', 'true'); caption('<span class="you">Listening…</span>');
+  } else if (!on && rec) rec.stop();
+}
+$('mic').onpointerdown = e => { e.preventDefault(); listen(true); }; $('mic').onpointerup = $('mic').onpointerleave = () => listen(false);
+$('mic').onkeydown = e => { if (e.key === 'Enter') listen(!rec); };
+$('ask').onsubmit = e => { e.preventDefault(); const q = $('q').value.trim(); if (q) { $('q').value = ''; $('q').blur(); ask(q); } };
+$('demo').onclick = () => ask(SAMPLE_Q);
+$('back').onclick = back;
+addEventListener('keydown', e => {
+  if (e.target.closest('input') || !$('start').hidden) return;
+  const k = e.key.toLowerCase();
+  if (k === ' ' && !e.repeat) { e.preventDefault(); listen(true); }
+  else if (k === 'd') ask(SAMPLE_Q);
+  else if (k === 'escape') { stop(); if ($('tour').classList.contains('on')) back(); }
+  else if (k === 'b') back();
+  else if (k === 'f') document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen();
+  else { const id = Object.keys(letter).find(i => letter[i].toLowerCase() === k); if (id) { stop(); show(id); } }
+});
+addEventListener('keyup', e => { if (e.key === ' ') listen(false); });
+
+// ---- Start: a click unlocks speech in the browser ----
+$('go').disabled = false; $('go').textContent = 'Start';
+$('go').onclick = () => {
+  $('start').hidden = true; $('demo').focus();
+  if ('speechSynthesis' in window) speechSynthesis.speak(new SpeechSynthesisUtterance('')); // unlock audio inside the click
+};
+window.__region = { ready: true, ranked: ranked.map(f => f.id), ask, show, state: () => ({ active, revealed, tourOpen: $('tour').classList.contains('on'), caption: $('caption').textContent }) }; // test hook
+</script>
+</body>
+</html>

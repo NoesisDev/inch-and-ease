@@ -1,5 +1,5 @@
 # Local server for the tour: static files, /data/* from the repo's data folder, /private/key.js (Matterport SDK key,
-# made from .env.local so no key file is stored), and /api/agent, which relays one Claude step for the tour page.
+# made from .env.local so no key file is stored), /api/agent, which relays one Claude step for the tour page, and /api/region, which writes the flyover script for the region page.
 # The Claude key never reaches the browser; the browser runs the tools in the Matterport tour.
 # Run from the repo root: uv run --with anthropic python tour/serve.py   → http://localhost:8090
 import json, os, functools, http.server
@@ -45,6 +45,57 @@ TOOLS = [
                       "required": ["mode"], "additionalProperties": False}},
 ]
 
+REGION_SYSTEM = """You are Inch & Ease, narrating a drone flyover of a neighbourhood for a family member of a manual wheelchair user. The page flies to each apartment while your line is read aloud.
+
+You get one fact sheet per apartment, best first, and the ranking rule. inside: pass/measured checks, critical problems and critical_left (critical problems a purchase can't close), purchases_usd (cheapest purchases that close what they can), and top = the worst problems, each with a ready spoken clause (what, fix_spoken). outside: steep_pct = share of nearby streets over 8% slope, flat_pct = share that is flat, station = nearest rail station and its distance in metres, steepest_near = the steepest street close by.
+
+Rules:
+- Use ONLY numbers and names that are in the facts. Never invent a number, price, distance or street.
+- "Which is best" or "tell me about each": one stop per apartment, ordered worst to best (the reverse of the given order), leaving out the best one. The answer is the best one (the first fact sheet) with dive true.
+- Each stop line: 1-2 short spoken sentences, at most 35 words. Start with the street address. Say what's wrong inside (critical first), then what the streets outside are like (steep_pct, flat_pct, the station if there is one).
+- The answer line: at most 2 sentences, why it wins and its one fix with the price. intro: at most 1 sentence.
+- A follow-up question (for example "why not the ADA unit?"): stops may be empty or 1-2 apartments the answer talks about, and dive is false unless the user asks to go inside.
+- When an apartment is labelled ADA, say the label only covers the inside, not the streets around it, when that matters.
+- Plain spoken English for text-to-speech: feet and inches, dollars written as $70.99, no markdown, no symbols like ↔ or /. Say "check with a tape", not "verify".
+- Spell street names out (Dr → Drive, St → Street, Ave → Avenue, N → North, S → South). Give distances in feet or blocks, never metres (1 m ≈ 3.3 ft; a block ≈ 300 ft); a station name like "Lincoln/Cypress" is said "Lincoln Cypress".
+- Never say "ADA compliant", "medical grade", "clinically validated", "prevents falls", "fall-risk score" or "replaces an OT".
+- ids must be exactly the ids from the facts."""
+
+LINE = {'type': 'object', 'properties': {'id': {'type': 'string'}, 'line': {'type': 'string'}}, 'required': ['id', 'line'], 'additionalProperties': False}
+REGION_SCHEMA = {'type': 'object', 'additionalProperties': False, 'required': ['intro', 'stops', 'answer'], 'properties': {
+    'intro': {'type': 'string'}, 'stops': {'type': 'array', 'items': LINE},
+    'answer': {'type': 'object', 'additionalProperties': False, 'required': ['id', 'line', 'dive'],
+               'properties': {'id': {'type': 'string'}, 'line': {'type': 'string'}, 'dive': {'type': 'boolean'}}}}}
+
+
+class ScriptError(Exception):
+    """Claude answered, but not with a usable flyover script (shown to the page as a 502)."""
+
+
+def region_script(question, facts, rule, history=None):
+    """One structured Claude call: the flyover script {intro, stops, answer} for the region page. Raises anthropic errors or ScriptError."""
+    messages = []
+    for h in history or []:
+        messages += [{'role': 'user', 'content': h['q']}, {'role': 'assistant', 'content': h['a']}]
+    messages.append({'role': 'user', 'content': question})
+    r = client.beta.messages.create(
+        model='claude-opus-5-5', max_tokens=2000,
+        output_config={'effort': 'low', 'format': {'type': 'json_schema', 'schema': REGION_SCHEMA}},
+        betas=['server-side-fallback-2026-07-01'], fallbacks='default',
+        system=[{'type': 'text', 'text': REGION_SYSTEM},
+                {'type': 'text', 'text': f'Ranking rule: {rule}\nFact sheets, best first:\n' + json.dumps(facts), 'cache_control': {'type': 'ephemeral'}}],
+        messages=messages)
+    if r.stop_reason == 'refusal':
+        raise ScriptError('Claude declined to answer')
+    try:
+        out = json.loads(next(b.text for b in r.content if b.type == 'text'))
+    except Exception:
+        raise ScriptError('Claude sent no usable script')
+    ids = {f['id'] for f in facts}
+    if out['answer']['id'] not in ids:
+        raise ScriptError('Claude named an unknown apartment')
+    return {'intro': out['intro'], 'stops': [s for s in out['stops'] if s['id'] in ids], 'answer': out['answer']}
+
 
 class Handler(http.server.SimpleHTTPRequestHandler):
     def translate_path(self, path):
@@ -61,18 +112,26 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         super().do_GET()
 
     def do_POST(self):
-        if self.path != '/api/agent':
+        if self.path not in ('/api/agent', '/api/region'):
             return self.send_error(404)
         n = int(self.headers.get('Content-Length') or 0)
         if not 0 < n <= MAX_BODY:
             return self.reply(413, {'error': 'request too large'})
         try:
             body = json.loads(self.rfile.read(n))
-            messages, apartment = body['messages'], body['apartment']
-            assert isinstance(messages, list) and messages and isinstance(apartment, dict)
+            if self.path == '/api/agent':
+                messages, apartment = body['messages'], body['apartment']
+                assert isinstance(messages, list) and messages and isinstance(apartment, dict)
+            else:
+                question, facts, rule, history = body['question'], body['facts'], body['rule'], body.get('history') or []
+                assert isinstance(question, str) and 0 < len(question) <= 2000 and isinstance(rule, str)
+                assert isinstance(facts, list) and facts and all(isinstance(f, dict) and isinstance(f.get('id'), str) for f in facts)
+                assert isinstance(history, list) and all(isinstance(h, dict) and isinstance(h.get('q'), str) and isinstance(h.get('a'), str) for h in history)
         except Exception:
             return self.reply(400, {'error': 'bad request'})
         try:
+            if self.path == '/api/region':
+                return self.reply(200, region_script(question, facts, rule, history))
             r = client.beta.messages.create(
                 model='claude-opus-5-5', max_tokens=4000,
                 output_config={'effort': 'low'},  # short chat turns; keeps the tour snappy
@@ -86,6 +145,8 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             return self.reply(502, {'error': f'Claude API error {e.status_code}'})
         except anthropic.APIConnectionError:
             return self.reply(502, {'error': 'no connection to Claude'})
+        except ScriptError as e:
+            return self.reply(502, {'error': str(e)})
         out = r.model_dump(mode='json', exclude_none=True)
         self.reply(200, {'content': out['content'], 'stop_reason': r.stop_reason})
 
