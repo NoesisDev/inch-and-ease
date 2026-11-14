@@ -76,8 +76,7 @@ function Landing() {
     <div className="pb-8">
       <section className="grid items-center gap-10 pt-10 md:grid-cols-[minmax(0,6fr)_minmax(0,5fr)] md:gap-16 md:pt-16">
         <div>
-          <span className="inline-block rounded bg-kicker px-3 py-1.5 font-display text-[15px] font-medium text-brand">Comfort, not compliance</span>
-          <h1 className="mt-6 text-[52px] font-bold leading-[0.98] tracking-[-0.05em] text-brand sm:text-[76px]">Can you live here?</h1>
+          <h1 className="text-[52px] font-bold leading-[0.98] tracking-[-0.05em] text-brand sm:text-[76px]">Can you live here?</h1>
           <p className="mt-5 max-w-[470px] text-[19px] leading-relaxed text-secondary sm:text-[21px]">Rules are the minimum. We check how easy daily life would be, then find the best fit and the fixes.</p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link href={`/?q=${EXAMPLES[0].q}`} className="rounded-md bg-brand px-6 py-3.5 text-[16px] font-semibold text-white no-underline hover:brightness-110">Check a street in LA</Link>
