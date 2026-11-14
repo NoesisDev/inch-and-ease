@@ -12,6 +12,8 @@
   :root { --bg:#fff; --panel:#fff; --soft:#f4f3f0; --ink:#111; --muted:#5f5f5c; --line:#e7e5e0; --accent:#111; --accentInk:#fff;
           --fail:#E3241B; --verify:#C98A00; --pass:#0F7B3D; --skip:#8a8882; --none:#8a8882; --float:#fff; --shadow:0 8px 28px rgba(0,0,0,.16);
           --font:'Work Sans', -apple-system, system-ui, sans-serif; --size:14px; }
+  [data-theme=night] { --bg:#0e0e0f; --panel:#151517; --soft:#232326; --ink:#f3f2ee; --muted:#b4b3ad; --line:#34343a; --accent:#f3f2ee; --accentInk:#111;
+          --fail:#ff6a5f; --verify:#f2b531; --pass:#43c97c; --skip:#9a9993; --none:#9a9993; --float:#151517; --shadow:0 10px 30px rgba(0,0,0,.55); }
   [data-theme=contrast] { --bg:#000; --panel:#000; --soft:#1a1a1a; --ink:#fff; --muted:#e6e6e6; --line:#fff; --accent:#FFD400; --accentInk:#000;
           --fail:#ff5a4f; --pass:#3ddc84; --verify:#FFD400; --float:#000; --shadow:0 0 0 2px #FFD400; --size:16px; }
   * { box-sizing:border-box; }
@@ -35,13 +37,14 @@
   .tabs button { background:none; padding:6px 0; font-weight:700; color:var(--muted); box-shadow:inset 0 -3px 0 transparent; }
   .tabs button[aria-selected=true] { color:var(--ink); box-shadow:inset 0 -3px 0 var(--fail); }
   .issue { display:flex; gap:12px; padding:12px 10px; cursor:pointer; align-items:flex-start; margin:0 -10px; } .issue:hover { background:var(--soft); }
+  .num.s-verify, .num.s-helps { color:#111 !important; }
   .num { width:24px; height:24px; flex:none; display:grid; place-items:center; color:#fff; font:700 12px/1 var(--font); }
   .issue small { color:var(--muted); display:block; }
   .grp h5, .grp summary { margin:16px 0 4px; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); cursor:pointer; }
   .grp h5 span { color:var(--ink); } .nodata { background:var(--soft); padding:8px 10px; font-size:13px; margin-bottom:10px; }
-  .hc { width:100%; text-align:left; display:flex; justify-content:space-between; background:var(--bg); }
-  .hc[aria-pressed=true] { background:var(--accent); color:var(--accentInk); }
-  #status { color:var(--muted); font-size:11px; margin-top:8px; }
+  .looks { display:flex; gap:2px; } .looks button { flex:1; background:var(--bg); padding:8px 4px; font-size:12px; white-space:nowrap; }
+  .looks button[aria-pressed=true] { background:var(--accent); color:var(--accentInk); }
+  #status { color:var(--muted); font-size:12px; margin-top:8px; }
   #chat { display:flex; flex-direction:column; gap:10px; margin-bottom:10px; }
   #chat .u { align-self:flex-end; background:var(--ink); color:var(--bg); padding:9px 12px; max-width:90%; }
   #chat .a { background:var(--soft); padding:9px 12px; max-width:95%; } #chat .t { color:var(--muted); font-size:12px; }
@@ -54,25 +57,36 @@
   #dock { left:50%; bottom:20px; transform:translateX(-50%); padding:8px; display:flex; flex-direction:column; gap:6px; align-items:center; max-width:calc(100% - 300px); }
   #modes { display:flex; gap:2px; }
   #modes button { display:flex; flex-direction:column; align-items:center; gap:3px; min-width:84px; padding:9px 10px; background:none; font-size:12px; font-weight:600; }
-  #modes button b { font-size:17px; line-height:1; } #modes button[aria-pressed=true] { background:var(--accent); color:var(--accentInk); }
+  .ic { width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:2; stroke-linejoin:round; stroke-linecap:round; }
+  #mic .ic { width:20px; height:20px; } #modes button[aria-pressed=true] { background:var(--accent); color:var(--accentInk); }
   #jumps { display:flex; gap:6px; align-items:center; flex-wrap:wrap; justify-content:center; font-size:12px; color:var(--muted); padding:0 4px 2px; }
   #jumps button { padding:3px 10px 3px 3px; display:flex; gap:7px; align-items:center; font-size:12px; background:var(--soft); }
-  #jumps .num { width:20px; height:20px; font-size:11px; }
+  #jumps .num { width:20px; height:20px; font-size:12px; }
+  #skel { position:absolute; inset:0; z-index:4; background:var(--bg); display:grid; place-content:center; gap:12px; justify-items:center; color:var(--muted); }
+  #skel .sk { background:var(--soft); width:420px; height:14px; animation:pulse 1.2s ease-in-out infinite alternate; } #skel .a { height:220px; } #skel .c { width:260px; }
+  @keyframes pulse { to { opacity:.45; } } @media (prefers-reduced-motion: reduce) { #skel .sk { animation:none; } * { transition:none !important; } }
+  #chat .err { box-shadow:inset 3px 0 0 var(--fail); background:var(--soft); padding:9px 12px; }
   #legend { left:20px; top:20px; padding:8px 12px; display:flex; gap:14px; font-size:12px; font-weight:600; }
   #legend span { display:flex; align-items:center; gap:6px; } #legend i { width:12px; height:12px; display:inline-block; } #legend i.ring { box-shadow:inset 0 0 0 3px var(--ink); background:var(--fail); }
   .issue.hl { background:var(--soft); box-shadow:inset 3px 0 0 var(--ink); }
   #walkbar { left:20px; top:64px; padding:8px; display:none; gap:6px; align-items:center; max-width:calc(100% - 440px); }
-  #walkbar.on { display:flex; } #walkbar .what { min-width:0; padding:0 8px; } #walkbar .what small { color:var(--muted); display:block; font-size:11px; }
+  #walkbar.on { display:flex; } #walkbar .what { min-width:0; padding:0 8px; } #walkbar .what small { color:var(--muted); display:block; font-size:12px; }
   #walkbar .what div { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-weight:700; }
   #walkbar #w-next { background:var(--accent); color:var(--accentInk); }
   #drone { left:20px; bottom:130px; padding:14px; display:none; width:236px; font-size:12px; }
   #drone.on { display:block; } #drone .pad { display:grid; grid-template-columns:repeat(3, 1fr); gap:4px; margin:10px 0; } #drone .pad button { padding:9px 0; font-size:13px; }
-  #drone kbd { font:600 11px var(--font); background:var(--soft); padding:1px 5px; }
+  #drone kbd { font:600 12px var(--font); background:var(--soft); padding:1px 5px; }
 
   /* ---- Issue card ---- */
-  #card { position:fixed; right:20px; top:20px; width:390px; max-height:calc(100vh - 150px); overflow:auto; background:var(--panel); color:var(--ink); box-shadow:var(--shadow); padding:22px; display:none; z-index:10; }
+  #card { position:fixed; right:20px; top:20px; width:400px; max-height:calc(100vh - 40px); overflow:auto; background:var(--panel); color:var(--ink); box-shadow:var(--shadow); padding:22px; display:none; z-index:10; }
   #card.open { display:block; }
-  #card .tag { display:inline-block; font:700 11px/1 var(--font); text-transform:uppercase; letter-spacing:.08em; color:#fff; padding:6px 9px; }
+  body.card-open #dock { left:calc((100% - 420px) / 2); max-width:calc(100% - 460px); bottom:100px; } body.card-open #jumps { display:none; }
+  .opt input { accent-color:var(--ink); }
+  body.card-open #legend { display:none; }
+  #card .ev { display:-webkit-box; -webkit-line-clamp:1; -webkit-box-orient:vertical; overflow:hidden; }
+  #card .nofix { font-size:13px; color:var(--muted); margin:4px 0 8px; }
+  #card .tag.s-verify { color:#111; }
+  #card .tag { display:inline-block; font:700 12px/1 var(--font); text-transform:uppercase; letter-spacing:.08em; color:#fff; padding:6px 9px; }
   #card h3 { font-size:22px; line-height:1.15; font-weight:800; letter-spacing:-.02em; margin:12px 0 4px; }
   #card .nums { display:flex; gap:4px; margin:14px 0; }
   #card .nums div { flex:1; background:var(--soft); padding:10px 12px; font-size:12px; color:var(--muted); } #card .nums b { display:block; font-size:22px; font-weight:800; letter-spacing:-.02em; color:var(--ink); }
@@ -81,12 +95,12 @@
   #card img, #card .ph { width:100%; display:block; aspect-ratio:16/10; object-fit:cover; background:var(--soft); }
   #card .ph { display:grid; place-items:center; color:var(--muted); font-size:12px; }
   #card svg { width:100%; height:auto; display:block; background:#fafaf8; }
-  #card .src { font-size:11px; color:var(--muted); } #card .x { position:absolute; right:12px; top:12px; background:none; font-size:22px; padding:2px 8px; }
+  #card .src { font-size:12px; color:var(--muted); } #card .x { position:absolute; right:12px; top:12px; background:none; font-size:22px; padding:2px 8px; }
   #card .measure { width:100%; margin-top:12px; }
   .fix { display:flex; gap:12px; align-items:center; background:var(--soft); padding:10px; margin:6px 0; text-decoration:none; color:inherit; }
   .fix img { width:64px !important; height:64px; aspect-ratio:1 !important; object-fit:contain !important; background:#fff !important; flex:none; }
   .fix b { display:block; font-size:13px; line-height:1.3; } .fix .price { font-size:20px; font-weight:800; color:var(--pass); white-space:nowrap; margin-left:auto; }
-  .fix small { color:var(--muted); display:block; font-size:11px; margin-top:2px; }
+  .fix small { color:var(--muted); display:block; font-size:12px; margin-top:2px; }
   .opts { display:flex; flex-direction:column; gap:4px; }
   .opt { display:grid; grid-template-columns:auto 56px 1fr auto; gap:10px; align-items:center; background:var(--soft); padding:10px; cursor:pointer; box-shadow:inset 3px 0 0 transparent; }
   .opt.chosen { box-shadow:inset 3px 0 0 var(--ink); background:var(--panel); outline:1px solid var(--line); }
@@ -104,7 +118,7 @@
   #home nav { display:flex; align-items:center; height:88px; font-size:15px; font-weight:500; gap:32px; }
   #home nav .logo { font-size:22px; font-weight:800; letter-spacing:-.02em; margin-right:auto; } #home nav .logo span { color:var(--fail); }
   #home nav a { color:var(--ink); text-decoration:none; } #home nav .cta { background:var(--accent); color:var(--accentInk); padding:11px 18px; font-weight:600; }
-  #home .hc { width:auto; background:var(--soft); }
+  #home .looks button { background:var(--soft); padding:9px 12px; } #home .looks button[aria-pressed=true] { background:var(--accent); color:var(--accentInk); }
   .hero { display:grid; grid-template-columns:1fr 460px; gap:72px; align-items:center; padding:24px 0 72px; }
   .kicker { font-size:13px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--fail); }
   .hero h2 { font-size:96px; line-height:.95; font-weight:800; letter-spacing:-.045em; margin:22px 0 28px; }
@@ -120,7 +134,7 @@
   .note.n1 { left:56%; top:31%; } .note.n2 { left:61%; top:88%; }
   .bracket { position:absolute; left:51%; width:20%; top:28%; border-top:3px solid #E3241B; }
   .bracket::before, .bracket::after { content:''; position:absolute; top:-9px; width:3px; height:15px; background:#E3241B; } .bracket::before { left:0; } .bracket::after { right:0; }
-  .credit { position:absolute; left:12px; bottom:10px; font-size:11px; color:#fff; text-shadow:0 1px 2px rgba(0,0,0,.6); }
+  .credit { position:absolute; left:12px; bottom:10px; font-size:12px; color:#fff; text-shadow:0 1px 2px rgba(0,0,0,.6); }
   .credit a { color:#fff; }
   .band { background:var(--soft); margin:0 -64px; padding:64px; }
   .band .stats { display:grid; grid-template-columns:repeat(3, 1fr); gap:48px; }
@@ -146,7 +160,7 @@
 <div id="home" hidden>
   <div class="page">
     <nav><span class="logo">Inch <span>&amp;</span> Ease</span><a href="#apartments">Apartments</a><a href="#how">How it works</a>
-      <button class="hc" type="button" aria-pressed="false">High contrast</button><a class="cta" id="navDemo" href="#">Open the demo</a></nav>
+      <div class="looks" role="group" aria-label="Look"><button type="button" data-look="standard">Daylight</button><button type="button" data-look="night">Night</button><button type="button" data-look="contrast">High contrast</button></div><a class="cta" id="navDemo" href="#">Open the demo</a></nav>
     <section class="hero">
       <div>
         <div class="kicker">For wheelchair users and their families</div>
@@ -192,16 +206,17 @@
     <section id="p-ask" hidden>
       <div class="hint">Try: <button data-q="Can my dad get into the bathroom? He uses a manual wheelchair.">Bathroom?</button><button data-q="What's the worst problem in this apartment?">Worst problem?</button><button data-q="Show me the whole apartment.">Overview</button></div>
       <div id="chat"></div>
-      <form id="ask"><input id="q" placeholder="Ask about this apartment…" autocomplete="off" aria-label="Question"><button id="mic" type="button" title="Speak" aria-label="Speak">🎤</button></form>
+      <form id="ask"><input id="q" placeholder="Ask about this apartment…" autocomplete="off" aria-label="Question"><button id="mic" type="button" title="Speak" aria-label="Speak"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button></form>
     </section>
   </div>
   <footer>
-    <button class="hc" type="button" aria-pressed="false">High contrast <span>Off</span></button>
+    <div class="looks" role="group" aria-label="Look"><button type="button" data-look="standard">Daylight</button><button type="button" data-look="night">Night</button><button type="button" data-look="contrast">High contrast</button></div>
     <label class="sub" style="display:flex;gap:8px;align-items:center;margin-top:8px">Quality <select id="quality" aria-label="Quality" style="margin:0;flex:1"><option value="standard">Standard</option><option value="high">High (sharp panoramas)</option><option value="max">Max (sharpest 3D, slower)</option></select></label>
     <div id="status"></div>
   </footer>
 </aside>
 <main>
+  <div id="skel" aria-live="polite"><div class="sk a"></div><div class="sk b"></div><div class="sk c"></div><p>Loading the 3D tour…</p></div>
   <div id="legend" class="float" aria-label="Legend"><span><i style="background:var(--fail)"></i>Fails</span><span><i style="background:var(--verify)"></i>Check with a tape / fix helps</span><span><i style="background:var(--pass)"></i>Fixed</span><span><i class="ring"></i>Critical</span></div>
   <div id="walkbar" class="float" role="region" aria-label="Walkthrough">
     <button id="w-prev" aria-label="Previous stop">◀</button>
@@ -221,11 +236,11 @@
   </div>
   <div id="dock" class="float" role="toolbar" aria-label="Navigation">
     <div id="modes">
-      <button data-mode="overview" aria-pressed="true"><b>⌂</b>Overview</button>
-      <button data-mode="drone" aria-pressed="false"><b>✈</b>Drone</button>
-      <button data-mode="walk" aria-pressed="false"><b>▶</b>Walkthrough</button>
-      <button data-mode="inside" aria-pressed="false"><b>👁</b>Inside</button>
-      <button data-mode="plan" aria-pressed="false"><b>▦</b>Floor plan</button>
+      <button data-mode="overview" aria-pressed="true"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-7 9 7v9h-6v-6H9v6H3z"/></svg>Overview</button>
+      <button data-mode="drone" aria-pressed="false"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="6" r="3"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="18" r="3"/><path d="M8 8l8 8M16 8l-8 8"/></svg>Drone</button>
+      <button data-mode="walk" aria-pressed="false"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4l12 8-12 8z"/></svg>Walkthrough</button>
+      <button data-mode="inside" aria-pressed="false"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>Inside</button>
+      <button data-mode="plan" aria-pressed="false"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3h18v18H3zM3 12h9M12 3v18M12 15h9"/></svg>Floor plan</button>
     </div>
     <div id="jumps"></div>
   </div>
@@ -451,11 +466,12 @@ function fixHtml(i) {
       <input type="radio" name="fix" value="${esc(o.key)}" ${row.chosen?.key === o.key ? 'checked' : ''}>
       ${o.product ? `<img alt="" src="/data/${esc(o.product.photo)}">` : `<span class="noimg">${o.kind === 'contractor' ? 'Pro' : o.kind === 'free' ? '$0' : '—'}</span>`}
       <span class="what"><b>${esc(o.label)}</b>
-        <small>${[o.product && `${esc(o.product.store)} · ${esc(o.product.install)}`, o.change && esc(o.change), o.note && esc(o.note), o.kind === 'contractor' && o.source && esc(o.source), o.kind === 'text' && 'not in our catalogue, table price'].filter(Boolean).join(' · ')}</small>
-        ${o.reason ? `<small class="warn">${esc(o.reason)}</small>` : ''}${o.product?.evidence ? `<small>${esc(o.product.evidence)}</small>` : ''}
+        <small>${[o.product && `${esc(o.product.store.split(' (')[0])} · ${esc(o.product.install)}`, o.change && esc(o.change), !o.product && o.note && esc(o.note), o.kind === 'contractor' && o.source && esc(o.source), o.kind === 'text' && 'not in our catalogue, table price'].filter(Boolean).join(' · ')}</small>
+        ${o.reason ? `<small class="warn">${esc(o.reason)}</small>` : ''}${o.product?.evidence ? `<small class="ev" title="${esc(o.product.evidence)}">${esc(o.product.evidence)}</small>` : ''}
         <span class="vd">${VERDICT[o.verdict]}</span>${o.product?.url ? ` <a href="${esc(o.product.url)}" target="_blank" rel="noopener">store ↗</a>` : ''}</span>
       <span class="price">${money(o)}</span></label>`;
-  return `<h4>Fix options</h4><div class="opts" role="radiogroup" aria-label="Fix options">${row.options.map(opt).join('')}
+  const noProd = !row.options.some(o => o.kind === 'product' && o.verdict !== 'nosupport' && o.verdict !== 'na');
+  return `<h4>Fix options</h4>${noProd ? '<p class="nofix">No product in our catalogue changes this number; the options below are what is left.</p>' : ''}<div class="opts" role="radiogroup" aria-label="Fix options">${row.options.map(opt).join('')}
     <label class="opt ${row.chosen ? '' : 'chosen'}"><input type="radio" name="fix" value="none" ${row.chosen ? '' : 'checked'}><span class="noimg">–</span><span class="what"><b>Don't fix this now</b></span><span class="price"></span></label></div>`;
 }
 function bindFix(i) {
@@ -468,16 +484,18 @@ function bindFix(i) {
 // ---- Issue card: what's wrong, a photo from the tour, and a to-scale drawing of why it won't work ----
 const inch = m => m / IN;
 let cardFor = null;
+function closeCard() { closeCard(); document.body.classList.remove('card-open'); cardFor = null; }
+addEventListener('keydown', e => { if (e.key === 'Escape' && $('card').classList.contains('open')) closeCard(); });
 function showCard(i) {
   cardFor = i;
   let tag, nums, why, svg, src;
   if (i.kind === 'door') {
     const clear = inch(i.w) - CLEAR_LOSS;
     const bad = i.s !== 'pass';
-    tag = { fail: 'Door too narrow', verify: 'Too close to call', pass: 'Door wide enough', skip: 'Closet door' }[i.s];
+    tag = { fail: 'Door too narrow', verify: 'Check with a tape', pass: 'Door wide enough', skip: 'Closet door' }[i.s];
     nums = [['This doorway', `${inch(i.w).toFixed(1)}"`, bad], ['Clear when open', `~${clear.toFixed(0)}"`, bad], ['Needed clear', '32"', false]];
-    why = `A manual wheelchair is up to <b>${CHAIR}"</b> wide with hands on the wheels. This opening is ${inch(i.w).toFixed(1)}", and an open door takes about 1½–2", leaving about <b>${clear.toFixed(0)}"</b>. ` +
-      (i.s === 'fail' ? 'The chair doesn\'t fit through.' : i.s === 'verify' ? 'It\'s within an inch of the limit: measure it with a tape.' : i.s === 'skip' ? 'It only leads to a closet, so it isn\'t scored.' : clear >= CHAIR ? 'A chair fits through.' : 'It meets the 32" reference, but the widest chairs will be tight.');
+    why = `A manual wheelchair is up to <b>${CHAIR}"</b> wide with hands on the wheels. This opening is ${inch(i.w).toFixed(1)}"; an open door takes about 1½–2", leaving about <b>${clear.toFixed(0)}"</b>. ` +
+      (i.s === 'fail' ? 'The chair doesn\'t fit through.' : i.s === 'verify' ? 'An opening between 32" and 34" may leave just under 32" clear: measure it with a tape.' : i.s === 'skip' ? 'It only leads to a closet, so it isn\'t scored.' : clear >= CHAIR ? 'A chair fits through.' : 'It meets the 32" reference, but the widest chairs will be tight.');
     svg = doorSvg(clear); src = 'ADA 404.2.3 (32" clear) · HUD Fair Housing Design Manual · Access Board anthropometry study';
   } else if (i.kind === 'step') {
     tag = i.s === 'pass' ? 'Level threshold' : 'Step at the door';
@@ -495,24 +513,24 @@ function showCard(i) {
     const c = CHECK[i.n]; tag = { pass: 'Passes', fail: 'Fails', verify: 'Check with a tape', none: 'Not measured yet', skip: 'Not scored' }[i.s];
     nums = [['Measured', i.measured, i.s === 'fail'], ['Needed', i.need, false]]; why = `${c.rule}. ${c.who}.`; svg = ''; src = c.anchor;
   }
-  $('card').innerHTML = `<button class="x" aria-label="Close">×</button><span class="tag" style="background:var(--${i.s})">${tag}</span>
+  $('card').innerHTML = `<button class="x" aria-label="Close">×</button><span class="tag s-${i.s}" style="background:var(--${i.s})">${tag}</span>
     <h3>${i.title}</h3>
     <div class="nums">${nums.map(([k, v, bad]) => `<div class="${bad ? 'bad' : ''}">${k}<b>${v}</b></div>`).join('')}</div>
     <p>${why}</p>
+    ${i.at ? `<div class="ph">Taking a photo from the tour…</div>` : ''}
+    ${svg ? `<h4>${i.s === 'pass' ? 'To scale' : 'Why it won\'t work (to scale)'}</h4>${svg}` : ''}
     ${fixHtml(i)}
-    <h4>In this apartment</h4><div class="ph">Taking a photo from the tour…</div>
-    <h4>${i.s === 'pass' ? 'To scale' : 'Why it won\'t work (to scale)'}</h4>${svg}
-    ${i.kind === 'door' || i.kind === 'step' ? `<button class="measure" id="measure">📏 Measure it yourself with Matterport's ruler</button>` : ''}
-    <p class="src">Sources: ${src}. Measured from the Matterport scan; confirm with a tape before you sign.</p>`;
+    ${i.kind === 'door' || i.kind === 'step' ? `<button class="measure" id="measure">Measure it yourself with Matterport's ruler</button>` : ''}
+    <p class="src">Number from: ${esc(i.source || 'not measured yet')} · Reference: ${src}${i.source === 'Matterport scan' ? '. Confirm with a tape before you sign.' : '.'}</p>`;
   $('measure')?.addEventListener('click', async () => {
     // Matterport's own measuring tool: a second reading of the same door or step, straight from the scan.
-    $('card').classList.remove('open'); cardFor = null;
+    closeCard();
     try { await sdk.Measurements.toggleMode(true); status("Ruler on: click one side, then the other. Press Esc to stop."); }
     catch (e) { status('Ruler not available: ' + (e.message || e)); }
   });
   bindFix(i);
-  $('card').querySelector('.x').onclick = () => { $('card').classList.remove('open'); cardFor = null; };
-  $('card').classList.add('open');
+  $('card').querySelector('.x').onclick = closeCard;
+  $('card').classList.add('open'); document.body.classList.add('card-open');
 }
 // Top view: the gap between the door frames vs the wheelchair's width. 6 px per inch.
 function doorSvg(clear) {
@@ -576,7 +594,7 @@ function renderList() {
     for (const i of rows) {
       const pin = issueList.indexOf(i) + 1, el = document.createElement('div');
       el.className = 'issue'; el.tabIndex = 0; el.dataset.item = i.id; el.dataset.check = i.n; el.dataset.status = i.s; if (isProblem(i) && hasPricedFix(i, products)) el.dataset.priced = '';
-      el.innerHTML = `<span class="num" style="background:var(--${i.s})">${pin || i.n}</span><div>${esc(i.title)}<small>${esc(i.detail)}</small></div>`;
+      el.innerHTML = `<span class="num s-${i.s}" style="background:var(--${i.s})">${pin || i.n}</span><div>${esc(i.title)}<small>${esc(i.detail)}</small></div>`;
       el.onclick = el.onkeydown = e => { if (e.type === 'click' || e.key === 'Enter') openItem(i); };
       el.onmouseenter = el.onfocus = () => hoverItem(i, true); el.onmouseleave = el.onblur = () => hoverItem(i, false);
       box.appendChild(el);
@@ -585,7 +603,7 @@ function renderList() {
   }
   issueList.forEach((i, k) => {
     const chip = document.createElement('button');
-    chip.innerHTML = `<span class="num" style="background:var(--${i.s})">${k + 1}</span>${i.kind === 'door' ? 'Door' : i.kind === 'step' ? 'Step' : (i.room || CHECK[i.n].title).split(',')[0]}`;
+    chip.innerHTML = `<span class="num s-${i.s}" style="background:var(--${i.s})">${k + 1}</span>${i.kind === 'door' ? 'Door' : i.kind === 'step' ? 'Step' : (i.room || CHECK[i.n].title).split(',')[0]}`;
     chip.title = i.title; chip.onclick = () => openItem(i); $('jumps').appendChild(chip);
   });
 }
@@ -599,6 +617,7 @@ async function load(sid) {
   await tintRooms().catch(e => console.log('[tour] tint: ' + (e.message || e)));
   const d = await draw(issueList.filter(i => i.at)); retint(); watchPins();
   status(`Tour ready · red 3D shapes: ${d.scene ? 'yes' : 'no'} · tags: ${d.tags}/${issueList.length}`);
+  $('skel')?.remove();
   window.__ie = { ready: true, pins: d.tags, shapes: d.scene }; // test hook read by the smoke run
   // Open on the whole apartment in 3D (Matterport's dollhouse), red areas included; issues fly inside.
   await overview();
@@ -642,7 +661,7 @@ async function ask(text) {
     for (let step = 0; step < 6; step++) {
       const res = await fetch('/api/agent', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ messages: convo, apartment: apartmentFacts() }) });
       const r = await res.json();
-      if (!res.ok) { thinking.textContent = r.error || 'Something went wrong.'; return; }
+      if (!res.ok) { thinking.className = 'err'; thinking.textContent = `Claude couldn't answer: ${r.error || 'something went wrong'}. Try again in a moment.`; return; }
       convo.push({ role: 'assistant', content: r.content });
       // Text before a tool call is Claude's working note; only the final answer goes in the chat.
       if (r.stop_reason !== 'tool_use') for (const b of r.content) if (b.type === 'text' && b.text.trim()) say('a', b.text.trim());
@@ -656,14 +675,14 @@ async function ask(text) {
       }
       convo.push({ role: 'user', content: results });
     }
-  } catch (e) { say('t', 'No answer: ' + (e.message || e)); }
+  } catch (e) { say('err', `Claude couldn't answer: ${e.message || e}. Try again in a moment.`); }
   thinking.remove();
 }
 $('ask').onsubmit = e => { e.preventDefault(); const q = $('q').value.trim(); if (q) { $('q').value = ''; ask(q); } };
 // Voice: the browser's own speech recognition, where it exists (Chrome).
-const Rec = window.SpeechRecognition || window.webkitSpeechRecognition;
+const Rec = window.SpeechRecognition || window.webkitSpeechRecognition, micIcon = $('mic').innerHTML;
 if (!Rec) $('mic').hidden = true;
-else $('mic').onclick = () => { const r = new Rec(); r.lang = 'en-US'; r.onresult = e => ask(e.results[0][0].transcript); r.start(); $('mic').textContent = '…'; r.onend = () => $('mic').textContent = '🎤'; };
+else $('mic').onclick = () => { const r = new Rec(); r.lang = 'en-US'; r.onresult = e => ask(e.results[0][0].transcript); r.start(); $('mic').textContent = '…'; r.onend = () => $('mic').innerHTML = micIcon; };
 
 // ---- Navigation: one mode at a time (Overview, Drone, Walkthrough, Inside, Floor plan) ----
 let mode = 'overview';
@@ -677,7 +696,7 @@ function setMode(m) {
 }
 document.querySelectorAll('#modes button').forEach(b => b.onclick = async () => {
   const m = b.dataset.mode; if (!sdk) return;
-  setMode(m); $('card').classList.remove('open');
+  setMode(m); closeCard();
   if (m === 'overview') await overview();
   if (m === 'drone') await overview();
   if (m === 'walk') startWalk();
@@ -756,8 +775,8 @@ async function showStop() {
   await goTo(c);
 }
 $('w-prev').onclick = () => { if (at > 0) { at--; showStop(); } };
-$('w-next').onclick = () => { if (at < stops.length - 1) { at++; showStop(); } else { setMode('overview'); $('card').classList.remove('open'); overview(); } };
-$('w-end').onclick = () => { setMode('overview'); $('card').classList.remove('open'); overview(); };
+$('w-next').onclick = () => { if (at < stops.length - 1) { at++; showStop(); } else { setMode('overview'); closeCard(); overview(); } };
+$('w-end').onclick = () => { setMode('overview'); closeCard(); overview(); };
 function stopAuto() { clearInterval(autoTimer); autoTimer = null; $('w-play').textContent = '▶ Auto'; }
 $('w-play').onclick = () => {
   if (autoTimer) return stopAuto();
@@ -772,12 +791,12 @@ for (const [t, p] of [['t-issues', 'p-issues'], ['t-ask', 'p-ask']]) $(t).onclic
 };
 document.querySelectorAll('.hint [data-q]').forEach(b => b.onclick = () => ask(b.dataset.q));
 function setTheme(t) {
-  const hc = t === 'contrast';
-  document.documentElement.dataset.theme = hc ? 'contrast' : 'standard';
-  document.querySelectorAll('.hc').forEach(b => { b.setAttribute('aria-pressed', hc); const o = b.querySelector('span'); if (o) o.textContent = hc ? 'On' : 'Off'; });
-  try { localStorage.setItem('ie-theme', hc ? 'contrast' : 'standard'); } catch {}
+  if (!['standard', 'night', 'contrast'].includes(t)) t = 'standard';
+  document.documentElement.dataset.theme = t;
+  document.querySelectorAll('.looks button').forEach(b => b.setAttribute('aria-pressed', b.dataset.look === t));
+  try { localStorage.setItem('ie-theme', t); } catch {}
 }
-document.querySelectorAll('.hc').forEach(b => b.onclick = () => setTheme(document.documentElement.dataset.theme === 'contrast' ? 'standard' : 'contrast'));
+document.querySelectorAll('.looks button').forEach(b => b.onclick = () => setTheme(b.dataset.look));
 let savedTheme = null; try { savedTheme = localStorage.getItem('ie-theme'); } catch {}
 setTheme(new URLSearchParams(location.search).get('look') || savedTheme || 'standard');
 
@@ -822,7 +841,7 @@ async function renderHome() {
   }
 }
 if (!new URLSearchParams(location.search).get('m')) renderHome();
-else load(sid).catch(e => { status('Error: ' + (e.message || e)); window.__ie = { error: String(e.message || e) }; });
+else load(sid).catch(e => { status('Error: ' + (e.message || e)); const k = $('skel'); if (k) k.innerHTML = `<p>The tour didn't load: ${esc(e.message || e)}. Reload the page to try again.</p>`; window.__ie = { error: String(e.message || e) }; });
 </script>
 </body>
 </html>
