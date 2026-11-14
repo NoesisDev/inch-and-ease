@@ -4,7 +4,15 @@
 
 An accessibility room planner built solo at HackPrinceton Fall 2026 (Nov 13–15).
 
-`data/` (products, checks, profiles, sources) was collected as research before the event; all code was written during the hacking window.
+**Live:** [inchandease.us](https://inchandease.us), the street check around a building (Houston and Los Angeles, where Vexcel has coverage). Try `?q=34.0522,-118.2437`.
+The 3D apartment tour (`tour/`) runs locally: the tours are CoStar / Matterport hackathon data that can't be published, and the Matterport SDK key only works on localhost.
+
+| Part | Where | Run | Tests |
+|---|---|---|---|
+| Around the building | `src/` (Next.js) | `npm install && npm run dev` | `npm test` |
+| 3D tour + neighbourhood flyover | `tour/` (plain ES modules + a small Python server) | `uv run --with anthropic python tour/serve.py` | `node --test tour/*.test.mjs` |
+
+`data/` (products, checks, profiles, sources) was collected as research before the event; all code was written during the hacking window. Built solo during the event, with Claude Code as the coding assistant.
 
 ## Around the building (`src/`, Next.js)
 
@@ -22,6 +30,7 @@ Vexcel imagery is fetched live through `/api/image` (the key stays on the server
 - [geotiff.js](https://geotiffjs.github.io) 3.0 (reads Vexcel's elevation GeoTIFFs)
 - Vexcel API 2.0 (CoStar hackathon key): ortho, oblique and DTM imagery © Vexcel Imaging US, Inc.
 - Map data © [OpenStreetMap](https://www.openstreetmap.org/copyright) contributors (ODbL), via the Overpass API
+- [three.js](https://threejs.org) 0.184 with OrbitControls (3D terrain view); [Anthropic TypeScript SDK](https://github.com/anthropics/anthropic-sdk-typescript) + [Zod](https://zod.dev) (Claude turns "how I get around" into slope limits); [Fish Audio](https://fish.audio) speech-to-text and text-to-speech
 - Profile presets and the colour idea: [AccessMap](https://www.accessmap.app) (University of Washington Taskar Center); Bolten & Caspi, PLOS ONE 2021
 
 ## The 3D tour (`tour/`)
