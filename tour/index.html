@@ -10,11 +10,11 @@
      Three looks: Daylight (light glass), Night (dark glass), High contrast (solid black/white/yellow, no blur). */
   :root { --font:-apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", system-ui, sans-serif; --size:14px;
           --wall:radial-gradient(1100px 700px at 0% 0%, #dde5f0 0%, transparent 65%), radial-gradient(900px 700px at 100% 100%, #ece7e1 0%, transparent 60%), #f2f2f5;
-          --bg:#f5f5f7; --ink:#1d1d1f; --muted:#6e6e73; --glass:rgba(255,255,255,.70); --glassStrong:rgba(255,255,255,.82); --edge:rgba(255,255,255,.35);
+          --bg:#f5f5f7; --ink:#1d1d1f; --muted:#5c5c61; --glass:rgba(255,255,255,.70); --glassStrong:rgba(255,255,255,.82); --edge:rgba(255,255,255,.35);
           --ring:rgba(0,0,0,.08); --fill:rgba(118,118,128,.12); --fill2:rgba(118,118,128,.2); --seg:#fff; --sep:rgba(60,60,67,.12); --chosen:rgba(255,255,255,.92);
           --accent:#1d1d1f; --accentInk:#fff; --focus:#0a84ff;
           --fail:#FF3B30; --verify:#FF9500; --helps:#FF9500; --pass:#34C759; --fixed:#34C759; --none:#8E8E93; --skip:#8E8E93;
-          --failInk:#d70015; --verifyInk:#c93400; --passInk:#248a3d;
+          --failInk:#d70015; --verifyInk:#b02e00; --passInk:#1b7a32;
           --blur:blur(28px) saturate(180%); --shadow:0 0 0 .5px var(--ring), 0 2px 6px rgba(0,0,0,.05), 0 18px 48px rgba(0,0,0,.14); --ease:200ms cubic-bezier(.25,.1,.25,1); }
   [data-theme=night] { --wall:radial-gradient(1100px 700px at 0% 0%, #1b2130 0%, transparent 65%), radial-gradient(900px 700px at 100% 100%, #221d1a 0%, transparent 60%), #0b0b0d;
           --bg:#000; --ink:#f5f5f7; --muted:#a1a1a6; --glass:rgba(30,30,32,.62); --glassStrong:rgba(28,28,30,.78); --edge:rgba(255,255,255,.12);
@@ -46,7 +46,7 @@
   aside header { padding:12px 16px 2px; } aside .body { flex:1; overflow:auto; padding:0 16px 12px; } aside footer { padding:8px 16px 10px; border-top:1px solid var(--sep); }
   .homelink { color:var(--muted); font-size:13px; text-decoration:none; font-weight:500; display:inline-flex; align-items:center; gap:4px; } .homelink[hidden] { display:none; } .homelink:hover { color:var(--ink); }
   .homelink svg { width:8px; height:12px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
-  h1 { font-size:16px; font-weight:700; letter-spacing:-.02em; margin:6px 0 0; } h1 span, .logo span { color:var(--fail); }
+  h1 { font-size:16px; font-weight:700; letter-spacing:-.02em; margin:6px 0 0; } h1 span, .logo span { color:var(--failInk); }
   .sub { color:var(--muted); font-size:12px; } aside select { margin-top:8px; padding-top:7px; padding-bottom:7px; }
   .score { margin:14px 0 2px; }
   .q { font-size:11px; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:.04em; }
@@ -151,8 +151,10 @@
   #plan .foot { color:var(--muted); font-size:12px; margin-top:14px; }
   #print { width:100%; margin-top:12px; padding:10px 14px; } .printhead { display:none; }
   @media print {
-    :root, html[data-theme] { --ink:#1d1d1f; --muted:#6e6e73; --fill:#f2f2f5; --sep:#e5e5ea; --glass:#fff; --blur:none; --shadow:none; --failInk:#d70015; --verifyInk:#c93400; --passInk:#248a3d; }
-    body { display:block; height:auto; overflow:visible; background:#fff; color:#1d1d1f; } main, #home, #card, .tabs, #p-issues, #p-ask, aside footer, #print, #pick, .homelink { display:none !important; }
+    :root, html[data-theme] { --ink:#1d1d1f; --muted:#6e6e73; --fill:#f2f2f5; --sep:#e5e5ea; --glass:#fff; --blur:none; --shadow:none; --failInk:#d70015; --verifyInk:#b02e00; --passInk:#1b7a32; }
+    body { display:block; height:auto; overflow:visible; background:#fff; color:#1d1d1f; } main, #home, #card, .tabs, #p-issues, #p-ask, aside footer, #print, #pick, .homelink, #side-hide { display:none !important; }
+    @page { margin:10mm 12mm; }
+    aside { zoom:.9; } /* the plan fits one Letter/A4 page for a typical apartment */
     aside, body.side-off aside { display:block; width:auto; height:auto; margin:0; border:0; border-radius:0; box-shadow:none; background:#fff; -webkit-backdrop-filter:none; backdrop-filter:none; overflow:visible; }
     aside .body { overflow:visible; padding:0 24px; } #p-plan { display:block !important; } .printhead { display:flex; justify-content:space-between; font-size:16px; margin:8px 0 12px; }
     #p-plan .budget input { background:none; } #plan .pr { break-inside:avoid; }
@@ -1069,7 +1071,7 @@ async function ask(text, { on = () => {}, note } = {}) {
     }
   } catch (e) {
     convo.length = mark; sentFacts = before; // drop the half-finished exchange, so the next question starts from a valid history
-    if (e.name !== 'AbortError') { error = `Claude couldn't answer: ${e.message || e}. Try again in a moment.`; say('err', error); }
+    if (e.name !== 'AbortError') { console.log('[agent]', e.message || e); error = "Claude can't be reached right now. The checks, pins and fixes still work; ask again in a moment."; say('err', error); }
   }
   thinking.remove(); if (asking === ctl) asking = null;
   return { text: answer, error, open: navTo };
@@ -1264,7 +1266,7 @@ async function renderHome() {
   const fails = x => x.r.issues.filter(i => i.s === 'fail').length;
   const worstLabelled = rows.filter(x => x.labelled).sort((a, b) => fails(b) - fails(a))[0];
   const cheapest = Math.min(...rows.flatMap(x => x.pa.rows.filter(p => p.chosen?.price > 0).map(p => p.chosen.price)));
-  $('proof').innerHTML = (worstLabelled && fails(worstLabelled) ? `<div><b class="red">${fails(worstLabelled)} problems</b><span>in a unit labelled "ADA"</span></div>` : '') +
+  $('proof').innerHTML = (worstLabelled && fails(worstLabelled) ? `<div><b class="red">${fails(worstLabelled)} fail</b><span>+ ${worstLabelled.r.issues.filter(i => i.s === 'verify').length} to check with a tape, in a unit labelled "ADA"</span></div>` : '') +
     (isFinite(cheapest) ? `<div><b>$${cheapest.toFixed(2)}</b><span>cheapest real fix found</span></div>` : '') +
     `<div><b>${rows.length}</b><span>apartments in Houston and LA</span></div>`;
   rows.sort((a, b) => (b.t.id === demo.id) - (a.t.id === demo.id) || fails(b) - fails(a));
