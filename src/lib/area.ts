@@ -29,7 +29,8 @@ export async function vexcel(path: string, body: object) {
     method: "POST",
     headers: { "X-API-KEY": key, "Content-Type": "application/json" },
     body: JSON.stringify({ srid: 4326, layer: LAYERS, crop: "bounding_box", ...body }),
-  });
+    signal: AbortSignal.timeout(25_000),
+  }).catch((e: Error) => { throw new Error(e.name === "TimeoutError" ? "Vexcel did not answer within 25 seconds, try again" : `Vexcel could not be reached (${e.message})`); });
   if (r.status === 403) throw new Error("Vexcel covers Houston and Los Angeles only");
   if (!r.ok) throw new Error(`Vexcel ${path} answered ${r.status}`);
   return r;
@@ -92,7 +93,7 @@ export async function overpass(q: string, cacheKey: string) {
   const hit = await readFile(file, "utf8").catch(() => null);
   if (hit) return JSON.parse(hit) as OsmEl[];
   const ask = async (url: string) => {
-    const r = await fetch(url, { method: "POST", headers: { "User-Agent": "inch-and-ease hackathon demo" }, body: new URLSearchParams({ data: q }) });
+    const r = await fetch(url, { method: "POST", headers: { "User-Agent": "inch-and-ease hackathon demo" }, body: new URLSearchParams({ data: q }), signal: AbortSignal.timeout(45_000) });
     if (!r.ok) throw new Error(`OpenStreetMap (Overpass) answered ${r.status}`);
     return ((await r.json()).elements ?? []) as OsmEl[];
   };

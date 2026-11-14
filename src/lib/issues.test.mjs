@@ -14,6 +14,12 @@ test("verdict: both / one way / too steep / steps", () => {
   assert.equal(verdict({ slope: 0, steps: true }, PROFILES[2]), "both");
 });
 
+test("steepest-stretch card: red by the manual profile, not a fixed 8%", () => {
+  assert.equal(verdict({ slope: 8 }, PROFILES[0]), "both"); // at the limit: fine
+  assert.equal(verdict({ slope: 9 }, PROFILES[0]), "one"); // red on the card
+  assert.equal(verdict({ slope: 9 }, PROFILES[1]), "both"); // a power chair manages it
+});
+
 test("every street at the door too steep -> one barrier naming the flattest", () => {
   const segs = [{ slope: 12, len: 10, near: 20, name: "A St" }, { slope: 15, len: 10, near: 40, name: "B St" }];
   const issues = findIssues({ ...base, segs }, manual);

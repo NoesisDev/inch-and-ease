@@ -23,7 +23,7 @@ export async function transcribe(audio: Blob) {
   const form = new FormData();
   form.append("audio", audio, "speech.webm");
   form.append("language", "en");
-  const r = await fetch(`${API}/v1/asr`, { method: "POST", headers: { Authorization: `Bearer ${await key()}`, model: "transcribe-1-pro" }, body: form });
+  const r = await fetch(`${API}/v1/asr`, { method: "POST", headers: { Authorization: `Bearer ${await key()}`, model: "transcribe-1-pro" }, body: form, signal: AbortSignal.timeout(20_000) });
   if (!r.ok) throw new Error(`Fish speech-to-text answered ${r.status}`);
   return String((await r.json()).text ?? "").replace(/<\|[^|]*\|>/g, "").trim(); // drop speaker tags like <|speaker:0|>
 }
@@ -33,6 +33,7 @@ export async function speak(text: string) {
     method: "POST",
     headers: { Authorization: `Bearer ${await key()}`, "Content-Type": "application/json", model: "s2-pro" },
     body: JSON.stringify({ text, reference_id: await voice(), format: "mp3", mp3_bitrate: 128, normalize: true }),
+    signal: AbortSignal.timeout(20_000),
   });
   if (!r.ok) throw new Error(`Fish text-to-speech answered ${r.status}`);
   return r.arrayBuffer();

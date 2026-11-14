@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Suspense } from "react";
 import { analyze, merc, type Area, type Pt } from "@/lib/area";
+import { PROFILES, verdict } from "@/lib/issues";
 import SlopeMap, { type MapPoi, type MapSeg } from "./SlopeMap";
 
 // shortcut: in-memory cache per server process, fine for a local demo; move to a store when deployed.
@@ -23,6 +24,7 @@ async function Page({ searchParams }: PageProps<"/">) {
   const q = String((await searchParams).q ?? "");
   const [lat, lon] = q.split(",").map((s) => Number(s.trim()));
   const ok = q !== "" && Math.abs(lat) <= 90 && Math.abs(lon) <= 180;
+  const badQ = q !== "" && !ok;
   let area: Area | null = null, error = "";
   if (ok) try { area = await getArea(lat, lon); } catch (e) { error = (e as Error).message; }
 
@@ -57,6 +59,7 @@ async function Page({ searchParams }: PageProps<"/">) {
             <p className="mt-3 text-[17px] leading-relaxed text-secondary">Enter a location in Houston or Los Angeles. Inch &amp; Ease measures the slope of every street and path within 250 metres using Vexcel&apos;s elevation data, finds transit, curb ramps and elevators in OpenStreetMap, and shows what a wheelchair or cane user can manage.</p>
           </section>
         )}
+        {badQ && <p role="alert" className="glass mx-auto mt-6 max-w-2xl px-6 py-5 text-bad">&ldquo;{q}&rdquo; is not a location. Type the latitude, then a comma, then the longitude, for example 34.0522, -118.2437.</p>}
         {error && <p role="alert" className="glass px-6 py-5 text-bad">Could not check this area: {error}</p>}
         {area && <AreaView a={area} />}
       </main>
@@ -82,7 +85,8 @@ function AreaView({ a }: { a: Area }) {
       <SlopeMap img={img("ortho", a.half)} segs={segs} pois={pois} home={[hx, hy]} grid={a.grid} size={a.half * 2}
         facts={{ stepFree: s.stepFree, station: s.station, busStops400: s.busStops400, kerbs: s.kerbs, loweredKerbs: s.loweredKerbs }} />
       <aside className="flex min-w-0 flex-[1_1_300px] flex-col gap-3">
-        <Stat label="Steepest stretch within 100 m" value={s.steepestNear ? (s.steepestNear.steps ? "Steps" : `${s.steepestNear.slope.toFixed(1)}%`) : "No streets"} note={s.steepestNear?.name} bad={!!s.steepestNear && (s.steepestNear.steps || s.steepestNear.slope > 8)} />
+        <Stat label="Steepest stretch within 100 m" value={s.steepestNear ? (s.steepestNear.steps ? "Steps" : `${s.steepestNear.slope.toFixed(1)}%`) : "No streets"} note={s.steepestNear ? [s.steepestNear.name, `Red when a manual wheelchair can't use it both ways (${PROFILES[0].up}% up, ${PROFILES[0].down}% down)`].filter(Boolean).join(". ") : undefined}
+          bad={!!s.steepestNear && verdict(s.steepestNear, PROFILES[0]) !== "both"} />
         <Stat label="Nearest step-free station" value={s.stepFree ? `${s.stepFree.dist} m` : s.station ? "Not known" : "None within 2 km"}
           note={s.stepFree ? `${s.stepFree.name ?? "Station"}, straight-line distance` : s.station ? `${s.station.name ?? "The nearest station"} (${s.station.dist} m) has no wheelchair information` : undefined} />
         <Stat label="Bus stops within 400 m" value={String(s.busStops400)} />

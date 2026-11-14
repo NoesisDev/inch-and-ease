@@ -3,7 +3,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { betaZodOutputFormat } from "@anthropic-ai/sdk/helpers/beta/zod";
 import { z } from "zod";
 
-const client = new Anthropic(); // ANTHROPIC_API_KEY from .env.local
+const client = new Anthropic({ timeout: 30_000, maxRetries: 1 }); // ANTHROPIC_API_KEY from .env.local; capped so the page never hangs
 
 const Answer = z.object({
   up: z.number().describe("Steepest uphill slope in percent this person can manage, 0 to 20"),
@@ -58,7 +58,7 @@ Other facts: ${facts}`;
     return Response.json({ ...a, up: clamp(a.up), down: clamp(a.down) });
   } catch (e) {
     if (e instanceof Anthropic.RateLimitError) return Response.json({ error: "Too many questions at once. Try again in a moment." }, { status: 429 });
-    if (e instanceof Anthropic.APIError) return Response.json({ error: `Claude is unavailable (${e.status}).` }, { status: 502 });
+    if (e instanceof Anthropic.APIError) return Response.json({ error: e.status ? `Claude is unavailable (${e.status}).` : "Claude did not answer in time. Try again." }, { status: 502 });
     throw e;
   }
 }

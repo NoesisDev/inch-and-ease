@@ -111,24 +111,31 @@ export default function SlopeMap({ img, segs, pois, home, facts, grid, size }:
       `${facts.busStops400} bus stops within 400 m.`,
       facts.kerbs ? `${facts.loweredKerbs} of ${facts.kerbs} mapped curbs within 150 m are lowered.` : "No curbs mapped within 150 m.",
     ].join(" ");
+    let reply = "";
     try {
       const r = await fetch("/api/ask", { method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message, limits: { up, down, avoidSteps }, streets, facts: factText }) });
-      const d = await r.json();
-      if (!r.ok) throw new Error(d.error ?? "Something went wrong");
+      const d = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(d.error ?? "Claude could not answer just now. Try again.");
       setProfile("custom"); setLabel(d.label); setUp(d.up); setDown(d.down); setAvoidSteps(d.avoidSteps);
       const target = d.focus && segs.filter((s) => s.name === d.focus).sort((x, y) => x.near - y.near)[0];
       if (target) show(target);
-      setAsk((a) => ({ ...a, text: "", phase: "speaking", reply: d.reply }));
-      // Say it out loud; the text stays on screen for anyone who cannot listen.
-      const audio = await fetch("/api/speak", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text: d.reply }) });
-      if (!audio.ok) throw new Error("The answer is below, but it could not be spoken.");
+      reply = d.reply;
+      setAsk((a) => ({ ...a, text: "", phase: "speaking", reply }));
+    } catch (err) {
+      setAsk((a) => ({ ...a, phase: "idle", error: (err as Error).message }));
+      return;
+    }
+    // Say it out loud; the text stays on screen for anyone who cannot listen, so a voice failure only ends the speaking state.
+    try {
+      const audio = await fetch("/api/speak", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text: reply }) });
+      if (!audio.ok) throw new Error("voice unavailable");
       const p = (player.current ??= new Audio());
       p.src = URL.createObjectURL(await audio.blob());
       p.onended = () => setAsk((a) => ({ ...a, phase: "idle" }));
       await p.play();
-    } catch (err) {
-      setAsk((a) => ({ ...a, phase: "idle", error: (err as Error).message }));
+    } catch {
+      setAsk((a) => ({ ...a, phase: "idle" }));
     }
   }
 
