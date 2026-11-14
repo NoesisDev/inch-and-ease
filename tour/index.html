@@ -951,10 +951,12 @@ async function overview() {
 }
 
 // ---- Agent: Claude answers and drives the tour; the key stays in serve.py ----
+let homeRows = []; // the start page's cards, for questions asked there
 const apartmentFacts = () => {
+  if (!model) return { home: true, apartments: homeRows.map(({ t, r, pa, labelled }) => ({ id: t.id, name: t.name, city: t.city, labelled_accessible: labelled, checks_pass: `${r.pass} of ${r.total} measured`, problems: r.issues.map(i => i.title + (i.critical ? ' (critical)' : '')), purchases_usd: pa.purchases })) };
   const keep = ['id', 'n', 'kind', 's', 'title', 'detail', 'between', 'room', 'measured', 'need', 'critical'];
   const fixOf = c => { const r = plan?.rows.find(r => r.item.id === c.id); return r ? { chosen: r.chosen && `${r.chosen.label} (${money(r.chosen)}, ${VERDICT[r.chosen.verdict]})`, options: r.options.map(o => `${o.key}: ${o.label}, ${money(o)}, ${VERDICT[o.verdict]}`) } : undefined; };
-  return { name: model.name, purchase_total_usd: plan?.purchases, not_fixable_by_buying: plan?.noPurchaseFix.length, budget_usd: budget,
+  return { name: model.name, other_apartments: list.filter(t => t.id !== sid).map(({ id, name, city }) => ({ id, name, city })), purchase_total_usd: plan?.purchases, not_fixable_by_buying: plan?.noPurchaseFix.length, budget_usd: budget,
     critical_first_ids: issueList.filter(i => i.critical).map(i => i.id),
     checks: checks.map(c => ({ ...Object.fromEntries(keep.filter(k => c[k] !== undefined).map(k => [k === 's' ? 'status' : k, c[k]])), fix: fixOf(c) })) };
 };
@@ -977,42 +979,104 @@ const TOOLS = {
     if (!c) return { error: `No check with id ${id}` };
     await goTo(c); return `Showing ${c.title} (${c.s}).`;
   },
-  async set_view({ mode }) {
-    setMode(mode === 'dollhouse' ? 'overview' : 'inside');
-    if (mode === 'dollhouse') await overview(); else await sdk.Mode.moveTo(sdk.Mode.Mode.INSIDE);
-    return `View: ${mode}.`;
+  async set_view({ mode: m }) { // the dock's own buttons do the work, so voice and mouse can't drift apart
+    document.querySelector(`#modes [data-mode="${{ dollhouse: 'overview', floorplan: 'plan', walkthrough: 'walk' }[m] || m}"]`).click();
+    return `View: ${m}.`;
   },
+  async walkthrough({ action }) {
+    if (action === 'stop') { $('w-end').click(); return 'Walkthrough ended.'; }
+    if (mode === 'walk') {
+      ({ next: $('w-next'), previous: $('w-prev'), pause: playing && $('w-play'), play: !playing && $('w-play') })[action]?.click?.();
+      return `Walkthrough ${playing ? 'playing' : 'paused'}, stop ${at + 1} of ${stops.length}: ${stops[at]?.title}.`;
+    }
+    if (action === 'play') return TOOLS.set_view({ mode: 'walkthrough' });
+    if (action === 'pause') return 'Nothing is playing.';
+    if (!issueList.length) return 'There are no problems to step through.';
+    // Outside a walkthrough, next and previous step through the problems in pin order.
+    const k = issueList.findIndex(i => i.id === cardFor?.id), n = issueList.length;
+    const to = issueList[action === 'next' ? (k + 1) % n : (Math.max(k, 0) - 1 + n) % n];
+    await goTo(to); return `Showing problem ${issueList.indexOf(to) + 1} of ${n}: ${to.title}.`;
+  },
+  async show_panel({ tab }) {
+    if (tab === 'hidden') { sidePanel(true); return 'Panel hidden.'; }
+    if (document.body.classList.contains('side-off')) sidePanel(false);
+    showTab('t-' + tab, 'p-' + tab); return `Panel: ${tab}.`;
+  },
+  async set_look({ look }) { setTheme(look === 'daylight' ? 'standard' : look); return `Look: ${look}.`; },
+  async open_apartment({ id }) {
+    const t = list.find(t => t.id === id);
+    if (!t) return { error: `No apartment with id ${id}` };
+    if (model && id === sid) return 'This apartment is already open.';
+    navTo = id; return `Opening ${t.name} once the answer has been read.`;
+  },
+  async speak() { return 'Said.'; },
+  async close() { closeCard(); return 'Card closed.'; }, // voice only ("close"); Claude has no such tool
 };
 const say = (cls, text) => { const el = document.createElement('div'); el.className = cls; el.textContent = text; $('chat').appendChild(el); el.scrollIntoView({ block: 'nearest' }); return el; };
-async function ask(text) {
-  say('u', text); convo.push({ role: 'user', content: text });
-  const thinking = say('t', 'Looking…');
+// What each tool shows on the voice bar and in the chat while it runs.
+const STEP = {
+  show_issue: i => `Showing: ${checks.find(c => c.id === i.id)?.title || i.id}`, set_view: i => `View: ${i.mode}`, walkthrough: i => `Walkthrough: ${i.action}`,
+  select_fix: () => 'Choosing the fix', set_budget: i => i.usd == null ? 'Clearing the budget' : `Planning for $${i.usd}`,
+  show_panel: i => i.tab === 'hidden' ? 'Hiding the panel' : `Panel: ${i.tab}`, set_look: i => `Look: ${i.look}`,
+  open_apartment: i => `Opening: ${list.find(t => t.id === i.id)?.name || i.id}`, close: () => 'Closing the card',
+};
+const HOME_OK = new Set(['open_apartment', 'set_look', 'speak']); // the start page has no tour to drive
+async function runTool(name, input, on) {
   try {
-    for (let step = 0; step < 6; step++) {
-      const res = await fetch('/api/agent', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ messages: convo, apartment: apartmentFacts() }) });
+    if (!TOOLS[name]) throw new Error(`No tool ${name}`);
+    if (!model && !HOME_OK.has(name)) throw new Error('No apartment is open yet: call open_apartment first');
+    if (STEP[name]) on?.('step', STEP[name](input));
+    return await TOOLS[name](input);
+  } catch (e) { return { error: String(e.message || e) }; }
+}
+let asking = null, navTo = null; // the running question (a new one, or "stop", aborts it); the apartment Claude asked to open
+let facts = null, sentFacts = ''; // the apartment data Claude got at the start of the chat, and the newest copy it has seen
+const stopAsking = () => asking?.abort();
+const openApartment = id => { location.search = `?m=${id}&q=${$('quality').value}`; };
+// One question, typed or spoken. on('step', label) for each thing the tour does; on('say', text) as soon as the answer is known.
+// Returns { text, error, open }: open = the apartment to load once the answer has been read.
+async function ask(text, { on = () => {}, note } = {}) {
+  stopAsking(); const ctl = asking = new AbortController(), mark = convo.length; navTo = null;
+  say('u', text);
+  const screen = model ? `${mode} view, ${cardFor ? 'card open: ' + cardFor.id : 'no card open'}` : 'start page';
+  // The data Claude got with the first question stays as it is for the whole chat: the API rejects a conversation whose
+  // system text changed. A fix, a budget or a new measurement since then goes into the question instead.
+  facts ||= apartmentFacts(); sentFacts ||= JSON.stringify(facts);
+  const before = sentFacts, now = JSON.stringify(apartmentFacts()), update = now === sentFacts ? '' : `\n[The apartment data changed (fixes, budget or measurements). Use this copy now: ${now}]`;
+  sentFacts = now;
+  convo.push({ role: 'user', content: `${text}\n\n[On screen now: ${screen}${note ? '; ' + note : ''}]${update}` });
+  const thinking = say('t', 'Looking…'); let answer = '', error = '';
+  const tell = t => { if (t && !answer) { answer = t; say('a', t); on('say', t); } };
+  try {
+    for (let step = 0; step < 6 && !answer; step++) {
+      const res = await fetch('/api/agent', { method: 'POST', headers: { 'Content-Type': 'application/json' }, signal: ctl.signal, body: JSON.stringify({ messages: convo, apartment: facts }) });
       const r = await res.json();
-      if (!res.ok) { thinking.className = 'err'; thinking.textContent = `Claude couldn't answer: ${r.error || 'something went wrong'}. Try again in a moment.`; return; }
+      if (!res.ok) throw new Error(r.error || 'something went wrong');
+      if (r.stop_reason === 'refusal') { convo.length = mark; tell('I can’t help with that one.'); break; }
       convo.push({ role: 'assistant', content: r.content });
-      // Text before a tool call is Claude's working note; only the final answer goes in the chat.
-      if (r.stop_reason !== 'tool_use') for (const b of r.content) if (b.type === 'text' && b.text.trim()) say('a', b.text.trim());
-      if (r.stop_reason === 'refusal') { say('t', 'Claude declined that one.'); break; }
-      if (r.stop_reason !== 'tool_use') break;
+      const uses = r.content.filter(b => b.type === 'tool_use');
+      // The answer is the speak tool (sent with the tools that only show something, so it is heard while the tour moves),
+      // or plain text when Claude calls nothing.
+      tell(uses.find(b => b.name === 'speak')?.input.text?.trim() || (uses.length ? '' : r.content.filter(b => b.type === 'text').map(b => b.text.trim()).filter(Boolean).join(' ')));
+      if (!uses.length) break;
       const results = [];
-      for (const b of r.content.filter(b => b.type === 'tool_use')) {
-        thinking.textContent = { show_issue: 'Flying there…', set_view: 'Switching view…', select_fix: 'Choosing the fix…', set_budget: 'Planning to the budget…' }[b.name] || 'Working…';
-        let out; try { out = await TOOLS[b.name](b.input); } catch (e) { out = { error: String(e.message || e) }; }
+      for (const b of uses) {
+        if (STEP[b.name]) thinking.textContent = STEP[b.name](b.input) + '…';
+        const out = ctl.signal.aborted ? { error: 'stopped by the person' } : await runTool(b.name, b.input, on);
         results.push({ type: 'tool_result', tool_use_id: b.id, content: typeof out === 'string' ? out : JSON.stringify(out), ...(out?.error ? { is_error: true } : {}) });
       }
       convo.push({ role: 'user', content: results });
     }
-  } catch (e) { say('err', `Claude couldn't answer: ${e.message || e}. Try again in a moment.`); }
-  thinking.remove();
+  } catch (e) {
+    convo.length = mark; sentFacts = before; // drop the half-finished exchange, so the next question starts from a valid history
+    if (e.name !== 'AbortError') { error = `Claude couldn't answer: ${e.message || e}. Try again in a moment.`; say('err', error); }
+  }
+  thinking.remove(); if (asking === ctl) asking = null;
+  return { text: answer, error, open: navTo };
 }
-$('ask').onsubmit = e => { e.preventDefault(); const q = $('q').value.trim(); if (q) { $('q').value = ''; ask(q); } };
-// Voice: the browser's own speech recognition, where it exists (Chrome).
-const Rec = window.SpeechRecognition || window.webkitSpeechRecognition, micIcon = $('mic').innerHTML;
-if (!Rec) $('mic').hidden = true;
-else $('mic').onclick = () => { const r = new Rec(); r.lang = 'en-US'; r.onresult = e => ask(e.results[0][0].transcript); r.start(); $('mic').textContent = '…'; r.onend = () => $('mic').innerHTML = micIcon; };
+const askTyped = q => ask(q).then(r => r.open && openApartment(r.open));
+$('ask').onsubmit = e => { e.preventDefault(); const q = $('q').value.trim(); if (q) { $('q').value = ''; askTyped(q); } };
+$('mic').hidden = true; // shown once voice.js has loaded (end of this script)
 
 // ---- Navigation: one mode at a time (Overview, Drone, Walkthrough, Inside, Floor plan) ----
 let mode = 'overview';
@@ -1160,7 +1224,7 @@ function showTab(t, p) {
   for (const x of ['p-issues', 'p-plan', 'p-ask']) $(x).hidden = p !== x;
   if (p === 'p-plan') renderPlan();
 };
-document.querySelectorAll('.hint [data-q]').forEach(b => b.onclick = () => ask(b.dataset.q));
+document.querySelectorAll('.hint [data-q]').forEach(b => b.onclick = () => askTyped(b.dataset.q));
 function setTheme(t) {
   if (!['standard', 'night', 'contrast'].includes(t)) t = 'standard';
   document.documentElement.dataset.theme = t;
@@ -1204,6 +1268,7 @@ async function renderHome() {
     (isFinite(cheapest) ? `<div><b>$${cheapest.toFixed(2)}</b><span>cheapest real fix found</span></div>` : '') +
     `<div><b>${rows.length}</b><span>apartments in Houston and LA</span></div>`;
   rows.sort((a, b) => (b.t.id === demo.id) - (a.t.id === demo.id) || fails(b) - fails(a));
+  homeRows = rows;
   for (const { t, r, pa, labelled } of rows) {
     const worst = r.issues[0], f = worst && pa.rows.find(p => p.item.id === worst.id), n = fails({ r });
     const pro = f?.options.find(o => o.kind === 'contractor' && o.verdict === 'closes'), fixText = !f ? '' : f.chosen ? `fix: ${money(f.chosen)}` : pro?.price ? `contractor, about $${pro.price.toLocaleString()}` : 'no purchase fixes it';
@@ -1215,8 +1280,15 @@ async function renderHome() {
     $('grid').appendChild(a);
   }
 }
-if (!new URLSearchParams(location.search).get('m')) renderHome();
-else load(sid).catch(e => { status('Error: ' + (e.message || e)); const k = $('skel'); if (k) k.innerHTML = `<p>The tour didn't load: ${esc(e.message || e)}. Reload the page to try again.</p>`; window.__ie = { error: String(e.message || e) }; });
+const booted = !new URLSearchParams(location.search).get('m') ? renderHome()
+  : load(sid).catch(e => { status('Error: ' + (e.message || e)); const k = $('skel'); if (k) k.innerHTML = `<p>The 3D tour didn't load. The checks and fixes on the left still work. Check the internet connection, then <button type="button" onclick="location.reload()">Try again</button></p>`; window.__ie = { error: String(e.message || e) }; });
+// Voice (voice.js): hold Space and say anything. Optional: without the file the page works as before.
+import('./voice.js').then(v => {
+  const title = c => c.kind === 'turn' && c.s === 'pass' ? `${c.room}: room to turn` : c.title;
+  const voice = v.default({ ask, run: runTool, stop: stopAsking, open: openApartment, mode: () => mode, home: !new URLSearchParams(location.search).get('m'), ready: booted, // the bar is there at once; a request waits for the tour
+    places: () => ({ rooms: checks.filter(c => c.kind === 'turn' && c.room).map(c => ({ id: c.id, name: c.room, say: title(c) })), issues: issueList.map(c => ({ id: c.id, say: c.title })) }) });
+  $('mic').hidden = false; $('mic').onclick = voice.toggle;
+}).catch(e => console.log('[tour] voice off: ' + (e.message || e)));
 </script>
 </body>
 </html>

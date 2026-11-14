@@ -2,7 +2,7 @@
 # made from .env.local so no key file is stored), /api/agent, which relays one Claude step for the tour page, and /api/region, which writes the flyover script for the region page.
 # The Claude key never reaches the browser; the browser runs the tools in the Matterport tour.
 # Run from the repo root: uv run --with anthropic python tour/serve.py   → http://localhost:8090
-import json, os, functools, http.server
+import json, os, sys, functools, http.server
 import anthropic
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -17,11 +17,17 @@ SYSTEM = """You are Inch & Ease, a guide inside a 3D Matterport tour of an apart
 
 You get the apartment's 21 checks below. Each item has an id, a check number n, a status (pass, fail, verify = check with a tape, none = not measured yet, skip = not scored), critical (true = on the route to a bathroom, bedroom or kitchen, a bathroom too small to turn, or a failed transfer check), the measured and needed numbers, and for problems its fix options as "key: label, price, verdict" (verdict = closes it / helps, not enough / doesn't apply / not counted as support).
 
+The person usually talks to you. Their words come from speech recognition and can be garbled ("bath room door with", "the a d a unit", "walk true", "night more"). Take the most likely meaning from the apartment data and the screen note; ask them to say it again only when it could mean two different things. A line "[On screen now: ...]" under their words tells you the view and which card is open, so "this", "here" and "fix it" mean that card.
+
 How to answer:
-- Act on the tour, don't only talk. For a place or a problem, call show_issue with its id first (the tour flies there and opens the card); for several, show the most serious (critical first).
+- Give your answer with the speak tool: it is read aloud and shown as a caption. Call speak in the SAME turn as the tools that only show something (show_issue, set_view, walkthrough, show_panel, set_look, open_apartment), so the person hears the answer while the tour moves; your turn ends there. Only select_fix and set_budget return numbers you need first: call them alone, read the result, then speak.
+- Act on the tour, don't only talk. For a place or a problem, call show_issue with its id (the tour flies there and opens the card); for several, show the most serious (critical first). To go to a room, use the id of that room's turning check (kind turn).
+- Everything on the page can be driven: set_view (dollhouse, inside, floorplan, drone, walkthrough), walkthrough (next, previous, pause, play, stop; next and previous outside a walkthrough step through the problems), show_panel (issues, plan, ask, hidden), set_look (daylight, night, contrast), open_apartment (an id from other_apartments).
+- If the data says home: true, no apartment is open: the person is on the start page choosing between the listed apartments. Compare them from that list, and call open_apartment when they pick one or ask to see one. The other tools need an open apartment.
+- If the screen note says the page has just opened this apartment for the request, do the part of the request that is left (for example show the bathroom); if nothing is left, say in one or two sentences whether a wheelchair user can live here and why.
 - To fix something, call select_fix with the item id and an option key from its list; pick the cheapest option that closes it unless asked otherwise. For "fix what you can for $X", call set_budget with X (critical items are filled first, then the cheapest).
 - Use set_view "dollhouse" for an overview of the whole apartment.
-- Hard limit: 3 short sentences, under 60 words. Plain words, feet and inches. Lead with the answer (yes / no / tight); the plan and the cards show the details.
+- Hard limit: 3 short sentences, under 60 words, written to be heard: no lists, no markdown, no ids. Plain words, feet and inches (2' 10"). Lead with the answer (yes / no / tight); the plan and the cards show the details.
 - Use only the numbers given. Door widths are the scanned opening; an open door leaves about 1.5-2 in less. Room sizes are box measurements and don't subtract furniture. Say so when it changes the answer.
 - Never say "ADA compliant", "accessible" as a verdict, "medical grade", "prevents falls" or "fall-risk score". Say "meets the ADA reference" or "fails the 32 in clear-door reference".
 - Status none means not measured yet: say the scan can't see it and the person can answer or measure it in the card. Never guess it."""
@@ -40,9 +46,29 @@ TOOLS = [
      "input_schema": {"type": "object", "properties": {"usd": {"type": ["number", "null"], "description": "Budget in US dollars, or null for no budget"}},
                       "required": ["usd"], "additionalProperties": False}},
     {"name": "set_view", "strict": True,
-     "description": "Switch the tour view: dollhouse = whole apartment from above, inside = walk-through.",
-     "input_schema": {"type": "object", "properties": {"mode": {"type": "string", "enum": ["dollhouse", "inside"]}},
+     "description": "Switch the tour view: dollhouse = whole apartment in 3D from above, inside = stand in the rooms, floorplan = flat plan from straight above, drone = free flight around the apartment, walkthrough = guided stops through every room and problem.",
+     "input_schema": {"type": "object", "properties": {"mode": {"type": "string", "enum": ["dollhouse", "inside", "floorplan", "drone", "walkthrough"]}},
                       "required": ["mode"], "additionalProperties": False}},
+    {"name": "walkthrough", "strict": True,
+     "description": "Step through the tour. In a walkthrough: next / previous stop, pause, play, stop (ends it). Outside a walkthrough, next and previous fly to the next or previous problem and play starts the walkthrough.",
+     "input_schema": {"type": "object", "properties": {"action": {"type": "string", "enum": ["next", "previous", "pause", "play", "stop"]}},
+                      "required": ["action"], "additionalProperties": False}},
+    {"name": "show_panel", "strict": True,
+     "description": "Open a tab of the side panel: issues = the list of checks, plan = budget, chosen fixes and what stays open, ask = the written chat. hidden hides the panel so the 3D view is full width.",
+     "input_schema": {"type": "object", "properties": {"tab": {"type": "string", "enum": ["issues", "plan", "ask", "hidden"]}},
+                      "required": ["tab"], "additionalProperties": False}},
+    {"name": "set_look", "strict": True,
+     "description": "Change the look of the page: daylight, night (dark), or contrast (high contrast, larger text, for low vision).",
+     "input_schema": {"type": "object", "properties": {"look": {"type": "string", "enum": ["daylight", "night", "contrast"]}},
+                      "required": ["look"], "additionalProperties": False}},
+    {"name": "open_apartment", "strict": True,
+     "description": "Open another apartment's tour (the page reloads after your spoken answer). Use an id from other_apartments, or from apartments on the start page.",
+     "input_schema": {"type": "object", "properties": {"id": {"type": "string", "description": "Apartment id from the data"}},
+                      "required": ["id"], "additionalProperties": False}},
+    {"name": "speak", "strict": True,
+     "description": "Say your answer to the person: read aloud and shown as a caption. Call it once, as the last thing you do for a request, together with any tools that only show something.",
+     "input_schema": {"type": "object", "properties": {"text": {"type": "string", "description": "The full answer, written to be heard: under 60 words, at most 3 short sentences"}},
+                      "required": ["text"], "additionalProperties": False}},
 ]
 
 REGION_SYSTEM = """You are Inch & Ease, narrating a drone flyover of a neighbourhood for a family member of a manual wheelchair user. The page flies to each apartment while your line is read aloud.
@@ -159,4 +185,5 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 if __name__ == '__main__':
     # The viewer bundle opens dozens of requests at once on a cold cache; the default listen queue of 5 resets some of them.
     http.server.ThreadingHTTPServer.request_queue_size = 128
-    http.server.ThreadingHTTPServer(('127.0.0.1', 8090), functools.partial(Handler, directory=HERE)).serve_forever()
+    port = int(sys.argv[1]) if len(sys.argv) > 1 else 8090  # python tour/serve.py 8091 runs a second copy
+    http.server.ThreadingHTTPServer(('127.0.0.1', port), functools.partial(Handler, directory=HERE)).serve_forever()
