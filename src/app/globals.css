@@ -38,6 +38,8 @@ body {
   padding: 3px;
   border-radius: 999px;
   background: rgb(118 118 128 / 0.14);
+  /* Phones: four pills wrap unevenly in a pill-shaped track; a 2-column grid keeps them even. */
+  @media (max-width: 560px) { display: grid; grid-template-columns: 1fr 1fr; border-radius: 20px; width: 100%; }
 }
 @utility segment {
   min-height: 40px;
@@ -46,6 +48,7 @@ body {
   font-weight: 500;
   font-size: 15px;
   color: var(--color-label);
+  @media (max-width: 560px) { padding: 0 10px; }
   transition: background 0.15s, box-shadow 0.15s;
   &[aria-pressed="true"] {
     background: white;
