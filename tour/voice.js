@@ -31,6 +31,8 @@ const PHRASES = new Map([
   ['daylight|day|light|daytime|day light|day mode|light mode|bright', ['set_look', { look: 'daylight' }]],
   ['high contrast|contrast', ['set_look', { look: 'contrast' }]],
   ['hide panel|hide sidebar|close panel|close sidebar|hide list|full screen', ['show_panel', { tab: 'hidden' }]],
+  ['bigger text|larger text|text bigger|make the text bigger|big text|large text|bigger letters|zoom in on the text', ['set_text', { size: 'larger' }]],
+  ['smaller text|normal text|standard text|text smaller|make the text smaller|small text', ['set_text', { size: 'standard' }]],
   ['panel|sidebar|issues|problems|list|issue list|bring the list back|bring the panel back|list back|panel back|show the panel again|unhide the panel', ['show_panel', { tab: 'issues' }]],
   ['chat|the chat|ask claude|written chat|type a question|keyboard', ['show_panel', { tab: 'ask' }]],
   ['all issues|all problems|everything|full list', ['ui', { action: 'issues_all' }]],

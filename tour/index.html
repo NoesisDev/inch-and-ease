@@ -28,6 +28,7 @@
           --failInk:#ff7a70; --verifyInk:#FFD400; --passInk:#3ddc84; --blur:none; --shadow:none; --size:16px; }
   @media (prefers-reduced-transparency: reduce) { :root { --glass:#fff; --glassStrong:#fff; --blur:none; } [data-theme=night] { --glass:#1c1c1e; --glassStrong:#1c1c1e; } }
   * { box-sizing:border-box; }
+  [data-text=large] :is(#home .page, #prefs, aside, #card, #dock, #legend, #hint, #peek) { zoom:1.12; } [data-text=larger] :is(#home .page, #prefs, aside, #card, #legend, #hint, #peek) { zoom:1.25; } [data-text=larger] #dock { zoom:1.12; } /* the menu would not fit beside the panel at 1.25 */
   body { margin:0; font:400 var(--size)/1.45 var(--font); color:var(--ink); background:var(--wall); display:flex; height:100vh; overflow:hidden; -webkit-font-smoothing:antialiased; letter-spacing:-.005em; }
   h1, h2, h3, h4, h5 { font-family:var(--font); }
   select, button, input { font:inherit; color:var(--ink); }
@@ -231,8 +232,13 @@
   #home nav { position:sticky; top:12px; z-index:5; display:flex; align-items:center; height:60px; margin:12px 0 0; padding:0 10px 0 22px; border-radius:22px; font-size:14px; font-weight:500; gap:24px; }
   #home nav .logo { font-size:19px; font-weight:700; letter-spacing:-.02em; margin-right:auto; }
   #home nav a { color:var(--ink); text-decoration:none; } #home nav a:hover { color:var(--muted); }
+  #home nav .links { display:flex; gap:28px; white-space:nowrap; } #home nav .links a { color:var(--muted); } #home nav .links a:hover { color:var(--ink); }
+  #home nav .gear { width:38px; height:38px; padding:0; display:grid; place-items:center; border-radius:999px; background:none; color:var(--ink); flex:none; } #home nav .gear:hover, #home nav .gear:focus-visible { background:var(--fill); }
+  #home nav .gear .ic { width:19px; height:19px; } #home nav .cta { white-space:nowrap; flex:none; }
+  #prefs { position:fixed; inset:84px max(16px, calc((100vw - 1280px) / 2 + 48px)) auto auto; margin:0; width:300px; padding:6px 16px 16px; border-radius:18px; color:var(--ink); background:var(--glass); -webkit-backdrop-filter:var(--blur); backdrop-filter:var(--blur); border:1px solid var(--edge); box-shadow:var(--shadow); }
+  #prefs h6 { margin:12px 0 6px; font-size:12px; font-weight:600; color:var(--muted); }
   #home nav .cta { background:var(--accent); color:var(--accentInk); padding:9px 16px; font-weight:600; border-radius:999px; } #home nav .cta:hover { color:var(--accentInk); filter:brightness(.92); }
-  #home .looks { width:250px; }
+  #prefs .looks { width:100%; }
   .hero { display:grid; grid-template-columns:1fr 460px; gap:64px; align-items:center; padding:56px 0 72px; }
   .kicker { font-size:15px; font-weight:600; color:var(--muted); }
   .hero h2 { font-size:80px; line-height:1; font-weight:700; letter-spacing:-.045em; margin:14px 0 24px; }
@@ -272,15 +278,16 @@
   #home footer { margin-top:80px; color:var(--muted); font-size:12px; display:flex; justify-content:space-between; gap:24px; }
   #home footer span { display:block; } #home footer .brand { font-weight:600; color:var(--ink); white-space:nowrap; }
   [data-theme=contrast] .proof div, [data-theme=contrast] .band, [data-theme=contrast] .how > div { border:1px solid #fff; }
-  @media (max-width:900px) { .hero { grid-template-columns:1fr; } .hero h2 { font-size:52px; } .band .stats, .grid, .how { grid-template-columns:1fr; } #home .page { padding:0 16px 48px; } .band { padding:32px 20px; } #home nav { gap:12px; overflow-x:auto; } }
+  @media (max-width:900px) { .hero { grid-template-columns:1fr; } .hero h2 { font-size:52px; } .band .stats, .grid, .how { grid-template-columns:1fr; } #home .page { padding:0 16px 48px; } .band { padding:32px 20px; } #home nav { gap:8px; padding:0 8px 0 18px; } #home nav .links { display:none; } #prefs { top:80px; right:16px; width:min(300px, calc(100vw - 32px)); } }
 </style>
 <script src="private/key.js"></script>
 </head>
 <body>
 <div id="home" hidden>
   <div class="page">
-    <nav><span class="logo">Inch <span>&amp;</span> Ease</span><a href="#apartments">Apartments</a><a href="#how">How it works</a><a href="region.html">Compare a neighbourhood</a>
-      <div class="looks" role="group" aria-label="Look"><button type="button" data-look="standard">Daylight</button><button type="button" data-look="night">Night</button><button type="button" data-look="contrast">High contrast</button></div><a class="cta" id="navDemo" href="#">Open the demo</a></nav>
+    <nav><span class="logo">Inch <span>&amp;</span> Ease</span><div class="links"><a href="#apartments">Apartments</a><a href="#how">How it works</a><a href="region.html">Neighbourhoods</a></div>
+      <button type="button" id="prefsBtn" class="gear" popovertarget="prefs" title="Settings: look and text size" aria-label="Settings"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button><a class="cta" id="navDemo" href="#">Open the demo</a></nav>
+    <div id="prefs" popover><h6>Look</h6><div class="looks" role="group" aria-label="Look"><button type="button" data-look="standard">Daylight</button><button type="button" data-look="night">Night</button><button type="button" data-look="contrast">High contrast</button></div><h6>Text size</h6><div class="looks" role="group" aria-label="Text size"><button type="button" data-text-size="standard">Standard</button><button type="button" data-text-size="large">Large</button><button type="button" data-text-size="larger">Larger</button></div></div>
     <section class="hero">
       <div>
         <div class="kicker">For wheelchair users and their families</div>
@@ -336,7 +343,7 @@
     </section>
   </div>
   <footer>
-    <details class="disp"><summary>Display</summary>
+    <details class="disp"><summary>Settings</summary>
     <div class="looks" role="group" aria-label="Look"><button type="button" data-look="standard">Daylight</button><button type="button" data-look="night">Night</button><button type="button" data-look="contrast">High contrast</button></div>
     <label class="sub" style="display:flex;gap:8px;align-items:center;margin-top:8px">Quality <select id="quality" aria-label="Quality" style="margin:0;flex:1"><option value="standard">Standard</option><option value="high">High (sharp panoramas)</option><option value="max">Max (sharpest 3D, slower)</option></select></label>
     </details>
@@ -350,6 +357,7 @@
   <div id="peek" class="float" role="status" aria-live="polite" hidden></div>
   <div id="skel" aria-live="polite"><div class="sk a"></div><div class="sk b"></div><div class="sk c"></div><p>Loading the 3D tour…</p></div>
   <div id="legend" class="float" aria-label="Legend"><span><i style="background:var(--fail)"></i>Fails</span><span><i style="background:var(--verify)"></i>Check with a tape</span><span><i style="background:var(--pass)"></i>Fixed</span><span><i class="ring"></i>Critical</span></div>
+    <div style="margin-top:8px"><div class="looks" role="group" aria-label="Text size"><button type="button" data-text-size="standard">Standard</button><button type="button" data-text-size="large">Large</button><button type="button" data-text-size="larger">Larger</button></div></div>
   <div id="dock" class="float" role="toolbar" aria-label="Navigation">
     <div id="modes">
       <a id="d-home" href="./" title="Back to all apartments"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-7 9 7v9h-6v-6H9v6H3z"/></svg>Home</a>
@@ -1042,6 +1050,7 @@ const TOOLS = {
     if (action === 'print_plan') { showTab('t-plan', 'p-plan'); setTimeout(() => print(), 300); return 'Plan opened for printing.'; }
     await TOOLS.show_panel({ tab: 'issues' });
     document.querySelector(`#view [data-view="${action === 'issues_by_room' ? 'room' : 'all'}"]`).click();
+  async set_text({ size }) { setText(size); return `Text size: ${size}.`; },
     return action === 'issues_by_room' ? 'Issues listed by room.' : 'All issues in one list.';
   },
   // An answer or a tape measurement for a check no scan can see, said aloud: it is judged, pinned and planned like a tapped one.
@@ -1067,12 +1076,12 @@ const say = (cls, text) => { const el = document.createElement('div'); el.classN
 const STEP = {
   show_issue: i => `Showing: ${checks.find(c => c.id === i.id)?.title || i.id}`, set_view: i => `View: ${i.mode}`, walkthrough: i => `Walkthrough: ${i.action}`,
   select_fix: () => 'Choosing the fix', set_budget: i => i.usd == null ? 'Clearing the budget' : `Planning for $${i.usd}`,
-  show_panel: i => i.tab === 'hidden' ? 'Hiding the panel' : `Panel: ${i.tab}`, set_look: i => `Look: ${i.look}`,
+  show_panel: i => i.tab === 'hidden' ? 'Hiding the panel' : `Panel: ${i.tab}`, set_look: i => `Look: ${i.look}`, set_text: i => `Text size: ${i.size}`,
   open_apartment: i => `Opening: ${list.find(t => t.id === i.id)?.name || i.id}`, close: () => 'Closing the card',
   ui: i => ({ close_card: 'Closing the card', print_plan: 'Printing the plan', issues_by_room: 'Issues by room', issues_all: 'All issues' })[i.action],
   record_check: i => `Saving: ${checks.find(c => c.id === i.id)?.title || i.id}`, open_page: i => i.page === 'home' ? 'Opening: all apartments' : 'Opening: the neighbourhood',
 };
-const HOME_OK = new Set(['open_apartment', 'open_page', 'set_look', 'speak']); // the start page has no tour to drive
+const HOME_OK = new Set(['open_apartment', 'open_page', 'set_look', 'set_text', 'speak']); // the start page has no tour to drive
 async function runTool(name, input, on) {
   try {
     if (!TOOLS[name]) throw new Error(`No tool ${name}`);
@@ -1336,6 +1345,15 @@ async function renderHome() {
     (isFinite(cheapest) ? `<div><b>$${cheapest.toFixed(2)}</b><span>cheapest real fix found</span></div>` : '') +
     `<div><b>${rows.length}</b><span>apartments in Houston and LA</span></div>`;
   rows.sort((a, b) => (b.t.id === demo.id) - (a.t.id === demo.id) || fails(b) - fails(a));
+function setText(t) {
+  if (!['standard', 'large', 'larger'].includes(t)) t = 'standard';
+  document.documentElement.dataset.text = t;
+  document.querySelectorAll('[data-text-size]').forEach(b => b.setAttribute('aria-pressed', b.dataset.textSize === t));
+  try { localStorage.setItem('ie-text', t); } catch {}
+}
+document.querySelectorAll('[data-text-size]').forEach(b => b.onclick = () => setText(b.dataset.textSize));
+let savedText = null; try { savedText = localStorage.getItem('ie-text'); } catch {}
+setText(new URLSearchParams(location.search).get('text') || savedText);
   homeRows = rows;
   for (const { t, r, pa, labelled } of rows) {
     const worst = r.issues[0], f = worst && pa.rows.find(p => p.item.id === worst.id), n = fails({ r });

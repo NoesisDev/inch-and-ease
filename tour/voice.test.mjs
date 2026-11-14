@@ -10,6 +10,7 @@ test('whole-sentence commands run in the page', () => {
   assert.deepEqual(quick('Next.'), { tool: 'walkthrough', input: { action: 'next' } });
   assert.deepEqual(quick('Can you show me the floor plan, please?'), { tool: 'set_view', input: { mode: 'floorplan' } });
   assert.deepEqual(quick('switch to night mode'), { tool: 'set_look', input: { look: 'night' } });
+  assert.deepEqual(quick('make the text bigger'), { tool: 'set_text', input: { size: 'larger' } });
   assert.deepEqual(quick('Hide the panel'), { tool: 'show_panel', input: { tab: 'hidden' } });
   assert.deepEqual(quick('start the walkthrough'), { tool: 'set_view', input: { mode: 'walkthrough' } });
   assert.deepEqual(quick('Stop!'), { stop: true });
