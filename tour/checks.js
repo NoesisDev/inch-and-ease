@@ -173,11 +173,11 @@ export const REGISTRY = [
 export const CHECK = Object.fromEntries(REGISTRY.map(c => [c.n, c]));
 
 // Status of one item from its number or answer. The re-check of a fix runs this with the changed value.
-export function statusOf(n, value) {
+export function statusOf(n, value, exact = false) { // exact: read off a tape, so no two-click uncertainty band
   const c = CHECK[n];
   if (c.how === 'ask') return c.answers.find(a => a[0] === value)?.[2] ?? 'none';
   if (n === 21) return value == null ? 'none' : value ? 'pass' : 'fail';
-  return judge(LIMITS[c.limit], value);
+  return judge(exact ? { ...LIMITS[c.limit], u: 0 } : LIMITS[c.limit], value);
 }
 
 // ---- Geometry from the Matterport wall graph ----
@@ -311,7 +311,7 @@ export function isCritical(i, route) {
 
 // A person's measurement or answer for one item: re-judged, and critical recomputed.
 export function setValue(item, value, source, route = { to: {} }) {
-  const s = statusOf(item.n, value);
+  const s = statusOf(item.n, value, source === 'your tape measure'); // a tape value is not sent back to "check with a tape"
   return { ...item, value, s, source, critical: isCritical({ ...item, s }, route) };
 }
 
@@ -345,5 +345,6 @@ export function describe(i) {
   if (i.n === 11) return { title: i.s === 'pass' ? `${i.room} wide enough (${ftin(i.value)})` : `${i.room} ${may}too narrow (${ftin(i.value)})`, detail: `needs ${need}`, measured: ftin(i.value), need };
   if (i.n === 21) return { title: c.title, detail: i.floors === 1 ? 'one floor, no stairs inside' : i.value ? 'all on the entry floor' : 'an essential room is upstairs', measured: `${i.floors} floor${i.floors > 1 ? 's' : ''}`, need: 'all on one floor' };
   if (c.how === 'ask') { const a = c.answers.find(a => a[0] === i.value); return { title: c.title, detail: `your answer: ${a?.[1] ?? '—'}`, measured: a?.[1] ?? '—', need: c.answers.find(a => a[2] === 'pass')[1] }; }
-  return { title: c.title, detail: `${ftin(i.value)} measured, needs ${need}`, measured: ftin(i.value), need };
+  const inches = `${String(Math.round(i.value / IN * 2) / 2).replace('.5', '½')}"`; // heights and gaps a person measures are in inches, like their limits
+  return { title: c.title, detail: `${inches} measured, needs ${need}`, measured: inches, need };
 }

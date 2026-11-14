@@ -10,7 +10,8 @@
   :root { --bg:#0b0b0c; --glass:rgba(28,28,30,.55); --fill:rgba(255,255,255,.08); --fill2:rgba(255,255,255,.14); --line:rgba(255,255,255,.14);
           --ink:#F5F5F7; --muted:#A1A1A6; --on:#1C1C1E; --grey:#8E8E93; --fail:#FF453A; --verify:#FF9F0A; --pass:#30D158;
           --font:-apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", system-ui, sans-serif;
-          --shadow:0 12px 40px rgba(0,0,0,.35), 0 1px 0 rgba(255,255,255,.06) inset; --t:200ms cubic-bezier(.2,.8,.2,1); }
+          --shadow:0 12px 40px rgba(0,0,0,.35), 0 1px 0 rgba(255,255,255,.06) inset; --t:200ms cubic-bezier(.2,.8,.2,1);
+          --accent:var(--ink); --accentInk:var(--on); --failInk:#ff6961; --ease:var(--t); /* the names the voice bar (voice.js) uses */ }
   * { box-sizing:border-box; }
   html, body { margin:0; height:100%; overflow:hidden; background:var(--bg); color:var(--ink); font:15px/1.4 var(--font); letter-spacing:-.01em; -webkit-font-smoothing:antialiased; }
   button, input { font:inherit; color:inherit; border:0; letter-spacing:inherit; }
@@ -18,7 +19,7 @@
   button:hover { background:var(--fill2); } button:active { transform:scale(.97); }
   button:focus-visible, input:focus-visible, a:focus-visible { outline:2px solid var(--ink); outline-offset:2px; }
   canvas#c { position:fixed; inset:0; width:100%; height:100%; display:block; }
-  .glass { background:var(--glass); -webkit-backdrop-filter:blur(28px) saturate(180%); backdrop-filter:blur(28px) saturate(180%); border:1px solid var(--line); box-shadow:var(--shadow); border-radius:22px; }
+  .glass, #voice { background:var(--glass); -webkit-backdrop-filter:blur(28px) saturate(180%); backdrop-filter:blur(28px) saturate(180%); border:1px solid var(--line); box-shadow:var(--shadow); border-radius:22px; }
   .float { position:fixed; z-index:5; }
   .k { width:28px; height:28px; flex:none; display:grid; place-items:center; border-radius:9px; font-weight:700; font-size:15px; color:var(--on); background:var(--ink); }
   .k.pass { background:var(--pass); } .k.verify { background:var(--verify); } .k.fail { background:var(--fail); }
@@ -52,13 +53,11 @@
   #card li i.fail { background:var(--fail); } #card li i.verify { background:var(--verify); } #card li i.pass { background:var(--pass); }
   #card .src { margin-top:12px; font-size:11px; color:var(--muted); }
 
-  #caption { left:50%; bottom:100px; transform:translate(-50%, 6px); width:max-content; max-width:min(880px, calc(100% - 48px)); padding:16px 24px; font-size:22px; line-height:1.35; font-weight:500; text-align:center;
-             opacity:0; visibility:hidden; transition:opacity var(--t), transform var(--t), visibility var(--t); }
-  #caption.on { opacity:1; visibility:visible; transform:translate(-50%, 0); } #caption .you { color:var(--muted); }
+  /* The voice bar (voice.js): what was heard, each stop and the line being read. Over the map it sits above the question box, between the two panels; inside a tour, under the Neighbourhood button. */
+  body #voice.home { bottom:88px; z-index:32; max-width:max(340px, min(640px, calc(100% - 800px))); }
+  #voice #v-say:not(.err) { font-size:20px; } #voice #v-hint { white-space:normal; }
+  body.in-tour #voice.home { top:64px; bottom:auto; max-width:max(340px, min(620px, calc(100% - 736px))); } body.in-tour #voice #v-say:not(.err) { font-size:17px; }
   #controls { left:50%; bottom:24px; transform:translateX(-50%); padding:6px; display:flex; gap:6px; align-items:center; width:min(720px, calc(100% - 48px)); border-radius:999px; }
-  #mic { background:var(--ink); color:var(--on); display:flex; gap:8px; align-items:center; white-space:nowrap; flex:none; }
-  #mic:hover { background:#fff; } #mic[aria-pressed=true] { background:var(--fail); color:var(--on); }
-  #mic svg { width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; }
   #ask { flex:1; display:flex; min-width:0; } #ask input { flex:1; min-width:0; padding:10px 16px; background:var(--fill); border-radius:999px; }
   #ask input::placeholder { color:var(--muted); }
   #demo { white-space:nowrap; flex:none; }
@@ -91,9 +90,7 @@
   <ol id="units" class="glass" aria-label="Apartments in this area"></ol>
 </div>
 <aside id="card" class="float glass" aria-live="polite"></aside>
-<div id="caption" class="float glass" role="status" aria-live="polite"></div>
 <div id="controls" class="float glass">
-  <button id="mic" type="button" aria-pressed="false" aria-label="Hold to ask by voice (or hold Space)"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>Hold to ask</button>
   <form id="ask"><input id="q" autocomplete="off" placeholder="Ask a question" aria-label="Question"></form>
   <button id="demo" type="button" title="Ask the sample question (D)">Sample question</button>
 </div>
@@ -119,6 +116,7 @@
 <script type="module">
 import * as THREE from './private/mp/vendors/three/0.184.0/three.module.js';
 import { unitFacts, rank, tone, fallbackScript, RULE } from './region.js';
+import initVoice from './voice.js';
 
 const $ = id => document.getElementById(id);
 const esc = t => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -216,7 +214,7 @@ const orbitView = a => {
 };
 const ease = t => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
 function flyTo(to, ms = 3800) {
-  orbit = false;
+  orbit = false; flight?.res(); // a flight that is replaced ends here, so nobody waits for it forever
   return new Promise(res => { flight = { from: { pos: view.pos.clone(), target: view.target.clone() }, to, t0: performance.now(), ms: still ? 1 : ms, res }; });
 }
 // A view of one apartment from the side the camera is already on, ~450 m out and 330 m up.
@@ -264,25 +262,13 @@ function card(id) {
 async function show(id, close = false) { active = id; if (!seen.has(id)) { seen.add(id); paintPin(id, true); } renderUnits(revealed); card(id); await flyTo(unitView(id, close)); }
 let revealed = false; renderUnits();
 
-// ---- Voice out: the browser's own speech (works offline), always with captions ----
-let voice = null, run = 0;
-const pickVoice = () => { const vs = speechSynthesis.getVoices(); voice = ['Samantha', 'Ava', 'Allison', 'Google US English', 'Microsoft Aria'].map(n => vs.find(v => v.name.startsWith(n))).find(Boolean) || vs.find(v => /^en[-_]US/.test(v.lang)) || null; };
-if ('speechSynthesis' in window) { pickVoice(); speechSynthesis.onvoiceschanged = pickVoice; }
-const SPEAK = { Dr: 'Drive', St: 'Street', Ave: 'Avenue', Blvd: 'Boulevard', N: 'North', S: 'South', E: 'East', W: 'West' };
-const speakable = t => t.replace(/\b(Dr|St|Ave|Blvd|N|S|E|W)\b\.?(?=[\s,.:;]|$)/g, m => SPEAK[m.replace('.', '')]).replace(/\//g, ' ').replace(/(\d+)' (\d+(?:½)?)"/g, '$1 foot $2').replace(/(\d+(?:½)?)"/g, '$1 inches');
-function caption(html) { $('caption').innerHTML = html; $('caption').classList.toggle('on', !!html); }
-function say(text, my) {
-  caption(esc(text));
-  const words = text.split(/\s+/).length, min = Math.max(2200, words * 330);
-  return new Promise(res => {
-    const t0 = performance.now(), done = () => setTimeout(res, Math.max(0, min * 0.6 - (performance.now() - t0)));
-    if (!('speechSynthesis' in window) || params.get('mute')) return setTimeout(res, min);
-    const u = new SpeechSynthesisUtterance(speakable(text)); if (voice) u.voice = voice; u.rate = 1.02;
-    u.onend = done; u.onerror = () => setTimeout(res, min); speechSynthesis.speak(u);
-    setTimeout(() => { if (my !== run) res(); }, 200);
-  });
-}
-function stop() { run++; if ('speechSynthesis' in window) speechSynthesis.cancel(); caption(''); }
+// ---- Voice: the same bar as the tour (voice.js). It hears, shows what it heard and each stop, and reads every line aloud ----
+let run = 0; // goes up when a new request or "stop" ends whatever is running
+const wait = ms => new Promise(r => setTimeout(r, ms));
+const SPEAK = { Dr: 'Drive', St: 'Street', Ave: 'Avenue', Blvd: 'Boulevard', Ln: 'Lane', Rd: 'Road', N: 'North', S: 'South', E: 'East', W: 'West' };
+const streets = t => t.replace(/\b(Dr|St|Ave|Blvd|Ln|Rd)\b\.?(?=[\s,.:;]|$)|\b[NSEW]\b\.?(?= [A-Z])/g, m => SPEAK[m.replace('.', '')]); // the bar shows this text too, so "apartment E is" must stay as it is
+const spoken = id => streets(byId[id].address), place = id => `${letter[id]}: ${byId[id].address}`;
+const say = text => bar.speak(streets(text)); // resolves when the line has been read, or at once when a new request cuts it off
 
 // ---- The guided flight: Claude writes the words from our numbers; the page flies, shows the numbers and speaks ----
 let history = [];
@@ -297,65 +283,135 @@ async function script(question) {
     return /best|each|which|compare|all/i.test(question) ? fallbackScript(ranked) : { intro: "I can't reach Claude right now. Ask me which apartment is best and I'll walk you through them.", stops: [], answer: null };
   } finally { clearTimeout(timer); }
 }
-async function ask(question) {
-  stop(); const my = ++run;
-  caption(`<span class="you">You:</span> ${esc(question)}`);
+// One question to Claude. on('step', label) tells the bar about each stop. Returns the answer line.
+async function flyover(question, on) {
+  const my = run;
   if (!flight) orbit = !still;
-  const [s] = await Promise.all([script(question), new Promise(r => setTimeout(r, 1500))]);
+  const s = await script(question);
   if (my !== run) return;
   history = [...history, { q: question, a: [s.intro, ...s.stops.map(x => x.line), s.answer?.line].filter(Boolean).join(' ') }].slice(-4);
-  if (s.intro) await say(s.intro, my);
-  for (const st of s.stops) { if (my !== run || !byId[st.id]) continue; await Promise.all([show(st.id), say(st.line, my)]); await new Promise(r => setTimeout(r, 400)); }
-  if (my !== run || !s.answer || !byId[s.answer.id]) return;
-  if (s.answer.dive) $('tour').src = `index.html?m=${s.answer.id}&look=night&q=high&focus=critical&embed=1`; // loads while the answer is spoken
+  const visit = (id, line, close) => { on('step', place(id)); return Promise.all([show(id, close), say(line)]); };
+  if (s.intro) await say(s.intro);
+  for (const st of s.stops) { if (my !== run || !byId[st.id]) continue; await visit(st.id, st.line); await wait(400); }
+  if (my !== run || !s.answer || !byId[s.answer.id]) return s.intro;
+  if (s.answer.dive) loadTour(s.answer.id); // loads while the answer is spoken
   revealed = revealed || s.answer.dive;
-  await Promise.all([show(s.answer.id, s.answer.dive), say(s.answer.line, my)]);
-  if (my === run && s.answer.dive) dive();
+  await visit(s.answer.id, s.answer.line, s.answer.dive);
+  if (s.answer.dive) await dive(my);
+  return s.answer.line;
 }
-async function dive() {
-  caption(''); $('fade').classList.add('on');
+
+// ---- The tour of one apartment, in the frame over the map. The same voice bar drives it through its __tourApi ----
+const frame = $('tour'), tourOpen = () => frame.classList.contains('on'), inner = () => tourOpen() ? frame.contentWindow.__tourApi : null;
+let inTour = null, tourReady = null; // the apartment loaded in the frame; settles when that tour can take requests
+function loadTour(id) {
+  if (inTour === id) return;
+  inTour = id; frame.src = `index.html?m=${id}&look=night&q=high&focus=critical&embed=1`;
+  tourReady = new Promise(res => frame.addEventListener('load', res, { once: true })).then(async () => { for (let k = 0; k < 300 && !frame.contentWindow.__tourApi; k++) await wait(100); return frame.contentWindow.__tourApi?.ready; });
+}
+async function dive(my = run) {
+  if (my !== run) return;
+  $('fade').classList.add('on');
   await flyTo({ pos: pins[active].base.clone().add(new THREE.Vector3(0, 60, 0)), target: pins[active].base.clone() }, 1400);
-  $('tour').classList.add('on'); $('back').classList.add('on'); $('back').focus();
+  if (my !== run || flight) return $('fade').classList.remove('on'); // stopped, or sent somewhere else, on the way down
+  document.body.classList.add('in-tour'); frame.classList.add('on'); $('back').classList.add('on'); $('back').focus();
   setTimeout(() => $('fade').classList.remove('on'), 700);
 }
-function back() { $('tour').classList.remove('on'); $('back').classList.remove('on'); if (active) show(active); }
-
-// ---- Voice in: hold the button or Space; the browser's speech recognition (Chrome) ----
-const Rec = window.SpeechRecognition || window.webkitSpeechRecognition;
-let rec = null, heard = '';
-function listen(on) {
-  if (!Rec) { if (on) caption('Voice input needs Chrome. Type your question below, or press D.'); return; }
-  if (on && !rec) {
-    stop(); heard = ''; rec = new Rec(); rec.lang = 'en-US'; rec.interimResults = true; rec.continuous = true;
-    rec.onresult = e => { heard = [...e.results].map(r => r[0].transcript).join(' '); caption(`<span class="you">You:</span> ${esc(heard)}`); };
-    rec.onend = () => { rec = null; $('mic').setAttribute('aria-pressed', 'false'); if (heard.trim()) ask(heard.trim()); };
-    rec.start(); $('mic').setAttribute('aria-pressed', 'true'); caption('<span class="you">Listening…</span>');
-  } else if (!on && rec) rec.stop();
+function back(to = active) { document.body.classList.remove('in-tour'); frame.classList.remove('on'); $('back').classList.remove('on'); if (to) show(to); }
+// Into an apartment: from the map, or from inside another tour (fly out, across and down again).
+async function enter(id) {
+  const my = run; loadTour(id);
+  if (!byId[id]) return; // one from the tour's own list that is not in this neighbourhood: it just replaces the open tour
+  back(null); await show(id, true); await dive(my);
 }
-$('mic').onpointerdown = e => { e.preventDefault(); listen(true); }; $('mic').onpointerup = $('mic').onpointerleave = () => listen(false);
-$('mic').onkeydown = e => { if (e.key === 'Enter') listen(!rec); };
-$('ask').onsubmit = e => { e.preventDefault(); const q = $('q').value.trim(); if (q) { $('q').value = ''; $('q').blur(); ask(q); } };
-$('demo').onclick = () => ask(SAMPLE_Q);
-$('back').onclick = back;
+async function overview() { active = null; $('card').classList.remove('on'); renderUnits(revealed); await flyTo(orbitView(angle)); if (!flight) orbit = !still; }
+
+// ---- Instant commands (voice.js quick(): only a whole sentence that is nothing but the command; the rest goes to Claude) ----
+// An apartment by its letter, its address or a clear part of it, or what its name says ("the ADA unit", "the two bedroom").
+// quick() ignores spaces in these names, so "hill crest" and "ridge line" work, and asks Claude when two apartments fit.
+const order = [...R.units].sort((a, b) => letter[a.id].localeCompare(letter[b.id])).map(u => u.id);
+const SOUND = { A: [], B: ['b', 'be', 'bee'], C: ['c', 'cee', 'sea'], D: ['d', 'dee'], E: ['e', 'ee'] }; // "apartment a" loses its "a" as a filler word in quick(): see LETTER_A
+const LETTER_A = /^(?:(?:please|can you|could you|go|fly|zoom|in|on|to|over|show|me|take|open|see|the) )*(?:(?:apartment|unit|letter|building|option|flat) )?(?:a|ay)$/;
+const WORD = ['', 'one', 'two', 'three', 'four', 'five'];
+function called(u) {
+  const full = streets(u.address).toLowerCase().replace(/,/g, ' '), w = full.split(' '), street = w.slice(1, -1).join(' ') || w[1];
+  const base = [full, u.address.toLowerCase().replace(/,/g, ' '), `${w[0]} ${street}`, street, w.slice(1).join(' '), w[0]];
+  if (/\bADA\b/.test(u.name)) base.push('ada', 'accessible');
+  const br = +u.name.match(/^(\d)BR/)?.[1]; if (br) base.push(`${br} bedroom`, `${WORD[br]} bedroom`, `${br} bed`, `${WORD[br]} bed`);
+  const names = [...['', 'apartment ', 'unit ', 'letter ', 'building ', 'option ', 'flat '].flatMap(k => (SOUND[letter[u.id]] || []).map(s => k + s)),
+    ...base, ...base.flatMap(b => [`apartment on ${b}`, `one on ${b}`, `apartment ${b}`, `${b} apartment`, `${b} one`, `${b} unit`])];
+  return [...new Set(['', 'fly ', 'fly over ', 'zoom ', 'zoom in ', 'zoom in on '].flatMap(l => names.map(n => l + n)))].join(', ');
+}
+const UNITS = R.units.map(u => ({ id: u.id, name: called(u), say: spoken(u.id) }));
+const LEAVE = 'back to the map|back map|back outside|outside|back out|get out|leave|leave apartment|leave this apartment|leave tour|exit|exit apartment|exit tour|close tour|fly out|fly outside|fly back|fly back out|back to the neighbourhood|back to the neighborhood|neighbour hood|neighbor hood|back to the flyover|back to the apartments|back to the street|street|streets|aerial|from the air';
+const ENTER = 'inside|go inside|inside it|go inside it|inside this one|inside this apartment|in|go in there|come in|walk in|walk inside|walk around|step inside|enter|enter it|enter apartment|enter this apartment|enter this one|dive|dive in|into apartment|it|this one|this apartment|tour|3d tour|its tour|walkthrough|walk through|walk through it';
+function commands() {
+  const out = { keys: LEAVE, tool: 'open_page', input: { page: 'neighbourhood' } };
+  if (tourOpen()) return [out]; // plain "back" stays the tour's own (the previous stop); "back to the map", "outside" leave it
+  const k = order.indexOf(active), n = order.length, to = id => ({ tool: 'show_issue', input: { id }, say: spoken(id) });
+  return [{ ...out, keys: LEAVE + '|back|overview|zoom out|map|whole area|whole neighbourhood|whole neighborhood|all of them' },
+    { keys: ENTER, tool: 'enter', ...(active ? { say: `Going inside ${spoken(active)}.` } : {}) },
+    { keys: 'next|next one|next apartment|continue|keep going', ...to(order[(k + 1) % n]) },
+    { keys: 'previous|previous one|previous apartment|last one', ...to(order[(Math.max(k, 0) - 1 + n) % n]) }];
+}
+async function runTool(tool, input, on) {
+  if (inner()) return inner().run(tool, input, on); // the open tour's own tools; its "neighbourhood" calls __region.back()
+  if (tool === 'show_issue' && byId[input.id]) { on('step', place(input.id)); return void await show(input.id); }
+  if (tool === 'enter') { if (!active) return { error: 'Pick an apartment first: say its letter, A to E, or its street.' }; on('step', `Going inside: ${byId[active].address}`); return void await enter(active); }
+  if (tool === 'open_page') { if (input.page === 'home') return void (location.href = './'); on('step', 'Showing: the whole neighbourhood'); return void await (tourOpen() ? back() : overview()); }
+  return { error: 'That works inside an apartment. Say “go inside” first.' };
+}
+const api = {
+  home: true, // no <main> here: the bar goes on the page itself, and the CSS above places it
+  get ready() { return tourOpen() ? tourReady : null; },
+  get help() { return inner()?.help || 'Ask which apartment is best for a wheelchair. Say a letter or a street, like apartment B or Hillcrest, then go inside to open its tour. Say back to the map to come out, or stop.'; },
+  mode: () => inner()?.mode(),
+  nav: () => inner()?.nav?.() ?? null,
+  stop() { $('start').hidden = true; run++; inner()?.stop(); }, // every request starts here, after voice.js has hushed the voice (so does holding Space): talking also closes the start screen
+  places: () => ({ rooms: UNITS, ...inner()?.places(), also: commands() }),
+  run: runTool,
+  async ask(text, { on, note } = {}) {
+    if (inner()) return inner().ask(text, { on, note });
+    const a = LETTER_A.test(text.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim()) && order[0];
+    if (a) { on('say', spoken(a)); await runTool('show_issue', { id: a }, on); }
+    return { text: (a ? '' : await flyover(text, on)) || '', error: '', open: null };
+  },
+  // The tour's Claude asked for another apartment or page.
+  async open(to) {
+    if (to === 'page:home') return void (location.href = './'); // the start page finishes the request (voice.js keeps it in ie-voice-next)
+    let next = null; try { next = sessionStorage.getItem('ie-voice-next'); sessionStorage.removeItem('ie-voice-next'); } catch {}
+    if (to === 'page:neighbourhood') return void (tourOpen() && back());
+    await enter(to);
+    if (next) bar.hear(next, 'the page has just opened this apartment for this request'); // "…and show me the bathroom": the new tour does the rest
+  },
+};
+
+// ---- Typed questions and keys go the same way as speech. Space and Esc (stop) belong to voice.js ----
+const hear = q => bar.hear(q);
+$('ask').onsubmit = e => { e.preventDefault(); const q = $('q').value.trim(); if (q) { $('q').value = ''; $('q').blur(); hear(q); } };
+$('demo').onclick = () => hear(SAMPLE_Q);
+$('back').onclick = () => back();
+// Registered before voice.js so that Esc sees the bar as it was: Esc first stops what is running (voice.js), and only with nothing
+// running does it leave the tour. An Esc passed up from inside the tour (not trusted) never leaves it: there it closes a card.
 addEventListener('keydown', e => {
-  if (e.target.closest('input') || !$('start').hidden) return;
-  const k = e.key.toLowerCase();
-  if (k === ' ' && !e.repeat) { e.preventDefault(); listen(true); }
-  else if (k === 'd') ask(SAMPLE_Q);
-  else if (k === 'escape') { stop(); if ($('tour').classList.contains('on')) back(); }
-  else if (k === 'b') back();
+  if (e.target.closest?.('input') || !$('start').hidden || e.metaKey || e.ctrlKey || e.altKey) return;
+  const k = e.key.toLowerCase(), id = !tourOpen() && order.find(i => letter[i].toLowerCase() === k);
+  if (k === 'escape') { if (e.isTrusted && tourOpen() && window.__voice.ui.state === 'idle') back(); }
   else if (k === 'f') document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen();
-  else { const id = Object.keys(letter).find(i => letter[i].toLowerCase() === k); if (id) { stop(); show(id); } }
-});
-addEventListener('keyup', e => { if (e.key === ' ') listen(false); });
+  else if (k === 'b' && tourOpen()) back();
+  else if (k === 'd' && !tourOpen()) hear(SAMPLE_Q); // D is the sample question, so apartment D has no key
+  else if (id) hear('Apartment ' + letter[id]);
+}, true);
+const bar = initVoice(api);
 
 // ---- Start: a click unlocks speech in the browser ----
 $('go').disabled = false; $('go').textContent = 'Start';
 $('go').onclick = () => {
   $('start').hidden = true; $('demo').focus();
-  if ('speechSynthesis' in window) speechSynthesis.speak(new SpeechSynthesisUtterance('')); // unlock audio inside the click
+  if ('speechSynthesis' in window && !window.__mute && !params.has('mute')) speechSynthesis.speak(new SpeechSynthesisUtterance('')); // unlock audio inside the click
 };
-window.__region = { ready: true, ranked: ranked.map(f => f.id), ask, show, state: () => ({ active, revealed, tourOpen: $('tour').classList.contains('on'), caption: $('caption').textContent }) }; // test hook
+window.__region = { ready: true, ranked: ranked.map(f => f.id), ask: hear, show, back, voice: window.__voice, // test hook; back is also called by the embedded tour ("neighbourhood")
+  state: () => ({ active, revealed, tourOpen: tourOpen(), inTour, caption: window.__voice.ui.say }) };
 </script>
 </body>
 </html>

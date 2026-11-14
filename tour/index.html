@@ -595,10 +595,16 @@ async function areaView(i) {
   finally { moving = false; }
   return true;
 }
+const trail = []; let goingBack = false; // the cards shown before this one, for "go back"
+const landed = async () => { for (let k = 0; moving && k < 40; k++) await new Promise(r => setTimeout(r, 100)); }; // a place asked for while the camera is still flying waits for it (a click only opens the card)
 async function goTo(i) {
+  if (cardFor && cardFor.id !== i.id && !goingBack) trail.push(cardFor.id);
+  goingBack = false;
   if (mode !== 'walk') setMode(isArea(i) ? 'overview' : 'inside');
   showCard(i);
-  if (!(await flyTo(i)) && !photos[i.id]) return;
+  // The entry questions (steps at the entry, door hardware) have no measured spot: look at the entry door the route starts from.
+  const to = !i.at && CHECK[i.n]?.room === 'Entry' && ev.route.entry?.at ? { ...i, at: ev.route.entry.at } : i;
+  if (!(await flyTo(to)) && !photos[i.id]) return;
   if (!photos[i.id]) { // one photo per issue, cached (this build leaks memory in takeScreenShot)
     await new Promise(r => setTimeout(r, 900)); // let the panorama sharpen before the photo
     try { photos[i.id] = await sdk.Renderer.takeScreenShot({ width: 960, height: 600 }, { mattertags: true, sweeps: false }); }
@@ -802,12 +808,15 @@ function renderPlan() {
     <p class="foot">${sum.pass} of ${sum.measured} measured checks pass. ${sum.none} not measured yet. Numbers come from the Matterport scan or from you; confirm with a tape before you sign. Prices from the stores listed, collected Nov 2026.</p>`;
 }
 // The panel asks "Can a wheelchair user live here?", so the first thing it shows is the answer, then the reason.
-function verdictHtml(sum) {
+function verdictOf(sum) { // [tone, answer, reason]: the panel and the voice give the same answer
   const crit = issueList.find(i => i.critical), fail = issueList.find(i => i.s === 'fail');
-  const [tone, head, why] = crit ? ['fail', 'Not as it is', crit.title]
+  return crit ? ['fail', 'Not as it is', crit.title]
     : fail ? ['fail', 'Only with fixes', fail.title]
     : sum.verify ? ['verify', 'Probably', `measure ${sum.verify} spot${sum.verify > 1 ? 's' : ''} with a tape to be sure`]
     : ['pass', 'Yes, so far', 'every measured door, step and room passes'];
+}
+function verdictHtml(sum) {
+  const [tone, head, why] = verdictOf(sum);
   const full = `${sum.pass} of ${sum.measured} measured checks pass${sum.none ? `, ${sum.none} not checked yet` : ''}`;
   return `<div class="q">Can a wheelchair user live here?</div><div class="answer a-${tone}" title="${full}"><b>${head}</b><span>${esc(why)}</span></div>`;
 }
@@ -956,11 +965,16 @@ async function overview() {
 let homeRows = []; // the start page's cards, for questions asked there
 const apartmentFacts = () => {
   if (!model) return { home: true, apartments: homeRows.map(({ t, r, pa, labelled }) => ({ id: t.id, name: t.name, city: t.city, labelled_accessible: labelled, checks_pass: `${r.pass} of ${r.total} measured`, problems: r.issues.map(i => i.title + (i.critical ? ' (critical)' : '')), purchases_usd: pa.purchases })) };
-  const keep = ['id', 'n', 'kind', 's', 'title', 'detail', 'between', 'room', 'measured', 'need', 'critical'];
+  const keep = ['id', 'kind', 's', 'title', 'detail', 'between', 'room', 'measured', 'need', 'critical'];
+  // What the person can tell us by voice: a question with its answer keys, or a height or distance to read off a tape.
+  const askOf = c => { const d = CHECK[c.n]; return d?.how === 'ask' ? { question: d.question, answers: Object.fromEntries(d.answers.map(a => [a[0], a[1]])) } : d?.how === 'measure' ? { tape_inches: d.measure } : {}; };
   const fixOf = c => { const r = plan?.rows.find(r => r.item.id === c.id); return r ? { chosen: r.chosen && `${r.chosen.label} (${money(r.chosen)}, ${VERDICT[r.chosen.verdict]})`, options: r.options.map(o => `${o.key}: ${o.label}, ${money(o)}, ${VERDICT[o.verdict]}`) } : undefined; };
   return { name: model.name, other_apartments: list.filter(t => t.id !== sid).map(({ id, name, city }) => ({ id, name, city })), purchase_total_usd: plan?.purchases, not_fixable_by_buying: plan?.noPurchaseFix.length, budget_usd: budget,
     critical_first_ids: issueList.filter(i => i.critical).map(i => i.id),
-    checks: checks.map(c => ({ ...Object.fromEntries(keep.filter(k => c[k] !== undefined).map(k => [k === 's' ? 'status' : k, c[k]])), fix: fixOf(c) })) };
+    verdict: (([, answer, because]) => ({ answer, because }))(verdictOf(summary(checks))), // what the panel shows under "Can a wheelchair user live here?"
+    counts: { problems_with_a_pin: issueList.length, critical: issueList.filter(i => i.critical).length, fail: checks.filter(c => c.s === 'fail').length, check_with_a_tape: checks.filter(c => c.s === 'verify').length,
+      not_measured_yet: checks.filter(c => c.s === 'none').length, pass: checks.filter(c => c.s === 'pass').length },
+    checks: checks.map(c => ({ ...(issueList.includes(c) ? { pin: issueList.indexOf(c) + 1 } : {}), ...Object.fromEntries(keep.filter(k => c[k] !== undefined).map(k => [k === 's' ? 'status' : k, c[k]])), fix: fixOf(c), ...askOf(c) })) };
 };
 const TOOLS = {
   async select_fix({ id, option }) {
@@ -979,6 +993,8 @@ const TOOLS = {
   async show_issue({ id }) {
     const c = checks.find(c => c.id === id);
     if (!c) return { error: `No check with id ${id}` };
+    await landed();
+    if (mode === 'walk' && playing) stopAuto(); // asked for one place during a walkthrough: it pauses there instead of moving on by itself
     await goTo(c); return `Showing ${c.title} (${c.s}).`;
   },
   async set_view({ mode: m }) { // the dock's own buttons do the work, so voice and mouse can't drift apart
@@ -987,6 +1003,11 @@ const TOOLS = {
   },
   async walkthrough({ action }) {
     if (action === 'stop') { $('w-end').click(); return 'Walkthrough ended.'; }
+    if (action === 'back' && mode !== 'walk') { // the place shown before this one, wherever it was
+      const was = trail.pop(), to = checks.find(c => c.id === was); if (!to) return 'There is no earlier place to go back to.';
+      await landed(); goingBack = true; await goTo(to); return `Back at: ${to.title}.`;
+    }
+    if (action === 'back') action = 'previous';
     if (mode === 'walk') {
       ({ next: $('w-next'), previous: $('w-prev'), pause: playing && $('w-play'), play: !playing && $('w-play') })[action]?.click?.();
       return `Walkthrough ${playing ? 'playing' : 'paused'}, stop ${at + 1} of ${stops.length}: ${stops[at]?.title}.`;
@@ -997,7 +1018,7 @@ const TOOLS = {
     // Outside a walkthrough, next and previous step through the problems in pin order.
     const k = issueList.findIndex(i => i.id === cardFor?.id), n = issueList.length;
     const to = issueList[action === 'next' ? (k + 1) % n : (Math.max(k, 0) - 1 + n) % n];
-    await goTo(to); return `Showing problem ${issueList.indexOf(to) + 1} of ${n}: ${to.title}.`;
+    await landed(); await goTo(to); return `Showing problem ${issueList.indexOf(to) + 1} of ${n}: ${to.title}.`;
   },
   async show_panel({ tab }) {
     if (tab === 'hidden') { sidePanel(true); return 'Panel hidden.'; }
@@ -1012,8 +1033,32 @@ const TOOLS = {
     navTo = id; return `Opening ${t.name} once the answer has been read.`;
   },
   async speak() { return 'Said.'; },
-  async close() { closeCard(); return 'Card closed.'; }, // voice only ("close"); Claude has no such tool
+  async close() { closeCard(); return 'Card closed.'; }, // the instant command "close"; Claude uses ui close_card
+  async ui({ action }) { // the small controls: close the card, print the plan, list the issues by room or all together
+    if (action === 'close_card') return TOOLS.close();
+    if (action === 'print_plan') { showTab('t-plan', 'p-plan'); setTimeout(() => print(), 300); return 'Plan opened for printing.'; }
+    await TOOLS.show_panel({ tab: 'issues' });
+    document.querySelector(`#view [data-view="${action === 'issues_by_room' ? 'room' : 'all'}"]`).click();
+    return action === 'issues_by_room' ? 'Issues listed by room.' : 'All issues in one list.';
+  },
+  // An answer or a tape measurement for a check no scan can see, said aloud: it is judged, pinned and planned like a tapped one.
+  async record_check({ id, value }) {
+    const c = checks.find(c => c.id === id), def = c && CHECK[c.n];
+    if (!def || def.how === 'auto') return { error: `No question or tape check with id ${id}` };
+    let v = value;
+    if (def.how === 'ask') { if (!def.answers.some(a => a[0] === value)) return { error: `The answer must be one of: ${def.answers.map(a => a[0]).join(', ')}` }; }
+    else { v = parseFloat(value) * IN; if (!(v >= 0)) return { error: 'Give the measurement as a number of inches, for example 17.5' }; }
+    const it = await record(id, v, def.how === 'ask' ? 'your answer' : 'your tape measure'); if (!it) return { error: `Could not save ${id}` };
+    showCard(it);
+    return `Saved ${def.how === 'ask' ? 'the answer' : parseFloat(value) + ' inches from their tape'}. ${it.title}: ${it.s}${it.detail ? '. ' + it.detail : ''}${it.critical ? ' (critical)' : ''}. Purchases now $${plan.purchases.toFixed(2)}.`;
+  },
+  async open_page({ page }) {
+    if (page === 'home' && !model) { $('apartments').scrollIntoView({ behavior: 'smooth' }); return 'This is the start page. The apartments are on screen.'; }
+    if (page === 'neighbourhood' && EMBED) { setTimeout(() => parent.__region?.back?.(), 0); return 'Back over the neighbourhood.'; }
+    navTo = 'page:' + page; return `Opening the ${page === 'home' ? 'start page with all apartments' : 'neighbourhood comparison'}.`;
+  },
 };
+const EMBED = new URLSearchParams(location.search).get('embed') === '1' && parent !== window; // shown inside the neighbourhood flyover
 const say = (cls, text) => { const el = document.createElement('div'); el.className = cls; el.textContent = text; $('chat').appendChild(el); el.scrollIntoView({ block: 'nearest' }); return el; };
 // What each tool shows on the voice bar and in the chat while it runs.
 const STEP = {
@@ -1021,8 +1066,10 @@ const STEP = {
   select_fix: () => 'Choosing the fix', set_budget: i => i.usd == null ? 'Clearing the budget' : `Planning for $${i.usd}`,
   show_panel: i => i.tab === 'hidden' ? 'Hiding the panel' : `Panel: ${i.tab}`, set_look: i => `Look: ${i.look}`,
   open_apartment: i => `Opening: ${list.find(t => t.id === i.id)?.name || i.id}`, close: () => 'Closing the card',
+  ui: i => ({ close_card: 'Closing the card', print_plan: 'Printing the plan', issues_by_room: 'Issues by room', issues_all: 'All issues' })[i.action],
+  record_check: i => `Saving: ${checks.find(c => c.id === i.id)?.title || i.id}`, open_page: i => i.page === 'home' ? 'Opening: all apartments' : 'Opening: the neighbourhood',
 };
-const HOME_OK = new Set(['open_apartment', 'set_look', 'speak']); // the start page has no tour to drive
+const HOME_OK = new Set(['open_apartment', 'open_page', 'set_look', 'speak']); // the start page has no tour to drive
 async function runTool(name, input, on) {
   try {
     if (!TOOLS[name]) throw new Error(`No tool ${name}`);
@@ -1033,8 +1080,8 @@ async function runTool(name, input, on) {
 }
 let asking = null, navTo = null; // the running question (a new one, or "stop", aborts it); the apartment Claude asked to open
 let facts = null, sentFacts = ''; // the apartment data Claude got at the start of the chat, and the newest copy it has seen
-const stopAsking = () => asking?.abort();
-const openApartment = id => { location.search = `?m=${id}&q=${$('quality').value}`; };
+const stopAsking = () => { asking?.abort(); navTo = null; }; // a stopped request must not change the page later
+const openApartment = id => { if (id.startsWith('page:')) location.href = id === 'page:home' ? './' : 'region.html'; else location.search = `?m=${id}&q=${$('quality').value}`; };
 // One question, typed or spoken. on('step', label) for each thing the tour does; on('say', text) as soon as the answer is known.
 // Returns { text, error, open }: open = the apartment to load once the answer has been read.
 async function ask(text, { on = () => {}, note } = {}) {
@@ -1284,11 +1331,30 @@ async function renderHome() {
 }
 const booted = !new URLSearchParams(location.search).get('m') ? renderHome()
   : load(sid).catch(e => { status('Error: ' + (e.message || e)); const k = $('skel'); if (k) k.innerHTML = `<p>The 3D tour didn't load. The checks and fixes on the left still work. Check the internet connection, then <button type="button" onclick="location.reload()">Try again</button></p>`; window.__ie = { error: String(e.message || e) }; });
+// Test hook for the voice checks (notes/voice_*.mjs): what Claude is told, the conversation, and what is on screen.
+window.__tour = { facts: apartmentFacts, convo: () => convo, reset() { convo.length = 0; facts = null; sentFacts = ''; },
+  state: () => ({ mode, card: cardFor?.id || null, theme: document.documentElement.dataset.theme, tab: document.querySelector('.tabs [aria-selected=true]')?.id || null,
+    panel: !document.body.classList.contains('side-off'), budget, choices: { ...choices }, purchases: plan?.purchases ?? null, walk: mode === 'walk' ? { at, playing } : null }) };
 // Voice (voice.js): hold Space and say anything. Optional: without the file the page works as before.
 import('./voice.js').then(v => {
   const title = c => c.kind === 'turn' && c.s === 'pass' ? `${c.room}: room to turn` : c.title;
-  const voice = v.default({ ask, run: runTool, stop: stopAsking, open: openApartment, mode: () => mode, home: !new URLSearchParams(location.search).get('m'), ready: booted, // the bar is there at once; a request waits for the tour
-    places: () => ({ rooms: checks.filter(c => c.kind === 'turn' && c.room).map(c => ({ id: c.id, name: c.room, say: title(c) })), issues: issueList.map(c => ({ id: c.id, say: c.title })) }) });
+  // A door or a step is said with the rooms it joins, so "number three" says which door it is.
+  const said = c => (c.kind === 'door' || c.kind === 'step') && c.between ? `${c.between.replaceAll(' ↔ ', ' to ').replace(/\bVoid\b/g, 'Outside')}. ${c.title}` : title(c);
+  const api = window.__tourApi = { ask, run: runTool, stop: stopAsking, open: openApartment, mode: () => mode, home: !new URLSearchParams(location.search).get('m'), ready: booted, // the bar is there at once; a request waits for the tour
+    nav: () => { const n = navTo; navTo = null; return n; },
+    get help() { return this.home ? 'Ask which apartment is worst, or say open the one in Los Angeles. Say neighbourhood to compare the streets around them.'
+      : 'Say a room or a door, like the bathroom or the balcony door. Ask anything, like can he get into the bathroom, or fix what you can for two hundred dollars. Say walkthrough, floor plan, night mode, next, or stop.'; },
+    places: () => ({ rooms: checks.filter(c => (c.kind === 'turn' || c.kind === 'hall') && c.room).map(c => ({ id: c.id, name: c.room, say: title(c) })),
+      doors: checks.filter(c => c.kind === 'door' && c.s !== 'skip').map(c => ({ id: c.id, rooms: (c.between || c.room || '').split(' ↔ '), say: said(c) })),
+      issues: issueList.map(c => ({ id: c.id, say: said(c) })) }) };
+  // Inside the neighbourhood flyover (embed=1) there is one voice bar, the flyover's: it drives this tour through __tourApi.
+  // Space and Esc pressed in here are passed up to it.
+  if (EMBED) {
+    for (const type of ['keydown', 'keyup']) addEventListener(type, e => { if ((e.code !== 'Space' && e.key !== 'Escape') || e.target.closest?.('input,textarea,select,[contenteditable]') || mode === 'drone') return;
+      e.preventDefault(); parent.dispatchEvent(new KeyboardEvent(type, { code: e.code, key: e.key, repeat: e.repeat, bubbles: true, cancelable: true })); }, true);
+    return;
+  }
+  const voice = v.default(api);
   $('mic').hidden = false; $('mic').onclick = voice.toggle;
 }).catch(e => console.log('[tour] voice off: ' + (e.message || e)));
 </script>
