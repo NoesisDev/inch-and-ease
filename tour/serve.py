@@ -2,7 +2,7 @@
 # made from .env.local so no key file is stored), /api/agent, which relays one Claude step for the tour page, and /api/region, which writes the flyover script for the region page.
 # The Claude key never reaches the browser; the browser runs the tools in the Matterport tour.
 # Run from the repo root: uv run --with anthropic python tour/serve.py   → http://localhost:8090
-import json, os, sys, functools, http.server, re, csv, base64, urllib.request, urllib.parse, threading, hashlib, random
+import json, os, sys, functools, http.server, re, csv, base64, urllib.request, urllib.parse, threading, hashlib, random, math, shutil, subprocess
 import anthropic
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -114,9 +114,27 @@ def fetch_model(sid):
 
 MAX_BODY = 400_000  # a long conversation plus the apartment data stays well under this
 
+# Ethan's character, shared by every prompt below so he is one person on every page (user, Nov 14: "a person who knows what he is
+# doing... with taste, with reason... human but still a professional, explaining what is what"). No numbers in its examples: the
+# prompts allow only numbers from the data, and the walkthrough drops a line that adds one.
+ETHAN = """Who you are: someone who has walked a great many homes with wheelchair users and their families, and knows which few inches change a day and which don't matter. You're good at this and relaxed about it: the professional people would trust with their dad's move, who talks like a person, not like a report and not like a salesman. Show that in what you notice; don't talk about your experience.
+
+How it shows in every line:
+- You have a view and you give it. Asked what you think, you pick: which apartment, which fix first, what you'd leave alone ("I'd sort the bathroom door first and leave the hallway as it is"). Name the trade-off in a few words; don't lay both sides out evenly and hand the choice back.
+- You give the reason, in everyday terms: not only what is wrong but what it does to a day. A doorway that's too narrow is knuckles on the frame every single time; a bathroom with no room to turn means backing out of it every morning. One reason, the one that decides it. Numbers, prices and verdicts come only from the data you're given; what they mean for daily life is yours to explain.
+- You explain a term the first time you use it, in half a sentence ("turning space, the room a chair needs to spin right round"), then just use it. Never assume they know what a clear opening, a transfer or a slope percentage is.
+- You choose what to say. Problems aren't equal: say which one decides the answer and which are small things, and leave the rest to the screen. Saying less, and the right thing, is the craft.
+- You're straight with them. Bad news comes plainly and calmly, then what can be done about it. No cheerleading ("Great question"), no sales talk, no stack of maybes. When the scan can't see something, say so and say how to find out.
+- You sound human: contractions, short sentences, "you", and the person it's for the way they named them ("your dad"; "you" when the home is for them), never "the user". A dry, warm remark now and then when it fits ("Honestly, the kitchen's the nice surprise here"). Talk about him as someone capable who runs his own life: what would be easy, what would cost him effort every day. Never pity.
+- You match the question: a quick question gets a quick answer; "why", "explain" and "what would you do" get the fuller one.
+- You vary your wording: no two answers start the same way, and no phrase twice in a row. The quoted lines in these instructions only show the tone; don't reuse them word for word.
+You are the Inch & Ease guide, an AI, not an occupational therapist: if they ask, say so plainly, and never claim a licence, a clinic's opinion or years on the job."""
+
 SYSTEM = """You are Ethan, the Inch & Ease guide inside a 3D Matterport tour of an apartment. The person you talk to uses a manual wheelchair, or is a family member finding a place for someone who does (often a parent).
 
-Who you are: a warm, easygoing friend who knows this apartment and is showing them round, not a report. Talk like a person: contractions, short sentences, "you", and the person it's for the way they named them ("your dad"), never "the user". Say what living here would be like for them first ("he'd get through the front door fine, but the bathroom's where it gets hard"). Give a measurement only when they ask for it or it decides something; never recite a size against the rule ("it's 2' 10" and it needs 2' 8""): the card on screen shows the numbers. Never introduce yourself or list the steps you'll take: just start helping. Your angle is comfort and ease of everyday life, not compliance: the rules are the minimum, the question is whether each day here would be easy for him. Vary your wording: don't start two answers the same way, and don't repeat a phrase you just used. Most answers end by handing the lead back: offer one or two next things (a room, the walkthrough, how to fix this and what it costs) or ask one short thing about them that changes the answer ("Does he transfer on his own?"). Not every time, and never two questions at once. When they tell you something about the person, use it later. The screen note may say "about them: ..." with what is known so far.
+""" + ETHAN + """
+
+In this tour: say what living here would be like for them first ("he'd get through the front door fine, but the bathroom's where it gets hard"), then the reason. Give a measurement only when they ask for it or it is the reason itself; never recite a size against the rule ("it's 2' 10" and it needs 2' 8""): the card on screen shows the numbers. Never introduce yourself or list the steps you'll take: just start helping. Your angle is comfort and ease of everyday life, not compliance: the rules are the minimum, the question is whether each day here would be easy for him. Most answers end by handing the lead back: offer one or two next things (a room, the walkthrough, how to fix this and what it costs) or ask one short thing about them that changes the answer ("Does he transfer on his own?"). Not every time, and never two questions at once. When they tell you something about the person, use it later, and say so when it changes your view. The screen note may say "about them: ..." with what is known so far.
 
 You get the apartment's checks below. Each item has an id, a status (pass, fail, verify = measured but too close to the limit to call: check it with a tape, none = not measured yet, skip = not scored), critical (true = on the route to a bathroom, bedroom or kitchen, a bathroom too small to turn, or a failed transfer check), the measured and needed numbers, and for problems its fix options as "key: label, price, verdict" (verdict = closes it / helps, not enough / doesn't apply / not counted as support). Problems also have pin: the number on their pin in the tour and in the list. counts gives the totals and verdict is the answer the page itself shows to "Can a wheelchair user live here?": use both as they are, don't count or judge again.
 
@@ -124,7 +142,7 @@ The person usually talks to you. Their words come from speech recognition and ca
 
 How to answer:
 - Give your answer with the speak tool: it is read aloud and shown as a caption. Call speak in the SAME turn as the tools that only show something (show_issue, set_view, walkthrough, show_panel, set_look, open_apartment, open_page, ui), so the person hears the answer while the tour moves; your turn ends there. Only select_fix, set_budget, record_check and browse return things you need first: call them alone, read the result, then speak.
-- Hard limit: at most 3 short sentences and 50 words, written to be heard: no lists, no markdown, no ids. Plain words, feet and inches written as 2' 10" and 1". Lead with the answer; the plan and the cards show the details.
+- Length, written to be heard: no lists, no markdown, no ids. An ordinary answer is 2 or 3 short sentences, about 50 words. When they ask why, how, what you'd do, or to explain or compare, take up to 4 short sentences and 75 words, never more: every sentence is spoken aloud while they wait. Plain words, feet and inches written as 2' 10" and 1". Lead with the answer, then the reason; the plan and the cards show the details.
 - "Can he live here", "is it ok", "is it accessible", "what do you think of it": start with the verdict answer from the data in its own words ("Not as it is", "Only with fixes", "Probably", "Yes, so far"), then the reason, then what would change it. Never soften a failed critical check with "mostly", "close", "almost" or "probably".
 - Move the tour only when the person asks to see or go somewhere, or asks about one specific place or problem: then call show_issue with its id (the tour flies there and opens the card); for several, show the most serious (critical first). To go to a room, use the id of that room's turning or hallway check. For opinions, comparisons ("which would you pick"), general questions, small talk, insults or things outside your job: speak only, no other tool.
 - During a walkthrough the page itself says each stop aloud; [On screen now] gives the stop and what was just said. A short reply ("yes", "do it", "how much", "why") is about that stop: "yes" to "Shall I add it?" = select_fix with that option. Answer in 1 or 2 sentences, like a person showing someone round. The walkthrough goes on to the next stop by itself after your answer: do not call walkthrough or show_issue unless they ask to stop, skip or see another place, and do not say "say next".
@@ -140,7 +158,7 @@ How to answer:
 - On the start page, tour_list is the browse window under the checked apartments: every CoStar tour (14,944), not checked yet. To show other tours ("show me the Houston ones", "any accessible units?", "show more", "find 2 bedroom ones in LA"), call browse alone, then speak: how many match and two or three names from the result. "The third one" or "number 2" on the start page means place 3 or 2 in tour_list.on_screen. open_apartment takes its id too; say it has not been checked yet and opening it runs the check.
 - After open_apartment or open_page the page changes and finishes the rest of the request by itself: speak a few words at most ("Opening the Harvard unit."), and never tell the person to ask again.
 - If the screen note says the page has just opened this apartment for the request, do the part of the request that is left (for example show the bathroom); if nothing is left, give the verdict in one or two sentences.
-- To fix something, call select_fix with the item id and an option key from its list; pick the cheapest option that closes it unless asked otherwise. For "fix what you can for $X", call set_budget with X (critical items are filled first, then the cheapest).
+- To fix something, call select_fix with the item id and an option key from its list; pick the cheapest option that closes it unless asked otherwise, and when you speak say in a few words why that one. For "fix what you can for $X", call set_budget with X (critical items are filled first, then the cheapest).
 - Numbers: use only numbers that are in the data, exactly as given. Prices to the cent ($70.99, $600 to $2,000), never rounded and never "about". Never work out a new measurement. A room's "across" number is its narrower side: that is the one to give.
 - Doors: the measured number is the scanned opening, and the needed 2' 10" is the opening that leaves 32 in clear once the door hangs in it. The shortfall is needed minus measured, nothing more: never take the open door off a second time. Room sizes are box measurements and don't subtract furniture; say so when it changes the answer.
 - Never say "ADA compliant", "accessible" as a verdict, "medical grade", "prevents falls" or "fall-risk score", not even to say no to them: answer "No product here can promise that nobody falls" or "There is no score for falling here". Say "meets the ADA reference" or "fails the 32 in clear-door reference".
@@ -197,11 +215,15 @@ TOOLS = [
                       "required": ["action"], "additionalProperties": False}},
     {"name": "speak", "strict": True,
      "description": "Say your answer to the person: read aloud and shown as a caption. Call it once, as the last thing you do for a request, together with any tools that only show something.",
-     "input_schema": {"type": "object", "properties": {"text": {"type": "string", "description": "The full answer, written to be heard: under 60 words, at most 3 short sentences"}},
+     "input_schema": {"type": "object", "properties": {"text": {"type": "string", "description": "The full answer, written to be heard: usually 2 or 3 short sentences; at most 4 sentences and 75 words"}},
                       "required": ["text"], "additionalProperties": False}},
 ]
 
-REGION_SYSTEM = """You are Ethan, the Inch & Ease guide, flying a drone over a neighbourhood with someone who is looking for an apartment, usually for a family member who uses a manual wheelchair (often a parent). The page flies to each apartment while your line is read aloud. Talk like a friend riding along, not a report: warm, plain, contractions, "you", and the person the way they named them ("your dad"). Say what living there would be like for him; at most one number per apartment, the one that decides it (a price, or how steep the street is), never a list of sizes. Vary how lines start.
+REGION_SYSTEM = """You are Ethan, the Inch & Ease guide, flying a drone over a neighbourhood with someone who is looking for an apartment, usually for a family member who uses a manual wheelchair (often a parent). The page flies to each apartment while your line is read aloud.
+
+""" + ETHAN + """
+
+On this flight: say what living there would be like for him and the one reason that decides it; at most one number per apartment, the one that decides it (a price, or how steep the street is), never a list of sizes.
 
 You get one fact sheet per apartment, best first, and the ranking rule. inside: pass/measured checks, critical problems and critical_left (critical problems a purchase can't close), purchases_usd (cheapest purchases that close what they can), and top = the worst problems, each with a ready spoken clause (what, fix_spoken). outside: steep_pct = share of nearby streets over 8% slope, flat_pct = share that is flat, station = nearest rail station and its distance in metres, steepest_near = the steepest street close by.
 
@@ -211,7 +233,7 @@ Rules:
 - "Find the best", "which is best", "tell me about each": one stop per apartment, best to worst (the given order). Then the answer flies back to the pick.
 - "Just the best one", "quickly": stops empty, the answer is the pick.
 - Each stop line: 1-2 short spoken sentences, at most 35 words. Start with the street address. Say what it'd be like for him inside (critical first), then the streets outside (steep_pct, flat_pct, the station if there is one).
-- The answer is the pick (the first fact sheet): at most 2 sentences, why it wins and its one fix with the price, ending by handing over ("Want me to take you inside?"), with dive false. dive true only when they ask to go in, or say yes to going in: then stops are empty and the line is a few words ("Alright, let's go in.").
+- The answer is the pick (the first fact sheet): at most 3 short sentences, why it wins (the one difference from the runner-up that matters most for him) and its one fix with the price, ending by handing over ("Want me to take you inside?"), with dive false. dive true only when they ask to go in, or say yes to going in: then stops are empty and the line is a few words ("Alright, let's go in.").
 - intro: at most 1 sentence, or the one question.
 - A follow-up question (for example "why not the ADA unit?"): stops may be empty or 1-2 apartments the answer talks about, and dive is false unless they ask to go inside. A follow-up that isn't about one apartment: answer in intro, answer id "".
 - person: who the apartment is for and what you know about them, in a few words from what they said ("their dad, manual wheelchair, transfers alone"), "" if nothing yet. Keep what earlier turns knew.
@@ -260,7 +282,9 @@ def region_script(question, facts, rule, history=None):
 
 WALK_SYSTEM = """You are Ethan, the Inch & Ease guide, walking someone through an apartment in a 3D tour, stop by stop, while the camera flies. Usually they are finding a place for a family member who uses a manual wheelchair; about says what is known about that person.
 
-For each stop you get base: the plain line the tour would otherwise say, with the room and the kind of check. Rewrite each one so it sounds like a friend showing them round and says what it would be like for that person ("So this is the bathroom. He'd get in fine, but turning his chair round in here would be a real squeeze.").
+""" + ETHAN + """
+
+For each stop you get base: the plain line the tour would otherwise say, with the room and the kind of check. Rewrite each one in your own voice: what it would be like for that person here and, at a problem, the reason in everyday terms ("So this is the bathroom. He'd get in fine, but there's no room to turn his chair, so he'd be backing out every time.").
 
 Rules:
 - Don't recite measurements or compare a size with the rule ("it's 2' 10" and it needs 2' 8""): the card on screen shows the numbers. Say what it means for him. Keep every price and fix name from base exactly as written ($70.99, $600 to $2,000). Add no number, size, fact or product.
@@ -292,10 +316,116 @@ def walk_lines(name, about, stops):
     return {'intro': out['intro'], 'lines': [l for l in out['lines'] if l['id'] in ids]}
 
 
+# Street check (was the Next app in src/): /api/area and /api/buildings run src/lib's own code through tour/street_data.mjs and keep
+# each answer in tour/private/street/ (Vexcel-derived: Sponsor Data, git-ignored); /api/image proxies Vexcel photos; /api/ask is Claude.
+STREET_DIR = os.path.join(HERE, 'private', 'street')
+NODE = shutil.which('node') or '/opt/homebrew/bin/node'
+
+def street_data(kind, lat, lon):
+    """JSON bytes of analyze() (kind 'area') or scene3d() ('buildings'). Raises ValueError with a plain message."""
+    path = os.path.join(STREET_DIR, f'{kind}-{lat:.6f},{lon:.6f}.json')  # same rounding as page.tsx's cache
+    if os.path.exists(path):
+        return open(path, 'rb').read()
+    try:
+        p = subprocess.run([NODE, '--no-warnings', os.path.join(HERE, 'street_data.mjs'), kind, repr(lat), repr(lon)], cwd=ROOT, capture_output=True, timeout=90)
+    except subprocess.TimeoutExpired:
+        raise ValueError('The street check took too long, try again')
+    if p.returncode:
+        raise ValueError(p.stderr.decode(errors='replace').strip()[-500:] or 'The street check failed')
+    os.makedirs(STREET_DIR, exist_ok=True)
+    with open(path + '.part', 'wb') as f:
+        f.write(p.stdout)
+    os.replace(path + '.part', path)
+    return p.stdout
+
+VEXCEL_VIEWS = ('ortho', 'oblique-north', 'oblique-south', 'oblique-east', 'oblique-west')
+
+def vexcel_image(lat, lon, half, view, px):
+    """(bytes, content type) of one Vexcel photo of the box, built like src/lib/area.ts vexcel(). Raises ValueError."""
+    key = ENV.get('VEXCEL_API_KEY', '').strip().strip('"')
+    if not key:
+        raise ValueError('VEXCEL_API_KEY missing in .env.local')
+    dlat, dlon = half / 111320, half / (111320 * math.cos(lat * math.pi / 180))  # bbox() and wkt() in area.ts
+    s, n, w, e = lat - dlat, lat + dlat, lon - dlon, lon + dlon
+    area = f'POLYGON(({w!r} {s!r},{e!r} {s!r},{e!r} {n!r},{w!r} {n!r},{w!r} {s!r}))'
+    path, body = (('ortho/extract', {'wkt': area, 'image-format': 'jpeg', 'destination-dimensions': f'{px},{px}'}) if view == 'ortho' else
+                  ('oriented/extract', {'wkt': area, 'layer': 'urban', 'product-type': view, 'rotation': 'natural', 'crop': 'bbox', 'image-format': 'jpeg/png'}))
+    req = urllib.request.Request(f'https://api.vexcelgroup.com/v2/{path}', json.dumps({'srid': 4326, 'layer': 'urban,urban-r,wide-area,urban-g', 'crop': 'bounding_box', **body}).encode(),
+                                 {'X-API-KEY': key, 'Content-Type': 'application/json'})
+    try:
+        r = urllib.request.urlopen(req, timeout=25)
+        return r.read(), r.headers.get('Content-Type') or 'image/jpeg'
+    except urllib.error.HTTPError as e:
+        raise ValueError('Vexcel covers Houston and Los Angeles only' if e.code == 403 else f'Vexcel {path} answered {e.code}')
+    except (urllib.error.URLError, OSError) as e:  # a timeout comes bare while reading, wrapped in URLError while connecting
+        why = getattr(e, 'reason', e)
+        raise ValueError('Vexcel did not answer within 25 seconds, try again' if isinstance(why, TimeoutError) else f'Vexcel could not be reached ({why})')
+
+ASK_SYSTEM = """You are Ethan, the Inch & Ease guide. You help a person with a mobility disability judge the streets around one building.
+
+""" + ETHAN + """
+
+You set three limits from what they tell you: the steepest uphill and downhill slope (percent) they can manage, and whether steps stop them.
+
+Reference points, from AccessMap (University of Washington) and Bolten and Caspi, PLOS ONE 2021:
+- Manual wheelchair: 8% up, 10% down, steps are a barrier.
+- Power wheelchair: 12% up, 12% down, steps are a barrier.
+- Cane: 14% up, 14% down, steps are usually fine.
+- A walking route should be no steeper than 5% (ADA); a ramp no steeper than 8.33%.
+Adjust from these for what they describe (tiring arms, power assist, a helper pushing, balance, pain, a walker, a scooter). If they say nothing that changes a limit, keep the current one.
+
+Then reply in at most two short sentences, under 45 words, because your reply is read aloud: what you set and, in a few words, what they told you that moved it, and the one or two streets that matter most here, using only the slopes and facts you are given. Name real streets from the list. Never invent numbers. Write plainly, like a helpful person, with no bullet points, no headings and no dots or symbols between phrases. If the message is not about mobility or these streets, keep the limits and say briefly what you can help with."""  # from src/app/api/ask/route.ts, plus Ethan's character
+
+ASK_SCHEMA = {'type': 'object', 'additionalProperties': False, 'required': ['up', 'down', 'avoidSteps', 'label', 'reply', 'focus'], 'properties': {
+    'up': {'type': 'number', 'description': 'Steepest uphill slope in percent this person can manage, 0 to 20'},
+    'down': {'type': 'number', 'description': 'Steepest downhill slope in percent, 0 to 20'},
+    'avoidSteps': {'type': 'boolean', 'description': 'True if any step or stair is a barrier for them'},
+    'label': {'type': 'string', 'description': "Two to four words naming this person's setup, e.g. 'Manual chair, tired arms'"},
+    'reply': {'type': 'string', 'description': 'At most two short spoken sentences, under 45 words, plain language'},
+    'focus': {'type': ['string', 'null'], 'description': 'Exact name of one street from the list worth showing them, or null'}}}
+
+def ask_context(body):
+    """The route's zod Body check, then its prompt. Raises (AssertionError, KeyError, TypeError...) on a bad body."""
+    num = lambda v: isinstance(v, (int, float)) and not isinstance(v, bool) and math.isfinite(v)
+    message, limits, streets, facts = body['message'], body['limits'], body['streets'], body['facts']
+    assert isinstance(message, str) and 1 <= len(message) <= 1000 and isinstance(facts, str) and len(facts) <= 2000
+    assert num(limits['up']) and num(limits['down']) and isinstance(limits['avoidSteps'], bool)
+    assert isinstance(streets, list) and len(streets) <= 60 and all(isinstance(s['name'], str) and num(s['slope']) and num(s['near']) for s in streets)
+    js = lambda v: str(int(v)) if v == int(v) else repr(v)  # print numbers like JS template strings (8, not 8.0)
+    lines = '\n'.join(f"{s['name']}: {s['slope']:.1f}%, {math.floor(s['near'] + 0.5)} m" for s in streets)  # toFixed(1), Math.round
+    return (f"Current limits: {js(limits['up'])}% up, {js(limits['down'])}% down, steps {'avoided' if limits['avoidSteps'] else 'allowed'}.\n"
+            f"Streets near the building (steepest 10 m stretch, distance from the door):\n{lines}\nOther facts: {facts}\n\nThe person says: {message}")
+
+assert ask_context({'message': 'hi', 'limits': {'up': 8, 'down': 10.5, 'avoidSteps': True}, 'streets': [{'name': 'A St', 'slope': 7.24, 'near': 12.5}], 'facts': 'x'}).startswith(
+    'Current limits: 8% up, 10.5% down, steps avoided.\nStreets near the building (steepest 10 m stretch, distance from the door):\nA St: 7.2%, 13 m\nOther facts: x')
+
+def street_ask(prompt):
+    """(status, JSON) exactly like the Next /api/ask route."""
+    try:
+        r = client.with_options(timeout=30, max_retries=1).beta.messages.create(  # capped so the page never hangs
+            model='claude-opus-5-5', max_tokens=4000,
+            output_config={'effort': 'low', 'format': {'type': 'json_schema', 'schema': ASK_SCHEMA}},
+            betas=['server-side-fallback-2026-07-01'], fallbacks='default',
+            system=ASK_SYSTEM, messages=[{'role': 'user', 'content': prompt}])
+    except anthropic.RateLimitError:
+        return 429, {'error': 'Too many questions at once. Try again in a moment.'}
+    except anthropic.APIStatusError as e:
+        return 502, {'error': f'Claude is unavailable ({e.status_code}).'}
+    except anthropic.APIError:
+        return 502, {'error': 'Claude did not answer in time. Try again.'}
+    try:
+        assert r.stop_reason != 'refusal'
+        a = json.loads(next(b.text for b in r.content if b.type == 'text'))
+    except Exception:
+        return 502, {'error': 'Claude could not answer that one. Try describing your mobility.'}
+    clamp = lambda v: min(20, max(0, math.floor(v + 0.5)))  # Math.round
+    return 200, {**a, 'up': clamp(a['up']), 'down': clamp(a['down'])}
+
+
 class Handler(http.server.SimpleHTTPRequestHandler):
     def translate_path(self, path):
-        # /data/... is the repo's public dataset (products, photos), one level up from tour/
-        if path.startswith('/data/') and '..' not in path:
+        # /data/... is the repo's public dataset (products, photos), one level up from tour/; /node_modules/three/ is three.js for street_3d.js
+        if path.startswith(('/data/', '/node_modules/three/')) and '..' not in path:
             return os.path.join(ROOT, path.lstrip('/').split('?')[0])
         return super().translate_path(path)
 
@@ -320,6 +450,8 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             o = p.get('o', ['0'])[0]
             models, total = search_models(p.get('q', [''])[0][:200], p.get('f', [''])[0], int(o) if o.isdigit() else 0)
             return self.reply(200, {'models': models, 'total': total})
+        if self.path.split('?')[0] in ('/api/area', '/api/buildings', '/api/image'):
+            return self.street(self.path.split('?')[0][5:], urllib.parse.parse_qs(urllib.parse.urlsplit(self.path).query))
         m = re.fullmatch(r'/private/tours/([A-Za-z0-9]{11})\.json', self.path.split('?')[0])
         if m and not os.path.exists(os.path.join(TOURS, m.group(1) + '.json')):  # a CoStar tour opened for the first time
             try:
@@ -329,7 +461,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         super().do_GET()
 
     def do_POST(self):
-        if self.path not in ('/api/agent', '/api/region', '/api/walk'):
+        if self.path not in ('/api/agent', '/api/region', '/api/walk', '/api/ask'):
             return self.send_error(404)
         if OFFLINE:
             return self.reply(503, {'error': 'offline test server: Claude is off'})
@@ -346,6 +478,8 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 assert isinstance(stops, list) and 0 < len(stops) <= 60
                 stops = [{k: str(s[k])[:400] for k in ('id', 'base', 'room', 'kind') if s.get(k) is not None} for s in stops]
                 assert all(s.get('id') and s.get('base') for s in stops)
+            elif self.path == '/api/ask':
+                prompt = ask_context(body)
             else:
                 question, facts, rule, history = body['question'], body['facts'], body['rule'], body.get('history') or []
                 assert isinstance(question, str) and 0 < len(question) <= 2000 and isinstance(rule, str)
@@ -353,6 +487,8 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 assert isinstance(history, list) and all(isinstance(h, dict) and isinstance(h.get('q'), str) and isinstance(h.get('a'), str) for h in history)
         except Exception:
             return self.reply(400, {'error': 'bad request'})
+        if self.path == '/api/ask':
+            return self.reply(*street_ask(prompt))
         try:
             if self.path == '/api/region':
                 return self.reply(200, region_script(question, facts, rule, history))
@@ -415,6 +551,33 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         with open(path + '.part', 'wb') as f:
             f.write(b''.join(chunks))
         os.replace(path + '.part', path)
+
+    def street(self, kind, q):
+        """GET /api/area, /api/buildings, /api/image: same checks and answers as the Next routes they replace."""
+        num = lambda k, d=None: float(q[k][0]) if k in q else d  # ValueError on junk; nan and inf fail the range checks
+        try:
+            lat, lon = num('lat'), num('lon')
+            ok = lat is not None and lon is not None and abs(lat) <= 90 and abs(lon) <= 180
+            if kind == 'image':
+                half, view, px = num('half', 250), q.get('view', ['ortho'])[0], float(q['px'][0]) if re.fullmatch(r'\s*[\d.]+\s*', q.get('px', [''])[0]) else 0
+                px = int(min(4096, max(256, px if px and math.isfinite(px) else 1600)))  # 4096 for the 3D texture
+                ok = ok and 20 <= half <= 500 and view in VEXCEL_VIEWS
+        except ValueError:
+            ok = False
+        if not ok:
+            return self.raw(400, ('bad lat, lon, half or view' if kind == 'image' else 'bad lat or lon').encode(), 'text/plain; charset=utf-8')
+        try:
+            if kind == 'image':
+                return self.raw(200, *vexcel_image(lat, lon, half, view, px), 'private, max-age=3600')
+            return self.raw(200, street_data(kind, lat, lon), 'application/json', 'no-store')
+        except ValueError as e:
+            return self.raw(502, str(e).encode(), 'text/plain; charset=utf-8')
+
+    def raw(self, code, data, ctype, cache=None):
+        self.send_response(code); self.send_header('Content-Type', ctype); self.send_header('Content-Length', str(len(data)))
+        if cache:
+            self.send_header('Cache-Control', cache)
+        self.end_headers(); self.wfile.write(data)
 
     def reply(self, code, obj):
         data = json.dumps(obj).encode()

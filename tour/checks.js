@@ -233,6 +233,8 @@ export function evaluate(m) {
         const link = { a: inside[0]?.id, b: inside[1]?.id, w: o.width, exterior: inside.length === 1, items: [], at };
         if (inside.length) links.push(link);
         if (o.type !== 'doorway') continue; // open passages are route links, not doors
+        // The same doorway scanned twice (both faces of a deep doorway, under 40 cm apart and parallel): one door, one box.
+        if (items.some(d => d.kind === 'door' && d.floor === f.id && Math.hypot(d.at.x - at.x, d.at.y - at.y) < 0.4 && Math.abs(Math.sin(d.angle - angle)) < 0.2)) continue;
         // shortcut: closet doors aren't on a wheelchair route, so they're listed but not scored; a walk-in closet would need a real check.
         const closet = rs.some(r => /closet/i.test(r.name)), geo = { between, at, angle, t, floor: f.id, rooms: rs.map(r => r.id), base: floorLevel }; // base: this floor's height in the 3D world (opening heights are absolute: floor 3 can sit 2.7 m up)
         // Scan heights outside 1.8–2.5 m are noise (1 door in 10 reads 0.1 m, some 5 m): those are drawn at a standard 2.03 m.
@@ -247,7 +249,11 @@ export function evaluate(m) {
         if (closet) continue;
         const rise = Math.abs((o.lowerElevation || 0) - floorLevel);
         const step = { id: id('step'), n: 9, kind: 'step', value: rise, w: o.width, source: 'Matterport scan', ...geo };
-        step.s = statusOf(9, rise); items.push(step); link.items.push(step);
+        step.s = statusOf(9, rise);
+        // Over 20 cm is the scan misreading the door bottom, not a threshold (one read 2.65 m; on the mesh the floor was level on both
+        // sides): no verdict and no shape, just "check it by eye".
+        if (rise > 0.2) { step.s = 'verify'; step.odd = true; }
+        items.push(step); link.items.push(step);
       }
     }
   }
@@ -348,6 +354,7 @@ export function describe(i) {
   // Titles say what is wrong in plain words; the number follows in brackets.
   const may = { fail: '', verify: 'may be ' }[i.s];
   if (i.n === 8) return { title: i.s === 'skip' ? `Closet door (${ftin(i.value)})` : i.cut ? `Door width unclear (scan: ${ftin(i.value)} or more)` : i.s === 'pass' ? `Door wide enough (${ftin(i.value)})` : `Door ${may}too narrow (${ftin(i.value)})`, detail: i.s === 'skip' ? `${rooms}, closet door, not scored` : i.cut ? `${rooms}. The scan's outline stops this doorway at a wall corner, so it may be wider: measure it.` : rooms, measured: ftin(i.value), need };
+  if (i.n === 9 && i.odd) return { title: 'Check the threshold by eye', detail: `${rooms}. The scan reads a ${ftin(i.value)} drop here, more than any door threshold: it may be real stairs or a scan error, so look at it on site.`, measured: ftin(i.value), need };
   if (i.n === 9) return { title: i.s === 'pass' ? 'Level threshold' : i.s === 'verify' ? `Small step at the door (${ftin(i.value)})` : `Step at the door (${ftin(i.value)})`, detail: rooms, measured: ftin(i.value), need };
   if (i.n === 10) return { title: i.s === 'pass' ? `${i.room}: room to turn around` : `${i.room} ${may}too small to turn around`, detail: i.value == null ? 'room size missing' : `room is ${ftin(i.value)} across, needs ${need}`, measured: ftin(i.value), need };
   if (i.n === 11) return { title: i.s === 'pass' ? `${i.room} wide enough (${ftin(i.value)})` : `${i.room} ${may}too narrow (${ftin(i.value)})`, detail: `needs ${need}`, measured: ftin(i.value), need };

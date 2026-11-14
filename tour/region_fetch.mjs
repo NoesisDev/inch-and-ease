@@ -42,12 +42,12 @@ const sampler = (g, b) => (lat, lon) => {
   return n ? s / n : null;
 };
 
-// 1. The whole area: every apartment plus 450 m around, ortho 2048 px, ground model at ~10 m.
+// 1. The whole area: every apartment plus 450 m around, ortho 8192 px (about 0.5 m a pixel; recompress to JPEG quality 50, ~14 MB), ground model at ~10 m.
 const lats = units.map(u => u.lat), lons = units.map(u => u.lon), pad = 450;
 const area = { s: Math.min(...lats) - pad / M, n: Math.max(...lats) + pad / M, w: Math.min(...lons) - pad / mlon(lats[0]), e: Math.max(...lons) + pad / mlon(lats[0]) };
 const widthM = (area.e - area.w) * mlon((area.s + area.n) / 2), heightM = (area.n - area.s) * M;
 const px = (m, step) => Math.round(m / step);
-if (!existsSync(OUT + 'area.jpg')) writeFileSync(OUT + 'area.jpg', await vexcel('ortho/extract', { wkt: wkt(area), 'image-format': 'jpeg', 'destination-dimensions': `${px(widthM, widthM / 2048)},${px(heightM, widthM / 2048)}` }));
+if (!existsSync(OUT + 'area.jpg')) writeFileSync(OUT + 'area.jpg', await vexcel('ortho/extract', { wkt: wkt(area), 'image-format': 'jpeg', 'destination-dimensions': `${px(widthM, widthM / 8192)},${px(heightM, widthM / 8192)}` }));
 const ground = await dtm(area, px(widthM, 10), px(heightM, 10));
 console.log(`area ${Math.round(widthM)} × ${Math.round(heightM)} m, ground grid ${ground.w}×${ground.h}`);
 

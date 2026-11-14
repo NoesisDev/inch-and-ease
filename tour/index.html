@@ -311,6 +311,12 @@
   #home :is(h2, h3, h4, h5) { font-family:var(--brandFont); }
   #home nav { position:sticky; top:0; height:72px; margin:0; padding:0; border-radius:0; background:var(--homeBg); border:0; border-bottom:1px solid var(--brandLine); box-shadow:none; -webkit-backdrop-filter:none; backdrop-filter:none; font-weight:400; font-size:15px; }
   #home nav .logo { font-size:22px; font-weight:700; letter-spacing:-.04em; }
+  /* Top bar (user, Nov 14: "neatly"): logo left, links centred on the page, settings + the one demo button right. */
+  #home nav { display:grid; grid-template-columns:1fr auto 1fr; gap:24px; }
+  #home nav .logo { justify-self:start; margin:0; color:var(--brand); white-space:nowrap; }
+  #home nav .links { gap:32px; } #home nav .acts { justify-self:end; display:flex; align-items:center; gap:12px; }
+  @media (max-width:900px) and (min-width:600px) { #home nav .links { display:flex; gap:20px; } #home nav .links a[href^="#"] { display:none; } }
+  @media (max-width:599px) { #home nav { grid-template-columns:1fr auto; } }
   #home nav .cta, .btn { border-radius:6px; background:var(--brand); color:var(--brandInk); } #home nav .cta { padding:10px 16px; } #home nav .cta:hover { color:var(--brandInk); }
   .btn.ghost { background:transparent; color:var(--brand); box-shadow:inset 0 0 0 1px var(--brandLine); margin-left:0; }
   .hero { grid-template-columns:1fr; gap:0; padding:88px 0 0; text-align:center; }
@@ -330,7 +336,7 @@
   #home h3 { font-size:32px; letter-spacing:-.03em; margin-top:80px; }
   /* Hero (user, Nov 14): the question and the buttons on the left, a film of a real conversation with the guide on the right,
      with each line said shown under it as it happens. */
-  .hero { grid-template-columns:minmax(0, 5fr) minmax(0, 7fr); gap:56px; align-items:center; padding:64px 0 0; text-align:left; }
+  .hero { grid-template-columns:minmax(0, 5fr) minmax(0, 7fr); gap:56px; align-items:center; padding:28px 0 0; text-align:left; } /* chat starts just under the top bar (user, Nov 14) */
   .hero > div:first-child { align-items:flex-start; }
   .hero h2 { font-size:76px; margin:22px 0 20px; } .hero p { margin:0 0 32px; max-width:470px; } .ctas { justify-content:flex-start; }
   .hero .proof { grid-column:1 / -1; justify-content:flex-start; margin-top:8px; }
@@ -345,6 +351,12 @@
   .talk li b { display:block; font-size:12px; font-weight:600; opacity:.6; margin-bottom:2px; }
   .talk li.you { align-self:flex-end; background:#1d1d1f; color:#fff; border-bottom-right-radius:6px; }
   .talk li.guide { align-self:flex-start; background:#fff; color:#1d1d1f; border:1px solid rgba(0,0,0,.08); border-bottom-left-radius:6px; }
+  /* The chat sits above the film in its own box (user, Nov 14). */
+  .chatbox { background:#f4f6f3; border:1px solid rgba(0,0,0,.08); border-radius:14px; padding:12px 14px 14px; }
+  .chat-head { display:flex; align-items:center; gap:8px; padding:0 2px 10px; margin-bottom:10px; border-bottom:1px solid rgba(0,0,0,.07); font:600 13px var(--brandFont, inherit); color:#1F4D3F; }
+  .chat-head i { width:8px; height:8px; border-radius:50%; background:#2e9e6a; }
+  .chatbox .talk { height:200px; -webkit-mask-image:linear-gradient(transparent, #000 10%); mask-image:linear-gradient(transparent, #000 10%); }
+  .chatbox .talk li.you { background:#1F4D3F; }
   .talk li.typing span::after { content:''; display:inline-block; width:2px; height:1.05em; margin-left:2px; vertical-align:-3px; background:currentColor; animation:caret 1s steps(1) infinite; }
   .talk li.dots span { display:flex; gap:4px; padding:6px 0 4px; } .talk li.dots i { width:6px; height:6px; border-radius:50%; background:#8e8e93; animation:dot 1s ease-in-out infinite; }
   .talk li.dots i:nth-child(2) { animation-delay:.15s; } .talk li.dots i:nth-child(3) { animation-delay:.3s; }
@@ -358,36 +370,75 @@
   .how .n { color:var(--brand); font-family:var(--brandFont); }
   [data-theme=contrast] .proof div, [data-theme=contrast] .band, [data-theme=contrast] .how > div { border:0; } [data-theme=contrast] .how > div { border-top:1px solid #fff; }
   @media (max-width:900px) { .hero { padding-top:48px; } .hero h2 { font-size:52px; } .photo { height:320px; margin-top:40px; } .note.n1, .note.n2 { left:auto; right:10px; } .proof { flex-direction:column; align-items:center; } .band .stats > div + div { margin-top:8px; } }
+  /* Numbers band (user, Nov 14: option D, dark green, plain): full-bleed strip, square, hairline dividers, no italics. */
+  #home .band { --bandBg:#1F4D3F; background:var(--bandBg); box-shadow:0 0 0 100vmax var(--bandBg); clip-path:inset(0 -100vmax); margin-top:96px; padding:72px 0 76px; color:#EEF3F0; }
+  #home .band h3 { margin:0 0 44px; font-size:30px; line-height:1.2; letter-spacing:-.025em; color:#fff; max-width:640px; }
+  #home .band .stats { gap:0; } #home .band .stats > div { border-top:0; padding:2px 40px 0; border-left:1px solid rgba(255,255,255,.18); } #home .band .stats > div:first-child { padding-left:0; border-left:0; }
+  #home .band .stats b { font-size:56px; color:#F7F6F2; margin-bottom:14px; } #home .band .stats b.red { color:#F2906E; }
+  #home .band .stats span { display:block; font-size:17px; line-height:1.45; color:#EEF3F0; }
+  #home .band .stats small { font-size:13px; line-height:1.5; color:#A9C2B6; margin-top:12px; } #home .band .stats small i { display:block; font-style:normal; color:#8FAEA0; margin-top:2px; }
+  [data-theme=night] #home .band { --bandBg:#17302A; } [data-theme=contrast] #home .band { --bandBg:#000; border-block:1px solid #fff; }
+  @media (max-width:900px) { #home .band { padding:52px 0 56px; margin-top:64px; } #home .band .stats > div { padding:22px 0 0; border-left:0; border-top:1px solid rgba(255,255,255,.18); margin:0 0 22px; } #home .band .stats > div:first-child { border-top:0; padding-top:0; } }
+  /* Design A, "Tape measure" (user, Nov 14): the issue panel and the issue card. Barlow type, black ink, tape yellow, red; flat white, hairlines, no glass.
+     The colours apply in Daylight only; Night and High contrast keep theirs and get the same flat shapes. */
+  aside, #card { --font:'Barlow', -apple-system, 'Helvetica Neue', system-ui, sans-serif; --head:'Barlow Semi Condensed', 'Barlow', system-ui, sans-serif; font-family:var(--font); border-radius:10px; }
+  :root:not([data-theme=night]):not([data-theme=contrast]) :is(aside, #card) { --ink:#141414; --muted:#5C5A55; --sep:#E2DFD6; --fill:#F3F1EA; --fill2:#E9E6DC; --seg:#fff; --chosen:#FFF6CC; --accent:#141414; --accentInk:#fff;
+    --fail:#D7261E; --failInk:#D7261E; --verify:#FFD21F; --helps:#FFD21F; --verifyInk:#7A5B00; --pass:#1E7B3A; --fixed:#1E7B3A; --passInk:#1E7B3A;
+    background:#fff; -webkit-backdrop-filter:none; backdrop-filter:none; border:1px solid var(--sep); box-shadow:0 1px 2px rgba(0,0,0,.06), 0 8px 24px rgba(0,0,0,.08); color:var(--ink); }
+  :root:not([data-theme=night]):not([data-theme=contrast]) :is(.opt, .fix) { background:#fff; box-shadow:inset 0 0 0 1px var(--sep); }
+  aside header h1 { font-family:var(--head); font-size:18px; letter-spacing:0; color:var(--ink); } aside header h1 span { color:var(--muted); }
+  aside .answer b { font-family:var(--head); font-size:26px; letter-spacing:0; }
+  aside .tiles { gap:0; border:1px solid var(--sep); border-radius:8px; overflow:hidden; } aside .tile { background:none; border-radius:0; padding:8px 10px; } aside .tile + .tile { border-left:1px solid var(--sep); }
+  aside .tile b { font-family:var(--head); font-size:20px; letter-spacing:0; }
+  aside .tabs { background:none; padding:0; gap:18px; border-radius:0; border-bottom:1px solid var(--sep); }
+  aside .tabs button { flex:none; padding:8px 0; border-radius:0; border-bottom:2px solid transparent; margin-bottom:-1px; color:var(--muted); }
+  aside .tabs button[aria-selected=true] { background:none; box-shadow:none; color:var(--ink); border-bottom-color:var(--ink); }
+  .grp h5, .grp > summary { color:var(--ink); } .grp h5 span { border-radius:4px; }
+  .issue { border-radius:0; border-top:1px solid var(--sep); font-weight:600; align-items:center; padding-top:10px; padding-bottom:10px; }
+  .issue:hover, .issue.hl { background:var(--chosen); box-shadow:inset 3px 0 0 var(--ink); } .issue small { font-size:12.5px; }
+  aside .num, #card .num { border-radius:4px; font-family:var(--head); font-size:13px; font-weight:700; } /* squares for "check with a tape", rounds for stops and passes: shape as well as colour */
+  aside .num.s-fail, aside .num.s-pass, aside .num.s-fixed { border-radius:50%; } aside .num.s-pass, aside .num.s-fixed { color:#fff !important; }
+  #card { width:360px; padding:18px 20px 20px; }
+  #card .tag { border-radius:4px; font:600 13px/1 var(--font); padding:6px 9px; }
+  #card h3 { font-family:var(--head); font-size:23px; line-height:1.15; letter-spacing:0; }
+  #card .nums { flex-direction:column; gap:0; margin:12px 0 10px; }
+  #card .nums div { display:flex; justify-content:space-between; align-items:baseline; gap:12px; background:none; border-radius:0; padding:9px 0; border-bottom:1px solid var(--sep); font-size:14px; color:var(--ink); }
+  #card .nums b { display:inline; font:600 16px/1.2 var(--head); letter-spacing:0; }
+  #card .nums .bad { color:var(--failInk); } #card:has(.tag.s-verify) .nums .bad, #card:has(.tag.s-verify) .nums .bad b { color:var(--verifyInk); }
+  #card img, #card .ph { border-radius:8px; } #card svg { background:#fff; border:1px solid var(--sep); border-radius:8px; }
+  #card h4 { color:var(--ink); font-size:14px; }
+  .opt, .fix { border-radius:10px; } .opt.chosen { box-shadow:inset 0 0 0 2px var(--ink); } .opt img, .opt .noimg, .fix img { border-radius:6px; }
+  .opt .price, .fix .price { font-family:var(--head); font-size:18px; letter-spacing:0; text-align:right; }
+  .opt .price small { display:block; font:500 11px/1.3 var(--font); color:var(--muted); white-space:nowrap; } /* "+ labour, may vary" under the price of anything that has to be screwed on */
+  #card .measure { border-radius:10px; background:none; box-shadow:inset 0 0 0 1.5px var(--ink); font-weight:600; }
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Work+Sans:wght@400;500;600&family=Barlow:wght@400;500;600&family=Barlow+Semi+Condensed:wght@600;700&display=swap" rel="stylesheet">
 <script src="private/key.js"></script>
 </head>
 <body>
 <div id="home" hidden>
   <div class="page">
-    <nav><span class="logo">Inch <span>&amp;</span> Ease</span><div class="links"><a href="#apartments">Apartments</a><a href="#how">How it works</a><a href="region.html">Neighbourhoods</a></div>
-      <button type="button" id="prefsBtn" class="gear" popovertarget="prefs" title="Settings: look and text size" aria-label="Settings"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button><a class="cta" id="navDemo" href="#">Open the demo</a></nav>
+    <nav><a class="logo" href="./" aria-label="Inch and Ease, home">Inch <span>&amp;</span> Ease</a><div class="links"><a href="#apartments">Apartments</a><a href="#how">How it works</a><a href="region.html">Neighbourhoods</a><a href="street.html">Streets</a></div>
+      <div class="acts"><button type="button" id="prefsBtn" class="gear" popovertarget="prefs" title="Settings: look and text size" aria-label="Settings"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button><a class="cta" id="navDemo" href="#">Try the demo</a></div></nav>
     <div id="prefs" popover><h6>Look</h6><div class="looks" role="group" aria-label="Look"><button type="button" data-look="standard">Daylight</button><button type="button" data-look="night">Night</button><button type="button" data-look="contrast">High contrast</button></div><h6>Text size</h6><div class="looks" role="group" aria-label="Text size"><button type="button" data-text-size="standard">Standard</button><button type="button" data-text-size="large">Large</button><button type="button" data-text-size="larger">Larger</button></div></div>
     <section class="hero">
       <div>
-        <div class="kicker">Comfort, not compliance</div>
         <h2>Can you live here?</h2>
-        <p>Rules are the minimum. We check how easy daily life would be, then find the best fit and the fixes.</p>
-        <div class="ctas"><a class="btn" id="demoLink" href="#">Try the demo</a><a class="btn ghost" href="region.html">Compare neighbourhoods</a></div>
+        <p>We check apartments for wheelchair users. From a 3D tour, we measure every door, step and room, show what won’t work, and find the fixes and the home that fits best.</p>
+        <div class="ctas"><a class="btn" id="demoLink" href="#">Try the demo</a></div>
       </div>
       <!-- The film: a recorded walk with the guide (notes/demo_capture.mjs), and what is said, line by line, in step with it. -->
       <figure class="film" id="film" hidden>
-        <div class="screen"><video id="filmVideo" muted loop playsinline preload="auto" aria-label="Recorded demo: someone asks the guide about an apartment for their dad, and it walks them through it"></video><span class="tag">Recorded demo</span></div>
-        <ol class="talk" id="filmTalk" aria-label="What is said in the demo"></ol>
+        <div class="chatbox"><div class="chat-head"><i aria-hidden="true"></i>Talking with your assistant</div><ol class="talk" id="filmTalk" aria-label="What is said in the demo"></ol></div>
+        <div class="screen"><video id="filmVideo" muted loop playsinline preload="auto" aria-label="Recorded demo: someone asks the assistant about an apartment for their dad, and it walks them through it"></video><span class="tag">Recorded demo</span></div>
       </figure>
-      <div class="proof" id="proof"></div>
     </section>
-    <div class="band"><div class="stats">
-      <div><b class="red">&lt;4%</b><span>of US homes are livable with trouble walking.</span><small>Under 0.2% fully wheelchair accessible. HUD-funded NYU study, 2011</small></div>
-      <div><b>13.4%</b><span>of US adults have trouble walking a quarter mile.</span><small>2.3% (5.5M) use a wheelchair. US Census Bureau, 2014</small></div>
-      <div><b>&lt;50%</b><span>of wheelchair users can turn fully in the standard circle.</span><small>US Access Board research</small></div>
-    </div></div>
+    <section class="band" aria-labelledby="bandH"><h3 id="bandH">Most US homes don’t work for someone who can’t walk far.</h3><div class="stats">
+      <div><b>13.4%</b><span>of US adults have trouble walking a quarter mile.</span><small>5.5 million use a wheelchair.<i>US Census Bureau, 2014</i></small></div>
+      <div><b class="red">&lt;4%</b><span>of US homes work for someone who has trouble walking.</span><small>Under 0.2% are fully wheelchair accessible.<i>HUD-funded NYU study, 2011</i></small></div>
+      <div><b>&lt;50%</b><span>of wheelchair users can turn all the way round in the space the rules require.</span><small>495 wheelchair users measured.<i>Steinfeld et al., for the US Access Board, 2010</i></small></div>
+    </div></section>
     <h3 id="apartments">Apartments we checked</h3>
     <p class="lead">Real 3D tours from Houston and Los Angeles. Open one to walk through it.</p>
     <div class="grid" id="grid"></div>
@@ -497,7 +548,18 @@ const lerp = (a, b, t) => ({ x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t 
 const W = (p, h = 0) => ({ x: p.x, y: h, z: -p.y }); // wall-data plan (x, y) → Matterport world (y up); checked on the demo tour's room bounds
 // The floor an item or room stands on, as a height in the 3D world (checks.js base, per floor). Without it every shape sat at
 // ground level, so on upper floors the boxes floated through the rooms below.
-const levelOf = i => i.base ?? checks.find(c => c.base != null && c.floor === (i.floor ?? ev?.rooms.find(r => r.id === i.roomId)?.floor))?.base ?? 0;
+// Then snapped to the floor the scan points actually stand on, when that is within 0.5 m: in some tours every doorway reads exactly
+// 0.10 m (filler data), and every shape floated 10 cm above the floor.
+let sweepFloors = []; // median floor height under the scan points, one per Matterport floor (set when the tour connects)
+const snapLevel = y => { const n = sweepFloors.reduce((b, v) => Math.abs(v - y) < Math.abs(b - y) ? v : b, Infinity); return Math.abs(n - y) < 0.5 ? n : y; };
+const levelOf = i => snapLevel(i.base ?? checks.find(c => c.base != null && c.floor === (i.floor ?? ev?.rooms.find(r => r.id === i.roomId)?.floor))?.base ?? 0);
+// Multi-floor tours, seen from above: only the floor of the place shown (Matterport hides the floors over it; our shapes hide too).
+let shownFloor = null;
+async function showFloor(fl) {
+  if (!sdk || model.floors.length < 2) return;
+  const k = model.floors.findIndex(f => f.id === fl); // shortcut: the wall graph lists floors in Matterport's own order (Floor 1, 2…)
+  if (k < 0) { shownFloor = null; await sdk.Floor.showAll().catch(() => {}); } else { shownFloor = fl; await sdk.Floor.moveTo(k).catch(() => {}); }
+}
 
 // Every check comes from checks.js (21 checks, thresholds, route, critical); items get their plain-words title here.
 const described = items => ordered(items).map(i => ({ ...i, ...describe(i) }));
@@ -520,7 +582,7 @@ function paintSpace(ctx) {
   else { u.topColor.value.set(1, 1, 1); u.bottomColor.value.set(0.89, 0.89, 0.9); } // white above, a soft grey towards the floor
 }
 const ieShape = () => ({
-  inputs: { shape: 'box', w: 1, h: 1, d: 0.1, x: 0, y: 0, z: 0, angle: 0, color: 0xff3b30, opacity: 0.45, pulse: false, pts: null },
+  inputs: { shape: 'box', w: 1, h: 1, d: 0.1, x: 0, y: 0, z: 0, angle: 0, color: 0xff3b30, opacity: 0.45, pulse: false, pts: null, id: '', floor: '', door: false, t: 0.12 },
   outputs: {}, events: {}, emits: { clicked: true, hovered: true }, t: 0,
   onInit() {
     spaceOwner ||= this;
@@ -534,6 +596,7 @@ const ieShape = () => ({
       this.lineMat = new THREE.LineBasicMaterial({ color: i.color, transparent: true }); this.edges = new THREE.EdgesGeometry(this.geo);
       g.add(new THREE.LineSegments(this.edges, this.lineMat)); g.position.set(i.x, i.y, i.z); g.rotation.y = i.angle;
       if (i.shape === 'box') { this.g = g; this.v = new THREE.Vector3(); }
+      if (i.door) { this.base = g.position.clone(); this.n = new THREE.Vector3(Math.sin(i.angle), 0, Math.cos(i.angle)); } // the pane's facing direction
       this.outputs.collider = mesh; this.events = { [CLICK()]: true, [HOVER()]: true };
     }
     this.outputs.objectRoot = g;
@@ -543,14 +606,25 @@ const ieShape = () => ({
     if (spaceOwner === this) paintSpace(this.context);
     const i = this.inputs; let o = i.opacity;
     if (i.pulse && !still) { this.t += delta; o *= 0.45 + 0.55 * Math.abs(Math.sin(this.t / 300)); }
-    // A box the camera stands next to fades out: closer than about a metre it filled the view as a flat red band across the wall.
-    // Distance from the camera to the box's nearest face, in the box's own frame; gone at 0.4 m, full again from 1.4 m.
+    // A box the camera stands next to fades out: up close it filled the view as a flat red wall. Distance from the camera to the
+    // box's nearest face, in the box's own frame; gone at 0.8 m, full from 2.4 m (the shape review: still a solid wall at 1-1.5 m).
     let near = 1;
-    if (this.g && this.context.camera) {
-      const p = this.g.worldToLocal(this.context.camera.getWorldPosition(this.v));
+    const inside = pose?.mode === 'mode.inside';
+    if (this.g && this.context.camera && inside) {
+      const p = this.g.worldToLocal(this.context.camera.getWorldPosition(this.v)).multiply(this.g.scale); // back to metres: a door pane is scaled flat (z × 0.03), so its fade never started
       const d = Math.hypot(Math.max(Math.abs(p.x) - i.w / 2, 0), Math.max(Math.abs(p.y) - i.h / 2, 0), Math.max(Math.abs(p.z) - i.d / 2, 0));
-      near = Math.min(1, Math.max(0, (d - 0.4) / 1));
-    }
+      near = Math.min(1, Math.max(0, (d - 0.8) / 1.6));
+      // Mid-wall, the scan's glass and jambs are ragged and tore the pane's edges: it stands on the wall face on the camera's side.
+      if (i.door) this.g.position.set(this.base.x, this.g.position.y, this.base.z).addScaledVector(this.n, (Math.sign(p.z) || 1) * (i.t / 2 + 0.04));
+    } else if (i.door && this.g) this.g.position.set(this.base.x, this.g.position.y, this.base.z);
+    // The door being shown draws over the scan, so nothing cuts into it; the rest stay behind walls. Only when the camera sees the
+    // whole door: from anywhere else (the person moved on, or looks through another doorway) it would lie over a wall.
+    if (i.door) { const on = inside && cardFor?.id === i.id && seesDoor(cardFor); this.mat.depthTest = this.lineMat.depthTest = !on; this.g.children.forEach(c => { c.renderOrder = on ? 5 : 0; }); } // after the step's slab, so its bottom edge stays straight
+    if (i.floor && shownFloor && i.floor !== shownFloor) near = 0; // multi-floor tour seen from above: only the floor being shown
+    if (i.door && cardFor && cardFor.id !== i.id) near *= 0.25;    // a card is open: the other doors step back, so one red box reads
+    // Seen from above, a 2 m door box lay across the next room like a slab: outside the Inside view it is a line on the floor.
+    // Inside it is a flat sheet (3 cm deep, its back and side showed as a dark strip and a double outline once drawn on top).
+    if (i.door && this.g) { this.g.scale.set(1, inside ? 1 : 0.04 / i.h, inside ? 0.03 : 1); this.g.position.y = inside ? i.y : i.y - i.h / 2 + 0.02; }
     this.mat.opacity = o * near; if (this.lineMat) this.lineMat.opacity = near;
   },
   onEvent(type, data) { this.notify(type === CLICK() ? 'clicked' : 'hovered', data); },
@@ -586,6 +660,20 @@ function clearView(from, to, floor = null) {
   const end = lerp(from, to, 1 - 0.15 / d);
   return !solid.some(([a, b, f]) => (!floor || f === floor) && hits(from, end, a, b));
 }
+let seenKey = '', seenVal = false; // worked out once per camera spot and card, not every frame
+function seesDoor(i) {
+  const p = pose?.position; if (!p) return false;
+  const k = `${Math.round(p.x * 5)},${Math.round(p.z * 5)}|${i.id}`; // every 20 cm the camera moves
+  if (k !== seenKey) { seenKey = k; seenVal = wholeView({ x: p.x, y: -p.z }, i, floorOf(i)); }
+  return seenVal;
+}
+// A door or step is only really seen when BOTH sides of it are (user's screenshot, Nov 14: from the bathroom the camera saw the
+// middle of the hallway→bedroom door through the bathroom doorway; the rest of the red pane lay over the bathroom wall).
+function wholeView(from, i, floor = null) {
+  if ((i.kind !== 'door' && i.kind !== 'step') || i.angle == null) return clearView(from, i.at, floor);
+  const h = Math.max((i.w || 0.8) / 2 - 0.08, 0.1), ax = Math.cos(i.angle) * h, ay = Math.sin(i.angle) * h; // along the wall
+  return [{ x: i.at.x + ax, y: i.at.y + ay }, i.at, { x: i.at.x - ax, y: i.at.y - ay }].every(p => clearView(from, p, floor));
+}
 async function connect(sid) {
   // The web component runs Matterport's full viewer in this page, which unlocks the Scene API (our own red 3D shapes).
   if (!customElements.get('matterport-viewer')) {
@@ -600,8 +688,17 @@ async function connect(sid) {
   for (const [k, val] of Object.entries({ m: sid, 'application-key': window.MP_KEY, 'asset-base': 'private/mp', play: '1', qs: '1', brand: '0', title: '0', search: '0', vr: '0', help: '0', ...Q })) v.setAttribute(k, val);
   v.style.cssText = 'display:block;width:100%;height:100%';
   document.querySelector('main').prepend(v); // keep the floating controls that live in <main>
-  sdk = await v.playingPromise;
+  // A tour Matterport can't start (one CoStar model answers with an internal error and throws) never resolves. Give up only when the
+  // viewer has thrown and still hasn't started 20 s after loading began; a merely slow load (bad Wi-Fi, a background tab) keeps waiting.
+  const t0 = performance.now(); let thrown = null; const caught = e => { thrown ||= String(e.message || e.reason?.message || e.reason || 'error'); };
+  addEventListener('error', caught); addEventListener('unhandledrejection', caught);
+  const slow = setTimeout(() => status('Still loading the 3D tour…'), 30000); let poll;
+  try {
+    sdk = await Promise.race([v.playingPromise, new Promise((_, no) => { poll = setInterval(() => { if (thrown && performance.now() - t0 > 20000) no(new Error('Matterport could not start this 3D tour.')); }, 1000); })]);
+  } finally { clearTimeout(slow); clearInterval(poll); removeEventListener('error', caught); removeEventListener('unhandledrejection', caught); }
   sweeps = await new Promise(r => sdk.Sweep.data.subscribe({ onCollectionUpdated: c => r(Object.values(c)) }));
+  const byFloor = {}; for (const s of sweeps) (byFloor[s.floorInfo?.sequence ?? 0] ||= []).push(s.puckPosition?.y ?? s.position.y - 1.5);
+  sweepFloors = Object.values(byFloor).map(ys => ys.sort((a, b) => a - b)[ys.length >> 1]);
   sdk.Camera.pose.subscribe(p => { pose = p; });
   sdk.Sweep.current.subscribe(s => { curSweep = s?.id || null; });
 }
@@ -668,8 +765,14 @@ async function draw(items) {
   try {
     const [obj] = await sdk.Scene.createObjects(1); step = 'addNode';
     for (const i of items) {
+      // No shape where it would mislead: a step the scan misread (i.odd), or a place no scan point is within 3 m of (it floated in
+      // white, unscanned space). The pin and the list entry stay.
+      if (i.odd || (i.at && !sweeps.some(s => Math.hypot(s.position.x - i.at.x, s.position.z + i.at.y) < 3))) { shown[i.id] = { rooms: i.rooms || [i.roomId] }; continue; }
       const comp = obj.addNode().addComponent('ie.shape'), color = HEX[i.s], y0 = levelOf(i);
-      if (i.kind === 'door') Object.assign(comp.inputs, { w: i.w, h: i.h, d: i.t + 0.06, ...W(i.at, y0 + i.h / 2), angle: i.angle, color, ...(i.cut ? { opacity: 0.2 } : {}) }); // cut at a wall corner: the real doorway may be wider, so a lighter box
+      Object.assign(comp.inputs, { id: i.id, floor: floorOf(i) || '' });
+      // A door is a thin pane in the doorway (a deep box showed its sides as red columns when seen at an angle), 4 cm in from each
+      // jamb and 3 cm under the head so the scan's ragged edges don't tear it; lighter when the scan cut it at a wall corner.
+      if (i.kind === 'door') Object.assign(comp.inputs, { door: true, t: i.t || 0.12, w: Math.max(0.3, i.w - 0.08), h: i.h - 0.03, d: 0.03, ...W(i.at, y0 + (i.h - 0.03) / 2), angle: i.angle, color, opacity: i.cut ? 0.2 : 0.3 });
       else if (i.kind === 'step') Object.assign(comp.inputs, { w: i.w, h: Math.max(i.value, 0.03), d: i.t + 0.3, ...W(i.at, y0 + Math.max(i.value, 0.03) / 2), angle: i.angle, color, opacity: 0.7 });
       else Object.assign(comp.inputs, { shape: 'disc', w: i.kind === 'hall' ? Math.max(i.value || 0.9, 0.6) : i.kind === 'turn' ? TURN : 0.5, ...W(i.at, y0 + 0.04), color, opacity: 0.35 });
       comp.inputs.pulse = !!i.critical;
@@ -720,7 +823,10 @@ function showTip(i) {
   t.innerHTML = `<b>${esc(i.title)}</b>${plain ? `<span>${esc(plain)}</span>` : ''}<span>Click for the full explanation.</span>`;
   t.hidden = false; $('peek').hidden = true; placeTip();
 }
-function openItem(i) { showTip(false); i = checks.find(c => c.id === i.id) || i; if (i.at && i.s !== 'none') { if (mode === 'walk') return void jumpTo(i); setMode('inside'); goTo(i); } else showCard(i); }
+function openItem(i) { showTip(false); i = checks.find(c => c.id === i.id) || i; if (i.at && i.s !== 'none') { if (mode === 'walk') return void jumpTo(i); setMode('inside'); goTo(i); } else { // a check with no spot of its own (not measured yet): go to its room, then open it
+    const b = roomBuckets(), k = Object.keys(b.by).find(k => b.by[k].some(c => c.id === i.id)), room = b.named.find(r => r.id === k);
+    if (room?.at && mode !== 'walk') { setMode('inside'); flyTo({ at: room.at, kind: 'room' }); }
+    showCard(i); } }
 function recolourAll() {
   for (const i of issueList) {
     const s = shown[i.id]; if (!s) continue; const a = afterOf(i);
@@ -735,7 +841,8 @@ let moving = false; const photos = {};
 async function flyTo(i) {
   if (moving || !sdk || !i.at) return false;
   const v = viewFor(i);
-  if (isArea(i) || v.warn === 'no clear view') return areaView(i);
+  if ((isArea(i) && !houseLike()) || /no clear view|only part|too close|edge on/.test(v.warn)) return areaView(i); // a house's scan has a roof: from above you saw the roof
+  if (model.floors.length > 1) shownFloor = floorOf(i) || null; // inside on a multi-floor tour: the shapes of other floors hide
   moving = true;
   try {
     await sdk.Mode.moveTo(sdk.Mode.Mode.INSIDE).catch(() => {});
@@ -762,19 +869,27 @@ function viewFor(i) {
     return Math.abs(dx * c - dz * n) < b.w / 2 + 0.2 && Math.abs(dx * n + dz * c) < ((b.t || 0.15) + 0.06) / 2 + 0.4; };
   const boxes = checks.filter(c => c.kind === 'door' && shown[c.id]?.comp && c.at && c.w);
   const front = s => { if (i.kind !== 'door' && i.kind !== 'step') return true; const vx = look.x - planOf(s).x, vy = look.y - planOf(s).y;
-    return Math.abs(-vx * Math.sin(i.angle || 0) + vy * Math.cos(i.angle || 0)) >= 0.5 * Math.hypot(vx, vy); };
+    return Math.abs(-vx * Math.sin(i.angle || 0) + vy * Math.cos(i.angle || 0)) >= 0.7 * Math.hypot(vx, vy); }; // within 45° of straight on (60° showed slivers)
+  const edgeOn = s => { const vx = look.x - planOf(s).x, vy = look.y - planOf(s).y; return Math.abs(-vx * Math.sin(i.angle || 0) + vy * Math.cos(i.angle || 0)) < Math.cos(65 * Math.PI / 180) * Math.hypot(vx, vy); };
   const inRoom = s => room?.poly.length > 2 && insidePoly(planOf(s), room.poly);
   const floorSweeps = sweeps.filter(s => s.enabled !== false && Math.abs(floorY(s) - base) < 1.2);
-  const sees = s => d(s) >= 0.6 && clearView(planOf(s), look, fl);
-  let ok = floorSweeps.filter(s => sees(s) && d(s) >= 0.9 && !boxes.some(b => inBox(s, b)));
-  if (!ok.length) ok = floorSweeps.filter(sees); // second choice: standing in a doorway is fine now that a box next to the camera fades out
+  const sees = s => d(s) >= 0.6 && clearView(planOf(s), look, fl), whole = s => d(s) >= 0.6 && wholeView(planOf(s), i, fl);
+  // Best first: the whole door/step in view, not standing in a door box; then the whole of it from a doorway; only then its middle.
+  let ok = floorSweeps.filter(s => whole(s) && d(s) >= 0.9 && !boxes.some(b => inBox(s, b))), part = false;
+  if (!ok.length) ok = floorSweeps.filter(whole); // standing in a doorway is fine now that a box next to the camera fades out
+  if (!ok.length) { ok = floorSweeps.filter(sees); part = ok.length > 0; }
+  // A door is shown from one of the two rooms it joins (from a third room you look at it through another doorway).
+  const joins = s => !i.rooms?.length || i.rooms.some(id => { const r = ev.rooms.find(r => r.id === id); return r?.poly?.length > 2 && insidePoly(planOf(s), r.poly); });
   const want = 2.5; // a step too: from 1.6 m the camera looked steeply down and the door's own box filled the frame
-  const score = s => (room ? (inRoom(s) ? 10 : 0) + Math.min(d(s), 4.5) : (front(s) ? 10 : 0) - Math.abs(d(s) - want)) - (d(s) > 5 ? 5 : 0);
+  const score = s => (room ? (inRoom(s) ? 10 : 0) + Math.min(d(s), 4.5) : (front(s) ? 10 : 0) + (joins(s) ? 4 : 0) - Math.abs(d(s) - want)) - (d(s) > 5 ? 5 : 0)
+    - (d(s) < 1.6 ? (1.6 - d(s)) * 6 : 0); // closer than 1.6 m the subject fills the frame: only when nothing farther sees it
   let s = ok.sort((a, b) => score(b) - score(a))[0], warn = '';
   if (!s) { s = (floorSweeps.length ? floorSweeps : sweeps).slice().sort((a, b) => d(a) - d(b))[0]; warn = 'no clear view'; }
+  else if (part) warn = 'only part of it in view';
+  else if (!room && d(s) < 1) warn = 'too close'; // from under 1 m no lens frames a 2 m door (a balcony scanned from its doorway): shown from above
   else if (room && !inRoom(s)) warn = 'seen from the next room';
-  else if (!room && !front(s)) warn = 'seen from the side';
-  const ty = base + (room ? 1.0 : i.kind === 'door' ? Math.min(1.0, (i.h || 2) / 2) : i.kind === 'step' ? 0.05 : 0.3);
+  else if (!room && !front(s)) warn = edgeOn(s) ? 'edge on' : 'seen from the side'; // over 65° off straight a door is a sliver (a front door seen from the hallway): shown from above
+  const ty = base + (room ? (isArea(i) ? 0.3 : 1.0) : i.kind === 'door' ? Math.min(1.0, (i.h || 2) / 2) : i.kind === 'step' ? 0.05 : 0.3);
   const pitch = s ? Math.max(-32, Math.min(5, -Math.atan2(s.position.y - ty, Math.max(d(s), 0.5)) * 180 / Math.PI)) : -20; // never steeper than 32° down: it reads as falling
   const v = { s, yaw: s ? yawTo(s.position, W(look)) : 0, pitch, warn };
   views.set(i.id, v); return v;
@@ -809,7 +924,8 @@ async function sweepMove(id, rotation, ms) {
 async function shot(i) {
   await landed(); if (moving || !sdk || !i.at) return false;
   const v = viewFor(i);
-  if (isArea(i) || v.warn === 'no clear view') return areaView(i);
+  if ((isArea(i) && !houseLike()) || /no clear view|only part|too close|edge on/.test(v.warn)) return areaView(i); // a house's scan has a roof: from above you saw the roof
+  if (model.floors.length > 1) shownFloor = floorOf(i) || null;
   const gen = walkGen, dest = v.s, pitch = v.pitch, yaw = v.yaw - frameOff();
   moving = true;
   try {
@@ -827,11 +943,15 @@ async function shot(i) {
 }
 // A whole-room problem (turning circle, hallway width) is best seen from above at an angle: the circle and every wall
 // around it in one picture. Doors and steps stay inside, at eye level.
+// More than one floor means a house, whose scan includes the roof: room problems are filmed from inside the room instead of from above.
+const houseLike = () => model?.floors.length > 1;
 const isArea = i => (i.kind === 'turn' || i.kind === 'hall') && isProblem(i); // rooms that pass keep the eye-level view
 async function areaView(i) {
   const r = ev.rooms.find(r => r.id === i.roomId), span = Math.max(r?.dims?.width || 2.5, r?.dims?.depth || 2.5);
   // Steep (72°) so the view clears the walls of small rooms; nudged right so the room sits left of the open card.
-  const d = Math.min(8, Math.max(6, span * 2.6)), a = 72 * Math.PI / 180, p = W(i.at), side = document.body.classList.contains('card-open') ? d * 0.22 : 0;
+  // A door shown from above (no good spot inside) needs a closer look than a room.
+  const d = i.kind === 'door' || i.kind === 'step' ? 4.5 : Math.min(8, Math.max(6, span * 2.6)), a = 72 * Math.PI / 180, p = W(i.at), side = document.body.classList.contains('card-open') ? d * 0.22 : 0;
+  await showFloor(floorOf(i)); // two floors: from above, only this one (the camera sat inside the floor above, or over the roof)
   moving = true;
   try { await sdk.Mode.moveTo(sdk.Mode.Mode.DOLLHOUSE, { position: { x: p.x + side, y: levelOf(i) + d * Math.sin(a), z: p.z + d * Math.cos(a) }, rotation: { x: -72, y: 0 }, transition: sdk.Mode.TransitionType.FLY }).catch(e => status('move: ' + e.message)); }
   finally { moving = false; }
@@ -842,7 +962,7 @@ const landed = async () => { for (let k = 0; moving && k < 40; k++) await new Pr
 async function goTo(i) {
   if (cardFor && cardFor.id !== i.id && !goingBack) trail.push(cardFor.id);
   goingBack = false;
-  if (mode !== 'walk') setMode(isArea(i) ? 'overview' : 'inside');
+  if (mode !== 'walk') setMode(isArea(i) && !houseLike() ? 'overview' : 'inside');
   showCard(i);
   // The entry questions (steps at the entry, door hardware) have no measured spot: look at the entry door the route starts from.
   const to = !i.at && CHECK[i.n]?.room === 'Entry' && ev.route.entry?.at ? { ...i, at: ev.route.entry.at } : i;
@@ -913,6 +1033,7 @@ const esc = t => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;',
 // Fix options for one item: every rung of its ladder, each re-checked; choosing one updates the plan and the 3D shape.
 const VERDICT = { closes: 'closes it', helps: 'helps, not enough', na: "doesn't apply here", nosupport: 'not counted as support' };
 const money = o => o.kind === 'contractor' ? (o.low == null ? 'not priced' : `$${o.low.toLocaleString()}–${o.high.toLocaleString()}`) : o.price == null ? 'not priced' : o.price === 0 ? '$0' : `$${o.price.toFixed(2)}`;
+const needsFitting = o => /^screws/.test(o?.product?.install || ''); // fixes.js INSTALL.screws
 function fixHtml(i) {
   const row = plan?.rows.find(r => r.item.id === i.id);
   if (!row) return '';
@@ -923,7 +1044,7 @@ function fixHtml(i) {
         ${[o.product && `${esc(o.product.store.split(' (')[0])}, ${esc(o.product.install)}`, o.change && esc(o.change.replace(' → ', ' to ')), !o.product && o.note && esc(o.note), o.kind === 'contractor' && o.source && !/master table/i.test(o.source) && esc(o.source), o.kind === 'text' && 'Typical price, not a store product'].filter(Boolean).map(t => `<small>${t}</small>`).join('')}
         ${o.reason ? `<small class="warn">${esc(o.reason)}</small>` : ''}${o.product?.evidence ? `<small class="ev" title="${esc(o.product.evidence)}">${esc(o.product.evidence)}</small>` : ''}
         <span class="vd">${VERDICT[o.verdict]}</span>${o.product?.url ? ` <a href="${esc(o.product.url)}" target="_blank" rel="noopener">Store ↗</a>` : ''}</span>
-      <span class="price">${money(o)}</span></label>`;
+      <span class="price">${money(o)}${needsFitting(o) ? '<small>+ labour, may vary</small>' : ''}</span></label>`;
   const noProd = !row.options.some(o => o.kind === 'product' && o.verdict !== 'nosupport' && o.verdict !== 'na');
   return `<h4>Fix options</h4>${noProd ? '<p class="nofix">Nothing you can buy fixes this. These are your options:</p>' : ''}<div class="opts" role="radiogroup" aria-label="Fix options">${row.options.map(opt).join('')}
     <label class="opt ${row.chosen ? '' : 'chosen'}"><input type="radio" name="fix" value="none" ${row.chosen ? '' : 'checked'}><span class="noimg">–</span><span class="what"><b>Don't fix this now</b></span><span class="price"></span></label></div>`;
@@ -954,7 +1075,7 @@ function showCard(i) {
       why = `The scan's floor plan ends this doorway at a wall corner, so the real doorway may well be wider than ${inch(i.w).toFixed(1)}" (a front door read as 22" was really about 36"). Measure the clear opening with the door open: <b>32"</b> or more fits a manual wheelchair.`;
     } else why = `A manual wheelchair is up to <b>${CHAIR}"</b> wide with hands on the wheels. This opening is ${inch(i.w).toFixed(1)}"; an open door takes about 1½–2", leaving about <b>${clear.toFixed(0)}"</b>. ` +
       (i.s === 'fail' ? 'The chair doesn\'t fit through.' : i.s === 'verify' ? 'An opening between 32" and 34" may leave just under 32" clear: measure it with a tape.' : i.s === 'skip' ? 'It only leads to a closet, so it isn\'t scored.' : clear >= CHAIR ? 'A chair fits through.' : 'It meets the 32" reference, but the widest chairs will be tight.');
-    svg = i.cut ? '' : doorSvg(clear); src = 'ADA 404.2.3 (32" clear), HUD Fair Housing Design Manual, Access Board anthropometry study';
+    svg = i.cut ? '' : doorSvg(clear, inch(i.w), i.s); src = 'ADA 404.2.3 (32" clear), HUD Fair Housing Design Manual, Access Board anthropometry study';
   } else if (i.kind === 'step') {
     tag = i.s === 'pass' ? 'Level threshold' : 'Step at the door';
     nums = [['Step height', ftin(i.value), i.s !== 'pass'], ['Level within', '¾"', false]];
@@ -993,48 +1114,61 @@ function showCard(i) {
   $('card').classList.add('open'); document.body.classList.add('card-open');
   const from = document.activeElement; if (from?.closest('#issues, #jumps')) { cameFrom = document.querySelector(`#issues [data-item="${i.id}"]`) || from; $('card').querySelector('.x').focus({ preventScroll: true }); }
 }
-// Top view: the gap between the door frames vs the wheelchair's width. 6 px per inch.
-function doorSvg(clear) {
-  const k = 6, W0 = 340, cx = W0 / 2, gap = clear * k, chair = CHAIR * k, over = (chair - gap) / 2;
-  return `<svg viewBox="0 0 ${W0} 230" role="img" aria-label="Wheelchair ${CHAIR} inches wide against a ${clear.toFixed(0)} inch doorway">
-    <rect x="0" y="40" width="${cx - gap / 2}" height="26" fill="#d1d1d6"/><rect x="${cx + gap / 2}" y="40" width="${W0 - cx - gap / 2}" height="26" fill="#d1d1d6"/>
-    <line x1="${cx - gap / 2}" y1="30" x2="${cx + gap / 2}" y2="30" stroke="#1d1d1f"/><text x="${cx}" y="22" text-anchor="middle" font-size="12">doorway ~${clear.toFixed(0)}" clear</text>
-    <rect x="${cx - chair / 2}" y="96" width="${chair}" height="110" rx="14" fill="none" stroke="#1d1d1f" stroke-width="2"/>
-    <rect x="${cx - chair / 2}" y="96" width="14" height="110" rx="6" fill="#1d1d1f"/><rect x="${cx + chair / 2 - 14}" y="96" width="14" height="110" rx="6" fill="#1d1d1f"/>
-    ${over > 0 ? `<rect x="${cx - chair / 2}" y="40" width="${over}" height="166" fill="#ff3b30" opacity=".35"/><rect x="${cx + gap / 2}" y="40" width="${over}" height="166" fill="#ff3b30" opacity=".35"/>` : ''}
-    <text x="${cx}" y="160" text-anchor="middle" font-size="12">wheelchair ${CHAIR}"</text>
-    <text x="${cx}" y="224" text-anchor="middle" font-size="12" fill="#d70015" font-weight="600">${over > 0 ? `${(CHAIR - clear).toFixed(1)}" too wide` : 'fits'}</text></svg>`;
+// Design A drawings: plan-style line work. Walls solid, dimension lines with ticks, a manual wheelchair seen from above.
+const DA = { ink: '#141414', mut: '#5C5A55', fail: '#D7261E', tape: '#7A5B00', ok: '#1E7B3A', tint: '#FFF6CC', fill: '#F3F1EA' }, DT = 'text-anchor="middle" font-size="12" font-weight="600"';
+const tick = (x, y) => `M${x - 4} ${y + 4}l8-8`;
+// The chair in inches (30.8 over the handrims, front at the top), its corner at x, y, drawn at s px per inch.
+function chairSvg(x, y, s, wheel = DA.ink) {
+  const t = 0.9 / s, side = m => `<g${m}><path d="M.45 16V34" fill="none" stroke="${wheel}"/><path d="M.45 19H1.2M.45 25H1.2M.45 31H1.2" fill="none" stroke="${wheel}" stroke-width="${t}"/>
+    <rect x="1.2" y="13" width="1.7" height="24" rx=".85" fill="${wheel}" stroke="${wheel}"/><path d="M2.9 25H5" fill="none"/><rect x="4.7" y="14.5" width="1.3" height="13" rx=".65"/>
+    <path d="M7.6 13.4C7.4 9.5 10.6 8.6 11.2 4.4M7.4 12.2L5.7 9.6" fill="none"/><rect x="4.95" y="7.2" width="1.5" height="4.8" rx=".75" fill="${DA.ink}"/>
+    <rect x="8.5" y="0" width="6.2" height="4.4" rx=".9"/><path d="M9.6 1.5H13.6M9.6 2.9H13.6" fill="none" stroke-width="${t}"/><path d="M7.6 31.6V35.4" fill="none" stroke-width="${4 / s}"/></g>`;
+  return `<g transform="translate(${x} ${y}) scale(${s * CHAIR / 30.8} ${s})" stroke="${DA.ink}" stroke-width="${1.5 / s}" fill="#fff" stroke-linejoin="round" stroke-linecap="round">${side('')}${side(' transform="translate(30.8 0) scale(-1 1)"')}
+    <rect x="6.4" y="13" width="18" height="17.4" rx="2"/><rect x="7.8" y="14.4" width="15.2" height="13.6" rx="1.4" stroke="${DA.mut}" stroke-width="${t}"/><rect x="6" y="29.4" width="18.8" height="2.4" rx="1.2" fill="${DA.ink}"/></g>`;
 }
-// Side view: the step against the ½" limit. 20 px per inch (exaggerated so small steps show).
+// Top view: the walls, the open door, the clear gap it leaves, and the chair. Up to 5 px per inch.
+function doorSvg(clear, door = clear + CLEAR_LOSS, s = 'fail') {
+  const W0 = 340, k = Math.min(5, 300 / Math.max(door, CHAIR)), L = (W0 - door * k) / 2, R = L + door * k, c0 = R - clear * k, mid = (c0 + R) / 2, over = CHAIR - clear, hot = s === 'fail' ? DA.fail : DA.tape;
+  return `<svg viewBox="0 0 ${W0} 326" role="img" aria-label="Wheelchair ${CHAIR} inches wide against a ${clear.toFixed(0)} inch doorway">
+    <rect x="0" y="44" width="${L}" height="22" fill="${DA.ink}"/><rect x="${R}" y="44" width="${W0 - R}" height="22" fill="${DA.ink}"/>
+    <path d="M${L} 40V14M${R} 40V14" stroke="${DA.mut}"/><path d="M${L} 24H${R}${tick(L, 24)}${tick(R, 24)}" stroke="${DA.ink}"/><text x="${(L + R) / 2}" y="17" ${DT}>doorway ${door.toFixed(1)}"</text>
+    <rect x="${L}" y="66" width="${c0 - L}" height="270" fill="#fff" stroke="${DA.ink}" stroke-width="1.5"/>
+    <path d="M${c0} 92H${R}${tick(c0, 92)}${tick(R, 92)}" stroke="${DA.tape}"/><text x="${mid}" y="85" ${DT} fill="${DA.tape}">about ${clear.toFixed(0)}" clear</text>
+    ${chairSvg(mid - CHAIR * k / 2, 106, k, over > 0 ? hot : DA.ink)}
+    <text x="${mid}" y="${106 + 21 * k}" ${DT}>wheelchair</text><text x="${mid}" y="${106 + 21 * k + 16}" ${DT}>${CHAIR}"</text>
+    <text x="${mid}" y="318" ${DT} fill="${over > 0 ? hot : DA.ok}">${over > 0 ? `${over.toFixed(1)}" too wide` : 'fits'}</text></svg>`;
+}
+// Side view, 16 px per inch: a 3½ inch front caster against the step and the ½" limit.
 function stepSvg(h) {
-  const k = 20, base = 170, sh = Math.min(h, 6) * k;
-  return `<svg viewBox="0 0 340 200" role="img" aria-label="${h.toFixed(1)} inch step against the half inch limit">
-    <line x1="0" y1="${base}" x2="340" y2="${base}" stroke="#1d1d1f" stroke-width="2"/>
-    <rect x="200" y="${base - sh}" width="140" height="${sh}" fill="#ff3b30" opacity=".55"/>
-    <line x1="150" y1="${base - 0.5 * k}" x2="340" y2="${base - 0.5 * k}" stroke="#248a3d" stroke-dasharray="5 4"/>
-    <text x="150" y="${base - 0.5 * k - 6}" font-size="12" fill="#248a3d">½" limit</text>
-    <circle cx="150" cy="${base - 36}" r="36" fill="none" stroke="#1d1d1f" stroke-width="3"/><circle cx="150" cy="${base - 36}" r="4"/>
-    <text x="270" y="${base - sh - 8}" text-anchor="middle" font-size="12" font-weight="600" fill="#d70015">${h.toFixed(1)}" step</text>
-    <text x="170" y="194" text-anchor="middle" font-size="11" fill="#6e6e73">side view, step drawn 20× larger than the wheel</text></svg>`;
+  const k = 16, base = 132, top = base - Math.min(h, 6) * k, cy = base - 29;
+  return `<svg viewBox="0 0 340 184" role="img" aria-label="${h.toFixed(1)} inch step against the half inch limit">
+    <path d="M0 ${base}H200V${top}H340V184H0Z" fill="${DA.fill}"/><path d="M0 ${base}H200V${top}H340" fill="none" stroke="${DA.ink}" stroke-width="2"/>
+    <path d="M171 ${cy}L160 ${cy - 37}" stroke="${DA.ink}" stroke-width="5" stroke-linecap="round"/><rect x="150" y="${cy - 55}" width="18" height="20" rx="3" fill="#fff" stroke="${DA.ink}" stroke-width="1.5"/>
+    <path d="M159 ${cy - 55}V${cy - 73}H86" fill="none" stroke="${DA.ink}" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="171" cy="${cy}" r="28" fill="${DA.ink}"/><circle cx="171" cy="${cy}" r="21" fill="#fff"/><path d="M171 ${cy - 21}V${cy + 21}M150 ${cy}H192M156 ${cy - 15}L186 ${cy + 15}M186 ${cy - 15}L156 ${cy + 15}" stroke="${DA.mut}"/><circle cx="171" cy="${cy}" r="5" fill="${DA.ink}"/>
+    <text x="86" y="${cy - 81}" font-size="11" fill="${DA.mut}">front wheel of the chair</text>
+    ${h >= 0.25 ? `<path d="M216 ${top}V${base}${tick(216, top)}${tick(216, base)}" stroke="${DA.fail}"/><text x="228" y="${(top + base) / 2 + 6}" font-family="Barlow Semi Condensed, Barlow, sans-serif" font-size="18" font-weight="700" fill="${DA.fail}">${h.toFixed(1)}" step</text>` : ''}
+    <path d="M16 ${base - 0.5 * k}H110" stroke="${DA.ok}" stroke-dasharray="4 3"/><text x="16" y="${base - 0.5 * k - 7}" font-size="11" fill="${DA.ok}">½" limit</text>
+    <text x="16" y="${base + 22}" font-size="11" fill="${DA.mut}">floor</text><text x="228" y="${base + 22}" font-size="11" fill="${DA.mut}">past the door</text></svg>`;
 }
-// Top view: the room's narrow side vs the 5' turning circle. 2.6 px per inch.
+// Top view, 2.6 px per inch: the room's narrow side, the 5' turning circle and the chair. What the circle needs beyond the walls is tinted red.
 function turnSvg(across) {
-  const k = 2.6, cx = 170, cy = 105, r = 30 * k, half = Math.min(across * k / 2, 100); // rooms wider than the drawing are shown at its edge
-  return `<svg viewBox="0 0 340 240" role="img" aria-label="Five foot turning circle in a room ${across.toFixed(0)} inches across">
-    <defs><clipPath id="out"><rect x="0" y="0" width="340" height="${Math.max(0, cy - half)}"/><rect x="0" y="${cy + half}" width="340" height="215"/></clipPath></defs>
-    <rect x="0" y="${cy - half - 8}" width="340" height="8" fill="#d1d1d6"/><rect x="0" y="${cy + half}" width="340" height="8" fill="#d1d1d6"/>
-    <circle cx="${cx}" cy="${cy}" r="${r}" fill="#ff3b30" opacity=".35" clip-path="url(#out)"/>
-    <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#ff3b30" stroke-width="2" stroke-dasharray="6 4"/>
-    <text x="${cx}" y="${cy + 4}" text-anchor="middle" font-size="12">5' turning circle</text>
-    <text x="8" y="${cy - half - 14}" font-size="11" fill="#6e6e73">wall</text>
-    <text x="${cx}" y="232" text-anchor="middle" font-size="12" font-weight="600" fill="#d70015">room is ${ft(across * IN)} across, circle needs 5' 0"</text></svg>`;
+  const k = 2.6, cx = 170, cy = 104, r = 30 * k, half = Math.min(across * k / 2, 150), c = across < 60 ? DA.fail : DA.ink; // rooms wider than the drawing are shown at its edge
+  return `<svg viewBox="0 0 340 236" role="img" aria-label="Five foot turning circle in a room ${across.toFixed(0)} inches across">
+    <defs><clipPath id="out"><rect x="0" y="0" width="${Math.max(0, cx - half)}" height="236"/><rect x="${cx + half}" y="0" width="${340 - cx - half}" height="236"/></clipPath></defs>
+    <circle cx="${cx}" cy="${cy}" r="${r}" fill="${DA.tint}" stroke="${DA.tape}" stroke-width="1.5" stroke-dasharray="5 4"/><circle cx="${cx}" cy="${cy}" r="${r}" fill="${DA.fail}" opacity=".3" clip-path="url(#out)"/>
+    <rect x="${cx - half - 8}" y="14" width="8" height="180" fill="${DA.ink}"/><rect x="${cx + half}" y="14" width="8" height="180" fill="${DA.ink}"/>
+    <text x="${cx}" y="${cy - r + 18}" text-anchor="middle" font-size="11" font-weight="600" fill="${DA.tape}">5' turning circle</text>
+    ${chairSvg(cx - CHAIR * k / 2, cy - 19 * k, k)}
+    <path d="M${cx - half} 198V216M${cx + half} 198V216" stroke="${DA.mut}"/><path d="M${cx - half} 208H${cx + half}${tick(cx - half, 208)}${tick(cx + half, 208)}" stroke="${c}"/>
+    <text x="${cx}" y="230" ${DT} fill="${c}">room is ${ft(across * IN)} across, circle needs 5' 0"</text></svg>`;
 }
 
 let checks = [], convo = [], issueList = [], pose = null, products = [], plan = null, ev = null, choices = {}, budget = null;
 function moneyLine() {
   const m = $('money'); if (!m) return;
   const c = plan.contractor, n = plan.noPurchaseFix.length;
-  m.innerHTML = `<b id="plan-total">$${plan.purchases.toFixed(2)}</b><span>fixes ${plan.closed} of ${plan.rows.length} problems</span>`;
+  m.innerHTML = `<b id="plan-total">$${plan.purchases.toFixed(2)}</b><span>fixes ${plan.closed} of ${plan.rows.length} problems${plan.rows.some(r => needsFitting(r.chosen)) ? ', plus labour (may vary)' : ''}</span>`;
   m.title = [`$${plan.purchases.toFixed(2)} in parts you can buy fixes ${plan.closed} of ${plan.rows.length} problems`, n && `${n} can't be fixed by buying something`,
     c.high && `Contractor work you chose: $${c.low.toLocaleString()}–${c.high.toLocaleString()}`, budget != null && `Budget $${budget}, $${plan.left.toFixed(2)} left`].filter(Boolean).join('. ');
 }
@@ -1164,6 +1298,7 @@ function renderList() {
     const box = document.createElement(g === 'pass' ? 'details' : 'section'); box.className = 'grp';
     box.innerHTML = g === 'pass' ? `<summary>${label} (${rows.length})</summary>` : `<h5>${label} <span>${rows.length}</span></h5>` + (g === 'none' ? '<button type="button" class="start" id="start-check">Complete the check, bathroom first</button><details><summary>Show what is left to check</summary></details>' : '');
     const into = g === 'none' ? box.querySelector('details') : box;
+    if (g !== 'none') box.querySelector('h5')?.addEventListener('click', () => openItem(rows[0])); // the heading takes you to the first of its issues
     for (const i of rows) into.appendChild(issueRow(i));
     $('issues').appendChild(box);
   }
@@ -1189,7 +1324,17 @@ async function load(sid) {
   $('skel')?.remove();
   // Test hooks for the smoke run: measure() feeds two world points through the same handler as Matterport's ruler.
   window.__ie = { ready: true, pins: d.tags, shapes: d.scene, measure: (id, a, b) => onMeasured(id, a, b), plan: () => ({ purchases: plan.purchases, budget, closed: plan.closed }),
-    shot5: () => showCard(checks.find(c => c.s === 'none' && CHECK[c.n].how === 'ask' && /bath/i.test(CHECK[c.n].room))) };
+    shot5: () => showCard(checks.find(c => c.s === 'none' && CHECK[c.n].how === 'ask' && /bath/i.test(CHECK[c.n].room))),
+    // View checks (notes/view_check.mjs): open problem k, and where its camera stands (distance, angle off straight on, warning).
+    open: k => openItem(issueList[k]),
+    cands: k => { const i = issueList[k], fl = floorOf(i); return sweeps.filter(s => s.enabled !== false && Math.abs(floorY(s) - levelOf(i)) < 1.2).map(s => { const p = planOf(s);
+      return { id: s.id, d: Math.round(Math.hypot(p.x - i.at.x, p.y - i.at.y) * 100) / 100, sees: clearView(p, i.at, fl), whole: wholeView(p, i, fl),
+        off: Math.round(Math.acos(Math.min(1, Math.abs(-(i.at.x - p.x) * Math.sin(i.angle) + (i.at.y - p.y) * Math.cos(i.angle)) / (Math.hypot(i.at.x - p.x, i.at.y - p.y) || 1))) * 180 / Math.PI) }; })
+      .filter(c => c.sees && c.d < 6).sort((a, b) => a.d - b.d); },
+    views: () => issueList.map((i, k) => { const v = viewFor(i), p = v.s && planOf(v.s), look = i.at;
+      return { k, id: i.id, kind: i.kind, title: i.title, between: i.between, sweep: v.s?.id, warn: v.warn, pitch: Math.round(v.pitch),
+        d: p && Math.round(Math.hypot(p.x - look.x, p.y - look.y) * 100) / 100,
+        off: p && i.angle != null ? Math.round(Math.acos(Math.min(1, Math.abs(-(look.x - p.x) * Math.sin(i.angle) + (look.y - p.y) * Math.cos(i.angle)) / (Math.hypot(look.x - p.x, look.y - p.y) || 1))) * 180 / Math.PI) : null }; }) };
   // Open on the whole apartment in 3D (Matterport's dollhouse), red areas included; issues fly inside.
   await overview();
   // ?focus=critical: an embedding page "dives" into the first critical problem (the walk, if it starts first, starts there).
@@ -1199,6 +1344,7 @@ async function load(sid) {
 // Dollhouse camera framed on the apartment's own walls (from the wall data), looking down at ~50°.
 async function overview() {
   if (mode !== 'drone') setMode('overview');
+  if (shownFloor) await showFloor(null); // the whole building again
   const pts = model.floors.flatMap(f => f.vertices.map(v => v.position));
   const xs = pts.map(p => p.x), ys = pts.map(p => p.y);
   const cx = (Math.min(...xs) + Math.max(...xs)) / 2, cy = (Math.min(...ys) + Math.max(...ys)) / 2;
@@ -1319,7 +1465,7 @@ const TOOLS = {
   async open_page({ page }) {
     if (page === 'home' && !model) { $('apartments').scrollIntoView({ behavior: 'smooth' }); return 'This is the start page. The apartments are on screen.'; }
     if (page === 'neighbourhood' && EMBED) { setTimeout(() => parent.__region?.back?.(), 0); return 'Back over the neighbourhood.'; }
-    navTo = 'page:' + page; return `Opening the ${page === 'home' ? 'start page with all apartments' : 'neighbourhood comparison'}.`;
+    navTo = 'page:' + page; return `Opening the ${{ home: 'start page with all apartments', streets: 'street check' }[page] || 'neighbourhood comparison'}.`;
   },
 };
 const EMBED = new URLSearchParams(location.search).get('embed') === '1' && parent !== window; // shown inside the neighbourhood flyover
@@ -1348,7 +1494,7 @@ let asking = null, navTo = null; // the running question (a new one, or "stop", 
 let facts = null, sentFacts = ''; // the apartment data Claude got at the start of the chat, and the newest copy it has seen
 const person = () => { try { return sessionStorage.getItem('ie-person') || ''; } catch { return ''; } };
 const stopAsking = () => { asking?.abort(); navTo = null; }; // a stopped request must not change the page later
-const openApartment = id => { if (id.startsWith('page:')) location.href = id === 'page:home' ? './' : 'region.html'; else location.search = `?m=${id}&q=${$('quality').value}`; };
+const openApartment = id => { if (id.startsWith('page:')) location.href = { 'page:home': './', 'page:streets': 'street.html' }[id] || 'region.html'; else location.search = `?m=${id}&q=${$('quality').value}`; };
 // One question, typed or spoken. on('step', label) for each thing the tour does; on('say', text) as soon as the answer is known.
 // Returns { text, error, open }: open = the apartment to load once the answer has been read.
 async function ask(text, { on = () => {}, note } = {}) {
@@ -1774,10 +1920,6 @@ async function renderHome() {
   $('demoLink').href = $('navDemo').href = `?m=${demo.id}`;
   const rows = [];
   for (const t of list) rows.push(await rowOf(t));
-  // Proof numbers come from the data: the worst "accessible"-labelled unit.
-  const worstLabelled = rows.filter(x => x.labelled).sort((a, b) => fails(b) - fails(a))[0];
-  $('proof').innerHTML = (worstLabelled && fails(worstLabelled) ? `<div><b class="red">${fails(worstLabelled)} fail</b><span>in a unit labelled "ADA"</span></div>` : '') +
-    `<div><b>${rows.length}</b><span>apartments in Houston and LA</span></div>`;
   rows.sort((a, b) => (b.t.id === demo.id) - (a.t.id === demo.id) || fails(b) - fails(a));
   homeRows = rows;
   for (const row of rows) $('grid').appendChild(aptCard(row));
@@ -1789,7 +1931,8 @@ async function renderHome() {
 // The chat types along with the film, letter by letter, on the film's own clock (so a loop or a seek lines up again): the person's
 // words at speaking pace, then "…" while the guide thinks, then its reply, each line finished before the next one starts.
 async function filmOn() {
-  let film; try { film = await (await fetch('private/demo/walk.json')).json(); } catch { return; }
+  // no-cache + the lines file's date on the film's URL: a new recording shows at once instead of the browser's old copy.
+  let film, ver; try { const r = await fetch('private/demo/walk.json', { cache: 'no-cache' }); ver = Date.parse(r.headers.get('last-modified')) || ''; film = await r.json(); } catch { return; }
   const v = $('filmVideo'), list = $('filmTalk'), still = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const lines = [];
   for (const [k, l] of (film.lines || []).entries()) {
@@ -1799,8 +1942,8 @@ async function filmOn() {
     lines.push({ ...l, start, end, dots: wait > 0.5 ? start - wait + 0.15 : null });
   }
   // Bubbles are made once and their text grows in place (rebuilding them every letter replayed their fade-in).
-  const els = new Map(), dots = Object.assign(document.createElement('li'), { className: 'guide dots', innerHTML: '<b>Guide</b><span><i></i><i></i><i></i></span>' });
-  dots.setAttribute('aria-label', 'The guide is answering');
+  const els = new Map(), dots = Object.assign(document.createElement('li'), { className: 'guide dots', innerHTML: '<b>Assistant</b><span><i></i><i></i><i></i></span>' });
+  dots.setAttribute('aria-label', 'The assistant is answering');
   let lastT = 0;
   const render = () => {
     const t = v.currentTime;
@@ -1809,7 +1952,7 @@ async function filmOn() {
     for (const [k, el] of els) if (!keep.has(k)) { el.remove(); els.delete(k); }
     for (const [k, l] of on) {
       let el = els.get(k);
-      if (!el) { el = document.createElement('li'); el.className = l.who === 'you' ? 'you' : 'guide'; el.innerHTML = `<b>${l.who === 'you' ? 'You' : 'Guide'}</b><span></span>`; list.insertBefore(el, dots.isConnected ? dots : null); els.set(k, el); }
+      if (!el) { el = document.createElement('li'); el.className = l.who === 'you' ? 'you' : 'guide'; el.innerHTML = `<b>${l.who === 'you' ? 'You' : 'Assistant'}</b><span></span>`; list.insertBefore(el, dots.isConnected ? dots : null); els.set(k, el); }
       const n = still ? l.text.length : Math.min(l.text.length, Math.floor((t - l.start) / (l.end - l.start || 1) * l.text.length));
       if (el.lastChild.textContent.length !== n) el.lastChild.textContent = l.text.slice(0, n);
       el.classList.toggle('typing', n < l.text.length);
@@ -1819,7 +1962,7 @@ async function filmOn() {
   };
   const loop = () => { render(); if (!v.paused) requestAnimationFrame(loop); };
   v.addEventListener('play', loop); v.addEventListener('seeked', render);
-  v.poster = 'private/demo/walk.jpg'; v.src = 'private/demo/walk.mp4';
+  v.poster = 'private/demo/walk.jpg?v=' + ver; v.src = 'private/demo/walk.mp4?v=' + ver;
   v.onerror = () => { $('film').hidden = true; };
   $('film').hidden = false;
   if (still) v.controls = true; else v.play().catch(() => { v.controls = true; });
@@ -1881,7 +2024,7 @@ import('./voice.js').then(v => {
     hold: () => { if (mode === 'walk' && (playing || resumeAfter)) { resumeAfter = true; stopAuto(); } }, // the person started talking
     // talked = after an answer to something they said (not after a plain command like "night mode"): that starts the walk if none runs.
     resume: talked => { if (!resumeAfter) return void (talked && autoWalk()); resumeAfter = false; if (mode === 'walk' && cardFor === stops[at]) { playing = true; $('w-play').textContent = 'Pause'; advance(); } },
-    get help() { return this.home ? 'Ask which apartment is worst, or say open the one in Los Angeles. To browse every CoStar tour, say Houston, Los Angeles, accessible or homes, then more, or open the third one. Say neighbourhood to compare the streets around them.'
+    get help() { return this.home ? 'Ask which apartment is worst, or say open the one in Los Angeles. To browse every CoStar tour, say Houston, Los Angeles, accessible or homes, then more, or open the third one. Say neighbourhood to compare the streets around them, or check the streets for the slopes around any building.'
       : 'Say a room or a door, like the bathroom or the balcony door. Ask anything, like can he get into the bathroom, or fix what you can for two hundred dollars. Say walkthrough, floor plan, night mode, next, or stop.'; },
     places: () => ({ rooms: checks.filter(c => (c.kind === 'turn' || c.kind === 'hall') && c.room).map(c => ({ id: c.id, name: c.room, say: title(c) })),
       doors: checks.filter(c => c.kind === 'door' && c.s !== 'skip').map(c => ({ id: c.id, rooms: (c.between || c.room || '').split(' ↔ '), say: said(c) })),
@@ -1892,7 +2035,8 @@ import('./voice.js').then(v => {
         ['homes|houses|homes only|residential|residential tours', { group: 'homes' }, 'Homes'],
         ['houston|houston tours|tours in houston|houston ones', { group: 'houston' }, 'Houston tours'],
         ['los angeles|la|l a|la tours|los angeles tours|tours in los angeles|los angeles ones', { group: 'los_angeles' }, 'Los Angeles tours'],
-        ['more|more tours|show more|load more|next page|more please|see more', { more: true }, 'More tours']].map(([keys, input, say]) => ({ keys, tool: 'browse', input, say })) }) };
+        ['more|more tours|show more|load more|next page|more please|see more', { more: true }, 'More tours']].map(([keys, input, say]) => ({ keys, tool: 'browse', input, say }))
+        .concat({ keys: 'streets|street|check the streets|check streets|check the street|street check|streets around|street slopes|slopes|sidewalks', tool: 'open_page', input: { page: 'streets' } }) }) }; // the street check (street.html)
   // Inside the neighbourhood flyover (embed=1) there is one voice bar, the flyover's: it drives this tour through __tourApi.
   // Space and Esc pressed in here are passed up to it.
   if (EMBED) {

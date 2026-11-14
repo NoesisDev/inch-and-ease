@@ -128,7 +128,7 @@ export function stopLine(c, row, typeOf) {
   if (c.critical && s !== 'pass') fact = pick(c, ['This is the big one. ', 'This one matters most. ']) + fact;
   if (s === 'pass' || !row) return { text: fact, ask: false };
   const o = row.chosen, name = x => fixName(x, typeOf), costly = x => fixCost(x) && x.kind !== 'free';
-  const priced = x => x.kind === 'contractor' ? `${name(x)}, about ${fixCost(x)}` : costly(x) ? `${name(x)} for ${fixCost(x)}` : name(x);
+  const priced = x => x.kind === 'contractor' ? (fixCost(x) ? `${name(x)}, about ${fixCost(x)}` : `${name(x)}; a contractor can price it`) : costly(x) ? `${name(x)} for ${fixCost(x)}` : name(x);
   if (o?.verdict === 'closes') return { text: `${fact} ${o.kind === 'free' || !costly(o) ? `Easy fix, and free: ${name(o)}.` : `It's in your plan: ${priced(o)} sorts it out.`}`, ask: false };
   if (o) return { text: `${fact} ${cap(priced(o))} in your plan helps, but won't solve it completely.`, ask: false };
   if (row.byYou) return { text: `${fact} You've left this one for later.`, ask: false };
@@ -144,7 +144,8 @@ export const keepsNumbers = (base, line) => (String(base).match(NUMS) || []).eve
 
 const CSS = `
 #voice { left:50%; top:44px; transform:translateX(-50%); z-index:7; display:flex; gap:10px; align-items:flex-start; padding:6px; border-radius:22px; max-width:min(620px, calc(100% - 120px)); transition:left var(--ease), top var(--ease); }
-#voice.home { position:fixed; top:auto; bottom:20px; z-index:45; }
+#voice.home { position:fixed; top:auto; bottom:10px; z-index:45; left:16px; right:16px; margin:0 auto; transform:none; width:fit-content; max-width:560px; }
+#voice.home #v-body { grid-template-columns:minmax(0, 1fr); } #voice.home #v-hint { overflow:hidden; text-overflow:ellipsis; } /* phones: the hint ends in … instead of running off screen */
 #hint:not([hidden]) ~ #voice { top:70px; }
 body.card-open #voice:not(.home) { left:calc((100% - 352px) / 2); max-width:min(620px, calc(100% - 420px)); }
 #v-mic { width:40px; height:40px; padding:0; flex:none; display:grid; place-items:center; background:var(--accent); color:var(--accentInk); position:relative; }
@@ -170,7 +171,13 @@ body.card-open #voice:not(.home) { left:calc((100% - 352px) / 2); max-width:min(
 #v-hint kbd { font:600 11px var(--font); padding:1px 6px; border-radius:6px; background:var(--fill); color:var(--ink); }
 #v-body > :empty, #voice[data-state=idle] #v-state, #voice:not([data-state=idle]) #v-hint, #voice[data-full=true] #v-hint { display:none; }
 [data-theme=contrast] #voice { border:1px solid #fff; }
-@media print { #voice { display:none; } }`;
+#v-intro { position:fixed; inset:0; z-index:60; display:grid; place-items:center; padding:16px; background:rgba(0,0,0,.35); }
+#v-intro > div { max-width:420px; padding:28px; border-radius:8px; background:#fff; color:#1b1f1d; box-shadow:0 12px 40px rgba(0,0,0,.25); text-align:center; display:grid; gap:14px; justify-items:center; }
+#v-intro b { font-size:22px; line-height:1.25; }
+#v-intro p { margin:0; font-size:15px; line-height:1.45; color:#4a524e; }
+#v-intro kbd { font:600 16px var(--font); padding:6px 22px; border-radius:6px; background:#eef0ee; color:#1b1f1d; box-shadow:inset 0 -2px 0 #c9cdca; }
+#v-intro button { padding:10px 22px; background:#1F4D3F; color:#fff; font-weight:600; }
+@media print { #voice, #v-intro { display:none; } }`;
 const MIC = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>';
 const LABEL = { listening: 'Listening', thinking: 'Working', speaking: 'Speaking' };
 const esc = t => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -188,6 +195,24 @@ export default function initVoice(api) {
     <div id="v-hint">Hold <kbd>Space</kbd> and ask anything: “${api.home ? 'Which apartment is worst?' : 'Can he get into the bathroom?'}”</div></div>`;
   (api.home ? document.body : document.querySelector('main')).appendChild(bar);
   const el = id => bar.querySelector('#' + id);
+
+  // Intro, once per tab (?intro shows it again): talking to the assistant is the main way in. Not in muted tests/films or the flyover's embedded tour.
+  const qs = new URLSearchParams(location.search);
+  if (qs.has('intro') || (!store.get('ie-intro') && !window.__mute && !qs.has('mute') && window.top === window)) {
+    store.set('ie-intro', '1');
+    const touch = matchMedia('(pointer: coarse)').matches, box = document.createElement('div'); box.id = 'v-intro';
+    box.setAttribute('role', 'dialog'); box.setAttribute('aria-modal', 'true'); box.setAttribute('aria-labelledby', 'v-intro-h');
+    box.innerHTML = `<div>${touch ? '' : '<kbd>Space</kbd>'}<b id="v-intro-h">${touch ? 'Tap the mic' : 'Hold Space'} to talk to your assistant</b>
+      <p>For the best experience, just ask out loud: “Which apartment is best for my dad in Hollywood?”</p>
+      <p><b style="font-size:inherit;color:#1b1f1d">Neighbourhood check</b> (the apartments and the streets around them): Northeast LA, Hollywood and Houston Heights.<br>
+      <b style="font-size:inherit;color:#1b1f1d">Room check</b>: any other apartment tour.</p>
+      <p>You can always type instead.</p>
+      <button type="button">Got it</button></div>`;
+    const close = () => { box.remove(); removeEventListener('keydown', onKey, true); };
+    const onKey = e => { if (e.code === 'Space' || e.key === 'Escape' || e.key === 'Enter') close(); }; // Space also starts listening (handler below)
+    box.querySelector('button').onclick = close; box.onclick = e => { if (e.target === box) close(); };
+    addEventListener('keydown', onKey, true); document.body.appendChild(box); box.querySelector('button').focus();
+  }
 
   // ---- The bar: one state object, one render ----
   const ui = { state: 'idle', heard: '', steps: [], say: '', err: false };

@@ -10,7 +10,7 @@ The 3D apartment tour (`tour/`) runs locally: the tours are CoStar / Matterport 
 | Part | Where | Run | Tests |
 |---|---|---|---|
 | Around the building | `src/` (Next.js) | `npm install && npm run dev` | `npm test` |
-| 3D tour + neighbourhood flyover | `tour/` (plain ES modules + a small Python server) | `uv run --with anthropic python tour/serve.py` | `node --test tour/*.test.mjs` |
+| 3D tour + neighbourhood flyover + street check (`street.html`, same data code as `src/lib`) | `tour/` (plain ES modules + a small Python server; the one local app) | `uv run --with anthropic python tour/serve.py` | `node --test tour/*.test.mjs` |
 
 `data/` (products, checks, profiles, sources) was collected as research before the event; all code was written during the hacking window. Built solo during the event, with Claude Code as the coding assistant.
 

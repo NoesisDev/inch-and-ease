@@ -64,6 +64,26 @@
   #demo { white-space:nowrap; flex:none; }
   #credits { position:fixed; left:24px; bottom:24px; z-index:5; font-size:11px; line-height:1.35; color:var(--muted); max-width:min(320px, calc(50% - 400px)); padding:8px 12px; border-radius:12px; }
   #credits:empty { display:none; }
+  #tip { position:fixed; z-index:6; pointer-events:none; max-width:280px; padding:10px 14px; border-radius:14px; font-size:13px; line-height:1.45; color:var(--muted); }
+  #tip b { display:block; color:var(--ink); font-size:15px; } #tip .v { color:var(--ink); }
+  #card .park { margin-top:12px; font-size:13px; color:var(--muted); } #card .park b { color:var(--ink); }
+  /* Compact (user, Nov 14: "the menus occupy most of the screen"): narrower panels, smaller type and padding, a slimmer ask bar,
+     so the map is the picture. At 1440x900 the panels covered about half of it. */
+  #side { left:16px; top:16px; width:256px; gap:8px; }
+  #top { padding:12px 14px; } #top h1 { font-size:18px; } #top p { margin-top:4px; font-size:12px; line-height:1.35; }
+  #legend { gap:4px 10px; font-size:11px; margin-top:8px; flex-wrap:wrap; }
+  #units { padding:4px; } #units button { gap:10px; padding:6px 8px; border-radius:12px; font-size:14px; } #units small { font-size:11px; }
+  .k { width:24px; height:24px; border-radius:8px; font-size:13px; }
+  #card { right:16px; top:16px; width:292px; padding:14px; }
+  #card .tag { font-size:11px; padding:4px 9px; } #card h2 { margin:8px 0 1px; font-size:18px; } #card .sub { font-size:12px; }
+  #card .stats { gap:6px; margin:10px 0; } #card .stats div { padding:8px 10px; border-radius:12px; font-size:11px; }
+  #card .stats b { font-size:20px; } #card .stats b small { font-size:13px; }
+  #card ul { font-size:12px; line-height:1.4; } #card li { gap:8px; margin:6px 0; } #card li i { margin-top:4px; }
+  #card .src { margin-top:8px; font-size:10px; } #card .park { margin-top:8px; font-size:12px; }
+  #controls { bottom:16px; padding:4px; width:min(520px, calc(100% - 32px)); } #ask input { padding:8px 14px; font-size:14px; } #demo { padding:8px 14px; font-size:14px; }
+  #credits { left:16px; bottom:16px; font-size:10px; padding:5px 9px; border-radius:10px; max-width:min(240px, calc(50% - 280px)); opacity:.85; }
+  body #voice.home { bottom:68px; } #voice #v-say:not(.err) { font-size:16px; } body.in-tour #voice #v-say:not(.err) { font-size:15px; }
+  @media (max-width:1100px) { #side { width:224px; } #card { width:256px; } }
 
   #tour { position:fixed; inset:0; width:100%; height:100%; border:0; z-index:20; opacity:0; pointer-events:none; transition:opacity .6s; background:var(--bg); }
   #tour.on { opacity:1; pointer-events:auto; }
@@ -86,6 +106,7 @@
 </head>
 <body>
 <canvas id="c" aria-label="3D aerial view of the neighbourhood with the apartments marked" role="img"></canvas>
+<div id="tip" class="glass" hidden></div>
 <div id="side">
   <header id="top" class="glass"><p class="brand">Inch &amp; Ease</p><h1 id="area-name"></h1><p id="rule"></p><div id="legend-slot"></div></header>
   <ol id="units" class="glass" aria-label="Apartments in this area"></ol>
@@ -110,6 +131,7 @@
     <dt><kbd>Esc</kbd></dt><dd>Stop</dd>
     <dt><kbd>B</kbd></dt><dd>Back from a tour</dd>
     <dt><kbd>F</kbd></dt><dd>Full screen</dd>
+    <dt>Drag</dt><dd>Turn the map; scroll to zoom, right-drag to slide</dd>
   </dl>
   <button id="go" type="button" disabled>Loading…</button><div id="status" role="status"></div>
 </div></div>
@@ -124,7 +146,7 @@ const esc = t => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;',
 const params = new URLSearchParams(location.search), still = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const COL = { pass: 0x30d158, verify: 0xff9f0a, fail: 0xff453a };
 const FONT = '-apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", system-ui, sans-serif';
-const EX = 1.6; // hills drawn 1.6× taller so the terrain reads from the air
+const EX = 1.15; // hills a touch taller so they read from the air; more stretches the photo into streaks on steep slopes
 const SAMPLE_Q = "I'm looking for the best apartment for my father. He uses a wheelchair. Can you tell me about each one?";
 
 // ---- Data: the prefetched area (tour/region_fetch.mjs) + the 21 checks on each apartment's tour ----
@@ -134,6 +156,7 @@ const REGIONS = await fetch('private/region/regions.json').then(r => r.json()).c
 const goRegion = slug => { location.href = 'region.html' + (slug ? '?r=' + slug : ''); };
 const R = await (await fetch(RD + 'region.json')).json();
 const products = (await (await fetch('/data/products.json')).json()).products;
+const PARK = await fetch(RD + 'parking.json').then(r => r.ok ? r.json() : {}).catch(() => ({})); // disabled parking near each apartment (tour/parking_fetch.mjs)
 const facts = await Promise.all(R.units.map(async u => unitFacts(u, await (await fetch(`private/tours/${u.id}.json`)).json(), products)));
 const ranked = rank(facts), byId = Object.fromEntries(R.units.map(u => [u.id, u]));
 const factOf = Object.fromEntries(facts.map(f => [f.id, f]));
@@ -148,7 +171,11 @@ $('rule').textContent = 'Best first: fewest critical problems, flattest streets,
 
 // ---- Geometry: metres east (x) / up (y) / south (z) from the area's centre ----
 const A = R.area, lat0 = (A.s + A.n) / 2, lon0 = (A.w + A.e) / 2, M = 111320, ML = M * Math.cos(lat0 * Math.PI / 180);
-const G = R.ground, zmin = G.z.reduce((m, v) => v != null && v < m ? v : m, Infinity); // no spread: 130k values overflow the stack
+const G = { ...R.ground }, zmin = G.z.reduce((m, v) => v != null && v < m ? v : m, Infinity); // no spread: 130k values overflow the stack
+// Drawn ground only: two 3×3 averages take the 10 m grid's sharp ridges out, which tore the photo into smudges. Street slopes come from the 1 m model in region.json.
+for (let k = 0; k < 2; k++) G.z = G.z.map((v, i) => { const x = i % G.w, y = (i - x) / G.w; let s = 0, n = 0;
+  for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) { const u = x + dx >= 0 && x + dx < G.w ? G.z[i + dy * G.w + dx] : null; if (u != null) { s += u; n++; } }
+  return n ? s / n : v; });
 const xz = (lat, lon) => ({ x: (lon - lon0) * ML, z: -(lat - lat0) * M });
 function hAt(lat, lon) { // bilinear on the 10 m ground grid
   const fx = (lon - A.w) / (A.e - A.w) * (G.w - 1), fy = (A.n - lat) / (A.n - A.s) * (G.h - 1);
@@ -166,7 +193,7 @@ function drape(b, nx, ny, tex, lift) {
   }
   for (let r = 0; r < ny - 1; r++) for (let c = 0; c < nx - 1; c++) { const i = r * nx + c; idx.push(i, i + nx, i + 1, i + 1, i + nx, i + nx + 1); }
   const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2)); g.setIndex(idx);
-  tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = 8;
+  tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = renderer.capabilities.getMaxAnisotropy(); // sharp at the low flyover angle
   return new THREE.Mesh(g, new THREE.MeshBasicMaterial({ map: tex, polygonOffset: true, polygonOffsetFactor: -lift, polygonOffsetUnits: -lift }));
 }
 
@@ -177,7 +204,8 @@ const scene = new THREE.Scene(); scene.background = new THREE.Color(0x0e0e0f); s
 const camera = new THREE.PerspectiveCamera(42, 1, 5, 20000);
 const loader = new THREE.TextureLoader(), load = src => new Promise((res, rej) => loader.load(src, res, undefined, rej));
 scene.add(drape(A, G.w, G.h, await load(RD + 'area.jpg'), 0));
-const ribbons = {}, pins = {}, seen = new Set();
+const ribbons = {}, pins = {}, parks = {}, seen = new Set();
+const PTEX = (() => { const cv = document.createElement('canvas'); cv.width = cv.height = 128; const x = cv.getContext('2d'); x.font = '100px system-ui'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText('♿', 64, 70); const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.SRGBColorSpace; return t; })();
 // A pin's label: the letter on a neutral square until the apartment has been checked on screen, then its verdict colour.
 function paintPin(id, on) {
   const t = on ? tone(factOf[id]) : null, hex = t ? '#' + COL[t].toString(16).padStart(6, '0') : '#f5f5f7', u = byId[id];
@@ -195,13 +223,19 @@ for (const u of R.units) {
   // Streets within 250 m as flat ribbons, coloured by slope (hidden until the camera visits).
   const pos = [], col = [], c = new THREE.Color();
   for (const s of u.segs) {
-    const a = P(s.a[0], s.a[1], 4), b = P(s.b[0], s.b[1], 4), d = new THREE.Vector3().subVectors(b, a).setY(0).normalize(), n = new THREE.Vector3(-d.z, 0, d.x).multiplyScalar(3.5);
+    const a = P(s.a[0], s.a[1], 4), b = P(s.b[0], s.b[1], 4), d = new THREE.Vector3().subVectors(b, a).setY(0).normalize(), n = new THREE.Vector3(-d.z, 0, d.x).multiplyScalar(2.2); // a 4.4 m band: a lane, not the whole street (the sharp photo shows through)
     c.setHex(s.steps || s.slope > 8 ? COL.fail : s.slope > 5 ? COL.verify : COL.pass);
     for (const p of [a.clone().add(n), a.clone().sub(n), b.clone().add(n), b.clone().sub(n), b.clone().add(n), a.clone().sub(n)]) { pos.push(p.x, p.y, p.z); col.push(c.r, c.g, c.b); }
   }
   const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setAttribute('color', new THREE.Float32BufferAttribute(col, 3));
   const m = new THREE.Mesh(g, new THREE.MeshBasicMaterial({ vertexColors: true, transparent: true, opacity: 0, depthWrite: false, side: THREE.DoubleSide }));
-  scene.add(m); ribbons[u.id] = m;
+  m.userData.segs = u.segs; scene.add(m); ribbons[u.id] = m; // segment k = triangles 2k and 2k+1 (hover reads it)
+  // Disabled parking spots: a wheelchair sign over each, shown with the streets.
+  const pk = parks[u.id] = new THREE.Group(); pk.visible = false; scene.add(pk);
+  for (const p of PARK[u.id] || []) {
+    const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: PTEX, depthTest: false, sizeAttenuation: false }));
+    s.scale.set(0.035, 0.035, 1); s.center.set(0.5, 0); s.position.copy(P(p.lat, p.lon, 6)); s.renderOrder = 9; s.userData.park = p; pk.add(s);
+  }
   // Pin: a pole and a label that always faces the camera.
   const base = P(u.lat, u.lon);
   const lh = 145 + ('ABCDE'.indexOf(letter[u.id]) % 2) * 330; // every second label stands much higher, so neighbours never share a level
@@ -245,10 +279,47 @@ renderer.setAnimationLoop(now => {
     view.pos.lerpVectors(flight.from.pos, flight.to.pos, e); view.target.lerpVectors(flight.from.target, flight.to.target, e);
     if (k >= 1) { const r = flight.res; flight = null; r(); }
   } else if (orbit) { sway += dt * 0.00011; angle = 0.05 + 0.18 * Math.sin(sway); view = orbitView(angle); } // a slow sway, not a full circle: no pin goes behind a panel
-  for (const [id, m] of Object.entries(ribbons)) m.material.opacity += ((id === active ? 0.95 : 0) - m.material.opacity) * Math.min(1, dt / 300);
+  for (const [id, m] of Object.entries(ribbons)) { m.material.opacity += ((id === active ? 0.8 : 0) - m.material.opacity) * Math.min(1, dt / 300); parks[id].visible = m.material.opacity > 0.3; }
   camera.position.copy(view.pos); camera.lookAt(view.target);
   renderer.render(scene, camera);
 });
+
+// ---- Hover: the slope of the street piece under the pointer, or the disabled parking spot ----
+const ray = new THREE.Raycaster(), tip = $('tip'), FT = m => Math.round(m * 3.28084);
+function segTip(s) {
+  const v = s.steps ? 'Steps: no way through in a wheelchair' : s.slope <= 5 ? 'Within the 5% the ADA allows for a walkway' : s.slope <= 8 ? 'Steeper than a walkway (5%), close to the 8.3% a ramp may have' : 'Near or past the 8.3% the ADA allows for a ramp';
+  const kind = (s.kind || 'path').replace(/_/g, ' ').replace(/^./, c => c.toUpperCase());
+  return `<b>${esc(s.name || kind)}</b>${s.steps ? 'Steps, ' : ''}${s.slope}% grade, ${(Math.atan(s.slope / 100) * 180 / Math.PI).toFixed(1)}°<br>Rises ${FT(s.len * s.slope / 100)} ft over ${FT(s.len)} ft<br><span class="v">${v}</span>`;
+}
+const parkTip = p => `<b>Disabled parking</b>${p.n} space${p.n > 1 ? 's' : ''}${p.name ? ', ' + esc(p.name) : ''}<br>${FT(p.m)} ft from the apartment<br><span class="v">Mapped in OpenStreetMap; check the sign and access aisle on site</span>`;
+$('c').addEventListener('pointermove', e => {
+  const m = active && ribbons[active];
+  if (!m || m.material.opacity < 0.5) return void (tip.hidden = true);
+  ray.setFromCamera(new THREE.Vector2(e.clientX / innerWidth * 2 - 1, -e.clientY / innerHeight * 2 + 1), camera);
+  const hits = ray.intersectObjects([...parks[active].children, m]), hit = hits.find(h => h.object.userData.park) || hits[0]; // the sign wins over a street in front of it
+  if (!hit) return void (tip.hidden = true);
+  tip.innerHTML = hit.object.userData.park ? parkTip(hit.object.userData.park) : segTip(m.userData.segs[Math.floor(hit.faceIndex / 2)]);
+  tip.hidden = false;
+  tip.style.left = Math.min(e.clientX + 16, innerWidth - tip.offsetWidth - 8) + 'px'; tip.style.top = Math.min(e.clientY + 16, innerHeight - tip.offsetHeight - 8) + 'px';
+});
+$('c').addEventListener('pointerleave', () => { tip.hidden = true; });
+
+// ---- Your own camera (user, Nov 14): drag to turn and tilt around what you're looking at, right-drag or Shift-drag to slide,
+// scroll or pinch to zoom. Taking the camera stops the slow sway and any flight; the list, the keys and voice still fly it. ----
+const cv = $('c'), sph = new THREE.Spherical(), off = new THREE.Vector3(), lim = (v, a, b) => Math.min(b, Math.max(a, v));
+let drag = null; cv.style.cursor = 'grab';
+function takeCamera() { orbit = false; if (flight) { const r = flight.res; flight = null; r(); } }
+function turnBy(dx, dy) { off.subVectors(view.pos, view.target); sph.setFromVector3(off); sph.theta -= dx * 0.005; sph.phi = lim(sph.phi - dy * 0.004, 0.12, 1.42); view.pos.copy(view.target).add(off.setFromSpherical(sph)); }
+function zoomBy(f) { off.subVectors(view.pos, view.target); view.pos.copy(view.target).add(off.setLength(lim(off.length() * f, 120, 9000))); }
+function slideBy(dx, dy) { // the map moves with the hand, at the speed it is seen at
+  const k = view.pos.distanceTo(view.target) * 0.0012, fwd = new THREE.Vector3().subVectors(view.target, view.pos).setY(0).normalize();
+  const m = new THREE.Vector3(-fwd.z, 0, fwd.x).multiplyScalar(-dx * k).add(fwd.multiplyScalar(dy * k)); view.pos.add(m); view.target.add(m);
+}
+cv.addEventListener('pointerdown', e => { drag = { x: e.clientX, y: e.clientY, slide: e.button === 2 || e.shiftKey }; cv.setPointerCapture(e.pointerId); cv.style.cursor = 'grabbing'; tip.hidden = true; takeCamera(); });
+cv.addEventListener('pointermove', e => { if (!drag) return; const dx = e.clientX - drag.x, dy = e.clientY - drag.y; drag.x = e.clientX; drag.y = e.clientY; drag.slide ? slideBy(dx, dy) : turnBy(dx, dy); });
+for (const t of ['pointerup', 'pointercancel']) cv.addEventListener(t, () => { drag = null; cv.style.cursor = 'grab'; });
+cv.addEventListener('contextmenu', e => e.preventDefault());
+cv.addEventListener('wheel', e => { e.preventDefault(); takeCamera(); zoomBy(Math.exp(e.deltaY * (e.ctrlKey ? 0.01 : 0.0015))); }, { passive: false }); // ctrlKey: a trackpad pinch
 
 // ---- Panels: the apartments list, and the card for the one being shown ----
 function renderUnits(reveal = false) {
@@ -266,7 +337,8 @@ function card(id) {
       <div><b>${st ? `${Math.round(st.m * 3.28084 / 10) * 10} ft` : 'None'}</b>${st ? `to ${esc(st.name)}` : 'rail station within 1.5 km'}</div>
       <div class="${sl == null ? '' : sl > 8 ? 'fail' : sl > 5 ? 'verify' : 'pass'}"><b>${sl == null ? '–' : `${sl}%`}</b>steepest street nearby</div></div>
     <ul>${f.inside.top.map(p => `<li><i class="${p.critical ? 'fail' : 'verify'}" title="${p.critical ? 'Critical' : 'Minor'}"></i><span>${esc(p.what.replace(/^./, c => c.toUpperCase()))}; ${esc(p.fix_spoken)}.</span></li>`).join('') || '<li><i class="pass"></i><span>Every measured check passes.</span></li>'}</ul>
-    <div class="src">Matterport scan, Vexcel ground model, OpenStreetMap streets. Confirm with a tape before you sign.</div>`;
+    <div class="park">${(pk => !pk ? '' : pk.length ? `♿ <b>${pk.reduce((s, p) => s + p.n, 0)} disabled parking space${pk.reduce((s, p) => s + p.n, 0) > 1 ? 's' : ''}</b> within 820 ft, nearest ${FT(pk[0].m)} ft away` : '♿ <b>No disabled parking mapped</b> within 820 ft; ask the landlord')(PARK[id])}</div>
+    <div class="src">Matterport scan, Vexcel ground model, OpenStreetMap streets and parking. Confirm with a tape before you sign. <a href="street.html?q=${byId[id].lat},${byId[id].lon}" style="color:inherit">Streets around it</a></div>`;
   $('card').classList.add('on');
 }
 async function show(id, close = false) { active = id; if (!seen.has(id)) { seen.add(id); paintPin(id, true); } renderUnits(revealed); card(id); await flyTo(unitView(id, close)); }

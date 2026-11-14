@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Inch &amp; Ease: the streets around a building</title>
+<link rel="icon" href="data:,">
+<style>
+  /* Evergreen, like the tour's start page (index.html, end of <style>): cream, evergreen + sage, Space Grotesk for names and headings,
+     Work Sans for text, flat white cards with hairlines. Street colours are the public site's (src/app/SlopeMap.tsx): they carry meaning. */
+  :root { --font:-apple-system, BlinkMacSystemFont, "Helvetica Neue", system-ui, sans-serif; --brandFont:'Space Grotesk', var(--font); --homeFont:'Work Sans', var(--font);
+          --brand:#1F4D3F; --brandSoft:#7FA393; --brandInk:#fff; --bg:#F7F6F2; --ink:#16302A; --muted:#4A5F58; --kicker:#E3EBE6; --line:#B9CAC1; --card:#fff; --red:#B3261E;
+          /* the names the voice bar (voice.js) uses */
+          --accent:var(--brand); --accentInk:#fff; --fail:#FF3B30; --failInk:#B3261E; --fill:#E3EBE6; --ease:200ms cubic-bezier(.25,.1,.25,1); }
+  * { box-sizing:border-box; }
+  html { -webkit-text-size-adjust:100%; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.45 var(--homeFont); -webkit-font-smoothing:antialiased; overflow-x:hidden; }
+  h1, h2, h3, .logo { font-family:var(--brandFont); letter-spacing:-.03em; margin:0; }
+  a { color:var(--brand); }
+  button, input { font:inherit; color:inherit; }
+  button { cursor:pointer; border:0; background:none; }
+  :focus-visible { outline:2px solid var(--brand); outline-offset:2px; }
+  [hidden] { display:none !important; }
+  .sr { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
+
+  nav { position:sticky; top:0; z-index:10; background:var(--bg); border-bottom:1px solid var(--line); }
+  nav > div { max-width:1280px; margin:0 auto; min-height:72px; padding:12px 16px; display:flex; flex-wrap:wrap; align-items:center; gap:8px 24px; }
+  .logo { font-size:22px; font-weight:700; letter-spacing:-.04em; color:var(--brand); text-decoration:none; }
+  .logo span { color:var(--brandSoft); font-weight:500; }
+  .links { display:flex; gap:20px; font-size:15px; } .links a { color:var(--ink); text-decoration:none; } .links a:hover { color:var(--brand); }
+  #qf { margin-left:auto; display:flex; gap:8px; flex:1 1 300px; max-width:560px; min-width:0; }
+  #qf .box { flex:1; min-width:0; display:flex; align-items:center; gap:8px; min-height:44px; padding:0 12px; background:var(--card); border:1px solid var(--line); border-radius:6px; }
+  #qf .box svg { flex:none; width:16px; height:16px; fill:none; stroke:var(--muted); stroke-width:2.2; stroke-linecap:round; }
+  #qf input { flex:1; min-width:0; border:0; outline:0; background:none; font-size:15px; }
+  .btn { min-height:44px; padding:0 20px; border-radius:6px; background:var(--brand); color:var(--brandInk); font-weight:600; font-size:15px; white-space:nowrap; }
+  .btn:hover { filter:brightness(1.12); } .btn:disabled { opacity:.45; cursor:default; filter:none; }
+  .btn.ghost { background:transparent; color:var(--brand); box-shadow:inset 0 0 0 1px var(--line); } .btn.ghost:hover { background:var(--kicker); filter:none; }
+
+  main { max-width:1280px; margin:0 auto; padding:24px 16px 160px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:8px; }
+  .alert { padding:18px 24px; color:var(--red); max-width:680px; margin:24px auto 0; }
+  .alert.wait { color:var(--muted); text-align:center; max-width:460px; margin-top:80px; }
+
+  #start { max-width:720px; margin:56px auto 0; }
+  #start .kicker { display:inline-block; font:500 15px var(--brandFont); color:var(--brand); background:var(--kicker); padding:6px 12px; border-radius:4px; }
+  #start h1 { font-size:56px; line-height:1; letter-spacing:-.05em; color:var(--brand); margin:20px 0 16px; }
+  #start p { font-size:19px; color:var(--muted); margin:0 0 28px; max-width:560px; }
+  #start .ctas { display:flex; flex-wrap:wrap; gap:12px; }
+
+  #area { display:flex; flex-wrap:wrap; align-items:flex-start; gap:20px; }
+  #around { flex:999 1 560px; min-width:0; padding:24px; }
+  #around > h1 { font-size:28px; }
+  .lead { margin:4px 0 16px; font-size:15px; color:var(--muted); }
+  #ask { display:flex; gap:8px; margin-bottom:12px; }
+  #ask input { flex:1; min-width:0; min-height:44px; padding:0 14px; border:1px solid var(--line); border-radius:6px; background:var(--card); font-size:15px; }
+  #answer { margin:0 0 16px; padding:14px 18px; border-left:3px solid var(--brand); background:var(--kicker); font-size:15px; } #answer.err { border-color:var(--red); color:var(--red); background:#fff; } #answer:empty { display:none; }
+  .seg { display:flex; flex-wrap:wrap; gap:1px; background:var(--line); border:1px solid var(--line); border-radius:6px; overflow:hidden; margin-bottom:16px; width:max-content; max-width:100%; }
+  .seg > * { flex:1 1 auto; min-height:44px; padding:0 16px; display:inline-flex; align-items:center; justify-content:center; font-size:15px; font-weight:500; background:var(--card); }
+  .seg [aria-pressed=true] { background:var(--brand); color:var(--brandInk); }
+  .seg span[aria-pressed=false] { color:var(--muted); }
+  #limits { display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:12px 24px; margin-bottom:20px; }
+  #limits label, .tools label { display:flex; flex-direction:column; gap:4px; font-size:13px; font-weight:500; color:var(--muted); }
+  #limits label > span { display:flex; justify-content:space-between; } #limits b { font-size:15px; color:var(--ink); }
+  #limits label.check, .tools label.check { flex-direction:row; align-items:center; gap:8px; min-height:44px; font-size:15px; color:var(--ink); }
+  input[type=range], input[type=checkbox] { accent-color:var(--brand); } input[type=checkbox] { width:20px; height:20px; margin:0; }
+  .tools { display:flex; flex-wrap:wrap; align-items:center; gap:4px 16px; margin-bottom:12px; } .tools .seg { margin:0; }
+  .tools label.lift { flex-direction:row; align-items:center; gap:12px; margin-left:auto; }
+  #mapbox { position:relative; border-radius:6px; overflow:hidden; background:#dfe3df; }
+  #mapbox img { display:block; width:100%; aspect-ratio:1; color:transparent; }
+  #mapbox svg { position:absolute; inset:0; width:100%; height:100%; }
+  #mapbox line.hit { cursor:pointer; }
+  #box3d { position:relative; height:560px; border-radius:6px; overflow:hidden; background:#0f172a; color:#fff; }
+  #box3d canvas { display:block; }
+  #s3d { position:absolute; left:12px; top:12px; margin:0; padding:4px 12px; border-radius:4px; background:rgba(255,255,255,.92); color:#16302A; font-size:14px; } #s3d:empty { display:none; }
+  .note { margin:8px 0 0; font-size:12px; color:var(--muted); }
+  #picked { margin-top:16px; padding:16px 20px; display:flex; flex-wrap:wrap; align-items:center; gap:12px 32px; border:1px solid var(--line); border-radius:6px; }
+  #picked .what { flex:1 1 220px; min-width:0; } #picked .what b { display:flex; align-items:center; gap:8px; font-size:17px; } #picked .what p { margin:2px 0 0; color:var(--muted); font-size:15px; }
+  #picked dl { display:flex; flex-wrap:wrap; gap:8px 24px; margin:0; } #picked dt { font-size:12px; font-weight:500; color:var(--muted); } #picked dd { margin:0; font:600 22px var(--brandFont); letter-spacing:-.02em; }
+  .dot { width:12px; height:12px; border-radius:50%; flex:none; display:inline-block; }
+  #bar { display:flex; height:8px; margin-top:20px; border-radius:2px; overflow:hidden; background:var(--kicker); }
+  #legend { list-style:none; margin:12px 0 0; padding:0; display:flex; flex-wrap:wrap; gap:8px 20px; font-size:13px; color:var(--muted); }
+  #legend li { display:flex; align-items:center; gap:8px; } #legend b { color:var(--ink); } #legend .dot { width:10px; height:10px; }
+  #around h2 { font-size:22px; margin:28px 0 12px; }
+  #issues { list-style:none; margin:0; padding:0; border-top:1px solid var(--line); }
+  #issues li { display:flex; align-items:center; gap:16px; padding:14px 0; border-bottom:1px solid var(--line); font-size:15px; }
+  #issues li.on { background:var(--kicker); margin:0 -12px; padding:14px 12px; }
+  #issues li > span { flex:1; min-width:0; } #issues li b { display:block; } #issues li small { display:block; font-size:15px; color:var(--muted); }
+  #issues svg { width:28px; height:28px; flex:none; }
+  .show { min-height:40px; padding:0 16px; border-radius:6px; font-weight:600; color:var(--brand); box-shadow:inset 0 0 0 1px var(--line); flex:none; } .show:hover { background:var(--kicker); }
+
+  #stats { flex:1 1 300px; min-width:0; display:flex; flex-direction:column; gap:12px; }
+  .stat { padding:16px 20px; } .stat p { margin:0; font-size:13px; font-weight:500; color:var(--muted); }
+  .stat .v { margin:2px 0; font:700 28px/1.15 var(--brandFont); letter-spacing:-.03em; color:var(--ink); } .stat .v.bad { color:var(--red); }
+  #sides { width:100%; padding:24px; } #sides h2 { font-size:22px; margin-bottom:16px; }
+  #sides .grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:12px; }
+  #sides figure { margin:0; } #sides img { display:block; width:100%; aspect-ratio:1; object-fit:cover; border-radius:6px; background:var(--kicker); color:transparent; }
+  #sides figcaption { margin-top:8px; font-size:13px; color:var(--muted); }
+  #area > footer { width:100%; font-size:12px; color:var(--muted); } #area > footer p { margin:0 0 4px; }
+
+  /* The tour's voice bar (voice.js), fixed at the bottom, flat like the rest of the page. */
+  main #voice { position:fixed; top:auto; left:50%; bottom:20px; transform:translateX(-50%); z-index:20; display:flex; gap:10px; align-items:flex-start; padding:6px;
+           width:max-content; max-width:min(640px, calc(100% - 32px)); background:var(--card); border:1px solid var(--line); border-radius:8px; box-shadow:0 8px 24px -12px rgba(22,48,42,.35); }
+  #voice #v-mic { border-radius:6px; }
+  #voice #v-steps span { border-radius:4px; }
+
+  @media (max-width:700px) {
+    .links { display:none; } #qf { flex-basis:100%; margin-left:0; } #start { margin-top:32px; } #start h1 { font-size:40px; } #start p { font-size:17px; }
+    #around, #sides { padding:16px; } #box3d { height:420px; } .tools label.lift { margin-left:0; } #picked { padding:12px 16px; }
+    #voice #v-hint { white-space:normal; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition:none !important; } }
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<!-- three for the 3D view: the repo's own three 0.184 + addons (orbit controls, thick lines), served by serve.py, no internet needed. -->
+<script type="importmap">{ "imports": { "three": "/node_modules/three/build/three.module.js", "three/addons/": "/node_modules/three/examples/jsm/" } }</script>
+</head>
+<body>
+<nav><div>
+  <a class="logo" href="./">Inch <span>&amp;</span> Ease</a>
+  <div class="links"><a href="./#apartments">Apartments</a><a href="region.html">Neighbourhoods</a><a href="street.html" aria-current="page">Streets</a></div>
+  <form id="qf">
+    <label for="q" class="sr">Latitude and longitude</label>
+    <div class="box"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+      <input id="q" name="q" autocomplete="off" placeholder="Latitude, longitude in Houston or Los Angeles"></div>
+    <button class="btn">Check</button>
+  </form>
+</div></nav>
+<main>
+  <p id="msg" role="alert" class="card alert" hidden></p>
+  <section id="start" hidden>
+    <span class="kicker">Street check</span>
+    <h1>Can you get around here?</h1>
+    <p>Every street and path within 250 m of a building, measured for slope and coloured by what you can manage. Type a latitude and longitude, or try one of these.</p>
+    <div class="ctas" id="examples"></div>
+  </section>
+  <div id="area" hidden>
+    <section id="around" class="card">
+      <h1>Getting around</h1>
+      <p class="lead">Hold Space and say how you get around, or choose a profile. Streets are coloured by what you can manage.</p>
+      <form id="ask"><label for="describe" class="sr">Describe how you get around</label>
+        <input id="describe" autocomplete="off" placeholder="Describe how you get around"><button class="btn" id="askBtn">Ask</button></form>
+      <div id="answer" role="status" aria-live="polite"></div>
+      <div class="seg" role="group" aria-label="Who is checking" id="profiles"></div>
+      <div id="limits">
+        <label><span>Steepest uphill <b id="upV"></b></span><input type="range" id="up" min="0" max="20" step="1"></label>
+        <label><span>Steepest downhill <b id="downV"></b></span><input type="range" id="down" min="0" max="20" step="1"></label>
+        <label class="check"><input type="checkbox" id="steps"> Avoid steps</label>
+      </div>
+      <div class="tools">
+        <div class="seg" role="group" aria-label="View"><button type="button" data-view="map">Map</button><button type="button" data-view="3d">3D</button></div>
+        <label class="check" data-3d><input type="checkbox" id="bld"> Buildings and trees</label>
+        <label class="lift" data-3d><span id="liftV"></span><input type="range" id="lift" min="1" max="4" step="1"></label>
+      </div>
+      <div id="wrap3d" hidden>
+        <div id="box3d" role="img" aria-label="3D view of the area around the building with streets coloured by slope. Drag to turn, scroll to zoom, right-drag to move."><p id="s3d" role="status"></p></div>
+        <p class="note">Click a street for details. Drag to turn, scroll to zoom, right-drag to move. Buildings and trees are always shown at true height.</p>
+      </div>
+      <div id="mapbox"><img id="ortho" alt="Vexcel aerial photo of the area, north up"><svg id="svg" viewBox="0 0 1000 1000" preserveAspectRatio="none" role="img"></svg></div>
+      <div id="picked" role="region" aria-label="Selected street" hidden></div>
+      <div id="bar" aria-hidden="true"></div>
+      <ul id="legend"></ul>
+      <p class="note">Share of street length within 250 m. Profile presets from AccessMap, University of Washington.</p>
+      <h2 id="issuesH"></h2>
+      <ul id="issues" aria-live="polite"></ul>
+    </section>
+    <aside id="stats"></aside>
+    <section id="sides" class="card"><h2>The building from four sides</h2><div class="grid" id="sidesGrid"></div></section>
+    <footer>
+      <p>Imagery and elevation © Vexcel Imaging US, Inc. Map data © OpenStreetMap contributors (ODbL).</p>
+      <p>Slopes are the rise over each piece of street of at least 10 m, from a terrain model with about 1 m detail. Public sidewalks may legally follow the street grade, so a steep street is a barrier rather than a code violation.</p>
+    </footer>
+  </div>
+</main>
+<script type="module" src="street.js"></script>
+</body>
+</html>

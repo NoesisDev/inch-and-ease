@@ -77,12 +77,10 @@ function Landing() {
       <section className="grid items-center gap-10 pt-10 md:grid-cols-[minmax(0,6fr)_minmax(0,5fr)] md:gap-16 md:pt-16">
         <div>
           <h1 className="text-[52px] font-bold leading-[0.98] tracking-[-0.05em] text-brand sm:text-[76px]">Can you live here?</h1>
-          <p className="mt-5 max-w-[470px] text-[19px] leading-relaxed text-secondary sm:text-[21px]">Rules are the minimum. We check how easy daily life would be, then find the best fit and the fixes.</p>
-          <div className="mt-8 flex flex-wrap gap-3">
-            <Link href={`/?q=${EXAMPLES[0].q}`} className="rounded-md bg-brand px-6 py-3.5 text-[16px] font-semibold text-white no-underline hover:brightness-110">Check a street in LA</Link>
-            <a href="#how" className="rounded-md px-6 py-3.5 text-[16px] font-semibold text-brand no-underline ring-1 ring-line ring-inset hover:bg-kicker">How it works</a>
+          <p className="mt-5 max-w-[470px] text-[19px] leading-relaxed text-secondary sm:text-[21px]">We check apartments for wheelchair users. From a 3D tour, we measure every door, step and room, show what won&rsquo;t work, and find the fixes and the home that fits best.</p>
+          <div className="mt-8">
+            <Link href={`/?q=${EXAMPLES[0].q}`} className="rounded-md bg-brand px-6 py-3.5 text-[16px] font-semibold text-white no-underline hover:brightness-110">Try the demo</Link>
           </div>
-          <p className="mt-6 text-[14px] text-secondary">Or try <Link href={`/?q=${EXAMPLES[1].q}`} className="font-medium text-brand underline decoration-line underline-offset-4">{EXAMPLES[1].label}</Link>, or type any latitude, longitude above.</p>
         </div>
         <figure className="relative m-0">
           {/* eslint-disable-next-line @next/next/no-img-element -- one remote photo, no image pipeline needed */}
@@ -94,18 +92,22 @@ function Landing() {
         </figure>
       </section>
 
-      <section className="mt-20 grid gap-8 md:grid-cols-3 md:gap-6">
-        {[
-          { b: "<4%", red: true, s: "of US homes are livable with trouble walking.", n: "Under 0.2% fully wheelchair accessible. HUD-funded NYU study, 2011" },
-          { b: "13.4%", s: "of US adults have trouble walking a quarter mile.", n: "2.3% (5.5M) use a wheelchair. US Census Bureau, 2014" },
-          { b: "<50%", s: "of wheelchair users can turn fully in the standard circle.", n: "US Access Board research" },
-        ].map((x) => (
-          <div key={x.b} className="border-t-2 border-brand pt-5">
-            <b className={`block font-display text-[46px] font-bold leading-none tracking-[-0.04em] ${x.red ? "text-bad" : "text-brand"}`}>{x.b}</b>
-            <p className="mt-3 text-[16px]">{x.s}</p>
-            <p className="mt-2 text-[12px] text-secondary">{x.n}</p>
-          </div>
-        ))}
+      {/* The numbers band, same as the tour's start page: full-width dark green strip (shadow + clip-path bleed, no sideways scroll). */}
+      <section aria-labelledby="bandH" className="mt-24 bg-brand py-16 text-[#EEF3F0] shadow-[0_0_0_100vmax_var(--color-brand)] [clip-path:inset(0_-100vmax)] md:py-[72px]">
+        <h2 id="bandH" className="max-w-[640px] text-[26px] font-bold leading-tight tracking-[-0.025em] text-white sm:text-[30px]">Most US homes don&rsquo;t work for someone who can&rsquo;t walk far.</h2>
+        <div className="mt-11 grid md:grid-cols-3">
+          {[
+            { b: "13.4%", s: "of US adults have trouble walking a quarter mile.", n: "5.5 million use a wheelchair.", src: "US Census Bureau, 2014" },
+            { b: "<4%", red: true, s: "of US homes work for someone who has trouble walking.", n: "Under 0.2% are fully wheelchair accessible.", src: "HUD-funded NYU study, 2011" },
+            { b: "<50%", s: "of wheelchair users can turn all the way round in the space the rules require.", n: "495 wheelchair users measured.", src: "Steinfeld et al., for the US Access Board, 2010" },
+          ].map((x, k) => (
+            <div key={x.b} className={k ? "mt-6 border-t border-white/20 pt-6 md:mt-0 md:border-t-0 md:border-l md:px-10 md:pt-0.5" : "md:pr-10"}>
+              <b className={`block font-display text-[56px] font-bold leading-none tracking-[-0.04em] ${x.red ? "text-[#F2906E]" : "text-paper"}`}>{x.b}</b>
+              <p className="mt-3.5 text-[17px] leading-relaxed">{x.s}</p>
+              <p className="mt-3 text-[13px] leading-normal text-[#A9C2B6]">{x.n}<span className="mt-0.5 block text-[#8FAEA0]">{x.src}</span></p>
+            </div>
+          ))}
+        </div>
       </section>
 
       <section id="how" className="scroll-mt-24 pt-20">
