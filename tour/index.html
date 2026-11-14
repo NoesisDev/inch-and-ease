@@ -1037,6 +1037,7 @@ const TOOLS = {
     showTab('t-' + tab, 'p-' + tab); return `Panel: ${tab}.`;
   },
   async set_look({ look }) { setTheme(look === 'daylight' ? 'standard' : look); return `Look: ${look}.`; },
+  async set_text({ size }) { setText(size); return `Text size: ${size}.`; },
   async open_apartment({ id }) {
     const t = list.find(t => t.id === id);
     if (!t) return { error: `No apartment with id ${id}` };
@@ -1050,7 +1051,6 @@ const TOOLS = {
     if (action === 'print_plan') { showTab('t-plan', 'p-plan'); setTimeout(() => print(), 300); return 'Plan opened for printing.'; }
     await TOOLS.show_panel({ tab: 'issues' });
     document.querySelector(`#view [data-view="${action === 'issues_by_room' ? 'room' : 'all'}"]`).click();
-  async set_text({ size }) { setText(size); return `Text size: ${size}.`; },
     return action === 'issues_by_room' ? 'Issues listed by room.' : 'All issues in one list.';
   },
   // An answer or a tape measurement for a check no scan can see, said aloud: it is judged, pinned and planned like a tapped one.
