@@ -1009,6 +1009,7 @@ const TOOLS = {
     }
     if (action === 'back') action = 'previous';
     if (mode === 'walk') {
+      resumeAfter = false; if (guide && (action === 'next' || action === 'previous')) playing = true; // by voice the walk goes on from the stop asked for
       ({ next: $('w-next'), previous: $('w-prev'), pause: playing && $('w-play'), play: !playing && $('w-play') })[action]?.click?.();
       return `Walkthrough ${playing ? 'playing' : 'paused'}, stop ${at + 1} of ${stops.length}: ${stops[at]?.title}.`;
     }
@@ -1087,7 +1088,7 @@ const openApartment = id => { if (id.startsWith('page:')) location.href = id ===
 async function ask(text, { on = () => {}, note } = {}) {
   stopAsking(); const ctl = asking = new AbortController(), mark = convo.length; navTo = null;
   say('u', text);
-  const screen = model ? `${mode} view, ${cardFor ? 'card open: ' + cardFor.id : 'no card open'}` : 'start page';
+  const screen = model ? `${mode} view, ${cardFor ? 'card open: ' + cardFor.id : 'no card open'}${mode === 'walk' && stops.length ? `, walkthrough stop ${at + 1} of ${stops.length}${guideLine ? `; you just said aloud: "${guideLine}"` : ''}` : ''}` : 'start page';
   // The data Claude got with the first question stays as it is for the whole chat: the API rejects a conversation whose
   // system text changed. A fix, a budget or a new measurement since then goes into the question instead.
   facts ||= apartmentFacts(); sentFacts ||= JSON.stringify(facts);
@@ -1230,6 +1231,10 @@ $('flyover').onclick = async () => {
 
 // ---- Walkthrough: every room, plus every problem, in walking order from the entrance. ----
 let stops = [], at = 0, autoTimer = null, playing = false;
+// The guide (voice.js stopLine): says each stop aloud while the camera flies. guideLine = what it said last (Claude gets it, so "yes" or "how much" make sense);
+// resumeAfter = the walk paused because the person spoke, and goes on by itself once they have their answer.
+let guide = null, lineOf = null, guideLine = '', resumeAfter = false;
+const typeOf = o => products.find(p => p.id === o.product?.id)?.type?.replaceAll('_', ' ');
 const DWELL = c => isProblem(c) ? 8000 : 3500; // ms: time to read a problem card vs. a glance at a room that passes
 function startWalk() {
   const rooms = checks.filter(c => c.kind === 'turn'), problems = issueList.filter(c => c.kind !== 'turn' && c.at);
@@ -1239,7 +1244,7 @@ function startWalk() {
     pool.sort((a, b) => Math.hypot(a.at.x - here.x, a.at.y - here.y) - Math.hypot(b.at.x - here.x, b.at.y - here.y));
     const next = pool.shift(); stops.push(next); here = next.at;
   }
-  at = 0; playing = true; showStop();
+  at = 0; playing = true; resumeAfter = false; showStop();
 }
 async function showStop() {
   clearTimeout(autoTimer); progress(0);
@@ -1248,13 +1253,25 @@ async function showStop() {
   $('w-count').textContent = `Stop ${at + 1} of ${stops.length}` + (c.s === 'pass' ? '' : ', problem');
   $('w-title').textContent = c.kind === 'turn' ? (c.s === 'pass' ? `${c.room}: room to turn` : c.title) : c.title;
   $('w-prev').disabled = at === 0; $('w-next').textContent = at === stops.length - 1 ? 'Finish' : 'Next';
-  await goTo(c);
-  if (playing && stops[at] === c && mode === 'walk') schedule(c);
+  if (!guide) { await goTo(c); if (playing && stops[at] === c && mode === 'walk') schedule(c); return; }
+  const line = lineOf(c, plan?.rows.find(r => r.item.id === c.id), typeOf);
+  const text = guideLine = (at === 0 ? `Let's go round: ${stops.length} stops, ${stops.filter(isProblem).length} of them problems. Ask me anything on the way, or say stop. ` : '') + line.text;
+  const talk = guide(text); await goTo(c); await talk; // it talks while the camera flies
+  if (stops[at] !== c || mode !== 'walk' || !playing) return; // moved on, left, or paused because the person spoke
+  if (line.ask) { stopAuto(); resumeAfter = true; return; } // "Shall I add it?": wait for the answer
+  autoTimer = setTimeout(advance, 900);
+}
+function advance() {
+  if (at < stops.length - 1) { at++; return showStop(); }
+  stopAuto();
+  if (!guide || !plan) return;
+  const [, answer, because] = verdictOf(summary(checks));
+  guide(guideLine = `That's everything. ${answer}: ${because[0].toLowerCase() + because.slice(1)}. Your plan comes to $${plan.purchases.toFixed(2)} and fixes ${plan.closed} of ${plan.rows.length} problems.`);
 }
 function progress(ms) { const b = $('w-prog'); b.style.transition = 'none'; b.style.width = '0'; if (!ms) return; void b.offsetWidth; b.style.transition = `width ${ms}ms linear`; b.style.width = '100%'; }
 function schedule(c) {
   progress(DWELL(c));
-  autoTimer = setTimeout(() => { if (at < stops.length - 1) { at++; showStop(); } else stopAuto(); }, DWELL(c));
+  autoTimer = setTimeout(advance, DWELL(c));
 }
 $('w-prev').onclick = () => { if (at > 0) { at--; showStop(); } };
 $('w-next').onclick = () => { if (at < stops.length - 1) { at++; showStop(); } else { setMode('overview'); closeCard(); overview(); } };
@@ -1263,7 +1280,7 @@ function stopAuto() { playing = false; clearTimeout(autoTimer); autoTimer = null
 $('w-play').onclick = () => {
   if (playing) return stopAuto();
   playing = true; $('w-play').textContent = 'Pause';
-  if (at >= stops.length - 1) { at = 0; showStop(); } else schedule(stops[at]); // at the end, Play starts over
+  if (at >= stops.length - 1) { at = 0; showStop(); } else if (guide) advance(); else schedule(stops[at]); // at the end, Play starts over; with the guide the stop was already said
 };
 
 // ---- Tabs, looks ----
@@ -1342,6 +1359,8 @@ import('./voice.js').then(v => {
   const said = c => (c.kind === 'door' || c.kind === 'step') && c.between ? `${c.between.replaceAll(' ↔ ', ' to ').replace(/\bVoid\b/g, 'Outside')}. ${c.title}` : title(c);
   const api = window.__tourApi = { ask, run: runTool, stop: stopAsking, open: openApartment, mode: () => mode, home: !new URLSearchParams(location.search).get('m'), ready: booted, // the bar is there at once; a request waits for the tour
     nav: () => { const n = navTo; navTo = null; return n; },
+    hold: () => { if (mode === 'walk' && (playing || resumeAfter)) { resumeAfter = true; stopAuto(); } }, // the person started talking
+    resume: () => { if (!resumeAfter) return; resumeAfter = false; if (mode === 'walk' && cardFor === stops[at]) { playing = true; $('w-play').textContent = 'Pause'; advance(); } },
     get help() { return this.home ? 'Ask which apartment is worst, or say open the one in Los Angeles. Say neighbourhood to compare the streets around them.'
       : 'Say a room or a door, like the bathroom or the balcony door. Ask anything, like can he get into the bathroom, or fix what you can for two hundred dollars. Say walkthrough, floor plan, night mode, next, or stop.'; },
     places: () => ({ rooms: checks.filter(c => (c.kind === 'turn' || c.kind === 'hall') && c.room).map(c => ({ id: c.id, name: c.room, say: title(c) })),
@@ -1355,6 +1374,7 @@ import('./voice.js').then(v => {
     return;
   }
   const voice = v.default(api);
+  guide = voice.speak; lineOf = v.stopLine; // shortcut: the tour embedded in the flyover (EMBED, returned above) walks silently; give it the flyover bar's speak if that matters
   $('mic').hidden = false; $('mic').onclick = voice.toggle;
 }).catch(e => console.log('[tour] voice off: ' + (e.message || e)));
 </script>

@@ -98,3 +98,23 @@ test('the inline page scripts parse', async () => {
     code.forEach((c, i) => { const p = `${dir}/${f}.${i}.mjs`; writeFileSync(p, c); execFileSync(process.execPath, ['--check', p], { stdio: 'pipe' }); });
   }
 });
+
+test('the guide says each walkthrough stop with the scan numbers and the plan', async () => {
+  const { stopLine } = await import('./voice.js');
+  const typeOf = o => ({ ramp1: 'threshold ramp' })[o.product?.id];
+  const free = { kind: 'free', label: 'Take the door off its hinges (keep it, rehang it when you move out)', price: 0, verdict: 'closes' };
+  const ramp = { kind: 'product', label: '1\' L x 3\' W EZ-ACCESS Ramp', price: 70.99, product: { id: 'ramp1' }, verdict: 'closes' };
+  const wide = { kind: 'contractor', label: 'Widen the doorway', low: 600, high: 2000, verdict: 'closes' };
+  assert.equal(stopLine({ kind: 'turn', s: 'fail', critical: true, room: 'Bathroom', measured: '4\' 10"', need: '5\' 0" across' }, { options: [{ kind: 'free', label: 'Remodel the room (not priced)', verdict: 'closes' }] }).text,
+    'This one is critical. The bathroom is 4\' 10" across, and turning around needs 5\' 0". Only this fixes it: remodel the room.');
+  assert.equal(stopLine({ kind: 'turn', s: 'pass', room: 'Kitchen, Living Room, Dining Room', measured: '11\' 9"', need: '5\' 0" across' }).text, 'The kitchen is 11\' 9" across, so there is room to turn around.');
+  assert.equal(stopLine({ kind: 'door', s: 'verify', between: 'Hallway ↔ Bedroom', measured: '2\' 10"', need: '2\' 10" opening' }, { chosen: free, options: [free] }).text,
+    'The door between the hallway and the bedroom is 2\' 10", and it needs 2\' 10". That\'s too close to call from the scan, so check it with a tape. Your plan fixes it: take the door off its hinges, $0.');
+  assert.equal(stopLine({ kind: 'door', s: 'fail', between: 'Kitchen, Living Room ↔ Balcony', measured: '2\' 6"', need: '2\' 10" opening' }, { options: [free, wide].map(o => o === free ? { ...o, verdict: 'helps' } : o) }).text,
+    'The door between the kitchen and the balcony is 2\' 6", and it needs 2\' 10". Only this fixes it: widen the doorway, $600 to $2,000.');
+  const step = { kind: 'step', s: 'verify', between: 'Kitchen ↔ Balcony', measured: '1"', need: 'level (¾")' };
+  assert.equal(stopLine(step, { chosen: ramp, options: [ramp] }, typeOf).text, 'There\'s a 1" step at the door between the kitchen and the balcony, and it should be level. That\'s too close to call from the scan, so check it with a tape. Your plan fixes it: a threshold ramp, $70.99.');
+  assert.deepEqual(stopLine(step, { options: [ramp] }, typeOf).ask, true);
+  assert.match(stopLine(step, { options: [ramp] }, typeOf).text, /A threshold ramp for \$70\.99 would fix it\. Shall I add it to your plan\?$/);
+  assert.equal(stopLine({ kind: 'door', s: 'fail', between: 'Void ↔ Entry', measured: '2\' 5"', need: '2\' 10" opening' }).text, 'The door to outside is 2\' 5", and it needs 2\' 10".');
+});

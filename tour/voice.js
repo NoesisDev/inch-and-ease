@@ -86,6 +86,37 @@ export const speakable = t => String(t).replace(/\s*\(([^)]*)\)/g, ', $1') // "D
   .replace(/(?<![\d.,])1 feet\b/g, '1 foot').replace(/(?<![\d.,])1 inches\b/g, '1 inch')
   .replace(/↔/g, ' to ').replace(/(?<!\d)\/(?!\d)/g, ' ').replace(/\$(\d+)\.00\b/g, '$$$1').replace(/ +/g, ' ');
 
+// ---- The guide: what the tour says at a walkthrough stop. Built from the scan's own numbers and the plan, never by Claude, so it is exact and instant. ----
+// c = the check, row = its plan row (or none), typeOf(option) = a product's plain type ("threshold ramp"). Returns { text, ask }: ask = it ends on a question.
+const placeOf = r => !r || r === 'Void' ? 'outside' : 'the ' + r.split(',')[0].trim().toLowerCase();
+const cap = t => t[0].toUpperCase() + t.slice(1);
+const an = w => (/^[aeiou]/i.test(w) ? 'an ' : 'a ') + w;
+const usd = n => '$' + (Number.isInteger(n) ? n.toLocaleString('en-US') : n.toFixed(2));
+const fixName = (o, typeOf) => o.kind === 'product' ? an(typeOf?.(o) || o.label) : o.label.replace(/\s*\(.*\)\s*$/, '').replace(/^./, m => m.toLowerCase());
+const fixCost = o => o.kind === 'contractor' ? (o.low == null ? '' : `${usd(o.low)} to ${usd(o.high)}`) : o.price == null ? '' : usd(o.price);
+export function stopLine(c, row, typeOf) {
+  const [a, b] = (c.between || '').split(' ↔ ');
+  const door = !c.between ? 'the door' : a === 'Void' || b === 'Void' ? 'the door to outside' : `the door between ${placeOf(a)} and ${placeOf(b)}`;
+  const m = c.measured, need = (c.need || '').replace(/ (opening|across|wide)$/, ''), pass = c.s === 'pass';
+  let fact = !m ? `${c.title}.`
+    : c.kind === 'turn' ? `${cap(placeOf(c.room))} is ${m} across, ${pass ? 'so there is room to turn around' : `and turning around needs ${need}`}.`
+    : c.kind === 'door' ? `${cap(door)} is ${m}${pass ? ', wide enough' : `, and it needs ${need}`}.`
+    : c.kind === 'step' ? `There's a ${m} step at ${door}, and it should be level.`
+    : c.kind === 'hall' ? `${cap(placeOf(c.room))} is ${m} wide${pass ? ', wide enough' : `, and it needs ${need}`}.`
+    : `${c.title}.`;
+  if (c.critical && !pass) fact = 'This one is critical. ' + fact;
+  if (c.s === 'verify') fact += " That's too close to call from the scan, so check it with a tape.";
+  if (pass || !row) return { text: fact, ask: false };
+  const o = row.chosen, name = x => fixName(x, typeOf), cost = x => fixCost(x) ? ', ' + fixCost(x) : '';
+  if (o?.verdict === 'closes') return { text: `${fact} Your plan fixes it: ${name(o)}${cost(o)}.`, ask: false };
+  if (o) return { text: `${fact} Your plan has ${name(o)}${cost(o)}, but that only helps.`, ask: false };
+  if (row.byYou) return { text: `${fact} You chose not to fix this one now.`, ask: false };
+  const close = row.options?.find(x => x.verdict === 'closes');
+  if (!close) return { text: `${fact} Nothing you can buy fixes it.`, ask: false };
+  if (close.kind === 'product' && close.price != null) return { text: `${fact} ${cap(name(close))} for ${usd(close.price)} would fix it. Shall I add it to your plan?`, ask: true };
+  return { text: `${fact} Only this fixes it: ${name(close)}${cost(close)}.`, ask: false };
+}
+
 const CSS = `
 #voice { left:50%; top:44px; transform:translateX(-50%); z-index:7; display:flex; gap:10px; align-items:flex-start; padding:6px; border-radius:22px; max-width:min(620px, calc(100% - 120px)); transition:left var(--ease), top var(--ease); }
 #voice.home { position:fixed; top:auto; bottom:20px; z-index:45; }
@@ -179,7 +210,7 @@ export default function initVoice(api) {
   // ---- One request: a quick command runs here, the rest goes to Claude ----
   let turn = 0;
   async function handle(text, note) {
-    const my = ++turn; hush(); api.stop();
+    const my = ++turn; api.hold?.(); hush(); api.stop(); // hold first: a walkthrough must not move on when its line is cut off
     show({ state: 'thinking', heard: text, steps: [], say: '', err: false });
     let said = null; // the answer being read aloud; it starts as soon as Claude has it, while the tour is still moving
     const on = (kind, v) => { if (my !== turn) return; if (kind === 'step') show({ steps: [...ui.steps, { text: v }] }); else if (kind === 'say') said = speak(v); };
@@ -193,6 +224,7 @@ export default function initVoice(api) {
       const out = await api.run(q.tool, q.input, on); if (my !== turn) return;
       if (out?.error) { hush(); return show({ state: rec ? 'listening' : 'idle', say: api.home ? 'That works inside an apartment. Ask which one is worst, or say “open” and its name.' : out.error, err: !api.home }); }
       if (!q.say) show({ state: rec ? 'listening' : 'idle', say: /^(walkthrough|open_page|ui)$/.test(q.tool) && typeof out === 'string' ? out : '' }); // "Showing problem 3 of 6: …" as a caption
+      if (q.tool !== 'walkthrough') api.resume?.(); // "night mode" during a walkthrough: done, the walk goes on
       const to = api.nav?.(); if (to) api.open(to); // "home", "the neighbourhood": the command asked for another page
       return;
     }
@@ -202,8 +234,9 @@ export default function initVoice(api) {
     await said; if (my !== turn) return;
     if (r.open) return api.open(r.open);
     if (!said) rest();
+    api.resume?.(); // the answer has been said: a paused walkthrough goes on
   }
-  function stopAll() { turn++; hush(); api.stop(); clearTimeout(tail); tail = null; again = stopping = false; if (open) setOpen(false); if (rec) { rec.onend = null; rec.abort(); rec = null; } show({ state: 'idle' }); } // half a sentence is dropped, not sent
+  function stopAll() { turn++; if (api.mode?.() === 'walk') api.run('walkthrough', { action: 'pause' }); hush(); api.stop(); clearTimeout(tail); tail = null; again = stopping = false; if (open) setOpen(false); if (rec) { rec.onend = null; rec.abort(); rec = null; } show({ state: 'idle' }); } // half a sentence is dropped, not sent
 
   // ---- Speech in: hold Space to talk, or click the mic to keep it open (each finished sentence is a request) ----
   const Rec = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -220,6 +253,7 @@ export default function initVoice(api) {
       live = '';
       for (let i = e.resultIndex; i < e.results.length; i++) (e.results[i].isFinal ? (done += e.results[i][0].transcript + ' ') : (live += e.results[i][0].transcript));
       show({ state: 'listening', heard: (done + live).trim(), steps: [], say: '', err: false });
+      if ((done + live).trim()) api.hold?.(); // open mic: the person started talking
       flush();
     };
     // Open mic: each finished sentence is a request. One finished while Space was held waits for the key to come up.
@@ -235,7 +269,7 @@ export default function initVoice(api) {
       if (again) { again = false; if (t) handle(t); return held ? listen(true) : undefined; } // Space pressed again before this one had closed: run it, keep listening
       if (t && (!open || held)) return handle(t); // push-to-talk: the request is what was said while the key was down
       if (open && ui.state !== 'speaking') return listen(true); // Chrome closes an open mic after a silence
-      if (ui.state === 'listening') show({ state: 'idle', say: ui.err ? ui.say : 'I didn’t hear anything. Hold Space while you talk.' });
+      if (ui.state === 'listening') { show({ state: 'idle', say: ui.err ? ui.say : 'I didn’t hear anything. Hold Space while you talk.' }); api.resume?.(); }
     };
     try { r.start(); } catch { rec = null; return; }
     show({ state: 'listening', heard: '', steps: [], say: '', err: false });
@@ -246,7 +280,7 @@ export default function initVoice(api) {
     if (e.key === 'Escape' && ui.state !== 'idle') return stopAll();
     if (e.code !== 'Space' || typing(e) || api.mode() === 'drone') return; // in Drone, Space flies up: use the mic button there
     e.preventDefault(); if (e.repeat) return;
-    held = true; turn++; api.stop();
+    held = true; turn++; api.hold?.(); api.stop();
     if (tail) { clearTimeout(tail); tail = null; return; } // pressed again inside the tail: the same recording goes on
     if (rec && stopping) { again = true; return; } // the last recording is still closing: start a new one the moment it has
     listen(true);
