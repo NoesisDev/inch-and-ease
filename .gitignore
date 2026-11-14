@@ -20,3 +20,10 @@ xcuserdata/
 CLAUDE.md
 HANDOFF.md
 GAME_PLAN.md
+
+# Tour: CoStar/Matterport sponsor data, the Matterport viewer bundle (never public)
+tour/private/
+
+# OpenStreetMap answers cached by the area page
+.osm-cache/
+tsconfig.tsbuildinfo

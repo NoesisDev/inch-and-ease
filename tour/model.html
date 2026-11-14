@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Inch & Ease 3D viewer (throwaway)</title>
+<style>
+  :root { --bg:#f4f2ee; --panel:#fff; --ink:#1d1d1b; --muted:#6b6a66; --line:#e3e0da; --fail:#d6453d; --verify:#e0a21b; --pass:#2e9d63; }
+  * { box-sizing:border-box; }
+  body { margin:0; font:14px/1.4 -apple-system, system-ui, sans-serif; color:var(--ink); background:var(--bg); display:flex; height:100vh; }
+  aside { width:340px; flex:none; background:var(--panel); border-right:1px solid var(--line); padding:18px; overflow:auto; }
+  main { flex:1; position:relative; }
+  h1 { font-size:18px; margin:0 0 2px; } .sub { color:var(--muted); font-size:12px; margin-bottom:14px; }
+  select, button { font:inherit; width:100%; padding:8px 10px; border:1px solid var(--line); border-radius:8px; background:#fff; }
+  button { cursor:pointer; margin-top:8px; } button:hover { background:#f7f6f3; }
+  .score { margin:14px 0; padding:12px; border-radius:10px; background:#f7f6f3; font-size:13px; }
+  .score b { font-size:22px; display:block; }
+  h2 { font-size:13px; text-transform:uppercase; letter-spacing:.04em; color:var(--muted); margin:16px 0 6px; }
+  .issue { display:flex; gap:10px; align-items:flex-start; padding:8px; border-radius:8px; cursor:pointer; }
+  .issue:hover { background:#f7f6f3; }
+  .dot { width:10px; height:10px; border-radius:50%; margin-top:5px; flex:none; }
+  .issue small { color:var(--muted); display:block; }
+  .legend span { display:inline-flex; align-items:center; gap:5px; margin-right:10px; font-size:12px; }
+  .note { color:var(--muted); font-size:11px; margin-top:16px; }
+  .label { font:600 12px -apple-system, system-ui, sans-serif; padding:2px 7px; border-radius:6px; color:#fff; white-space:nowrap; pointer-events:none; }
+  .room { font:500 11px -apple-system, system-ui, sans-serif; color:var(--muted); background:rgba(255,255,255,.8); padding:1px 5px; border-radius:4px; pointer-events:none; }
+</style>
+<script type="importmap">
+{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+               "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/" } }
+</script>
+</head>
+<body>
+<aside>
+  <h1>Inch & Ease</h1>
+  <div class="sub">3D from CoStar/Matterport wall data · wheelchair checks</div>
+  <select id="pick" aria-label="Apartment"></select>
+  <div class="score" id="score"></div>
+  <div class="legend"><span><i class="dot" style="background:var(--fail)"></i>fails</span><span><i class="dot" style="background:var(--verify)"></i>check with tape</span><span><i class="dot" style="background:var(--pass)"></i>passes</span></div>
+  <h2>Issues</h2>
+  <div id="issues"></div>
+  <button id="walls">Lower the walls</button>
+  <button id="tour">Open the real Matterport tour</button>
+  <div class="note">Door = opening width from the wall data, not clear width. Turning circle = room box only, furniture not subtracted. Throwaway prototype, local only.</div>
+</aside>
+<main id="view"></main>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
+
+// Thresholds: 32 in clear door (81.5 cm) with the ±1 cm "check with tape" band from the door research; 60 in turning circle.
+const DOOR_PASS = 0.823, DOOR_FAIL = 0.803, TURN = 1.525, STEP = 0.02, WALL_H = 2.5;
+const COLORS = { fail: 0xd6453d, verify: 0xe0a21b, pass: 0x2e9d63 };
+// Metres → feet and inches (2' 5"); under a foot → inches to the nearest ½ (1½").
+const ft = m => { const i = Math.round(m / 0.0254 * 2) / 2; if (i < 12) return `${i.toString().replace('.5', '½')}"`; const r = Math.round(i); return `${Math.floor(r / 12)}' ${r % 12}"`; };
+const css = s => '#' + COLORS[s].toString(16).padStart(6, '0');
+
+const view = document.getElementById('view');
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(devicePixelRatio);
+renderer.shadowMap.enabled = true;
+view.appendChild(renderer.domElement);
+const labels = new CSS2DRenderer();
+labels.domElement.style.cssText = 'position:absolute;top:0;left:0;pointer-events:none';
+view.appendChild(labels.domElement);
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0xf4f2ee);
+const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 500);
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+scene.add(new THREE.HemisphereLight(0xffffff, 0xd8d4cc, 2.2));
+const sun = new THREE.DirectionalLight(0xffffff, 1.6);
+sun.position.set(8, 14, 6); sun.castShadow = true; sun.shadow.mapSize.set(2048, 2048);
+Object.assign(sun.shadow.camera, { left: -15, right: 15, top: 15, bottom: -15 });
+scene.add(sun);
+
+let group = new THREE.Group(), walls = [], lowWalls = false, current, floorBase = 0;
+scene.add(group);
+
+function resize() {
+  const w = view.clientWidth, h = view.clientHeight;
+  renderer.setSize(w, h); labels.setSize(w, h);
+  camera.aspect = w / h; camera.updateProjectionMatrix();
+}
+addEventListener('resize', resize);
+
+const P = (x, y, h = 0) => new THREE.Vector3(x, h, -y); // plan (x,y) metres → three.js, y up
+function label(text, cls, pos, color) {
+  const el = document.createElement('div'); el.className = cls; el.textContent = text;
+  if (color) el.style.background = color;
+  const o = new CSS2DObject(el); o.position.copy(pos); group.add(o);
+}
+function box(len, h, t, mat, a, b, y0) {
+  const m = new THREE.Mesh(new THREE.BoxGeometry(len, h, t), mat);
+  const mid = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+  m.position.copy(P(mid.x, mid.y, y0 + h / 2));
+  m.rotation.y = Math.atan2(b.y - a.y, b.x - a.x);
+  m.userData = { bottom: y0, h, floorBase };
+  m.castShadow = m.receiveShadow = true; group.add(m); return m;
+}
+const lerp = (a, b, t) => ({ x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t });
+
+function roomPolygon(room, V, E) {
+  const edges = (room.boundary?.edges || []).map(e => E[e.id]).filter(Boolean);
+  if (!edges.length) return null;
+  const loop = [...edges[0]], rest = edges.slice(1);
+  while (rest.length) {
+    const i = rest.findIndex(([a, b]) => a === loop.at(-1) || b === loop.at(-1));
+    if (i < 0) break;
+    const [a, b] = rest.splice(i, 1)[0]; loop.push(a === loop.at(-1) ? b : a);
+  }
+  return loop.map(id => V[id]);
+}
+
+async function load(sid) {
+  const m = await (await fetch(`private/tours/${sid}.json`)).json();
+  current = m;
+  scene.remove(group); group = new THREE.Group(); scene.add(group); walls = [];
+  document.querySelectorAll('.label,.room').forEach(e => e.remove());
+  const issues = [], checks = { pass: 0, total: 0 };
+  const wallMat = new THREE.MeshStandardMaterial({ color: 0xfbfaf8, roughness: .9 });
+  const bounds = new THREE.Box3();
+
+  m.floors.forEach((f, fi) => {
+    const base = fi * (WALL_H + 0.3); floorBase = base;
+    const V = Object.fromEntries(f.vertices.map(v => [v.id, v.position]));
+    const E = Object.fromEntries(f.edges.map(e => [e.id, e.vertices.map(v => v.id)]));
+    Object.values(V).forEach(v => bounds.expandByPoint(P(v.x, v.y, base)));
+
+    // Floors per room, plus the turning-circle check
+    for (const r of m.rooms.filter(r => r.floor?.id === f.id)) {
+      const poly = roomPolygon(r, V, E), name = (r.classifications || []).map(c => c.label).join(', ') || 'Room';
+      if (!poly || poly.length < 3 || /void/i.test(name)) continue;
+      const shape = new THREE.Shape(poly.map(p => new THREE.Vector2(p.x, p.y)));
+      const g = new THREE.ShapeGeometry(shape); g.rotateX(-Math.PI / 2);
+      const floor = new THREE.Mesh(g, new THREE.MeshStandardMaterial({ color: 0xe9e2d6, roughness: 1 }));
+      floor.position.y = base; floor.receiveShadow = true; group.add(floor);
+      const c = poly.reduce((s, p) => ({ x: s.x + p.x / poly.length, y: s.y + p.y / poly.length }), { x: 0, y: 0 });
+      label(name, 'room', P(c.x, c.y, base + 0.05));
+      const d = r.dimensions; if (!d?.width || !d?.depth || /closet|balcony/i.test(name)) continue;
+      const fits = Math.min(d.width, d.depth) >= TURN, s = fits ? 'pass' : 'fail';
+      checks.total++; if (fits) checks.pass++;
+      const ring = new THREE.Mesh(new THREE.RingGeometry(TURN / 2 - 0.04, TURN / 2, 64), new THREE.MeshBasicMaterial({ color: COLORS[s], side: THREE.DoubleSide, transparent: true, opacity: .85 }));
+      ring.rotation.x = -Math.PI / 2; ring.position.copy(P(c.x, c.y, base + 0.02)); group.add(ring);
+      if (!fits) issues.push({ s, title: `${name}: 5' turning circle doesn't fit`, detail: `room is ${ft(Math.min(d.width, d.depth))} across (box)`, at: P(c.x, c.y, base) });
+    }
+
+    // Walls with door and window gaps
+    for (const e of f.edges) {
+      if (e.type !== 'wall') continue;
+      const a = V[e.vertices[0].id], b = V[e.vertices[1].id];
+      const len = Math.hypot(b.x - a.x, b.y - a.y), t = e.thickness || 0.12;
+      if (len < 0.01) continue;
+      const ops = (e.openings || []).map(o => ({ ...o, s0: o.relativeCenter - o.width / 2 / len, s1: o.relativeCenter + o.width / 2 / len })).sort((p, q) => p.s0 - q.s0);
+      let s = 0;
+      for (const o of ops) {
+        const s0 = Math.max(0, o.s0), s1 = Math.min(1, o.s1), A = lerp(a, b, s0), B = lerp(a, b, s1), w = (s1 - s0) * len;
+        if (s0 > s) walls.push(box((s0 - s) * len, WALL_H, t, wallMat, lerp(a, b, s), A, base));
+        const bottom = Math.max(0, o.lowerElevation || 0), top = Math.min(WALL_H, bottom + (o.height || 2.03));
+        if (o.type === 'window' && bottom > 0) walls.push(box(w, bottom, t, wallMat, A, B, base));
+        if (top < WALL_H) walls.push(box(w, WALL_H - top, t, wallMat, A, B, base + top));
+        if (o.type === 'window') { box(w, top - bottom, 0.02, new THREE.MeshStandardMaterial({ color: 0xbfd8e6, transparent: true, opacity: .45 }), A, B, base + bottom); s = s1; continue; }
+        if (o.type === 'doorway' && o.width > 0.5) {
+          const st = o.width >= DOOR_PASS ? 'pass' : o.width <= DOOR_FAIL ? 'fail' : 'verify';
+          checks.total++; if (st === 'pass') checks.pass++;
+          const mid = lerp(a, b, o.relativeCenter);
+          box(w, 0.04, t + 0.02, new THREE.MeshBasicMaterial({ color: COLORS[st] }), A, B, base);           // threshold strip
+          walls.push(box(w, 0.06, t + 0.02, new THREE.MeshBasicMaterial({ color: COLORS[st] }), A, B, base + top - 0.06)); // header strip, cut with the walls
+          if (st !== 'pass') {
+            walls.push(box(w, top, 0.02, new THREE.MeshBasicMaterial({ color: COLORS[st], transparent: true, opacity: .25 }), A, B, base));
+            label(ft(o.width), 'label', P(mid.x, mid.y, base + top + 0.25), css(st));
+            issues.push({ s: st, title: `Door ${ft(o.width)}`, detail: `needs a ${ft(DOOR_PASS)} opening (32" clear)`, at: P(mid.x, mid.y, base) });
+          }
+          if ((o.lowerElevation || 0) > STEP) {
+            checks.total++;
+            label(`step ${ft(o.lowerElevation)}`, 'label', P(mid.x, mid.y, base + 0.35), css('fail'));
+            issues.push({ s: 'fail', title: `Step ${ft(o.lowerElevation)} at a door`, detail: 'over the ½" threshold', at: P(mid.x, mid.y, base) });
+          } else checks.total++, checks.pass++;
+        }
+        s = s1;
+      }
+      if (s < 1) walls.push(box((1 - s) * len, WALL_H, t, wallMat, lerp(a, b, s), b, base));
+    }
+  });
+
+  setWallHeight();
+  const center = bounds.getCenter(new THREE.Vector3()), size = bounds.getSize(new THREE.Vector3()).length();
+  controls.target.copy(center);
+  camera.position.copy(center).add(new THREE.Vector3(size * .45, size * 1.0, size * .75));
+  sun.target.position.copy(center); scene.add(sun.target);
+
+  document.getElementById('score').innerHTML = `<b>${checks.pass} of ${checks.total} checks pass</b>${issues.filter(i => i.s === 'fail').length} fail · ${issues.filter(i => i.s === 'verify').length} to check with a tape`;
+  const order = { fail: 0, verify: 1 };
+  document.getElementById('issues').innerHTML = issues.length ? '' : '<div class="sub">No issues found by these checks.</div>';
+  issues.sort((p, q) => order[p.s] - order[q.s]).forEach(i => {
+    const el = document.createElement('div'); el.className = 'issue';
+    el.innerHTML = `<i class="dot" style="background:${css(i.s)}"></i><div>${i.title}<small>${i.detail}</small></div>`;
+    el.onclick = () => flyTo(i.at); document.getElementById('issues').appendChild(el);
+  });
+}
+
+function setWallHeight() {
+  // Low mode cuts every wall piece at 1 m above its floor so you can see into the rooms.
+  for (const w of walls) {
+    const { bottom, h, floorBase } = w.userData, cap = lowWalls ? floorBase + 1.0 : Infinity;
+    const newH = Math.min(h, cap - bottom);
+    w.visible = newH > 0.01;
+    if (!w.visible) continue;
+    w.scale.y = newH / h; w.position.y = bottom + newH / 2;
+  }
+}
+document.getElementById('walls').onclick = e => { lowWalls = !lowWalls; e.target.textContent = lowWalls ? 'Raise the walls' : 'Lower the walls'; setWallHeight(); };
+document.getElementById('tour').onclick = () => open(`https://my.matterport.com/show?m=${current.id}`, '_blank');
+
+let fly = null;
+function flyTo(p) {
+  const to = p.clone().add(new THREE.Vector3(2.2, 3.2, 2.6));
+  fly = { t: 0, fromCam: camera.position.clone(), fromTgt: controls.target.clone(), toCam: to, toTgt: p.clone() };
+}
+renderer.setAnimationLoop(() => {
+  if (fly) {
+    fly.t = Math.min(1, fly.t + 0.03); const k = fly.t * fly.t * (3 - 2 * fly.t);
+    camera.position.lerpVectors(fly.fromCam, fly.toCam, k); controls.target.lerpVectors(fly.fromTgt, fly.toTgt, k);
+    if (fly.t === 1) fly = null;
+  }
+  controls.update(); renderer.render(scene, camera); labels.render(scene, camera);
+});
+
+const list = await (await fetch('private/tours/index.json')).json();
+const pick = document.getElementById('pick');
+pick.innerHTML = list.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
+pick.onchange = () => load(pick.value);
+resize();
+await load(list[1].id); pick.value = list[1].id;
+</script>
+</body>
+</html>
