@@ -1660,7 +1660,8 @@ async function ask(text, { on = () => {}, note } = {}) {
   return { text: answer, error, open: navTo };
 }
 const askTyped = q => ask(q).then(r => r.open ? openApartment(r.open) : window.__tourApi?.resume?.(true)); // typed questions start the walk too
-$('ask').onsubmit = e => { e.preventDefault(); const q = $('q').value.trim(); if (q) { $('q').value = ''; askTyped(q); } };
+let hearTyped = null; // set once voice.js has loaded: a typed question is answered aloud like a spoken one, not only written in the chat
+$('ask').onsubmit = e => { e.preventDefault(); const q = $('q').value.trim(); if (q) { $('q').value = ''; (hearTyped || askTyped)(q); } };
 $('mic').hidden = true; // shown once voice.js has loaded (end of this script)
 
 // ---- Navigation: one mode at a time (Overview, Drone, Walkthrough, Inside, Floor plan) ----
@@ -2178,11 +2179,12 @@ import('./voice.js').then(async v => {
   if (EMBED) {
     for (const type of ['keydown', 'keyup']) addEventListener(type, e => { if ((e.code !== 'Space' && e.key !== 'Escape') || e.target.closest?.('input,textarea,select,[contenteditable]') || mode === 'drone' || $('chair').open) return;
       e.preventDefault(); parent.dispatchEvent(new KeyboardEvent(type, { code: e.code, key: e.key, repeat: e.repeat, bubbles: true, cancelable: true })); }, true);
+    hearTyped = q => parent.__region?.ask?.(q); // the flyover's bar answers, in Ethan's voice
     guide = t => parent.__region?.speak?.(t) ?? Promise.resolve(); lineOf = v.stopLine; keepsNumbers = v.keepsNumbers; // the walk talks through the flyover's voice
     booted.then(prepareWalk);
     return;
   }
-  const voice = v.default(api);
+  const voice = v.default(api); hearTyped = voice.hear;
   guide = voice.speak; lineOf = v.stopLine; keepsNumbers = v.keepsNumbers;
   booted.then(prepareWalk); // Ethan's walk lines are written while the person looks around
   $('mic').hidden = false; $('mic').onclick = voice.toggle;

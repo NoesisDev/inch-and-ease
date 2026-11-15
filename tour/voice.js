@@ -320,7 +320,8 @@ export default function initVoice(api) {
       // the walk and "go inside" speak their own lines; a command that leaves the page has no one left to hear a line
       if (q.tool === 'open_page' && typeof out === 'string') { logTalk(text, out); await speak(out); return; } // still on this page ("back to the map"): he says where they are
       if (q.tool === 'walkthrough' && /^(pause|stop)$/.test(q.input.action)) { await speak(typeof out === 'string' && /nothing/i.test(out) ? out : q.input.action === 'pause' ? 'Okay, I’ll wait.' : 'Okay, the walk is over. Where would you like to go?'); return; }
-      if (/^(walkthrough|enter|open_region|open_page)$/.test(q.tool)) { show({ state: rec ? 'listening' : 'idle', say: typeof out === 'string' ? out : '' }); return; }
+      if (q.tool === 'walkthrough' && typeof out === 'string' && /^Back at/.test(out) && api.mode() !== 'walk') { await speak(out); return; }
+      if (/^(walkthrough|enter|open_region|open_page)$/.test(q.tool)) return rest(); // the walk and "go inside" say their own lines: no caption that isn't voiced
       const did = [q.say && `went to ${q.say}`, `${q.tool} ${JSON.stringify(q.input)}`, typeof out === 'string' && out, ...facts].filter(Boolean).join('. ');
       const line = await custom(text, did, facts.join(' ') || q.say || (typeof out === 'string' ? out : '')); if (my !== turn) return;
       if (line) { logTalk(text, line); await speak(line); } else rest();
@@ -339,7 +340,7 @@ export default function initVoice(api) {
 
   // ---- Speech in: hold Space to talk, or click the mic to keep it open (each finished sentence is a request) ----
   const Rec = window.SpeechRecognition || window.webkitSpeechRecognition;
-  let rec = null, open = false, held = false, tail = null, again = false, flush = () => {};
+  let rec = null, open = false, held = false, tail = null, again = false, cut = false, flush = () => {}; // cut: Space was pressed to stop him mid-line
   const TAIL = 350; // ms the mic stays on after Space is let go: letting go on the last word cut it off
   function setOpen(v) { open = v; store.set('ie-voice', v ? 'open' : null); }
   function listen(on) {
@@ -372,7 +373,7 @@ export default function initVoice(api) {
       if (again) { again = false; if (t) handle(t, undefined, others()); return held ? listen(true) : undefined; } // Space pressed again before this one had closed: run it, keep listening
       if (t && (!open || held)) return handle(t, undefined, others()); // push-to-talk: the request is what was said while the key was down
       if (open && ui.state !== 'speaking') return listen(true); // Chrome closes an open mic after a silence
-      if (ui.state === 'listening') { show({ state: 'idle', say: ui.err ? ui.say : 'I didn’t hear anything. Hold Space while you talk.' }); api.resume?.(); }
+      if (ui.state === 'listening') { if (cut || ui.err) { show({ state: 'idle' }); api.resume?.(); } else speak('I didn’t hear anything. Hold Space while you talk.').then(() => api.resume?.()); }
     };
     try { r.start(); } catch { rec = null; return; }
     show({ state: 'listening', heard: '', steps: [], say: '', err: false });
@@ -383,7 +384,7 @@ export default function initVoice(api) {
     if (e.key === 'Escape' && ui.state !== 'idle') return stopAll();
     if (e.code !== 'Space' || typing(e) || api.mode() === 'drone') return; // in Drone, Space flies up: use the mic button there
     e.preventDefault(); if (e.repeat) return;
-    held = true; turn++; hush(); api.hold?.(); api.stop(); // Space cuts Ethan off mid-sentence, whatever the mic was doing
+    cut = ui.state === 'speaking' || ui.state === 'thinking'; held = true; turn++; hush(); api.hold?.(); api.stop(); // Space cuts Ethan off mid-sentence, whatever the mic was doing
     if (tail) { clearTimeout(tail); tail = null; return; } // pressed again inside the tail: the same recording goes on
     if (rec && stopping) { again = true; return; } // the last recording is still closing: start a new one the moment it has
     listen(true);
