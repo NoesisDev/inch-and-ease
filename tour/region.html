@@ -401,7 +401,7 @@ let revealed = false; renderUnits();
 let run = 0; // goes up when a new request or "stop" ends whatever is running
 const wait = ms => new Promise(r => setTimeout(r, ms));
 const SPEAK = { Dr: 'Drive', St: 'Street', Ave: 'Avenue', Blvd: 'Boulevard', Ln: 'Lane', Rd: 'Road', N: 'North', S: 'South', E: 'East', W: 'West' };
-const streets = t => t.replace(/\b(Dr|St|Ave|Blvd|Ln|Rd)\b\.?(?=[\s,.:;]|$)|\b[NSEW]\b\.?(?= [A-Z])/g, m => SPEAK[m.replace('.', '')]); // the bar shows this text too, so "apartment E is" must stay as it is
+const streets = t => t.replace(/\b(Dr|St|Ave|Blvd|Ln|Rd)\b\.?(?=[\s,.:;]|$)|(?<=\d )[NSEW]\b\.?(?= [A-Z])/g, m => SPEAK[m.replace('.', '')]); // a compass letter only after a house number: "skip it for E. What…" is apartment E, not East
 const spoken = id => streets(byId[id].address), place = id => `${letter[id]}: ${byId[id].address}`;
 const say = text => bar.speak(streets(text)); // resolves when the line has been read, or at once when a new request cuts it off
 
