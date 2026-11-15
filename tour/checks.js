@@ -50,6 +50,8 @@ export const ftin = m => {
   const r = Math.round(i); return `${Math.floor(r / 12)}' ${r % 12}"`;
 };
 
+// A door that leads outside: the other side is "Void" (beyond the scan), a balcony or the like, or the scan lists one room only for it.
+const OUT_DOOR = i => { const b = i.between || ''; return /void|outside|balcony|patio|terrace|deck|garage/i.test(b) || (!!b && !b.includes('↔')); };
 // Fix ladders: rungs in the master table's order. effect(value, product, item) → the changed number or answer (undefined = no change).
 // helps: the rung improves things without changing the number. support:false = shown, never counted as support (with why).
 const free = (label, effect, extra) => ({ kind: 'free', label, price: 0, effect, ...extra });
@@ -113,8 +115,9 @@ export const REGISTRY = [
       prod(['bed_rail', 'transfer_board'], () => undefined, { helps: true, note: 'something to hold or slide on' })] },
   { n: 8, id: 'door', tier: 2, title: 'Door width', room: 'any', how: 'auto', limit: 'door',
     who: 'Wheelchair users', rule: 'Opening ≥ 34" (86.5 cm) passes, under 32" (81.5 cm) fails', anchor: 'ADA 404.2.3 · Housing Enabler B1, C4',
-    ladder: [free('Take the door off its hinges (keep it, rehang it when you move out)', v => v + CLEAR_LOSS),
-      prod(['offset_hinge'], (v, p) => p.spec?.clearance_gained_in ? v + p.spec.clearance_gained_in * IN : undefined, { note: 'screws into the same holes; swap back when you move out' }),
+    // A door to outside keeps the weather and the street out: nobody takes it off ("Void" = beyond the scan = outside). A balcony or patio door is most often a slider: no hinges to swap.
+    ladder: [free('Take the door off its hinges (keep it, rehang it when you move out)', v => v + CLEAR_LOSS, { only: i => !OUT_DOOR(i) }),
+      prod(['offset_hinge'], (v, p) => p.spec?.clearance_gained_in ? v + p.spec.clearance_gained_in * IN : undefined, { note: 'screws into the same holes; swap back when you move out', only: i => !/balcony|patio|terrace|deck/i.test(i.between || '') }),
       pro('Widen the doorway (contractor)', 600, 2000, 1200, 'Angi cost guide', v => Math.max(v, 0.915))] },
   { n: 9, id: 'step', tier: 2, title: 'Door step', room: 'any', how: 'auto', limit: 'step',
     who: 'Wheelchair users', rule: 'Level within ¾" (2 cm) passes, over 2" (5 cm) fails', anchor: 'ADA 404.2.5 · Housing Enabler B2, C1',
@@ -353,6 +356,9 @@ export function isCritical(i, route) {
   if (i.s !== 'fail') return false;
   if (CHECK[i.n].tier === 1) return true;
   if (i.n === 10 && BATH.test(i.room || '')) return true;
+  // No way in was found in the scan (no door to outside on it), so there is no route to read: a failed door of a bathroom, bedroom or
+  // kitchen still keeps a chair out of that room, wherever the front door is.
+  if (!route.entry && i.n === 8 && /bath|bed|kitchen/i.test(i.between || '')) return true;
   return Object.values(route.to).some(r => /bath|bed|kitchen/i.test(r.room) && r.items.includes(i.id));
 }
 

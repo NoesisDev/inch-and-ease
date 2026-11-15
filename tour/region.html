@@ -97,8 +97,11 @@
   #start { position:fixed; inset:0; z-index:40; display:grid; place-items:center; background:rgba(0,0,0,.35); -webkit-backdrop-filter:blur(16px); backdrop-filter:blur(16px); }
   #start > div { width:min(480px, calc(100% - 32px)); padding:32px; border-radius:28px; text-align:center; }
   #start h2 { margin:0 0 8px; font-size:28px; font-weight:700; letter-spacing:-.025em; line-height:1.15; } #start p { color:var(--muted); margin:0 0 24px; }
-  #start dl { display:grid; grid-template-columns:auto 1fr; gap:8px 12px; margin:0 auto 24px; text-align:left; font-size:13px; color:var(--muted); width:max-content; }
-  #start dt { text-align:right; } #start dd { margin:0; align-self:center; }
+  #start .talk { display:flex; align-items:center; justify-content:center; gap:12px; margin:0 0 16px; font-size:17px; }
+  #start .talk kbd { font-size:15px; padding:8px 24px; border-radius:8px; }
+  #start .say { list-style:none; padding:0; margin:0 0 24px; display:flex; flex-wrap:wrap; justify-content:center; gap:8px; }
+  #start .say li { padding:6px 12px; border-radius:8px; background:var(--fill2); font-size:14px; }
+  #start .keys { margin:20px 0 0; font-size:12px; line-height:2; }
   #start kbd { font:600 12px var(--font); background:var(--fill2); color:var(--ink); padding:3px 8px; border-radius:6px; }
   #go { background:var(--ink); color:var(--on); font-size:17px; padding:14px 48px; } #go:hover { background:#fff; } #go:disabled { opacity:.6; cursor:default; }
   #status { color:var(--muted); font-size:13px; margin-top:12px; } #status:empty { display:none; }
@@ -156,22 +159,18 @@
 <button id="back" class="glass" type="button" title="Back to the neighbourhood (B)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>Neighbourhood</button>
 <div id="start"><div class="glass">
   <h2>Which apartment is best for your father?</h2>
-  <p>A drone flight over five real apartments, inside and out.</p>
-  <dl>
-    <dt><kbd>Space</kbd></dt><dd>Hold to ask by voice</dd>
-    <dt><kbd>D</kbd></dt><dd>Sample question</dd>
-    <dt><kbd>A</kbd> to <kbd>E</kbd></dt><dd>Fly to an apartment</dd>
-    <dt><kbd>Esc</kbd></dt><dd>Stop</dd>
-    <dt><kbd>B</kbd></dt><dd>Back from a tour</dd>
-    <dt><kbd>F</kbd></dt><dd>Full screen</dd>
-    <dt>Drag</dt><dd>Turn the map; scroll to zoom, right-drag to slide</dd>
-  </dl>
+  <p>A drone flight over five real apartments, inside and out. Just talk to Ethan, your guide.</p>
+  <div class="talk"><kbd>Space</kbd><span>Hold it and talk. Tap it to cut him off.</span></div>
+  <ul class="say" aria-label="Things you can say">
+    <li>“Hi Ethan”</li><li>“Which one is best for a wheelchair?”</li><li>“Take me to apartment B”</li><li>“Go inside”</li><li>“Turn left”</li><li>“Zoom in”</li><li>“Back to the map”</li>
+  </ul>
   <button id="go" type="button" disabled>Loading…</button><div id="status" role="status"></div>
+  <p class="keys"><kbd>D</kbd> sample question · <kbd>A</kbd>–<kbd>E</kbd> fly to one · <kbd>Esc</kbd> stop · <kbd>B</kbd> back · <kbd>F</kbd> full screen · drag, scroll or right-drag the map</p>
 </div></div>
 
 <script type="module">
 import * as THREE from './private/mp/vendors/three/0.184.0/three.module.js';
-import { unitFacts, rank, tone, fallbackScript, RULE } from './region.js';
+import { unitFacts, rank, tone, fallbackPlan, RULE } from './region.js';
 import initVoice from './voice.js';
 
 const $ = id => document.getElementById(id);
@@ -317,7 +316,7 @@ function flyTo(to, ms = 3800) {
 // A view of one apartment from the side the camera is already on, ~450 m out and 330 m up.
 function unitView(id, close = false) {
   const b = pins[id].base, dir = new THREE.Vector3().subVectors(view.pos, b).setY(0).normalize();
-  if (!isFinite(dir.x)) dir.set(0, 0, 1);
+  if (!(dir.lengthSq() > 1e-6)) dir.set(0, 0, 1); // straight above it (just out of its tour): from the south, like any other approach, not a flat view from overhead
   const dist = close ? 160 : 460, up = close ? 140 : 330;
   return { pos: b.clone().add(dir.multiplyScalar(dist)).add(new THREE.Vector3(0, up, 0)), target: b.clone().add(new THREE.Vector3(0, 30, 0)) };
 }
@@ -406,100 +405,103 @@ const streets = t => t.replace(/\b(Dr|St|Ave|Blvd|Ln|Rd)\b\.?(?=[\s,.:;]|$)|\b[N
 const spoken = id => streets(byId[id].address), place = id => `${letter[id]}: ${byId[id].address}`;
 const say = text => bar.speak(streets(text)); // resolves when the line has been read, or at once when a new request cuts it off
 
-// ---- The guided flight: Claude writes the words from our numbers; the page flies, shows the numbers and speaks ----
+// ---- The plan: Claude reads what the person said and writes what to do, step by step; the page does exactly that, in that
+// order. No word list decides here: only one-word commands (voice.js quick()) skip Claude. Shape: notes/ETHAN_PLAN_AGENT.md ----
 let history = [];
 // Who the apartment is for ("their dad, manual wheelchair"), as Claude summed it up. The tour opened later reads it too (same tab).
 const person = { get: () => { try { return sessionStorage.getItem('ie-person') || ''; } catch { return ''; } }, set: v => { try { sessionStorage.setItem('ie-person', v); } catch {} } };
-async function script(question) {
-  const ctl = new AbortController(), timer = setTimeout(() => ctl.abort(), 20000);
+const FACTS = ranked.map((f, k) => ({ label: letter[f.id], rank: k + 1, ...f })), NO_PLAN = { say: '', steps: [], end: 'stay', camera: '', region: '', person: '' };
+// Where they are, so "this one", "here", "outside" and "go in" mean something to Claude.
+function now() {
+  const at = tourOpen() ? inTour : active;
+  const where = !byId[at] ? (tourOpen() ? 'inside an apartment that is not on this map' : 'above the whole neighbourhood, no apartment chosen')
+    : tourOpen() ? `inside apartment ${letter[at]} (${byId[at].address}), its 3D tour is open` : `outside apartment ${letter[at]} (${byId[at].address}), seen from the drone with its streets`;
+  return `[Now: ${where}. Shown so far: ${[...seen].map(id => letter[id]).sort().join(', ') || 'none'}. This neighbourhood: ${R.name}. Other neighbourhoods: ${REGIONS.filter(r => r.slug !== RSLUG).map(r => r.name).join(', ') || 'none'}.]`;
+}
+async function plan(question, note) {
+  const ctl = new AbortController(), timer = setTimeout(() => ctl.abort(), 20000), known = person.get();
   try {
-    const known = person.get(), q = known ? `${question}\n[Known about them so far: ${known}]` : question;
-    const r = await fetch('/api/region', { method: 'POST', headers: { 'Content-Type': 'application/json' }, signal: ctl.signal, body: JSON.stringify({ question: q, facts: ranked.map(f => ({ label: letter[f.id], ...f })), rule: RULE, history }) });
-    const j = await r.json(); if (!r.ok || (!j.answer && !j.intro)) throw new Error(j.error || r.status); // no answer + an intro = Ethan asked something back
-    return j;
+    const q = [question, known && `[Known about them so far: ${known}]`, note && `[${note}]`, now()].filter(Boolean).join('\n');
+    const r = await fetch('/api/region', { method: 'POST', headers: { 'Content-Type': 'application/json' }, signal: ctl.signal, body: JSON.stringify({ question: q, facts: FACTS, rule: RULE, history }) });
+    const j = await r.json(); if (!r.ok || !Array.isArray(j.steps)) throw new Error(j.error || r.status);
+    return { ...NO_PLAN, ...j };
   } catch (e) {
-    console.log('[region] Claude unavailable, using the built-in script: ' + (e.message || e));
-    return /best|each|which|compare|all/i.test(question) ? fallbackScript(ranked) : { intro: "I can't reach Claude right now. Ask me which apartment is best and I'll walk you through them.", stops: [], answer: null };
+    console.log('[region] Claude unavailable, using the built-in plan: ' + (e.message || e));
+    return fallbackPlan(ranked, question, { active: tourOpen() ? inTour : active, inside: tourOpen(), label: letter })
+      || { ...NO_PLAN, say: 'I can’t reach Claude right now. Say best, worst, a letter, inside or outside, and I’ll take you there.' };
   } finally { clearTimeout(timer); }
 }
-// One question to Claude. on('step', label) tells the bar about each stop. Returns the answer line.
-async function flyover(question, on) {
-  const my = run;
-  if (!flight) orbit = !still;
-  const s = await script(question);
-  if (my !== run) return;
-  history = [...history, { q: question, a: [s.intro, ...s.stops.map(x => x.line), s.answer?.line].filter(Boolean).join(' ') }].slice(-4);
-  if (s.person) person.set(s.person);
-  const visit = (id, line, close) => { on('step', place(id)); return Promise.all([show(id, close), say(line)]); };
-  if (s.intro) await say(s.intro);
-  for (const st of s.stops) { if (my !== run || !byId[st.id]) continue; await visit(st.id, st.line); await wait(400); }
-  if (my !== run || !s.answer || !byId[s.answer.id]) return s.intro;
-  if (s.answer.dive) loadTour(s.answer.id); // loads while the answer is spoken
-  revealed = revealed || s.answer.dive;
-  await visit(s.answer.id, s.answer.line, s.answer.dive);
-  if (s.answer.dive) { await dive(my); await greet(my); }
-  return s.answer.line;
+// Carries a plan out: Claude's over the map, the open tour's own Claude's (its travel tool), or the built-in one. Every line is spoken here.
+let queue = null, walkDone = false; // queue: the steps that follow the walk they are in
+async function execPlan(p, my, on = () => {}, question = '') {
+  if (p.person) { person.set(p.person); if (!tourOpen()) tourReady?.then(() => frame.contentWindow?.__tourApi?.prepare?.()); } // a preloaded tour wrote its walk before it knew who this is for (it said "he" for "she")
+  const there = p.region && REGIONS.find(r => r.slug !== RSLUG && r.name.toLowerCase() === String(p.region).trim().toLowerCase());
+  if (there) {
+    if (p.say) await say(p.say); if (my !== run) return '';
+    // a request that is more than the name ("the best one in Hollywood") is finished by that page; a bare name gets its greeting
+    try { question.trim().split(/\s+/).length > 6 ? sessionStorage.setItem('ie-voice-next', question) : sessionStorage.setItem('ie-hello', '1'); } catch {}
+    on('step', `Opening: ${there.name}`); goRegion(there.slug); return '';
+  }
+  const stops = (p.steps || []).filter(s => byId[s.id]);
+  if (!stops.length) {
+    if (p.end === 'map') { on('step', 'Showing: the whole neighbourhood'); if (tourOpen()) back(null); await Promise.all([overview(), p.say && say(p.say)]); return ''; }
+    if (p.camera && !tourOpen()) mapCamera(p.camera);
+    if (p.say) await say(p.say);
+    return '';
+  }
+  revealed ||= stops.length >= R.units.length || stops.some(s => s.where === 'inside');
+  const first = stops.find(s => s.where === 'inside'); if (first && !tourOpen()) loadTour(first.id, !!first.walk || stops.at(-1) === first); // loads while he talks
+  if (p.say) await say(p.say); if (my !== run) return '';
+  return runSteps({ stops, end: p.end, question, closing: stops.length > 2 && p.end === 'map' }, my, on);
 }
-// Guided run: every apartment, best first. Fly to it and say how it and its streets are (Claude's flyover script),
-// go inside and let the tour's own Claude say what would stop a wheelchair user there (it shows the worst one), come back out, next.
-// The flow (the region first, then the best option outside and inside, then the others, then it waits):
-// the pick first. Its streets from the drone, then inside for the tour's whole
-// walk; they can talk all through it, and the run goes on when the walk ends (walkEnd). Each other apartment: its streets, inside
-// seen from above with what would stop a chair there, back out. At the end the lead goes back to them.
-const GUIDED = /\b(guided|tour (them )?all|all of them|all the apartments|every apartment|each apartment|one by one|inside and out|through (all|every|each))\b|\bfind\b[^.?!]*\b(apartment|place|home|flat)\b/i;
-const GUIDE_NOTE = '[Guided run: right after each stop line the page goes inside that apartment and its tour explains the rooms. So give one stop per apartment, best first, and make each stop line about OUTSIDE only: how steep or flat the streets around it are, how far the station is, and what that means for getting around in a wheelchair. The answer line is not read aloud. Never mention this note, the page, the tour, stops or what happens next: the intro is one short natural sentence to the person, nothing about how the flight works.]';
-let queue = null, walkDone = false, askGuided = false; // queue: what follows the walk they are in; askGuided: Ethan asked a question first, their answer starts the run
-async function guided(question, on) {
-  const my = run;
-  if (tourOpen()) back();
-  queue = null;
-  if (!flight) orbit = !still;
-  loadTour(ranked[0].id); // the likely pick's tour loads while Claude writes the script: less waiting at its door
-  const s = await script(`${question}\n${GUIDE_NOTE}`);
-  if (my !== run) return '';
-  if (s.person) { person.set(s.person); tourReady?.then(() => frame.contentWindow?.__tourApi?.prepare?.()); } // the preloaded tour wrote its walk before it knew who this is for (it said "he" for "she")
-  history = [...history, { q: question, a: [s.intro, ...s.stops.map(x => x.line)].filter(Boolean).join(' ') }].slice(-4);
-  if (s.intro) await say(s.intro.replace('Here they are, from hardest to easiest.', 'I’ll start with the best one.')); // the offline script's order, said the way this run goes
-  if (my !== run) return '';
-  if (!s.stops.length && !s.answer) { askGuided = true; return s.intro; } // "What does he get around in?": the run starts with their answer
-  revealed = true;
-  const best = byId[s.answer?.id] ? s.answer.id : ranked[0].id, at = id => ranked.findIndex(f => f.id === id);
-  const stops = [...s.stops.filter(x => byId[x.id]), ...(s.stops.some(x => x.id === best) ? [] : [{ id: best, line: s.answer?.line || '' }])]
-    .sort((a, b) => (b.id === best) - (a.id === best) || at(a.id) - at(b.id)); // the pick first, then best to worst
-  return tourStops({ stops, question, best, walk: true }, my, on);
+async function toRoom(name, on) { // a room of the open tour by its name, as the tour itself lists them
+  const t = inner(), key = s => String(s).toLowerCase().replace(/[^a-z]/g, ''), rooms = t?.places().rooms || [];
+  const r = rooms.find(r => r.name.split(/\s*,\s*/).some(n => key(n) === key(name))) || rooms.find(r => key(r.name).includes(key(name)));
+  if (r) await t.run('show_issue', { id: r.id }, on);
 }
-// q.walk: the first apartment gets the tour's whole walk. This ends there, inside it; walkEnd() carries on with the rest.
-async function tourStops(q, my, on = () => {}) {
+async function runSteps(q, my, on = () => {}) {
   for (const [k, st] of q.stops.entries()) {
     if (my !== run) return '';
-    loadTour(st.id, !!q.walk); // the tour loads while the outside is described; the others stay on their opening view from above
-    on('step', place(st.id)); await Promise.all([show(st.id, true), st.line && say(st.line)]);
+    const lastOne = k === q.stops.length - 1, stay = lastOne && q.end !== 'map';
+    if (st.where !== 'inside') { // from the drone: the apartment, its card and its streets
+      if (tourOpen()) back(null);
+      on('step', place(st.id)); await Promise.all([show(st.id), st.line && say(st.line)]);
+      if (!lastOne) await wait(400);
+      continue;
+    }
+    const lead = stay || st.walk; // they stay in this one (or walk it): his line goes with the flight in. A look in: he talks once inside
+    if (!(tourOpen() && inTour === st.id)) {
+      if (tourOpen()) back(null);
+      loadTour(st.id, !!lead); on('step', `Going inside: ${place(st.id)}`);
+      await Promise.all([show(st.id, true), lead && st.line && say(st.line)]); if (my !== run) return '';
+      await Promise.race([tourReady, wait(25000)]); if (my !== run) return '';
+      if (!frame.contentWindow?.__tourApi) { on('step', `Skipped: ${place(st.id)} (the tour didn't load)`); continue; }
+      await dive(my); if (my !== run || !inner()) return '';
+    } else if (lead && st.line) { await say(st.line); if (my !== run) return ''; }
+    if (st.room) { await toRoom(st.room, on); if (my !== run) return ''; }
+    if (stay) return ''; // voice.js starts the tour's walk as this request ends (resume)
+    if (st.walk) { queue = { ...q, stops: q.stops.slice(k + 1), on }; walkDone = false; return ''; } // walkEnd() carries on with the rest
+    if (st.line) await say(st.line);
+    else { // no line given: the tour's own Claude says what would stop a wheelchair here
+      let said = Promise.resolve();
+      await inner().ask('In two or three short sentences: what would stop a wheelchair user in this apartment, and what is the fix?',
+        { on: (k, v) => k === 'say' ? (said = say(v)) : on(k, v), note: 'neighbourhood run: the page is showing the whole apartment from above with its numbered pins, so do not move the camera or open a card (no show_issue, no set_view, no travel), name the rooms instead; keep it short, the run goes on to the next apartment' });
+      await said; inner()?.stop?.();
+    }
     if (my !== run) return '';
-    await Promise.race([tourReady, wait(25000)]);
-    if (my !== run) return '';
-    if (!frame.contentWindow?.__tourApi) { on('step', `Skipped: ${place(st.id)} (the tour didn't load)`); continue; }
-    await dive(my);
-    const t = inner();
-    if (my !== run || !t) return '';
-    if (q.walk) { queue = { ...q, stops: q.stops.slice(k + 1), walk: false, on }; walkDone = false; return ''; } // voice.js starts the walk as this request ends (resume)
-    let said = Promise.resolve();
-    await t.ask('In two or three short sentences: what would stop a wheelchair user in this apartment, and what is the fix?',
-      { on: (k, v) => k === 'say' ? (said = say(v)) : on(k, v), note: 'guided neighbourhood run: the page is showing the whole apartment from above with its numbered pins, so do not move the camera or open a card (no show_issue, no set_view), name the rooms instead; keep it short, the run goes on to the next apartment' });
-    await said; t.stop?.();
-    if (my !== run) return '';
-    back(st.id); await wait(1200);
+    back(lastOne ? null : st.id); await wait(lastOne ? 0 : 1200);
   }
+  if (my !== run || q.end !== 'map') return '';
+  // Back above the whole neighbourhood, and they lead from here.
+  const line = q.closing ? await bar.custom(q.question || 'show me the apartments', 'the run through the apartments they asked for is over; the page is back above the whole neighbourhood; ask which one they want to go back into, or what else they want to know', "That's all of them. Which one do you want to go back into?") : '';
   if (my !== run) return '';
-  // Everything shown: back above the whole neighbourhood, and they lead from here.
-  const line = await bar.custom(q.question, `the guided run is over: every apartment was shown inside and out, the pick first (${spoken(q.best)}); the page is back above the whole neighbourhood; ask which one they want to go back into, or what else they want to know`, "That's all of them. Which one do you want to go back into?");
-  if (my !== run) return '';
-  await Promise.all([overview(), say(line)]);
+  on('step', 'Showing: the whole neighbourhood'); await Promise.all([overview(), line && say(line)]);
   return '';
 }
-// The embedded tour's walk has said its last line (index.html advance()). In a guided run the other apartments follow, unless
+// The embedded tour's walk has said its last line (index.html advance()). With steps still to do they follow, unless
 // they are talking right now: then it goes on after their answer (api.resume).
-// Ethan ended a walk stop with a question ("Does she cook much?"). In a guided run an unanswered question must not stop the run:
-// after 9 quiet seconds the walk goes on.
+// Ethan ended a walk stop with a question ("Does she cook much?"). With steps still to do an unanswered question must not stop
+// them: after 9 quiet seconds the walk goes on.
 function asked() { const q = queue; if (q) setTimeout(() => { if (queue === q && tourOpen() && window.__voice.ui.state === 'idle') inner()?.resume?.(); }, 9000); }
 function walkEnd() {
   walkDone = true; const s = window.__voice.ui.state, openMic = (() => { try { return sessionStorage.getItem('ie-voice') === 'open'; } catch { return false; } })();
@@ -508,14 +510,21 @@ function walkEnd() {
 function goOn() {
   if (!walkDone || !queue || !tourOpen()) return;
   const q = queue, my = ++run; back(active); // back() ends the queue: q is the copy that goes on
-  wait(1200).then(() => tourStops(q, my, q.on)); // q.on: the bar still names each apartment, unless they have spoken since (voice.js drops it then)
+  wait(1200).then(() => runSteps(q, my, q.on)).then(() => my === run && inner()?.resume?.(true)); // q.on: the bar still names each apartment, unless they have spoken since (voice.js drops it then)
 }
-// Just inside: Ethan (the tour's own Claude, which knows every room and check) welcomes them and hands the lead back.
-async function greet(my = run) {
-  await tourReady; if (my !== run || !inner()) return;
-  // No Claude call on the way in (it cost one on every entry): the tour's walk starts at once, from the problem the page dived into,
-  // and says "Welcome in" with the intro written when the tour loaded.
-  inner().resume?.(true);
+// Just inside: the tour's walk starts at once, from the problem the page dived into, and says "Welcome in" with the intro written
+// when the tour loaded (no Claude call on the way in).
+async function greet(my = run) { await tourReady; if (my !== run || !inner()) return; inner().resume?.(true); }
+// The drone camera by voice: the same moves as the mouse (turnBy, zoomBy, slideBy), eased over a few frames.
+let camMove = 0;
+function mapCamera(action, amount = 'normal') {
+  const k = { little: 0.5, lot: 2 }[amount] || 1, my = ++camMove, N = still ? 1 : 24; let i = 0;
+  if (action === 'zoom_reset') return void flyTo(active ? unitView(active) : orbitView(angle), 900);
+  const m = { turn_left: [200, 0], turn_right: [-200, 0], turn_around: [Math.PI / 0.005 / k, 0], look_up: [0, -80], look_down: [0, 80] }[action]; // as a drag in pixels
+  const s = { forward: [0, 260], back: [0, -260], left: [260, 0], right: [-260, 0] }[action], z = { zoom_in: 0.6, zoom_out: 1 / 0.6 }[action];
+  if (!m && !s && !z) return;
+  takeCamera();
+  (function tick() { if (my !== camMove || i++ >= N) return; if (m) turnBy(m[0] * k / N, m[1] * k / N); if (s) slideBy(s[0] * k / N, s[1] * k / N); if (z) zoomBy(Math.pow(z, k / N)); requestAnimationFrame(tick); })();
 }
 
 // ---- The tour of one apartment, in the frame over the map. The same voice bar drives it through its __tourApi ----
@@ -567,7 +576,7 @@ function commands() {
   const out = { keys: LEAVE, tool: 'open_page', input: { page: 'neighbourhood' } };
   if (tourOpen()) return [{ ...out, keys: LEAVE + '|' + OTHER }]; // plain "back" stays the tour's own (the previous stop); "back to the map", "outside" leave it
   const k = order.indexOf(active), n = order.length, to = id => ({ tool: 'show_issue', input: { id }, say: spoken(id) });
-  return [{ ...out, keys: LEAVE + '|back|overview|zoom out|map|whole area|whole neighbourhood|whole neighborhood|all of them' },
+  return [{ ...out, keys: LEAVE + '|back|overview|map|whole area|whole neighbourhood|whole neighborhood' },
     { keys: ENTER, tool: 'enter', ...(active ? { say: `Going inside ${spoken(active)}.` } : {}) },
     { keys: 'next|next one|next apartment|continue|keep going|' + OTHER, ...to(order[(k + 1) % n]) },
     { keys: 'previous|previous one|previous apartment|last one', ...to(order[(Math.max(k, 0) - 1 + n) % n]) },
@@ -578,6 +587,7 @@ async function runTool(tool, input, on) {
   if (inner() && tool === 'walkthrough' && /pause|stop/.test(input?.action)) queue = null; // "stop" ends a guided run too; talking alone doesn't
   if (inner()) return inner().run(tool, input, on); // the open tour's own tools; its "neighbourhood" calls __region.back()
   if (tool === 'open_region') { on('step', 'Opening: another neighbourhood'); try { sessionStorage.setItem('ie-hello', '1'); } catch {} return void goRegion(input.slug); } // Ethan says where they are as the new flyover opens
+  if (tool === 'camera') return void mapCamera(input.action, input.amount);
   if (tool === 'show_issue' && byId[input.id]) { on('step', place(input.id)); return void await show(input.id); }
   if (tool === 'enter') { if (!active) return { error: 'Pick an apartment first: say its letter, A to E, or its street.' }; on('step', `Going inside: ${byId[active].address}`); const my = run; await enter(active); return void await greet(my); }
   if (tool === 'open_page') { if (input.page === 'home') return void (location.href = './'); on('step', 'Showing: the whole neighbourhood'); await (tourOpen() ? back() : overview()); return 'Back over the map. Say a letter, or tell me what you’re looking for.'; }
@@ -585,9 +595,9 @@ async function runTool(tool, input, on) {
 }
 const api = {
   home: true, // no <main> here: the bar goes on the page itself, and the CSS above places it
-  get ready() { return tourOpen() ? tourReady : null; },
+  get ready() { return tourOpen() ? Promise.race([tourReady, wait(30000)]) : null; }, // a tour that never finishes loading must not hold every request
   // "Hi": inside a tour the tour's own greeting; over the map he says what is here and asks who it is for (their answer starts the guided run).
-  hello: arrived => inner()?.hello?.() || (askGuided = 'soft', `${arrived ? '' : 'Hi, I’m Ethan. '}This is ${R.name}: ${R.units.length} apartments, each one measured inside and on the streets around it. Tell me who you’re looking for and I’ll take you through them, best first.`),
+  hello: arrived => { const t = inner()?.hello?.(); if (t) return t; const line = `${arrived ? '' : 'Hi, I’m Ethan. '}This is ${R.name}: ${R.units.length} apartments, each one measured inside and on the streets around it. Tell me who you’re looking for and I’ll take you through them, best first.`; history = [...history, { q: '(they said hi)', a: line }].slice(-4); return line; }, // in the plan's history: their answer to it is read in context
   get help() { return inner()?.help || 'Ask which apartment is best for a wheelchair. Say a letter or a street, like apartment B or ' + R.units[0].address.split(' ')[1] + ', then go inside to open its tour. Say back to the map to come out, or stop.' + (REGIONS.length > 1 ? ' For another neighbourhood, say ' + REGIONS.filter(r => r.slug !== RSLUG).map(r => r.name).join(' or ') + '.' : ''); },
   mode: () => inner()?.mode(),
   hold: () => inner()?.hold?.(), resume: t => { inner()?.resume?.(t); goOn(); }, // a walk inside the tour pauses while the person talks, and goes on after; goOn: a guided run whose walk ended while they talked
@@ -597,19 +607,18 @@ const api = {
   places: () => ({ rooms: UNITS, ...inner()?.places(), also: [...commands(), ...(inner()?.places().also || [])] }), // the tour's own words too ("yes" after its pause question)
   run: runTool,
   async ask(text, { on, note } = {}) {
-    const reply = askGuided && !inner() && !LETTER_A.test(text.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim()) && !(askGuided === 'soft' && /^(which|what|how|why|where|who|is|are|does|do|show|tell|compare)\b/i.test(text.trim())); // after his greeting a question is still a question
-    if (GUIDED.test(text) || reply) { // said is spoken by guided() itself
-      askGuided = false;
-      const there = REGIONS.find(r => r.slug !== RSLUG && new RegExp(`\\b(${r.say})\\b`, 'i').test(text)); // "…in Hollywood": that page finishes the request (voice.js, ie-voice-next)
-      if (there) { try { sessionStorage.setItem('ie-voice-next', text); } catch {} on('step', `Opening: ${there.name}`); goRegion(there.slug); return { text: '', error: '', open: null }; }
-      return { text: await guided(text, on), error: '', open: null };
+    const my = run, done = t => ({ text: t || '', error: '', open: null });
+    if (inner()) { // inside an apartment its own Claude answers (it knows every room); travel = it is asked to go somewhere else in the neighbourhood
+      const r = await inner().ask(text, { on, note });
+      return r?.travel && my === run ? done(await execPlan({ ...NO_PLAN, ...r.travel }, my, on, text)) : r;
     }
-    if (inner()) return inner().ask(text, { on, note });
-    const other = /\b(show|go|fly|take|open|switch|see|try|visit|move|head|instead)\b/i.test(text) && REGIONS.find(r => r.slug !== RSLUG && new RegExp(`\\b(${r.say})\\b`, 'i').test(text)); // "show me Houston instead"
-    if (other) { try { sessionStorage.setItem('ie-hello', '1'); } catch {} on('step', `Opening: ${other.name}`); goRegion(other.slug); return { text: '', error: '', open: null }; }
-    const a = LETTER_A.test(text.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim()) && order[0];
-    if (a) { const fly = runTool('show_issue', { id: a }, on); on('say', await bar.custom(text, `flew to apartment A: ${spoken(a)}`, spoken(a))); await fly; } // Claude's line, in context
-    return { text: (a ? '' : await flyover(text, on)) || '', error: '', open: null };
+    const a = LETTER_A.test(text.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim()) && order[0]; // "apartment A" loses its "a" in quick(): the one instant command that lands here
+    if (a) { const fly = runTool('show_issue', { id: a }, on); on('say', await bar.custom(text, `flew to apartment A: ${spoken(a)}`, spoken(a))); await fly; return done(); }
+    if (!inTour) loadTour(ranked[0].id); // the likeliest tour loads while Claude writes the plan: less waiting at its door
+    const p = await plan(text, /just opened this apartment/.test(note || '') ? 'the page has just flown to this neighbourhood for this request: do the part of it that is left here' : note);
+    if (my !== run) return done();
+    history = [...history, { q: text, a: [p.say, ...(p.steps || []).map(x => x.line)].filter(Boolean).join(' ') || '(done)' }].slice(-4);
+    return done(await execPlan(p, my, on, text));
   },
   // The tour's Claude asked for another apartment or page.
   async open(to) {
@@ -646,7 +655,9 @@ $('go').disabled = false; $('go').textContent = 'Start';
 $('go').onclick = () => {
   $('start').hidden = true; $('demo').focus();
 };
-window.__region = { ready: true, ranked: ranked.map(f => f.id), ask: hear, show, back, walkEnd, asked, voice: window.__voice, speak: t => say(t), // speak: the embedded tour's walk talks through this bar // test hook; back is also called by the embedded tour ("neighbourhood")
+window.__region = { ready: true, ranked: ranked.map(f => f.id), ask: hear, facts: () => ({ name: R.name, here: inTour, apartments: FACTS }), // facts: what the open tour's Claude knows about the neighbourhood
+  exec: p => { bar.stop(); const my = ++run; return execPlan({ ...NO_PLAN, ...p }, my).then(() => my === run && api.resume(true)); }, // test hook: carry a plan out as if Claude had written it
+  show, back, walkEnd, asked, voice: window.__voice, speak: t => say(t), // speak: the embedded tour's walk talks through this bar // test hook; back is also called by the embedded tour ("neighbourhood")
   state: () => ({ active, revealed, tourOpen: tourOpen(), inTour, caption: window.__voice.ui.say }) };
 </script>
 </body>

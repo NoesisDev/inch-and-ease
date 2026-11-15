@@ -156,3 +156,22 @@ test('thanks and bye get a fixed line; "apartment A" is not a command of its own
   assert.deepEqual(quick('floor plan please, thank you'), { tool: 'set_view', input: { mode: 'floorplan' } });
   assert.equal(quick('apartment A', { also: [{ keys: 'into apartment|enter apartment', tool: 'enter' }] }), null);
 });
+
+test('camera commands run at once, in several wordings, with an amount', () => {
+  const cam = (t, action, amount = 'normal') => assert.deepEqual(quick(t), { tool: 'camera', input: { action, amount } }, t);
+  for (const [a, ws] of Object.entries({ turn_left: ['turn left', 'look left', 'rotate left', 'pan left', 'left'], turn_right: ['turn right', 'look to the right', 'right'],
+    turn_around: ['turn around', 'look behind', 'behind me', 'spin around'], look_up: ['look up', 'up'], look_down: ['look down', 'down'],
+    forward: ['go forward', 'move forward', 'walk forward', 'forward', 'straight ahead', 'get closer', 'closer'], back: ['step back', 'backwards', 'move backwards', 'further back', 'back up'],
+    left: ['step left', 'move left a step'], right: ['step right', 'move right a step'], zoom_in: ['zoom in', 'closer look'], zoom_out: ['zoom out', 'zoom out more'],
+    zoom_reset: ['reset zoom', 'normal zoom', 'zoom reset'] })) for (const w of ws) assert.equal(quick(w)?.input?.action, a, w);
+  cam('turn left a little', 'turn_left', 'little'); cam('look a bit to the right', 'turn_right', 'little'); cam('turn left slightly', 'turn_left', 'little');
+  cam('turn right a lot', 'turn_right', 'lot'); cam('zoom in more', 'zoom_in', 'lot'); cam('can you look a bit more to the right please', 'turn_right', 'little');
+  assert.equal(quick('zoom out').tool, 'camera'); assert.deepEqual(quick('dollhouse'), { tool: 'set_view', input: { mode: 'dollhouse' } });
+  assert.deepEqual(quick('back'), { tool: 'walkthrough', input: { action: 'back' } }); assert.equal(quick('top').input.mode, 'floorplan');
+  assert.equal(quick('turn left and tell me about the kitchen'), null);
+});
+test('a sentence that only contains a camera phrase goes to Claude', () => {
+  assert.equal(quick("I'd like to see what's behind me and then get a closer look at the door"), null);
+  assert.deepEqual(quick('a closer look'), { tool: 'camera', input: { action: 'zoom_in', amount: 'normal' } });
+  assert.equal(quick('go ahead'), null);
+});

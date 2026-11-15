@@ -34,7 +34,7 @@ Vexcel imagery is fetched live through `/api/image` (the key stays on the server
 
 ## Voice
 
-Hold Space (or tap the mic) on any page and talk; Chrome's speech recognition hears it. Commands like "night mode", "show the map" or "uphill 10" act at once, and every spoken reply is written by Claude for the conversation (`/api/say`, `/api/agent`, `/api/region`, `/api/walk`) and read in one [Fish Audio](https://fish.audio) voice (`/api/speak`, cached per sentence). Without a voice the reply stays as a caption.
+Hold Space (or tap the mic) on any page and talk. On an Apple-silicon Mac a local Whisper model (`/api/hear`) writes down what you said; anywhere else Chrome's speech recognition does. Commands like "night mode", "show the map" or "uphill 10" act at once, and every spoken reply is written by Claude for the conversation (`/api/say`, `/api/agent`, `/api/region`, `/api/walk`) and read in one [Fish Audio](https://fish.audio) voice (`/api/speak`, cached per sentence). Without a voice the reply stays as a caption.
 
 ## The 3D tour (`tour/`)
 
@@ -49,7 +49,7 @@ Run it locally (needs the CoStar/Matterport hackathon keys and a Claude API key 
 ```bash
 uv run --with anthropic python tour/fetch_models.py    # pulls the tours listed in tour/private/tours/index.json (not committed)
 # put Matterport's viewer bundle in tour/private/mp: npm pack @matterport/webcomponent@0.1.47, copy built-bundle/ + dist/matterport-viewer.umd.js
-uv run --with anthropic python tour/serve.py           # http://localhost:8090
+uv run --with anthropic --with mlx-whisper python tour/serve.py   # http://localhost:8090 (mlx-whisper: local speech-to-text on Apple silicon; without it the browser recogniser is used)
 node --test tour/*.test.mjs                            # checks, severity, fix options, re-check, budget
 ```
 

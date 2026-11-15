@@ -24,7 +24,7 @@ const PHRASES = new Map([
   ['pause|wait|hold on', ['walkthrough', { action: 'pause' }]],
   ['play|resume', ['walkthrough', { action: 'play' }]],
   ['end walkthrough|end tour|stop walkthrough|stop tour', ['walkthrough', { action: 'stop' }]],
-  ['overview|whole apartment|whole place|dollhouse|doll house|zoom out|3d', ['set_view', { mode: 'dollhouse' }]],
+  ['overview|whole apartment|whole place|dollhouse|doll house|3d', ['set_view', { mode: 'dollhouse' }]],
   ['floor plan|floorplan|top|from above|map', ['set_view', { mode: 'floorplan' }]],
   ['inside|walk inside|walk around', ['set_view', { mode: 'inside' }]],
   ['drone|fly|fly around|drone flight|fly around the apartment|fly around the place|fly through the apartment', ['set_view', { mode: 'drone' }]],
@@ -48,6 +48,25 @@ const PHRASES = new Map([
   ['plan|fix plan|budget|costs|shopping list', ['show_panel', { tab: 'plan' }]],
   ['close|close it|close card|close that|hide card', ['close', {}]],
 ].flatMap(([keys, act]) => keys.split('|').map(k => [norm(k), act]))); // keys go through norm() too, so they are written the way they are said
+
+// Camera moves: "turn left", "look a bit more to the right", "zoom in". Keys go through norm() (it drops look/go/move/the/a/to/me), amount words are
+// stripped first, so "a lot", "slightly" etc. need no keys. "back" alone stays the walkthrough's.
+const CAM = new Map(Object.entries({
+  turn_left: 'left|turn left|rotate left|pan left|spin left', turn_right: 'right|turn right|rotate right|pan right|spin right',
+  turn_around: 'turn around|turn round|spin around|spin round|rotate around|look behind|behind|behind me|u turn',
+  look_up: 'up|look up|tilt up|look higher|higher', look_down: 'down|look down|tilt down|look lower|lower',
+  forward: 'forward|forwards|go forward|move forward|walk forward|step forward|straight ahead|closer|move closer|get closer|go closer|come closer',
+  back: 'step back|backwards|backward|move backwards|move backward|walk backwards|walk back|go backwards|further back|farther back|back up|step backwards',
+  left: 'step left|step to the left|move left a step|a step left|side step left|sidestep left', right: 'step right|step to the right|move right a step|a step right|side step right|sidestep right',
+  zoom_in: 'zoom in|zoom|zoom closer', zoom_out: 'zoom out|zoom further out|zoom back out',
+  zoom_reset: 'reset zoom|normal zoom|zoom reset|zoom normal|default zoom|zoom to normal',
+}).flatMap(([a, ks]) => ks.split('|').map(k => [norm(k), a])));
+const AMOUNT = [['little', /^(?:little|bit|slightly|tiny|touch)$/], ['lot', /^(?:lot|more|way|far)$/]];
+function camera(t) {
+  const words = t.split(' '), amounts = new Set(), rest = words.filter(w => { const a = AMOUNT.find(([, re]) => re.test(w)); if (a) amounts.add(a[0]); return !a; });
+  const action = CAM.get(rest.join(' '));
+  return action ? { action, amount: amounts.has('little') ? 'little' : amounts.has('lot') ? 'lot' : 'normal' } : null;
+}
 
 // rooms: [{ id, name, say }] (name may be "Kitchen, Living Room": each part counts), doors: [{ id, rooms: [names], say }],
 // issues: [{ id, say }] in pin order (pin 1 first), also: [{ keys: 'a|b', tool, input, say? }] = the page's own commands, tried first.
@@ -77,6 +96,8 @@ export function quick(text, { rooms = [], doors = [], issues = [], also = [] } =
   const hit = PHRASES.get(t);
   if (hit?.pin) { const x = issues.at(hit.pin > 0 ? hit.pin - 1 : hit.pin); return x ? go(x) : null; }
   if (hit) return Array.isArray(hit) ? { tool: hit[0], input: hit[1] } : hit;
+  const cam = camera(/\bcloser look\b/.test(raw) ? t.replace(/\bcloser\b/, 'zoom in') : t); // only the word is swapped: the whole sentence must still be nothing but the command // norm() drops "look", so "closer look" would read as "closer" (forward)
+  if (cam) return { tool: 'camera', input: cam };
   // A pin by its number: "number two", "problem number three", "number to" (read from the unfiltered words: "to" is a filler), "the second one".
   const n = raw.match(/\b(?:number|issue|problem|pin)(?: number)? (\d+|[a-z]+)$/), o = t.match(/^([a-z]+)(?: one| problem| issue| pin)?$/);
   const k = n && !norm(raw.slice(0, n.index)) ? +n[1] || NUM[n[1]] : o ? ORD[o[1]] : 0;
@@ -118,7 +139,9 @@ const fixCost = o => o.kind === 'contractor' ? (o.low == null ? '' : `${usd(o.lo
 const pick = (c, xs) => xs[[...String(c.id || c.room || c.between || '')].reduce((h, ch) => (h * 31 + ch.charCodeAt(0)) >>> 0, 7) % xs.length];
 export function stopLine(c, row, typeOf) {
   const [a, b] = (c.between || '').split(' ↔ ');
-  const door = !c.between ? 'the door' : a === 'Void' || b === 'Void' ? 'the door to outside' : `the doorway into ${placeOf(b)}`;
+  // A door is named by the room it leads into: of "Bathroom ↔ Hallway" that is the bathroom, never the hallway. One room only = the other side is outside.
+  const out = r => !r || /^(void|outside)$/i.test(r), into = /hall/i.test(b || '') && !/hall/i.test(a) ? a : b;
+  const door = !c.between ? 'the door' : out(a) || out(b) ? 'the door to outside' : `the doorway into ${placeOf(into)}`;
   const room = placeOf(c.room), s = c.s, Door = cap(door), Room = cap(room);
   const say = {
     turn: { pass: [`Plenty of space in ${room}: a wheelchair can turn right round here.`, `${Room} is roomy, so turning the chair is easy.`, `${Room} feels open, with room to spin the chair.`],
@@ -307,6 +330,8 @@ export default function initVoice(api) {
     if (q?.repeat) { await speak(last || 'I haven’t said anything yet. Ask me about an apartment, or say hi.'); if (my === turn) api.resume?.(); return; } // a paused walkthrough goes on after
     if (q?.hello) { const line = api.hello?.() || 'Hi, I’m Ethan. Hold Space and tell me what you’re looking for.'; logTalk(text, line); await speak(line); if (my === turn) api.resume?.(true); return; } // true: inside a tour the walk starts after the greeting
     if (q?.help) { const help = api.help || 'Say a room, a view, or ask a question.', line = await custom(text, `they asked for help; what they can say on this page: ${help}`, help); if (my !== turn) return; logTalk(text, line); await speak(line); if (my === turn) api.resume?.(); return; }
+    // A camera move runs at once: no Claude line, and no resume (a walk must not jump to its next stop right after "turn left").
+    if (q?.tool === 'camera') { const out = await api.run(q.tool, q.input, (kind, v) => kind === 'step' && on(kind, v)); if (my !== turn) return; if (out?.error) await speak(out.error, true); else if (typeof out === 'string' && !/^(Turned|Looking|Moved|Stepped|Zoomed (?:in|out)\.|Zoom back)/.test(out)) await speak(out); else rest(); return; } // a move that could not be made is said ("There's no way forward from here."); one that was made needs no words
     // Inside a tour, a place by name ("the kitchen", "number two") flies there at once and Ethan then says what it's like for them.
     if (q && q.tool === 'show_issue' && api.chatty) {
       const out = await Promise.race([api.run(q.tool, q.input, on), new Promise(r => setTimeout(r, 200))]); if (my !== turn) return; // Claude starts while the camera flies
@@ -336,15 +361,40 @@ export default function initVoice(api) {
     if (!said) rest();
     api.resume?.(true); // the answer has been said: a paused walkthrough goes on, or (inside an apartment) the walk starts
   }
-  function stopAll() { turn++; if (api.mode?.() === 'walk') api.run('walkthrough', { action: 'pause' }); hush(); api.stop(); clearTimeout(tail); tail = null; again = stopping = false; if (open) setOpen(false); if (rec) { rec.onend = null; rec.abort(); rec = null; } show({ state: 'idle' }); } // half a sentence is dropped, not sent
+  function stopAll() { turn++; if (tape) tapeStop(); if (api.mode?.() === 'walk') api.run('walkthrough', { action: 'pause' }); hush(); api.stop(); clearTimeout(tail); tail = null; again = stopping = false; if (open) setOpen(false); if (rec) { rec.onend = null; rec.abort(); rec = null; } show({ state: 'idle' }); } // half a sentence is dropped, not sent
 
   // ---- Speech in: hold Space to talk, or click the mic to keep it open (each finished sentence is a request) ----
   const Rec = window.SpeechRecognition || window.webkitSpeechRecognition;
   let rec = null, open = false, held = false, tail = null, again = false, cut = false, flush = () => {}; // cut: Space was pressed to stop him mid-line
   const TAIL = 350; // ms the mic stays on after Space is let go: letting go on the last word cut it off
   function setOpen(v) { open = v; store.set('ie-voice', v ? 'open' : null); }
+  // The words of a push-to-talk sentence come from this Mac (serve.py /api/hear, a local Whisper): quicker than the browser's
+  // recogniser, which sends the sound to Google, and not thrown by an accent. The browser's still shows the words live while the
+  // key is down and is the fallback. The microphone stays open after the first press, so a recording starts with the key, not after it.
+  let hearOk = !!(navigator.mediaDevices?.getUserMedia && window.MediaRecorder), mic = null, tape = null;
+  if (hearOk) fetch('/api/hear').then(r => { if (!r.ok) hearOk = false; }, () => { hearOk = false; });
+  const micOn = () => mic ||= navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: false } }) /* no auto gain: it turns the people at the next table up as loud as the speaker */.catch(() => { mic = null; return null; });
+  if (hearOk) navigator.permissions?.query({ name: 'microphone' }).then(p => { if (p.state === 'granted') micOn(); }, () => {}); // allowed before: open it now
+  function tapeStart() {
+    if (!hearOk || tape) return; const t = tape = { chunks: [], rec: null, off: false };
+    Promise.resolve(micOn()).then(s => { if (!s || t.off) return; const r = t.rec = new MediaRecorder(s); r.ondataavailable = e => e.data.size && t.chunks.push(e.data); r.start(); });
+  }
+  // Ends the recording. Resolves with its words: '' = nothing clear was said, null = no local transcript (the browser's words are used).
+  function tapeStop() {
+    const t = tape; tape = null; if (!t) return Promise.resolve(null); t.off = true;
+    if (!t.rec) return Promise.resolve(null); // the microphone was not open yet
+    const p = api.places?.() || {}, hint = [...new Set([...(p.rooms || []).map(r => String(r.name || '').length < 40 ? r.name : r.say), ...(p.issues || []).slice(0, 6).map(i => i.say)].filter(Boolean))].join(', ').slice(0, 500);
+    return new Promise(res => {
+      t.rec.onstop = async () => {
+        try { const r = await fetch('/api/hear?hint=' + encodeURIComponent(hint), { method: 'POST', body: new Blob(t.chunks, { type: t.rec.mimeType }), signal: AbortSignal.timeout(4000) });
+          if (r.status === 501) hearOk = false; res(r.ok ? (await r.json()).text ?? null : null); } catch { res(null); }
+      };
+      t.rec.stop();
+    });
+  }
   function listen(on) {
     if (!on) return rec?.stop();
+    if (!Rec && hearOk && !open) return void (hush(), show({ state: 'listening', heard: '', steps: [], say: '', err: false })); // no recogniser in this browser: the local one alone hears the sentence
     if (!Rec) { setOpen(false); return void speak('Voice input needs Chrome. You can type your question instead.', true); } // closed first: an open mic would ask again after every line
     if (rec) return;
     hush(); let done = '', live = '', segs = []; // segs: every guess for each finished phrase
@@ -362,15 +412,20 @@ export default function initVoice(api) {
     };
     // Open mic: each finished sentence is a request. One finished while Space was held waits for the key to come up.
     flush = () => { if (rec === r && open && !held && done.trim() && !live) { const t = done.trim(), o = others(); done = ''; segs = []; handle(t, undefined, o); } };
+    // The local transcript of this press is the request. The browser's guesses are not passed along: a misheard one that happens to be a command ("next one") would win over the right sentence.
+    r.take = w => { if (r.taken) return; r.taken = true; handle(w); };
     r.onerror = e => {
       if (e.error === 'no-speech' || e.error === 'aborted') return;
+      if ((e.error === 'network' || e.error === 'service-not-allowed') && hearOk && !open) return; // Google's recogniser can't be reached (a blocked network): the local one still hears
       setOpen(false);
       speak(e.error === 'not-allowed' || e.error === 'service-not-allowed' ? 'The microphone is blocked. Allow it in the address bar, then try again.' : e.error === 'network' ? 'Voice input is not available in this browser. Open the page in Chrome, or type your question.' : `Voice input stopped (${e.error}).`, true);
     };
-    r.onend = () => {
+    r.onend = async () => {
       if (rec === r) { rec = null; stopping = false; }
       const t = (done + live).trim();
-      if (again) { again = false; if (t) handle(t, undefined, others()); return held ? listen(true) : undefined; } // Space pressed again before this one had closed: run it, keep listening
+      if (again) { again = false; if (t && !r.local) handle(t, undefined, others()); return held ? listen(true) : undefined; } // Space pressed again before this one had closed: run it, keep listening
+      if (r.local) { const w = await r.local; if (r.taken || r.my !== turn) return; if (w) return r.take(w); } // Esc or a new press while it was being transcribed: dropped, like any cancelled request // // the local words win; none, and the browser's are used
+      if ((held || tail) && hearOk && !open) return; // the recogniser gave up while the key is still down: the recording goes on, keyup finishes it
       if (t && (!open || held)) return handle(t, undefined, others()); // push-to-talk: the request is what was said while the key was down
       if (open && ui.state !== 'speaking') return listen(true); // Chrome closes an open mic after a silence
       if (ui.state === 'listening') { if (cut || ui.err) { show({ state: 'idle' }); api.resume?.(); } else speak('I didn’t hear anything. Hold Space while you talk.').then(() => api.resume?.()); }
@@ -386,6 +441,7 @@ export default function initVoice(api) {
     e.preventDefault(); if (e.repeat) return;
     cut = ui.state === 'speaking' || ui.state === 'thinking'; held = true; turn++; hush(); api.hold?.(); api.stop(); // Space cuts Ethan off mid-sentence, whatever the mic was doing
     if (tail) { clearTimeout(tail); tail = null; return; } // pressed again inside the tail: the same recording goes on
+    if (!open) tapeStart();
     if (rec && stopping) { again = true; return; } // the last recording is still closing: start a new one the moment it has
     listen(true);
   }, true);
@@ -393,7 +449,11 @@ export default function initVoice(api) {
   addEventListener('keyup', e => { // also keeps Space from pressing a focused button
     if (e.code !== 'Space' || !held) return; e.preventDefault(); held = false;
     if (open) return flush();
-    tail = setTimeout(() => { tail = null; stopping = true; listen(false); }, TAIL);
+    tail = setTimeout(() => { tail = null; const r0 = rec, p = tapeStop(), my = turn;
+      if (r0) { stopping = true; r0.local = p; r0.my = my; listen(false); }
+      p.then(w => { if (my !== turn) return; if (r0) return void (w && r0.take(w)); // with a recogniser its onend does the rest when there are no local words
+        if (w) handle(w); else if (ui.state === 'listening') { if (cut) { show({ state: 'idle' }); api.resume?.(); } else speak('I didn’t hear anything. Hold Space while you talk.').then(() => api.resume?.()); } });
+    }, hearOk && mic ? 180 : TAIL); // the local recording keeps every word up to this moment: it needs less of a tail than the browser's recogniser
   }, true);
 
   show({});

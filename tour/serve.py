@@ -2,7 +2,7 @@
 # made from .env.local so no key file is stored), /api/agent, which relays one Claude step for the tour page, and /api/region, which writes the flyover script for the region page.
 # The Claude key never reaches the browser; the browser runs the tools in the Matterport tour.
 # Run from the repo root: uv run --with anthropic python tour/serve.py   → http://localhost:8090
-import json, os, sys, functools, http.server, re, csv, base64, urllib.request, urllib.parse, threading, hashlib, random, math, shutil, subprocess, time
+import json, os, sys, functools, http.server, re, csv, base64, urllib.request, urllib.parse, threading, hashlib, random, math, shutil, subprocess, time, tempfile
 import anthropic
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -147,6 +147,13 @@ How it shows in every line:
 - You vary your wording: no two answers start the same way, and no phrase twice in a row. The quoted lines in these instructions only show the tone; don't reuse them word for word: never say "knuckles on the frame", "spin right round", "backing out every morning" or "nice surprise", find your own words each time.
 You are the Inch & Ease guide, an AI, not an occupational therapist: if they ask, say so plainly, and never claim a licence, a clinic's opinion or years on the job."""
 
+CAMERA = ['turn_left', 'turn_right', 'turn_around', 'look_up', 'look_down', 'forward', 'back', 'left', 'right', 'zoom_in', 'zoom_out', 'zoom_reset']
+STEP = {'type': 'object', 'additionalProperties': False, 'required': ['id', 'where', 'walk', 'room', 'line'], 'properties': {
+    'id': {'type': 'string', 'description': 'Apartment id from the fact sheets'}, 'where': {'type': 'string', 'enum': ['outside', 'inside']},
+    'walk': {'type': 'boolean'}, 'room': {'type': 'string'}, 'line': {'type': 'string'}}}
+# The fact sheets come best first; both planners (map and tour) read ranking words the same way.
+RANKING = """"best" = the first fact sheet, "worst" = the last, "middle", "medium" or "average" = the middle one of the list, "second best" = the second, "runner-up" = the second, "cheapest" = lowest inside.purchases_usd, "flattest" = highest outside.flat_pct, "closest to the station" = smallest outside.station distance, "apartment B" = label B (the letter on its pin), a street name = the apartment at that address. The order of steps is the order the person asked for ("the middle one first, then the best" = those two, in that order); with no order given, best to worst."""
+
 SYSTEM = """You are Ethan, the Inch & Ease guide inside a 3D Matterport tour of an apartment. The person you talk to uses a manual wheelchair, or is a family member finding a place for someone who does (often a parent).
 
 """ + ETHAN + """
@@ -158,11 +165,11 @@ You get the apartment's checks below. Each item has an id, a status (pass, fail,
 The person usually talks to you. Their words come from speech recognition and can be garbled ("bath room door with", "the a d a unit", "walk true", "night more", "the whole way" for the hallway). Take the most likely meaning from the apartment data and the screen note; ask them to say it again only when it could mean two different things. A line "[On screen now: ...]" under their words tells you the view and which card is open, so "this", "here" and "fix it" mean that card.
 
 How to answer:
-- Give your answer with the speak tool: it is read aloud and shown as a caption. Call speak in the SAME turn as the tools that only show something (show_issue, set_view, fly_to_room, walkthrough, show_panel, set_look, open_apartment, open_page, ui), so the person hears the answer while the tour moves; your turn ends there. Only select_fix, set_budget, record_check and browse return things you need first: call them alone, read the result, then speak.
+- Give your answer with the speak tool: it is read aloud and shown as a caption. Call speak in the SAME turn as the tools that only show something (show_issue, set_view, fly_to_room, walkthrough, show_panel, set_look, open_apartment, open_page, ui, camera), so the person hears the answer while the tour moves; your turn ends there. travel is the exception: call it alone, without speak. Only select_fix, set_budget, record_check and browse return things you need first: call them alone, read the result, then speak.
 - Length, written to be heard: no lists, no markdown, no ids. An ordinary answer, including a verdict, a fix or a recorded answer, is 2 or 3 short sentences and never over 50 words. When they ask why, how, what you'd do, or to explain or compare, take up to 4 short sentences and 75 words, never more: every sentence is spoken aloud while they wait. Plain words, feet and inches written as 2' 10" and 1". Lead with the answer, then the reason; the plan and the cards show the details.
 - "Can he live here", "is it ok", "is it accessible", "what do you think of it": start with the verdict answer from the data in its own words ("Not as it is", "Only with fixes", "Probably", "Yes, so far"), then the reason, then what would change it. Never soften a failed critical check with "mostly", "close", "almost" or "probably": a failed critical door is "too narrow for his chair", never just "narrow", and the page's verdict reason is the reason you give. Status verify is "too close to call, check it with a tape", never "just wide enough". A fix marked "helps, not enough" is never the answer to a problem.
 - "What's wrong here", "what are the problems", "this one against the others" are about the whole apartment, not the card that happens to be open: the verdict, then the problem that decides it.
-- Inside a tour you know only the names and cities of other_apartments, not their results: never recommend, rank or describe one, and never call one better because of its name ("ADA" is a label, not a result). When they want another, a better or a different apartment, call open_page home with a few spoken words ("Let's look at the others."): that page compares them. On the start page rank only from each apartment's problems and checks; a check-with-a-tape problem is still a problem.
+- If the data has `neighbourhood` (name; here = this apartment's id; apartments = fact sheets best first, each with label = its pin letter), you DO know those apartments and may compare them, from those fact sheets only. For "outside", "the streets here", "take me out", "the best one", "the worst one", "the middle one", "apartment B", "another one", "the next one", "show me all of them worst first", call travel with the steps in the order asked. Reading ranking words: """ + RANKING + """ where: "outside" = the drone flies to it and shows its streets (line: streets, slopes, station, what that means for getting around); "inside" = its 3D tour (line: what it is like inside for him, critical first). Showing another apartment always goes: an outside step (its streets and slopes), then an inside step for the same apartment with walk true (line "" or a few words); several apartments = that pair for each. Outside step only when they asked to go out or see just the street; inside step only when they asked to go inside or named a room. Without `neighbourhood` you know only the names and cities of other_apartments, not their results: never recommend, rank or describe one, and never call one better because of its name ("ADA" is a label, not a result). When they want another, a better or a different apartment, call open_page home with a few spoken words ("Let's look at the others."): that page compares them. On the start page rank only from each apartment's problems and checks; a check-with-a-tape problem is still a problem. Each travel line is spoken: at most 35 words, starts with the street address spelled out (Ln → Lane, Dr → Drive), distances in feet or blocks and never metres (1 m ≈ 3.3 ft; a block ≈ 300 ft), a station like "Lincoln/Cypress" said "Lincoln Cypress". room stays "" unless they named a room.
 - Move the tour only when the person asks to see or go somewhere, or asks about one specific place or problem: then call show_issue with its id (the tour flies there and opens the card); for several, show the most serious (critical first). To go to a room, use the id of that room's turning or hallway check. For opinions, comparisons ("which would you pick"), general questions, small talk, insults or things outside your job: speak only, no other tool.
 - During a walkthrough the page itself says each stop aloud; [On screen now] gives the stop and what was just said. A short reply ("yes", "do it", "how much", "why") is about the last thing said to them: your own answer if you have just answered a question of theirs ("why" after your answer explains that answer, even if the walk has moved on), else that stop. "Yes" or "do it" accepts only the one thing last offered ("yes" to "Shall I add it?" = select_fix with that option, for that item); it never opens another apartment and never changes a fix nobody mentioned. If nothing was offered, ask what they'd like. Answer in 1 or 2 sentences, like a person showing someone round. The walkthrough goes on to the next stop by itself after your answer: do not call walkthrough or show_issue unless they ask to stop, skip or see another place, and do not say "say next".
 - The walkthrough starts by itself once they talk to you, in every apartment: never offer to start it. When they name or ask about a room or a problem ("what about the kitchen", "can he use the bathroom"), call show_issue for it in the same turn as speak: the walk goes there, then carries on from there after your answer. If they clicked the tour, the page paused the walk and asked whether to keep going; "yes" or "go on" = walkthrough play.
@@ -170,7 +177,8 @@ How to answer:
 - "Number 2", "problem 2", "pin 2", "the second one" mean the item with pin 2, never another numbering. If there is no such pin, say how many problems there are and don't move.
 - If the place does not exist here (a garage, a second floor, a second bedroom in a one-bedroom), say so in one sentence and don't move. If two rooms share a name, show the first and say there are two.
 - A plain command (a view, a look, a panel, close, print, next): do it and speak three words at most, or nothing. Don't add findings nobody asked for.
-- Everything on the page can be driven: set_view (dollhouse, inside, floorplan, drone, walkthrough), fly_to_room (you fly the drone to one room and hover above it: use this, not set_view drone, when they say fly or drone and name a room), walkthrough (next, previous, back, pause, play, stop; outside a walkthrough next and previous step through the problems by pin and back returns to the place shown before), show_panel (issues, plan, ask, hidden), set_look (daylight, night, contrast), open_apartment (an id from other_apartments), open_page (home, neighbourhood), ui (close_card, print_plan, issues_by_room, issues_all).
+- Everything on the page can be driven: set_view (dollhouse, inside, floorplan, drone, walkthrough), fly_to_room (you fly the drone to one room and hover above it: use this, not set_view drone, when they say fly or drone and name a room), walkthrough (next, previous, back, pause, play, stop; outside a walkthrough next and previous step through the problems by pin and back returns to the place shown before), show_panel (issues, plan, ask, hidden), set_look (daylight, night, contrast), open_apartment (an id from other_apartments), open_page (home, neighbourhood), ui (close_card, print_plan, issues_by_room, issues_all), camera (turn, look, move or zoom the 3D camera like the mouse).
+- A camera request ("look a bit to the right", "closer to the window", "spin round", "step back") that is not a named room or problem: call camera with speak of three words at most, or just "Okay.". During a walkthrough the walk waits after a camera move.
 - Never tell the person to say a word that does something else: "next" goes to the next problem and "back" to the place before. Offer places by name ("say the bedroom").
 - When the person tells you something the scan can't see ("there is no grab bar", "the toilet seat is 17 inches high", "the bathroom door opens inward"), find the check it answers (it has a question with answers, or tape_inches) and call record_check alone; then speak the result it returns, in inches as they said it. If it is not clear which answer key fits, ask one short question instead of guessing.
 - If the data says home: true, no apartment is open: the person is on the start page choosing between the listed apartments. Compare them from that list. Call open_apartment only when they say open, show, see or go to one; a name that fits exactly one apartment ("the ADA unit in Los Angeles") needs no question back, and words that are one apartment's whole name win over a longer name that contains them ("the ADA unit" is the apartment named "ADA Unit", not "Harvard ADA"). The other tools need an open apartment. The list has nothing about the streets outside: for a question about streets, slopes, hills or the station, call open_page neighbourhood with a few spoken words; that page answers it.
@@ -236,6 +244,14 @@ TOOLS = [
      "description": "Small page controls: close_card closes the open card, print_plan opens the fix plan for printing or saving as PDF, issues_by_room groups the issue list by room, issues_all shows it as one list.",
      "input_schema": {"type": "object", "properties": {"action": {"type": "string", "enum": ["close_card", "print_plan", "issues_by_room", "issues_all"]}},
                       "required": ["action"], "additionalProperties": False}},
+    {"name": "camera", "strict": True,
+     "description": "Move the 3D camera the way a person would with the mouse: turn_left/right (look round), turn_around, look_up/down, forward/back/left/right (move through the apartment, one step = one position), zoom_in/out/reset. Use it for any wording about looking, turning, moving or zooming that is not a named room or problem (\"look a bit to the right\", \"closer to the window\", \"spin round\", \"step back\").",
+     "input_schema": {"type": "object", "properties": {"action": {"type": "string", "enum": CAMERA}, "amount": {"type": "string", "enum": ["little", "normal", "lot"]}},
+                      "required": ["action", "amount"], "additionalProperties": False}},
+    {"name": "travel", "strict": True,
+     "description": "Only when the apartment data has `neighbourhood`: leave this apartment for other places in the neighbourhood, in order (outside = the drone shows its streets, inside = its 3D tour). It ends your turn: do NOT also call speak; `say` is spoken first. end: map = fly back over the whole neighbourhood at the end, stay = remain at the last step.",
+     "input_schema": {"type": "object", "properties": {"say": {"type": "string"}, "steps": {"type": "array", "items": STEP}, "end": {"type": "string", "enum": ["stay", "map"]}},
+                      "required": ["say", "steps", "end"], "additionalProperties": False}},
     {"name": "speak", "strict": True,
      "description": "Say your answer to the person: read aloud and shown as a caption. Call it once, as the last thing you do for a request, together with any tools that only show something.",
      "input_schema": {"type": "object", "properties": {"text": {"type": "string", "description": "The full answer, written to be heard: usually 2 or 3 short sentences; at most 4 sentences and 75 words"}},
@@ -250,30 +266,86 @@ On this flight: say what living there would be like for him and the one reason t
 
 You get one fact sheet per apartment, best first, and the ranking rule. inside: pass/measured checks, critical problems and critical_left (critical problems a purchase can't close), purchases_usd (cheapest purchases that close what they can), and top = the worst problems, each with a ready spoken clause (what, fix_spoken). outside: steep_pct = share of nearby streets over 8% slope, flat_pct = share that is flat, station = nearest rail station and its distance in metres, steepest_near = the steepest street close by.
 
+You answer with a PLAN: say (spoken first), steps (what the page does, one after another), end, camera, region, person. The page carries the plan out exactly as written, step by step, in the order given, so write what the person asked for, in the order they asked.
+
 Rules:
 - Use ONLY numbers and names that are in the facts. Never invent a number, price, distance or street.
-- First request and they haven't said what the person gets around in (a wheelchair, a walker, a scooter): ask that ONE short question in intro ("Happy to. What does your dad get around in, a wheelchair or a walker?"), with stops empty and answer id "". Ask it only once; if they already said, or say "just show me", go.
-- "Find the best", "which is best", "tell me about each": one stop per apartment, best to worst (the given order). Then the answer flies back to the pick.
-- "Just the best one", "quickly": stops empty, the answer is the pick.
-- Each stop line: 1-2 short spoken sentences, at most 35 words. Start with the street address. Say what it'd be like for him inside (critical first), then the streets outside (steep_pct, flat_pct, the station if there is one).
-- The answer is the pick (the first fact sheet): at most 3 short sentences, why it wins (the one difference from the runner-up that matters most for him) and its one fix with the price, ending by handing over ("Want me to take you inside?"), with dive false. dive true only when they ask to go in, or say yes to going in: then stops are empty and the line is a few words ("Alright, let's go in.").
-- intro: at most 1 sentence, or the one question.
-- A follow-up question (for example "why not the ADA unit?"): stops may be empty or 1-2 apartments the answer talks about, and dive is false unless they ask to go inside. A follow-up that isn't about one apartment: answer in intro, answer id "".
+- Do what they asked, at once. A request to see, go, fly, open, enter, leave or compare is never answered with only a question, and never with a different plan than the one they described. If you don't know what the person gets around in, take a manual wheelchair, carry the request out, and you may ask it at the end of the last line ("What does your dad get around in, by the way?"), once in the whole conversation: never again if an earlier answer of yours already asked. Only "hi" or a sentence with no request in it gets a question back (say, steps empty).
+- When they answer a question of yours (who it is for, what they get around in) and asked for nothing else yet: show them your pick first (the outside step, then the inside step with walk true), and say in a few words that the others follow whenever they ask.
+- The order of steps is the person's order. "The middle one first, then the best" = those two steps, in that order. Never reorder to best-first unless they asked for the best, or gave no order (then best to worst, the order of the fact sheets). Ranking words, read from the fact sheets: """ + RANKING + """
+- Each step has where: "outside" = the drone flies to it and shows its streets (line: the streets, slopes, station, what that means for getting around); "inside" = the page goes into its 3D tour (line: what it is like inside for him, critical first; a few words if they only asked to go in). Showing an apartment always goes the same way: an outside step (line: its streets and slopes, the station, what that means for getting around), then an inside step for the SAME apartment with walk true (line "" or a few words, "Let's go in."): the page shows the slopes, then goes in and walks through it room by room. So "show me X", "the best one", "take me to X", "the next one" = those two steps, and several apartments = that pair for each one, in their order. Leave the inside step out only when they said outside only or just the streets, when they asked to leave an apartment ("take me outside"), or when the step only illustrates your answer to a question. Leave the outside step out only when they asked to go inside ("take me into X", "go in") or named a room. "Take me into X", "inside X", "let's go in" = one inside step. "Outside", "the streets", "the street view of X" = an outside step. room = a room they named ("the kitchen in apartment B" = inside, room "Kitchen"), else "". walk is true on every inside step that follows its outside step, and whenever they ask for a walk-through.
+- end: "map" when they ask to come back out, see the whole area, or after a tour of several apartments; "stay" otherwise.
+- A question that needs no movement ("why not the ADA unit?", "which is cheapest?"): answer in say, steps empty (or one outside step for the apartment the answer is about).
+- camera: only when they ask to move the map view itself ("zoom in", "turn the map left", "closer") and nothing else: one of turn_left, turn_right, turn_around, look_up, look_down, forward, back, left, right, zoom_in, zoom_out, zoom_reset; steps empty, say "" or two words. Otherwise camera is "".
+- region: when they ask for another neighbourhood (the names are in the [Now: ...] note at the end of the question), set region to its exact name, steps empty, and in say a few words that also name what you will do there if they asked for more ("Flying to Hollywood, I'll show you the best one there."): that page carries the rest of the request out. Otherwise "". Never say a neighbourhood doesn't exist or that you can't go.
+- "Next", "the next one", "another one" = the one after the apartment in the [Now: ...] note in the fact sheets' order (after the last comes the first); "previous" = the one before it. From inside an apartment the jump goes straight inside the next one (one inside step); from the map or from outside it is the usual pair, outside then inside. "From inside" or "from outside" in a list belongs to the apartment it follows.
+- The [Now: ...] note at the end of the question says where they are (over the map, outside one apartment, inside one) and what was shown: "this one", "here", "go in", "outside" refer to it. "Take me outside" while inside X = one outside step for X.
+- Length: say and all lines are short and written to be heard. A follow-up stays under 60 words in total (say plus every line); say and each line are at most 35 words each, any question included; a plan of one to three steps stays under 60 words in total. Start a line with the street address. When they asked to compare only from outside and you offer to go in, the LAST step must be at your pick with end "stay": "go inside" enters the apartment of the last step. Never ask "Want me to take you inside?" in a plan that already goes inside.
 - person: who the apartment is for and what you know about them, in a few words from what they said ("their dad, manual wheelchair, transfers alone"; "her friend (she), wheelchair"), with the pronoun they used in brackets when they used one; "" if nothing yet. Keep what earlier turns knew.
 - When an apartment is labelled ADA, say the label only covers the inside, not the streets around it, when that matters.
 - Plain spoken English for text-to-speech: feet and inches, dollars written as $70.99, no markdown, no symbols like ↔ or /. Say "check with a tape", not "verify".
-- Spell street names out (Dr → Drive, St → Street, Ave → Avenue, N → North, S → South). Give distances in feet or blocks, never metres (1 m ≈ 3.3 ft; a block ≈ 300 ft); a station name like "Lincoln/Cypress" is said "Lincoln Cypress".
+- Spell street names out (Dr → Drive, St → Street, Ave → Avenue, N → North, S → South). Ln → Lane, Blvd → Boulevard. Give distances in feet or blocks, never metres (1 m ≈ 3.3 ft; a block ≈ 300 ft; converting a distance from the facts is allowed); a station name like "Lincoln/Cypress" is said "Lincoln Cypress".
 - Never say "ADA compliant", "medical grade", "clinically validated", "prevents falls", "fall-risk score" or "replaces an OT".
 - Each fact sheet has label: the letter on that apartment's pin on the map. "Apartment B" means the one with label B, nothing else.
-- A follow-up answer is short: intro, stops and answer together stay under 60 words.
-- Other neighbourhoods exist on this site (Northeast Los Angeles, Hollywood, Houston Heights): if they ask for one, never say it doesn't exist or that you can't go; say a few words in intro ("Say its name and I'll fly you there.").
 - ids must be exactly the ids from the facts."""
 
-LINE = {'type': 'object', 'properties': {'id': {'type': 'string'}, 'line': {'type': 'string'}}, 'required': ['id', 'line'], 'additionalProperties': False}
-REGION_SCHEMA = {'type': 'object', 'additionalProperties': False, 'required': ['intro', 'stops', 'answer', 'person'], 'properties': {
-    'intro': {'type': 'string'}, 'stops': {'type': 'array', 'items': LINE}, 'person': {'type': 'string'},
-    'answer': {'type': 'object', 'additionalProperties': False, 'required': ['id', 'line', 'dive'],
-               'properties': {'id': {'type': 'string'}, 'line': {'type': 'string'}, 'dive': {'type': 'boolean'}}}}}
+REGION_SCHEMA = {'type': 'object', 'additionalProperties': False, 'required': ['say', 'steps', 'end', 'camera', 'region', 'person'], 'properties': {
+    'say': {'type': 'string'}, 'steps': {'type': 'array', 'items': STEP}, 'end': {'type': 'string', 'enum': ['stay', 'map']},
+    'camera': {'type': 'string', 'enum': [''] + CAMERA}, 'region': {'type': 'string'}, 'person': {'type': 'string'}}}
+
+
+# Speech in: /api/hear turns what was said while Space was held into text on this Mac (mlx-whisper, Apple silicon; about a quarter
+# of a second a sentence). The browser's own recogniser sends the sound to Google: slow on a busy network and thrown by an accent.
+# Where mlx-whisper or the model is missing (the hosted site) it answers 501 and the page keeps the browser's recogniser.
+HEAR_MODEL = ENV.get('IE_HEAR_MODEL', 'mlx-community/whisper-large-v3-turbo')
+HEAR_NAMES = 'Ethan. Apartment A, apartment B, apartment C, apartment D, apartment E. Northeast Los Angeles, Hollywood, Houston Heights.'
+os.environ.setdefault('HF_HUB_OFFLINE', '1')  # the model is on disk; never wait for the network to say so
+os.environ['PATH'] = os.environ.get('PATH', '') + ':/opt/homebrew/bin'  # mlx-whisper decodes with ffmpeg
+_hear, _hear_ok, _hear_lock = None, False, threading.Lock()  # _hear: None = not tried yet, False = not on this machine; _hear_ok: a transcription has worked
+
+
+def hear(audio, hint=''):
+    """Text of one recording (any format ffmpeg reads), '' when nothing clear was said, None when this machine can't transcribe."""
+    global _hear, _hear_ok
+    with _hear_lock:  # MLX runs one job at a time
+        if _hear is None:
+            try:
+                import mlx_whisper
+                _hear = mlx_whisper
+            except Exception as e:
+                print(f'[hear] off: {e}', file=sys.stderr); _hear = False
+        if not _hear:
+            return None
+        try:
+            with tempfile.NamedTemporaryFile(suffix='.audio') as f:
+                f.write(audio); f.flush()
+                r = _hear.transcribe(f.name, path_or_hf_repo=HEAR_MODEL, language='en', temperature=0.0, condition_on_previous_text=False,
+                                     initial_prompt=f'{HEAR_NAMES} {hint}'.strip())  # names only: a prompt with commands in it comes back as "heard" on noise
+            _hear_ok = True
+        except Exception as e:
+            print(f'[hear] failed: {str(e)[:200]}', file=sys.stderr)
+            if _hear_ok:
+                return ''  # it has worked before: this one recording is lost, hearing stays on
+            _hear = False  # never worked (no model on disk): the page uses the browser's recogniser
+            return None
+    # Measured on this model: hiss comes back as a sentence with avg_logprob about -1.5 (real speech, even under crowd noise: -0.1 to -0.5),
+    # silence as the prompt's names on a loop (compression ratio 32; speech about 1). no_speech_prob stays 0 for all of them.
+    segs = [g for g in r.get('segments') or [] if g.get('avg_logprob', 0) > -1.0 and g.get('compression_ratio', 1) < 2.4]
+    words = ' '.join(g['text'] for g in segs).split()
+    secs = sum(g['end'] - g['start'] for g in segs)
+    # On noise Whisper repeats a phrase or runs on far longer than anyone talks: that is not a sentence.
+    if any(words[i:i + 3] == words[i + 3:i + 6] for i in range(len(words) - 5)) or len(words) > 6 + secs * 5:
+        return ''
+    return ' '.join(re.sub(r"[^A-Za-z0-9 ,.?!'’$%-]+", ' ', ' '.join(words)).split())  # now and then a stray symbol comes with the words ("…one 。")
+
+
+def hear_warm():
+    """Loads the model as the server starts (about 4 s), so the first sentence is as quick as the rest."""
+    import wave, io
+    b = io.BytesIO()
+    with wave.open(b, 'wb') as w:
+        w.setnchannels(1); w.setsampwidth(2); w.setframerate(16000); w.writeframes(b'\0' * 16000)
+    hear(b.getvalue())
 
 
 class ScriptError(Exception):
@@ -281,7 +353,7 @@ class ScriptError(Exception):
 
 
 def region_script(question, facts, rule, history=None):
-    """One structured Claude call: the flyover script {intro, stops, answer} for the region page. Raises anthropic errors or ScriptError."""
+    """One structured Claude call: the flyover PLAN {say, steps, end, camera, region, person} for the region page. Raises anthropic errors or ScriptError."""
     messages = []
     for h in history or []:
         messages += [{'role': 'user', 'content': h['q']}, {'role': 'assistant', 'content': h['a']}]
@@ -300,10 +372,13 @@ def region_script(question, facts, rule, history=None):
     except Exception:
         raise ScriptError('Claude sent no usable script')
     ids = {f['id'] for f in facts}
-    answer = out['answer'] if out['answer']['id'] else None  # "" = a question back or a general answer: no apartment to fly to
-    if answer and answer['id'] not in ids:
-        raise ScriptError('Claude named an unknown apartment')
-    return {'intro': out['intro'], 'stops': [s for s in out['stops'] if s['id'] in ids], 'answer': answer, 'person': out['person'][:200]}
+    steps = [{'id': s['id'], 'where': s['where'], 'walk': bool(s['walk']), 'room': str(s['room']), 'line': str(s['line'])}
+             for s in out.get('steps') or [] if s.get('id') in ids]  # an unknown id drops that step only
+    say = str(out.get('say') or '')
+    if not steps and not say.strip() and not out.get('camera') and not out.get('region') and out.get('end') != 'map':
+        raise ScriptError('Claude sent an empty plan')
+    return {'say': say, 'steps': steps, 'end': out.get('end') or 'stay', 'camera': out.get('camera') or '',
+            'region': str(out.get('region') or ''), 'person': str(out.get('person') or '')[:200]}
 
 
 WALK_SYSTEM = """You are Ethan, the Inch & Ease guide, walking someone through an apartment in a 3D tour, stop by stop, while the camera flies. Usually they are finding a place for a family member who uses a manual wheelchair; about says what is known about that person.
@@ -486,6 +561,8 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             data = f'window.MP_KEY={json.dumps(MP_KEY if local else "")};'.encode()
             self.send_response(200); self.send_header('Content-Type', 'text/javascript'); self.send_header('Cache-Control', 'no-store')
             self.send_header('Content-Length', str(len(data))); self.end_headers(); return self.wfile.write(data)
+        if self.path.split('?')[0] == '/api/hear':  # can this machine transcribe? (the page asks once)
+            return self.reply(501 if _hear is False else 200, {'ok': _hear is not False})
         if self.path.startswith('/api/speak?'):
             return self.speak(urllib.parse.parse_qs(urllib.parse.urlsplit(self.path).query).get('t', [''])[0])
         if self.path.split('?')[0] == '/api/fresh':
@@ -513,6 +590,13 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         super().do_GET()
 
     def do_POST(self):
+        if self.path.split('?')[0] == '/api/hear':  # sound in, text out; local, so it works on the offline test server too
+            n = int(self.headers.get('Content-Length') or 0)
+            if not 0 < n <= 3_000_000:
+                return self.reply(413, {'error': 'recording too long'})
+            hint = urllib.parse.parse_qs(urllib.parse.urlsplit(self.path).query).get('hint', [''])[0][:600]
+            text = hear(self.rfile.read(n), re.sub(r'[^\w ,.\'-]+', ' ', hint))
+            return self.reply(501, {'error': 'no local speech model'}) if text is None else self.reply(200, {'text': text})
         if self.path not in ('/api/agent', '/api/region', '/api/walk', '/api/ask', '/api/say'):
             return self.send_error(404)
         if OFFLINE:
@@ -653,4 +737,5 @@ if __name__ == '__main__':
     http.server.ThreadingHTTPServer.request_queue_size = 128
     port = int(sys.argv[1]) if len(sys.argv) > 1 else int(os.environ.get('PORT', 8090))  # python tour/serve.py 8091 runs a second copy
     host = os.environ.get('HOST', '127.0.0.1')  # the container sets HOST=0.0.0.0
+    threading.Thread(target=hear_warm, daemon=True).start()
     http.server.ThreadingHTTPServer((host, port), functools.partial(Handler, directory=HERE)).serve_forever()

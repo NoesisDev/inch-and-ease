@@ -86,3 +86,11 @@ test('budget: critical items are filled first, then the cheapest, until the mone
   assert.equal(enough.rows.find(r => r.item.id === 'night').chosen, null); // night light doesn't fit in what's left
   assert.ok(enough.purchases <= cheap + 1);
 });
+
+test('a door to outside or to a balcony is never taken off its hinges', () => {
+  const kinds = between => fixOptions({ ...door(76), between }, products).map(o => o.kind === 'product' ? 'hinge' : o.kind);
+  assert.ok(kinds('Hallway ↔ Bedroom').includes('free'));
+  assert.deepEqual(kinds('Living Room ↔ Balcony'), ['contractor']); // most often a slider: no hinges to take off or swap
+  assert.ok(!kinds('Hallway ↔ Void').includes('free') && kinds('Hallway ↔ Void').includes('hinge')); // the front door: offset hinges yes, off its hinges no
+  assert.ok(!kinds('outside').includes('free'));
+});

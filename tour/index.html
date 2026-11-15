@@ -1467,7 +1467,7 @@ const apartmentFacts = () => {
   // What the person can tell us by voice: a question with its answer keys, or a height or distance to read off a tape.
   const askOf = c => { const d = CHECK[c.n]; return d?.how === 'ask' ? { question: d.question, answers: Object.fromEntries(d.answers.map(a => [a[0], a[1]])) } : d?.how === 'measure' ? { tape_inches: d.measure } : {}; };
   const fixOf = c => { const r = plan?.rows.find(r => r.item.id === c.id); return r ? { chosen: r.chosen && `${r.chosen.label} (${money(r.chosen)}, ${VERDICT[r.chosen.verdict]})`, options: r.options.map(o => `${o.key}: ${o.label}, ${money(o)}, ${VERDICT[o.verdict]}`) } : undefined; };
-  return { name: model.name, ...(OWN ? { chair: { width_in: MY.w, turning_circle_in: MY.turn, clear_door_needed_in: NEED } } : {}), other_apartments: list.filter(t => t.id !== sid).map(({ id, name, city }) => ({ id, name, city })), purchase_total_usd: plan?.purchases, not_fixable_by_buying: plan?.noPurchaseFix.length, budget_usd: budget,
+  return { name: model.name, ...neighbourhood(), ...(OWN ? { chair: { width_in: MY.w, turning_circle_in: MY.turn, clear_door_needed_in: NEED } } : {}), other_apartments: list.filter(t => t.id !== sid).map(({ id, name, city }) => ({ id, name, city })), purchase_total_usd: plan?.purchases, not_fixable_by_buying: plan?.noPurchaseFix.length, budget_usd: budget,
     critical_first_ids: issueList.filter(i => i.critical).map(i => i.id),
     rooms: ev.rooms.filter(r => !/void/i.test(r.name)).map(r => ({ name: r.name, ...(r.dims.width && r.dims.depth ? { size: `${ftin(r.dims.width)} by ${ftin(r.dims.depth)}` } : {}), ...(r.dims.areaFloor ? { floor_sq_ft: Math.round(r.dims.areaFloor * 10.764) } : {}) })),
     verdict: (([, answer, because]) => ({ answer, because }))(verdictOf(summary(checks))), // what the panel shows under "Can a wheelchair user live here?"
@@ -1475,6 +1475,8 @@ const apartmentFacts = () => {
       not_measured_yet: checks.filter(c => c.s === 'none').length, pass: checks.filter(c => c.s === 'pass').length },
     checks: checks.map(c => ({ ...(issueList.includes(c) ? { pin: issueList.indexOf(c) + 1 } : {}), ...Object.fromEntries(keep.filter(k => c[k] !== undefined).map(k => [k === 's' ? 'status' : k, c[k]])), fix: fixOf(c), ...askOf(c) })) };
 };
+// Inside the neighbourhood flyover: its apartments too, so "take me to the best one" can be answered with travel.
+const neighbourhood = () => { try { return EMBED && parent.__region?.facts ? { neighbourhood: parent.__region.facts() } : {}; } catch { return {}; } };
 const TOOLS = {
   async select_fix({ id, option }) {
     const r = plan.rows.find(r => r.item.id === id);
@@ -1555,6 +1557,8 @@ const TOOLS = {
     navTo = id; return `Opening ${t.name} once the answer has been read.`;
   },
   async speak() { return 'Said.'; },
+  async travel() { return EMBED ? 'The neighbourhood page carries this out.' : { error: 'travel works only inside a neighbourhood: use open_page' }; }, // EMBED: ask() ends at it
+  async camera(input) { return camTool(input); }, // turn, look, step, zoom: see camTool
   async close() { closeCard(); return 'Card closed.'; }, // the instant command "close"; Claude uses ui close_card
   async ui({ action }) { // the small controls: close the card, print the plan, list the issues by room or all together
     if (action === 'close_card') return TOOLS.close();
@@ -1590,7 +1594,7 @@ const STEP = {
   open_apartment: i => `Opening: ${list.find(t => t.id === i.id)?.name || (b => b && tourName(b))(browsed.find(m => m.sid === i.id)) || i.id}`, close: () => 'Closing the card',
   browse: i => i.more ? 'More tours' : `Tours: ${{ all: 'all', accessible: 'labelled accessible', homes: 'homes', houston: 'Houston', los_angeles: 'Los Angeles' }[i.group] || 'list'}${i.words ? `, "${i.words}"` : ''}`,
   ui: i => ({ close_card: 'Closing the card', print_plan: 'Printing the plan', issues_by_room: 'Issues by room', issues_all: 'All issues' })[i.action],
-  record_check: i => `Saving: ${checks.find(c => c.id === i.id)?.title || i.id}`, open_page: i => i.page === 'home' ? 'Opening: all apartments' : 'Opening: the neighbourhood',
+  record_check: i => `Saving: ${checks.find(c => c.id === i.id)?.title || i.id}`, camera: i => `Camera: ${String(i.action).replaceAll('_', ' ')}`, travel: () => 'Going on in the neighbourhood', open_page: i => i.page === 'home' ? 'Opening: all apartments' : 'Opening: the neighbourhood',
 };
 const HOME_OK = new Set(['open_apartment', 'open_page', 'set_look', 'set_text', 'speak', 'browse']); // the start page has no tour to drive
 const BROWSE_GROUP = { all: '', accessible: 'ada', homes: 'homes', houston: 'houston', los_angeles: 'la' }; // voice group → the window's button
@@ -1623,7 +1627,7 @@ async function ask(text, { on = () => {}, note } = {}) {
   sentFacts = now;
   const about = person(); // what the flyover learned about who the apartment is for ("their dad, manual wheelchair")
   convo.push({ role: 'user', content: `${text}\n\n[On screen now: ${screen}${note ? '; ' + note : ''}${about ? '; about them: ' + about : ''}]${update}` });
-  const thinking = say('t', 'Looking…'); let answer = '', error = '';
+  const thinking = say('t', 'Looking…'); let answer = '', error = '', travel = null;
   const tell = t => { if (t && !answer) { answer = t; say('a', t); on('say', t); } };
   try {
     for (let step = 0; step < 6 && !answer; step++) {
@@ -1633,6 +1637,13 @@ async function ask(text, { on = () => {}, note } = {}) {
       if (r.stop_reason === 'refusal') { convo.length = mark; tell('I can’t help with that one.'); break; }
       convo.push({ role: 'assistant', content: r.content });
       const uses = r.content.filter(b => b.type === 'tool_use');
+      // travel: the neighbourhood page speaks `say` and carries the steps out, so the request ends here (every tool_use still gets its result).
+      const tr = EMBED && uses.find(b => b.name === 'travel');
+      if (tr) {
+        convo.push({ role: 'user', content: uses.map(b => ({ type: 'tool_result', tool_use_id: b.id, content: b === tr ? 'The neighbourhood page is carrying this out.' : 'Not run: travel replaces it.' })) });
+        travel = { say: String(tr.input.say || ''), steps: Array.isArray(tr.input.steps) ? tr.input.steps : [], end: tr.input.end === 'map' ? 'map' : 'stay' };
+        answer = travel.say; if (answer) say('a', answer); break;
+      }
       // The answer is the speak tool (sent with the tools that only show something, so it is heard while the tour moves),
       // or plain text when Claude calls nothing.
       tell(uses.find(b => b.name === 'speak')?.input.text?.trim() || (uses.length ? '' : r.content.filter(b => b.type === 'text').map(b => b.text.trim()).filter(Boolean).join(' ')));
@@ -1657,7 +1668,8 @@ async function ask(text, { on = () => {}, note } = {}) {
     }
   }
   thinking.remove(); if (asking === ctl) asking = null;
-  return { text: answer, error, open: navTo };
+  if (answer && !travel) told = cardFor?.id || null;
+  return travel ? { text: answer, error: '', open: null, travel } : { text: answer, error, open: navTo };
 }
 const askTyped = q => ask(q).then(r => r.open ? openApartment(r.open) : window.__tourApi?.resume?.(true)); // typed questions start the walk too
 let hearTyped = null; // set once voice.js has loaded: a typed question is answered aloud like a spoken one, not only written in the chat
@@ -1797,12 +1809,95 @@ $('flyover').onclick = async () => {
   flying = false;
 };
 
+// ---- Camera by voice or Claude: turn, look, step and zoom in every view, like the mouse. A move holds the walk ("go on" carries on).
+// Two SDK rotate calls that overlap fight (the first never ends), so a turn aims at a goal: a quick second turn adds to it and
+// takes over the move still running (setRotation inside, the glide above). Above the model the camera circles the point it looks at.
+const CAM_TURN = { little: 20, normal: 45, lot: 90 }, CAM_LOOK = { little: 10, normal: 20, lot: 35 }, CAM_ZOOM = { little: 0.2, normal: 0.4, lot: 0.8 };
+const CAM_SAID = { turn_left: 'Turned left.', turn_right: 'Turned right.', turn_around: 'Turned around.', look_up: 'Looking up.', look_down: 'Looking down.',
+  forward: 'Moved forward.', back: 'Moved back.', left: 'Moved left.', right: 'Moved right.', zoom_in: 'Zoomed in.', zoom_out: 'Zoomed out.', zoom_reset: 'Zoom back to normal.' };
+const NO_WAY = { forward: 'forward', back: 'back', left: 'to the left', right: 'to the right' };
+let camGoal = null, camGen = 0, camBusy = Promise.resolve(), planK = 114.7, planHome = 0; // floor plan: camera height = planK × its zoom (measured: linear)
+const camWait = (p, ms = 4000) => Promise.race([Promise.resolve(p).catch(() => {}), new Promise(r => setTimeout(r, ms))]); // an SDK camera promise can stay open forever
+const queued = f => (camBusy = camBusy.then(f, f)); // steps and floor-plan moves one after the other, so quick ones add up
+async function camTool({ action, amount } = {}) {
+  if (!CAM_SAID[action]) return { error: `No camera action ${action}. Use one of: ${Object.keys(CAM_SAID).join(', ')}` };
+  if (!sdk || !pose) return { error: 'The camera needs the full app; here the tour plays in Matterport\'s own player.' };
+  const n = CAM_TURN[amount] ? amount : 'normal', turn = { turn_left: CAM_TURN[n], turn_right: -CAM_TURN[n], turn_around: 180 }[action], look = { look_up: CAM_LOOK[n], look_down: -CAM_LOOK[n] }[action]; // + yaw = left
+  if (mode === 'walk' && (playing || resumeAfter || autoTimer)) { stopAuto(); resumeAfter = false; walkGen++; } // held, not ended
+  walkOff = true; // they steer now: resume(true) after the request must not start or walk on ("go on" does)
+  if (flying) { flying = false; flyGen++; if (!droneLoop) document.body.classList.remove('flying'); } // the drone's glide to a room, or the flyover
+  await landed(); // a walk's flight between scan points lands first
+  if (pose.mode === sdk.Mode.Mode.INSIDE) {
+    if (turn || look) {
+      if (!camGoal) await camWait(sdk.Camera.stop(), 500); // the walk's slow pan
+      const g = ++camGen, from = camGoal || { x: pose.rotation.x, y: pose.rotation.y }, to = { x: clamp(from.x + (look || 0), -65, 65), y: from.y + (turn || 0) };
+      if (look && Math.abs(to.x - from.x) < 1) return `You're already looking as far ${look > 0 ? 'up' : 'down'} as it goes.`;
+      camGoal = to; await camWait(sdk.Camera.setRotation(to, { speed: 40 + Math.max(Math.abs(turn || 0), Math.abs(look || 0)) }));
+      if (g === camGen) camGoal = null;
+      return CAM_SAID[action];
+    }
+    if (NO_WAY[action]) return queued(async () => {
+      let moved = 0;
+      for (let k = 0; k < (n === 'lot' ? 2 : 1); k++) {
+        const was = pose.sweep; await camWait(sdk.Camera.moveInDirection(sdk.Camera.Direction[{ forward: 'FORWARD', back: 'BACK', left: 'LEFT', right: 'RIGHT' }[action]]));
+        if (((await camWait(sdk.Camera.getPose(), 1000)) || pose).sweep === was) break; moved++;
+      }
+      return moved ? CAM_SAID[action] : `There's no way ${NO_WAY[action]} from here.`;
+    });
+    if (action === 'zoom_reset') { await camWait(sdk.Camera.zoomReset(), 2000); return CAM_SAID.zoom_reset; }
+    const was = (await camWait(sdk.Camera.zoomBy(0), 1000)) || 1, to = clamp(was + CAM_ZOOM[n] * (action === 'zoom_in' ? 1 : -1), 0.7, 2);
+    if (Math.abs(to - was) < 0.01) {
+      if (action === 'zoom_in') return 'That’s as close as it zooms.';
+      await TOOLS.set_view({ mode: 'dollhouse' }); return 'Zoomed right out, to the dollhouse.';
+    }
+    await camWait(sdk.Camera.zoomTo(to), 2000); return CAM_SAID[action];
+  }
+  const b = bounds(), step = Math.max(1, b.size * 0.2) * { little: 0.5, normal: 1, lot: 2 }[n], R = Math.PI / 180;
+  const slide = (p, yaw) => { const f = { forward: [1, 0], back: [-1, 0], left: [0, -1], right: [0, 1] }[action], y = yaw * R; return { x: p.x + (-Math.sin(y) * f[0] + Math.cos(y) * f[1]) * step, z: p.z + (-Math.cos(y) * f[0] - Math.sin(y) * f[1]) * step }; };
+  if (pose.mode === sdk.Mode.Mode.FLOORPLAN) return queued(async () => { // the plan looks straight down: turn, slide and zoom only
+    const q = (await camWait(sdk.Camera.getPose(), 1000)) || pose; // in the floor plan the pose stream's height is in other units than getPose's
+    if (look) return 'The floor plan always looks straight down. Say dollhouse to tilt the view.';
+    if (turn) { await camWait(sdk.Camera.rotate(turn, 0, { speed: 40 + Math.abs(turn) * 2 })); return CAM_SAID[action]; }
+    if (NO_WAY[action]) { const ok = await camWait(sdk.Camera.pan(slide(q.position, q.rotation.y)).then(() => true, () => false), 3000); return ok ? CAM_SAID[action] : 'That’s the edge of the plan.'; }
+    planHome ||= q.position.y;
+    const zoom = clamp(action === 'zoom_reset' ? planHome / planK : q.position.y / planK * (action === 'zoom_in' ? 1 - CAM_ZOOM[n] * 0.75 : 1 / (1 - CAM_ZOOM[n] * 0.75)), 1, 40);
+    await camWait(sdk.Mode.moveTo(sdk.Mode.Mode.FLOORPLAN, { position: q.position, rotation: q.rotation, zoom }), 3000);
+    const y = (await camWait(sdk.Camera.getPose(), 1000))?.position.y; if (y > 1) planK = y / zoom; // shortcut: assumes height ∝ zoom (measured on one tour); a new SDK may scale it otherwise
+    return CAM_SAID[action];
+  });
+  // Dollhouse and drone: orbit = the point looked at (where the view meets the floor, or the apartment's middle when it looks almost level),
+  // the distance to it, and the camera's yaw and pitch. The glide moves along the orbit, so a turn circles the model and never cuts through it.
+  const dir = (yaw, pitch) => ({ x: -Math.sin(yaw * R) * Math.cos(pitch * R), y: Math.sin(pitch * R), z: -Math.cos(yaw * R) * Math.cos(pitch * R) });
+  const orbitOf = p => { const yaw = p.rotation.y, pitch = p.rotation.x, dist = clamp(pitch < -10 ? p.position.y / -Math.sin(pitch * R) : Math.hypot(p.position.x - b.cx, p.position.z - b.cz), 1.5, b.size * 3), d = dir(yaw, pitch);
+    return { c: { x: p.position.x + d.x * dist, y: p.position.y + d.y * dist, z: p.position.z + d.z * dist }, dist, yaw, pitch }; };
+  const posOf = o => { const d = dir(o.yaw, o.pitch); return { x: o.c.x - d.x * o.dist, y: Math.max(0.6, o.c.y - d.y * o.dist), z: o.c.z - d.z * o.dist }; };
+  const g = ++camGen, from = camGoal || orbitOf(pose), to = { ...from, c: { ...from.c } };
+  if (turn) to.yaw += turn;
+  else if (look) to.pitch = clamp(from.pitch + look, -85, -10);
+  else if (action === 'zoom_reset') to.dist = b.size * 0.92; // the overview's distance
+  else if (action === 'zoom_in' || action === 'zoom_out') to.dist = clamp(from.dist * (action === 'zoom_in' ? 1 - CAM_ZOOM[n] * 0.75 : 1 / (1 - CAM_ZOOM[n] * 0.75)), 1.5, b.size * 3);
+  else { const p = slide(from.c, from.yaw); to.c.x = clamp(p.x, b.cx - b.size, b.cx + b.size); to.c.z = clamp(p.z, b.cz - b.size, b.cz + b.size); }
+  if (Math.abs(to.pitch - from.pitch) + Math.abs(to.dist - from.dist) + Math.abs(to.c.x - from.c.x) + Math.abs(to.c.z - from.c.z) + Math.abs(to.yaw - from.yaw) < 0.01)
+    return look ? `That's as far ${look > 0 ? 'up' : 'down'} as this view tilts.` : action.startsWith('zoom') ? 'That’s as far as it zooms here.' : 'That’s the edge of the model.';
+  const s = orbitOf(pose); s.yaw += 360 * Math.round((to.yaw - s.yaw) / 360); // from where it is now, the short way round
+  camGoal = to;
+  for (let k = 0, t0 = performance.now(); k < 1 && g === camGen;) {
+    k = Math.min(1, (performance.now() - t0) / 700); const e = k * k * (3 - 2 * k), m = (p, q) => p + (q - p) * e;
+    const o = { c: { x: m(s.c.x, to.c.x), y: m(s.c.y, to.c.y), z: m(s.c.z, to.c.z) }, dist: m(s.dist, to.dist), yaw: m(s.yaw, to.yaw), pitch: m(s.pitch, to.pitch) };
+    await camWait(sdk.Mode.moveTo(sdk.Mode.Mode.DOLLHOUSE, { position: posOf(o), rotation: { x: o.pitch, y: o.yaw }, transition: sdk.Mode.TransitionType.INSTANT }), 1000);
+    await new Promise(requestAnimationFrame);
+  }
+  if (g === camGen) camGoal = null;
+  return CAM_SAID[action];
+}
+
 // ---- Walkthrough: every room, plus every problem, in walking order. It starts by itself once the person talks to the guide
 // (voice.js calls resume(true) after each answer), goes on from whatever they asked to see, and a click in the 3D view holds it. ----
 let stops = [], at = 0, autoTimer = null, playing = false;
 // seen = stops shown in this tour (a walk started again goes on through the rest). walkOff = they paused, clicked or picked another
 // view: talking won't restart it until they say go on. asked = the last thing said was the "keep going?" question, so a plain
 // "yes" or "no" is answered here (no Claude call). walkGen changes on every jump, so a walk that is still stepping stops.
+let told = null; // the card Ethan has just talked about (an answer to a question): the walk does not say that place again
 const seen = new Set(); let walkOff = false, asked = false, introSaid = false, walkGen = 0, walkFrom = null, walkTotal = 0;
 // The guide (voice.js stopLine): says each stop aloud while the camera flies. guideLine = what it said last (Claude gets it, so "yes" or "how much" make sense);
 // resumeAfter = the walk paused because the person spoke, and goes on by itself once they have their answer.
@@ -1890,7 +1985,7 @@ function startWalk(from = null, fresh = false) {
   if (!rest.length && !start) { seen.clear(); rest = route(); } // everything seen: round again from the entrance
   stops = start ? [start, ...rest] : rest; at = 0; playing = true; resumeAfter = false;
   prepareWalk();
-  if (!start || cardFor?.id !== start.id) return showStop();
+  if (!start || cardFor?.id !== start.id || told !== start.id) return showStop(); // on screen but never talked about (the flyover dived straight onto the worst problem): it is the first thing he says
   seen.add(start.id); barFor(start); // they are looking at it: a beat, then on to the next place
   progress(2500); autoTimer = setTimeout(advance, 2500);
 }
@@ -1968,7 +2063,7 @@ function advance() {
   const done = () => { if (EMBED) parent.__region?.walkEnd?.(); }; // the flyover's guided run goes on to the next apartment
   if (!guide || !plan) return done();
   const [, answer, because] = verdictOf(summary(checks));
-  Promise.resolve(guide(guideLine = `That's everything. ${answer}: ${because[0].toLowerCase() + because.slice(1)}. Your plan comes to $${plan.purchases.toFixed(2)} and fixes ${plan.closed} of ${plan.rows.length} problems.`)).then(done);
+  Promise.resolve(guide(guideLine = `That's everything. ${answer}: ${because[0].toLowerCase() + because.slice(1)}. Your plan comes to $${plan.purchases.toFixed(2)} and fixes ${plan.closed} of ${plan.rows.length} problem${plan.rows.length === 1 ? '' : 's'}.`)).then(done);
 }
 function progress(ms) { const b = $('w-prog'); b.style.transition = 'none'; b.style.width = '0'; if (!ms) return; void b.offsetWidth; b.style.transition = `width ${ms}ms linear`; b.style.width = '100%'; }
 function schedule(c) {

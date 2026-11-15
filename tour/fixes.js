@@ -33,6 +33,7 @@ export function fixOptions(item, products) {
   if (item.s !== 'fail' && item.s !== 'verify') return [];
   const out = [];
   CHECK[item.n].ladder.forEach((r, k) => {
+    if (r.only && !r.only(item)) return; // a fix that makes no sense for this one (taking a balcony door off)
     const base = { key: `${item.n}.${k}`, kind: r.kind, label: r.label, note: r.note || '', reason: r.reason || '' };
     if (r.kind === 'product') {
       const cands = products.filter(p => r.types.includes(p.type)).map(p => {
