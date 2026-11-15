@@ -22,6 +22,18 @@ export const LIMITS = {
 };
 export const NOISE_DOOR = 0.5; // doorways under 50 cm are scan noise
 
+// The person's own chair (inches) moves two limits by how far it is from the reference chair: a wider chair needs that much more
+// doorway and hallway, a bigger turning circle that much more room. Missing or out-of-range numbers fall back to the reference chair.
+// shortcut: only the tour page calls this; the neighbourhood ranking (region.html) still uses the reference chair. Pass the chair there if rankings must follow it.
+export const CHAIR0 = { w: 30.8, turn: 60 }, CHAIR_RANGE = { w: [20, 40], turn: [48, 96] };
+const DOOR0 = LIMITS.door.min, TURN0 = LIMITS.turn.min, HALL0 = LIMITS.hall.min;
+export function setChair(c) {
+  const num = k => { const v = Number(c?.[k]); return v >= CHAIR_RANGE[k][0] && v <= CHAIR_RANGE[k][1] ? v : CHAIR0[k]; };
+  const chair = { w: num('w'), turn: num('turn') };
+  LIMITS.door.min = DOOR0 + (chair.w - CHAIR0.w) * IN; LIMITS.hall.min = HALL0 + (chair.w - CHAIR0.w) * IN; LIMITS.turn.min = TURN0 + (chair.turn - CHAIR0.turn) * IN;
+  return chair;
+}
+
 export function judge(limit, v) {
   if (v == null || Number.isNaN(v)) return 'none';
   const { min, max, u = 0 } = limit, e = 1e-9;
@@ -367,7 +379,7 @@ export function summary(items) {
 // Plain-words title and "measured vs needed" line for one item.
 export function describe(i) {
   const c = CHECK[i.n];
-  const need = { door: '2\' 10" opening', step: 'level (¾")', turn: "5' 0\" across", hall: '3\' 2" wide', tubRim: '19" or lower', toiletWall: '16–18"', toiletSeat: '17–19"', curb: '½" or lower', sink: '34" or lower', switchH: '15–48"' }[c.limit];
+  const need = { door: `${ftin(LIMITS.door.min + LIMITS.door.u)} opening`, step: 'level (¾")', turn: `${ftin(LIMITS.turn.min - LIMITS.turn.u)} across`, hall: `${ftin(LIMITS.hall.min + LIMITS.hall.u)} wide`, tubRim: '19" or lower', toiletWall: '16–18"', toiletSeat: '17–19"', curb: '½" or lower', sink: '34" or lower', switchH: '15–48"' }[c.limit];
   const needed = need ?? (c.how === 'ask' ? c.answers.find(a => a[2] === 'pass')[1] : 'see the rule');
   const rooms = (i.between || '').replaceAll(' ↔ ', ' to ').replace(/\bVoid\b/g, 'Outside'); // "Kitchen to Balcony" on the secondary line; "Void" = area the scan didn't cover
   if (i.s === 'none') { const todo = c.how === 'ask' ? 'answer one question' : c.how === 'measure' ? 'measure it in the tour (two clicks)' : 'needs measuring: the scan has no number for it';
@@ -379,7 +391,7 @@ export function describe(i) {
   if (i.n === 9 && i.odd) return { title: 'Check the threshold by eye', detail: `${rooms}. The scan reads a ${ftin(i.value)} drop here, more than any door threshold: it may be real stairs or a scan error, so look at it on site.`, measured: ftin(i.value), need };
   if (i.n === 9) return { title: i.s === 'pass' ? 'Level threshold' : i.s === 'verify' ? `Small step at the door (${ftin(i.value)})` : `Step at the door (${ftin(i.value)})`, detail: rooms, measured: ftin(i.value), need };
   // Just under the limit, feet and inches round to the limit itself ("5' 0" across, needs 5' 0""): then say it in inches with a decimal.
-  const shown = i.value != null && ftin(i.value) === "5' 0\"" && i.s !== 'pass' ? `${(i.value / IN).toFixed(1)}"` : ftin(i.value);
+  const shown = i.value != null && `${ftin(i.value)} across` === need && i.s !== 'pass' ? `${(i.value / IN).toFixed(1)}"` : ftin(i.value);
   if (i.n === 10) return { title: i.s === 'pass' ? `${i.room}: room to turn around` : `${i.room} ${may}too small to turn around`, detail: i.value == null ? 'room size missing' : `room is ${shown} across, needs ${need}`, measured: shown, need };
   if (i.n === 11) return { title: i.s === 'pass' ? `${i.room} wide enough (${ftin(i.value)})` : `${i.room} ${may}too narrow (${ftin(i.value)})`, detail: `needs ${need}`, measured: ftin(i.value), need };
   if (i.n === 21) return { title: c.title, detail: i.floors === 1 ? 'one floor, no stairs inside' : i.value ? 'all on the entry floor' : 'an essential room is upstairs', measured: `${i.floors} floor${i.floors > 1 ? 's' : ''}`, need: 'all on one floor' };

@@ -139,3 +139,20 @@ test("the recogniser's other guesses get a second chance at a command", async ()
   assert.equal(pickHeard('what about the hallway', ['what about the whole way']).q, null); // a question stays a question, for Claude
   assert.deepEqual(pickHeard('night mode', ['knight mode']).text, 'night mode'); // the first guess wins when it works
 });
+
+test('a greeting alone is a greeting; with a request after it, it is a request', () => {
+  for (const t of ['hi', 'Hi.', 'hey', 'Hey Ethan!', 'hello there', 'good morning', 'hi ethan how are you', 'High']) assert.deepEqual(quick(t, places), { hello: true }, t);
+  for (const t of ['hi I need a place for my dad', 'high contrast', 'again', 'ok', 'hello can he get into the bathroom']) assert.notDeepEqual(quick(t, places), { hello: true }, t);
+});
+test('more ways to ask for a room, the next one, or another apartment', () => {
+  for (const t of ['walk me to the kitchen', 'can we see the kitchen', 'and the kitchen', 'bring me to the kitchen', 'now head over to the kitchen', "I'd like to see the kitchen", 'then the kitchen please'])
+    assert.equal(quick(t, { rooms: [{ id: 'turn-9', name: 'Kitchen, Living Room' }] })?.input.id, 'turn-9', t);
+  assert.deepEqual(quick('next room'), { tool: 'walkthrough', input: { action: 'next' } });
+  assert.deepEqual(quick('walk me through it'), { tool: 'set_view', input: { mode: 'walkthrough' } });
+  assert.deepEqual(quick('show me another property'), { tool: 'open_page', input: { page: 'home' } });
+});
+test('thanks and bye get a fixed line; "apartment A" is not a command of its own', () => {
+  assert.ok(quick('Thank you, Ethan!').line); assert.ok(quick('ok bye').line);
+  assert.deepEqual(quick('floor plan please, thank you'), { tool: 'set_view', input: { mode: 'floorplan' } });
+  assert.equal(quick('apartment A', { also: [{ keys: 'into apartment|enter apartment', tool: 'enter' }] }), null);
+});

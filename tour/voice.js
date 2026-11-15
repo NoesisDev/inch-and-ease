@@ -7,9 +7,9 @@
 
 // ---- quick(): which sentences need no Claude round trip. Pure; tested in voice.test.mjs ----
 // Only a whole sentence that is nothing but the command matches; anything longer is a question for Claude.
-const FILLER = /\b(um|uh|er|erm|hmm|the|a|an|please|now|hey|ok|okay|just|me|my|can you|could you|would you|lets|let s|i want|to|at|show|go|switch|open|take|give|see|turn on|put on|start|view|mode|look)\b/g;
+const FILLER = /\b(um|uh|er|erm|hmm|the|a|an|please|now|hey|ok|okay|just|me|my|can you|could you|would you|lets|let s|i want|to|at|show|go|switch|open|take|give|see|turn on|put on|start|view|mode|look|can we|could we|i d like|id like|i would like|wanna|we|us|bring|move|head|and|then|also|check out|visit|over to|thank you|thanks)\b/g;
 // What Chrome's recogniser is known to hear instead (measured with generated speech).
-const HEARD = [[/\b(whole way|holloway|hall way)\b/g, 'hallway'], [/\b(warcraft|walk true|walk thru|walkthru|work through|walk threw)\b/g, 'walkthrough'],
+const HEARD = [[/\bwalk (?:me |us )?(?:to|into|over to)\b/g, 'go to'], [/\b(whole way|holloway|hall way)\b/g, 'hallway'], [/\b(warcraft|walk true|walk thru|walkthru|work through|walk threw)\b/g, 'walkthrough'],
   [/\b(eye|hi|i) contrast\b/g, 'high contrast'], [/\bfloor plant?s?\b/g, 'floor plan'], [/\bnight more\b/g, 'night mode'], [/\bdoll ?house\b/g, 'dollhouse']];
 const norm = t => HEARD.reduce((x, [a, b]) => x.replace(a, b), String(t).toLowerCase().replace(/[^a-z0-9 ]+/g, ' ')).replace(FILLER, ' ').replace(/\s+/g, ' ').trim();
 const squash = t => norm(t).replace(/ /g, '');
@@ -17,8 +17,8 @@ const ORD = { first: 1, second: 2, third: 3, fourth: 4, fifth: 5, sixth: 6, seve
 const NUM = { one: 1, two: 2, too: 2, to: 2, three: 3, four: 4, for: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10 };
 const PHRASES = new Map([
   ['stop|quiet|be quiet|cancel|never mind|nevermind|enough|shut up', { stop: true }],
-  ['next|next one|next stop|next problem|next issue|continue|keep going|go on|move on|skip|skip this one|skip to the next one|next please', ['walkthrough', { action: 'next' }]],
-  ['previous|previous one|previous stop|previous problem|previous issue|one before', ['walkthrough', { action: 'previous' }]],
+  ['next|next one|next stop|next problem|next issue|continue|keep going|go on|move on|skip|skip this one|skip to the next one|next please|next room|next place', ['walkthrough', { action: 'next' }]],
+  ['previous|previous one|previous stop|previous problem|previous issue|one before|previous room|room before', ['walkthrough', { action: 'previous' }]],
   ['back|go back|back there|take me back|where i was', ['walkthrough', { action: 'back' }]], // in a walkthrough: the stop before; outside: the place shown before
   ['last one|last problem|last issue', { pin: -1 }],
   ['pause|wait|hold on', ['walkthrough', { action: 'pause' }]],
@@ -40,7 +40,7 @@ const PHRASES = new Map([
   ['all issues|all problems|everything|full list', ['ui', { action: 'issues_all' }]],
   ['by room|issues by room|problems by room|group by room|room by room|sort by room|sort the problems room by room|sort the issues by room', ['ui', { action: 'issues_by_room' }]],
   ['print|print plan|print it|print that|save as pdf', ['ui', { action: 'print_plan' }]],
-  ['home|start page|main page|home page|all apartments|other apartments|apartments|back home|beginning|back to all the apartments|back to the apartments|leave this apartment|exit the apartment', ['open_page', { page: 'home' }]],
+  ['home|start page|main page|home page|all apartments|other apartments|apartments|back home|beginning|back to all the apartments|back to the apartments|leave this apartment|exit the apartment|another apartment|another property|other property|other properties|another place|different apartment|different property|another home|other homes|another tour|other tours|another unit|other units', ['open_page', { page: 'home' }]],
   ['neighbourhood|neighborhood|compare neighbourhood|compare neighborhood|neighbourhood flyover|neighborhood flyover|flyover|compare apartments', ['open_page', { page: 'neighbourhood' }]],
   ['repeat|repeat that|again|say again|say that again|say it again|what did you say|pardon|come again|one more time|sorry what did you say|what was that|sorry', { repeat: true }],
   ['help|what can i say|what can you do|what can i ask|commands|what are commands|how does this work', { help: true }],
@@ -61,8 +61,16 @@ export function pickHeard(text, others = [], places) {
   return { text, q: null };
 }
 
+// "Hi", "hey Ethan", "good morning": a greeting and nothing else. Anything after it ("hi, I need a place for my dad") is a request.
+const HELLO = /^(?:hi+|high|hai|hello+|hey+|hiya|howdy|yo|greetings|good (?:morning|afternoon|evening|day)|ethan)(?: (?:there|ethan|eaton|ethen|eton|even|nathan|buddy|man|everyone|guys|how are you(?: doing)?(?: today)?|how s it going|hows it going|whats up|what s up|nice to meet you|good (?:morning|afternoon|evening)))*$/;
+const POLITE = [[/^(?:ok(?:ay)? )?(?:thanks|thank you|cheers)(?: (?:ethan|a lot|so much|very much|man|buddy|that s all|that is all))*$/, 'You’re welcome. I’m here when you need me.'],
+  [/^(?:ok(?:ay)? )?(?:bye|goodbye|bye bye|see you|see you later|good night)(?: (?:ethan|then|now))*$/, 'Bye for now. Good luck with the move.']];
 export function quick(text, { rooms = [], doors = [], issues = [], also = [] } = {}) {
-  const t = norm(text); if (!t) return null;
+  const raw = String(text).toLowerCase().replace(/[^a-z0-9 ]+/g, ' ').replace(/\s+/g, ' ').trim();
+  const t = norm(text);
+  if (HELLO.test(raw)) return { hello: true };
+  const polite = POLITE.find(([re]) => re.test(raw)); if (polite) return { line: polite[1] };
+  if (!t) return null;
   const go = x => ({ tool: 'show_issue', input: { id: x.id }, ...(x.say ? { say: x.say } : {}) });
   const own = also.find(a => a.keys.split('|').some(k => norm(k) === t));
   if (own) return { tool: own.tool, input: own.input || {}, ...(own.say ? { say: own.say } : {}) };
@@ -70,7 +78,6 @@ export function quick(text, { rooms = [], doors = [], issues = [], also = [] } =
   if (hit?.pin) { const x = issues.at(hit.pin > 0 ? hit.pin - 1 : hit.pin); return x ? go(x) : null; }
   if (hit) return Array.isArray(hit) ? { tool: hit[0], input: hit[1] } : hit;
   // A pin by its number: "number two", "problem number three", "number to" (read from the unfiltered words: "to" is a filler), "the second one".
-  const raw = String(text).toLowerCase().replace(/[^a-z0-9 ]+/g, ' ').replace(/\s+/g, ' ').trim();
   const n = raw.match(/\b(?:number|issue|problem|pin)(?: number)? (\d+|[a-z]+)$/), o = t.match(/^([a-z]+)(?: one| problem| issue| pin)?$/);
   const k = n && !norm(raw.slice(0, n.index)) ? +n[1] || NUM[n[1]] : o ? ORD[o[1]] : 0;
   if (k) return issues[k - 1] ? go(issues[k - 1]) : null; // no such pin: Claude says how many there are
@@ -119,7 +126,7 @@ export function stopLine(c, row, typeOf) {
       verify: [`${Room} is close: turning round might just work, but measure it before you decide.`] },
     door: { pass: [`${Door} is wide enough to roll straight through.`],
       fail: [`A wheelchair won't fit through ${door}.`, `${Door} is too narrow for the chair to get through.`],
-      verify: [`${Door} is borderline for a wheelchair, worth checking with a tape.`, `${Door} might be just wide enough. Measure it before you sign.`] },
+      verify: [`${Door} is too close to call for a wheelchair, worth checking with a tape.`, `${Door} is right on the limit. Measure it before you sign.`] },
     step: { pass: [`${Door} is level, nothing to catch the wheels.`],
       fail: [`There's a lip at ${door}, big enough to catch the front wheels.`, `Watch the step at ${door}: the front wheels would catch on it.`],
       verify: [`There's a small lip at ${door}, worth a quick check.`] },
@@ -193,7 +200,7 @@ export default function initVoice(api) {
   const bar = document.createElement('div'); bar.id = 'voice'; bar.className = 'float' + (api.home ? ' home' : '');
   bar.innerHTML = `<button id="v-mic" type="button" aria-pressed="false" title="Click to keep listening, or hold Space to talk" aria-label="Voice: click to keep listening, or hold Space to talk">${MIC}</button>
     <div id="v-body"><div id="v-state"></div><div id="v-heard"></div><div id="v-steps"></div><div id="v-say" role="status" aria-live="polite"></div>
-    <div id="v-hint">Hold <kbd>Space</kbd> and ask anything: “${api.home ? 'Which apartment is worst?' : 'Can he get into the bathroom?'}”</div></div>`;
+    <div id="v-hint">Hold <kbd>Space</kbd> and ${api.home ? 'say “Hi”, or ask anything' : 'ask anything: “Is the bathroom door wide enough?”'}</div></div>`;
   (api.home ? document.body : document.querySelector('main')).appendChild(bar);
   const el = id => bar.querySelector('#' + id);
 
@@ -203,8 +210,8 @@ export default function initVoice(api) {
     store.set('ie-intro', '1');
     const touch = matchMedia('(pointer: coarse)').matches, box = document.createElement('div'); box.id = 'v-intro';
     box.setAttribute('role', 'dialog'); box.setAttribute('aria-modal', 'true'); box.setAttribute('aria-labelledby', 'v-intro-h');
-    box.innerHTML = `<div>${touch ? '' : '<kbd>Space</kbd>'}<b id="v-intro-h">${touch ? 'Tap the mic' : 'Hold Space'} and just ask</b>
-      <p>“Which apartment is best for my dad in Hollywood?”</p>
+    box.innerHTML = `<div>${touch ? '' : '<kbd>Space</kbd>'}<b id="v-intro-h">${touch ? 'Tap the mic' : 'Hold Space'} and say hi to Ethan</b>
+      <p>He talks back, shows you round and stops when you press Space again. Or just ask: “Which apartment is best for my dad in Hollywood?”</p>
       <p><b style="font-size:inherit;color:#1b1f1d">Streets and neighbourhoods:</b> Northeast LA, Hollywood, Houston Heights.<br>
       <b style="font-size:inherit;color:#1b1f1d">Rooms:</b> any apartment tour.</p>
       <p>Prefer typing? That works too.</p>
@@ -255,11 +262,11 @@ export default function initVoice(api) {
     }
     return parts.length;
   }
-  function speak(text) {
+  function speak(text, err = false) { // err: a spoken line that says something went wrong (shown red)
     hush(); const my = talk;
-    if (held) { show({ say: text, err: false }); spoken.push(speakable(text)); last = text; return Promise.resolve(); } // the person is talking: caption only, never talk over them
+    if (held) { show({ say: text, err }); spoken.push(speakable(text)); last = text; return Promise.resolve(); } // the person is talking: caption only, never talk over them
     rec?.abort(); // the open mic must not hear our own voice; it reopens when we finish
-    show({ state: 'speaking', say: text, err: false }); spoken.push(speakable(text)); last = text;
+    show({ state: 'speaking', say: text, err }); spoken.push(speakable(text)); last = text;
     return new Promise(res => {
       const done = () => { if (my !== talk) return res(); talk++; res(); if (open) listen(true); else rest(); };
       const poll = setInterval(() => { if (my !== talk) { clearInterval(poll); res(); } }, 150); // hushed from outside
@@ -287,6 +294,7 @@ export default function initVoice(api) {
   // ---- One request: a quick command runs here at once (then Claude says a line about it), the rest goes to Claude ----
   let turn = 0;
   async function handle(text, note, others = []) {
+    if (!String(text).trim()) return; // an empty sentence is not a request
     const my = ++turn; api.hold?.(); hush(); api.stop(); // hold first: a walkthrough must not move on when its line is cut off
     show({ state: 'thinking', heard: text, steps: [], say: '', err: false });
     let said = null; // the answer being read aloud; it starts as soon as Claude has it, while the tour is still moving
@@ -295,19 +303,23 @@ export default function initVoice(api) {
     let q = null, hint = ''; // the recogniser's other guesses: a second chance at an instant command, else a hint for Claude
     if (!note) { ({ text, q } = pickHeard(text, others, api.places())); if (q && others.length) show({ heard: text }); else if (others.length) hint = `the speech recogniser was unsure; it also heard: ${others.map(o => `"${o}"`).join(' / ')}`; }
     if (q?.stop) { if (api.mode() === 'walk') api.run('walkthrough', { action: 'pause' }); return rest(); } // "stop" also holds a playing walkthrough
-    if (q?.repeat) { await (last ? speak(last) : rest()); if (my === turn) api.resume?.(); return; } // a paused walkthrough goes on after
+    if (q?.line) { logTalk(text, q.line); await speak(q.line); if (my === turn) api.resume?.(); return; }
+    if (q?.repeat) { await speak(last || 'I haven’t said anything yet. Ask me about an apartment, or say hi.'); if (my === turn) api.resume?.(); return; } // a paused walkthrough goes on after
+    if (q?.hello) { const line = api.hello?.() || 'Hi, I’m Ethan. Hold Space and tell me what you’re looking for.'; logTalk(text, line); await speak(line); if (my === turn) api.resume?.(true); return; } // true: inside a tour the walk starts after the greeting
     if (q?.help) { const help = api.help || 'Say a room, a view, or ask a question.', line = await custom(text, `they asked for help; what they can say on this page: ${help}`, help); if (my !== turn) return; logTalk(text, line); await speak(line); if (my === turn) api.resume?.(); return; }
     // Inside a tour, a place by name ("the kitchen", "number two") flies there at once and Ethan then says what it's like for them.
     if (q && q.tool === 'show_issue' && api.chatty) {
       const out = await Promise.race([api.run(q.tool, q.input, on), new Promise(r => setTimeout(r, 200))]); if (my !== turn) return; // Claude starts while the camera flies
-      if (out?.error) { show({ state: rec ? 'listening' : 'idle', say: out.error, err: true }); return api.resume?.(); }
+      if (out?.error) { await speak(out.error, true); if (my === turn) api.resume?.(); return; }
       note = 'the tour is already flying there and has opened its card';
     } else if (q) {
       const facts = []; // what the page would have said itself: facts for Claude's line, not the line
       const out = await api.run(q.tool, q.input, (kind, v) => kind === 'say' ? facts.push(v) : on(kind, v)); if (my !== turn) return;
-      if (out?.error) { hush(); const inside = api.home && /apartment first|inside an apartment|open an apartment/i.test(out.error); show({ state: rec ? 'listening' : 'idle', say: inside ? 'That works inside an apartment. Ask which one is worst, or say “open” and its name.' : out.error, err: !inside }); return api.resume?.(); }
-      const to = api.nav?.(); if (to) return api.open(to); // "home", "the neighbourhood": the command asked for another page
+      if (out?.error) { const inside = api.home && /apartment first|inside an apartment|open an apartment/i.test(out.error); await speak(inside ? 'That works inside an apartment. Ask which one is worst, or say “open” and its name.' : out.error, !inside); if (my === turn) api.resume?.(); return; }
+      const to = api.nav?.(); if (to) { store.set('ie-hello', '1'); return api.open(to); } // the next page says where they are now // "home", "the neighbourhood": the command asked for another page
       // the walk and "go inside" speak their own lines; a command that leaves the page has no one left to hear a line
+      if (q.tool === 'open_page' && typeof out === 'string') { logTalk(text, out); await speak(out); return; } // still on this page ("back to the map"): he says where they are
+      if (q.tool === 'walkthrough' && /^(pause|stop)$/.test(q.input.action)) { await speak(typeof out === 'string' && /nothing/i.test(out) ? out : q.input.action === 'pause' ? 'Okay, I’ll wait.' : 'Okay, the walk is over. Where would you like to go?'); return; }
       if (/^(walkthrough|enter|open_region|open_page)$/.test(q.tool)) { show({ state: rec ? 'listening' : 'idle', say: typeof out === 'string' ? out : '' }); return; }
       const did = [q.say && `went to ${q.say}`, `${q.tool} ${JSON.stringify(q.input)}`, typeof out === 'string' && out, ...facts].filter(Boolean).join('. ');
       const line = await custom(text, did, facts.join(' ') || q.say || (typeof out === 'string' ? out : '')); if (my !== turn) return;
@@ -316,7 +328,7 @@ export default function initVoice(api) {
       return;
     }
     const r = await api.ask(text, { on, note: [note, hint].filter(Boolean).join('; ') || undefined }); if (my !== turn) return;
-    if (r.error) { show({ state: rec ? 'listening' : 'idle', say: r.error, err: true }); return api.resume?.(true); } // Claude down: the walk is local, it goes on
+    if (r.error) { await speak(r.error, true); if (my === turn) api.resume?.(true); return; } // Claude down: the walk is local, it goes on
     if (r.open && !note) store.set('ie-voice-next', text); // the new page finishes this request ("…and show me the bathroom")
     await said; if (my !== turn) return;
     if (r.open) return api.open(r.open);
@@ -332,7 +344,7 @@ export default function initVoice(api) {
   function setOpen(v) { open = v; store.set('ie-voice', v ? 'open' : null); }
   function listen(on) {
     if (!on) return rec?.stop();
-    if (!Rec) return show({ state: 'idle', say: 'Voice input needs Chrome. You can type in "Ask Claude".', err: true });
+    if (!Rec) { setOpen(false); return void speak('Voice input needs Chrome. You can type your question instead.', true); } // closed first: an open mic would ask again after every line
     if (rec) return;
     hush(); let done = '', live = '', segs = []; // segs: every guess for each finished phrase
     const r = rec = new Rec(); r.lang = 'en-US'; r.interimResults = true; r.continuous = true; r.maxAlternatives = 4;
@@ -352,7 +364,7 @@ export default function initVoice(api) {
     r.onerror = e => {
       if (e.error === 'no-speech' || e.error === 'aborted') return;
       setOpen(false);
-      show({ state: 'idle', err: true, say: e.error === 'not-allowed' || e.error === 'service-not-allowed' ? 'The microphone is blocked. Allow it in the address bar, then try again.' : e.error === 'network' ? 'Voice input is not available in this browser. Open the page in Chrome, or type in "Ask Claude".' : `Voice input stopped (${e.error}).` });
+      speak(e.error === 'not-allowed' || e.error === 'service-not-allowed' ? 'The microphone is blocked. Allow it in the address bar, then try again.' : e.error === 'network' ? 'Voice input is not available in this browser. Open the page in Chrome, or type your question.' : `Voice input stopped (${e.error}).`, true);
     };
     r.onend = () => {
       if (rec === r) { rec = null; stopping = false; }
@@ -371,7 +383,7 @@ export default function initVoice(api) {
     if (e.key === 'Escape' && ui.state !== 'idle') return stopAll();
     if (e.code !== 'Space' || typing(e) || api.mode() === 'drone') return; // in Drone, Space flies up: use the mic button there
     e.preventDefault(); if (e.repeat) return;
-    held = true; turn++; api.hold?.(); api.stop();
+    held = true; turn++; hush(); api.hold?.(); api.stop(); // Space cuts Ethan off mid-sentence, whatever the mic was doing
     if (tail) { clearTimeout(tail); tail = null; return; } // pressed again inside the tail: the same recording goes on
     if (rec && stopping) { again = true; return; } // the last recording is still closing: start a new one the moment it has
     listen(true);
@@ -385,6 +397,8 @@ export default function initVoice(api) {
 
   show({});
   if (store.get('ie-voice') === 'open') { open = true; listen(true); } // the mic stays open from one apartment to the next
+  // They came here by saying a neighbourhood's name: Ethan says what is here as the page opens (true = he has already said hello).
+  if (store.get('ie-hello')) { store.set('ie-hello', null); Promise.resolve(api.ready).then(() => { if (ui.state !== 'idle' && !(open && ui.state === 'listening' && !ui.heard)) return; const line = api.hello?.(true); if (line) { api.stop(); logTalk('(they opened this page by voice)', line); speak(line); } }); }
   const next = store.get('ie-voice-next'); store.set('ie-voice-next', null);
   if (next) handle(next, 'the page has just opened this apartment for this request');
   window.__voice = { hear: handle, ui, spoken }; // test hook: feed a sentence as if it had been spoken; spoken = every text given to the speech voice

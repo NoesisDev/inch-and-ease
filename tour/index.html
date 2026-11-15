@@ -28,6 +28,8 @@
           --failInk:#ff7a70; --verifyInk:#FFD400; --passInk:#3ddc84; --blur:none; --shadow:none; --size:16px; }
   @media (prefers-reduced-transparency: reduce) { :root { --glass:#fff; --glassStrong:#fff; --blur:none; } [data-theme=night] { --glass:#1c1c1e; --glassStrong:#1c1c1e; } }
   * { box-sizing:border-box; }
+  /* A laptop-size window: the panels shrink so the apartment keeps most of the picture. A chosen text size below still wins. */
+  @media (min-width:761px) and (max-width:1500px) { :is(aside, #card, #dock, #legend, #hint, #peek) { zoom:.8; } aside { height:calc((100vh - 16px) / .8) !important; } #card { max-height:calc((100vh - 32px) / .8) !important; } } /* heights divided back: zoom shrinks them too */
   [data-text=large] :is(#home .page, #prefs, aside, #card, #dock, #legend, #hint, #peek) { zoom:1.12; } [data-text=larger] :is(#home .page, #prefs, aside, #card, #legend, #hint, #peek) { zoom:1.25; } [data-text=larger] #dock { zoom:1.12; } /* the menu would not fit beside the panel at 1.25 */
   body { margin:0; font:400 var(--size)/1.45 var(--font); color:var(--ink); background:var(--wall); display:flex; height:100vh; overflow:hidden; -webkit-font-smoothing:antialiased; letter-spacing:-.005em; }
   h1, h2, h3, h4, h5 { font-family:var(--font); }
@@ -44,7 +46,7 @@
 
   /* ---- Side panel: a glass panel inset from the window edge ---- */
   @media screen and (min-width:761px) { aside { width:320px !important; } } /* same width as the flyover and streets panels (Tape measure look, Nov 14) */
-  aside { width:296px; flex:none; margin:8px 0 8px 8px; height:calc(100vh - 16px); border-radius:18px; display:flex; flex-direction:column; overflow:hidden; position:relative; z-index:6; }
+  aside { width:296px; flex:none; margin:8px 0 8px 8px; height:calc(100vh - 16px); border-radius:18px; display:flex; flex-direction:column; overflow:hidden; overflow:clip; /* clip: a row scrolled into view during the walk also scrolled the panel itself and cut its header (seen in the Nov 14 takes) */ position:relative; z-index:6; }
   aside header { padding:12px 16px 2px; } aside .body { flex:1; overflow:auto; padding:0 16px 12px; } aside footer { padding:8px 16px 10px; border-top:1px solid var(--sep); }
   .homelink { color:var(--muted); font-size:13px; text-decoration:none; font-weight:500; display:inline-flex; align-items:center; gap:4px; } .homelink[hidden] { display:none; } .homelink:hover { color:var(--ink); }
   .homelink svg { width:8px; height:12px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
@@ -384,12 +386,13 @@
   @media (max-width:900px) { #home .band { padding:52px 0 56px; margin-top:64px; } #home .band .stats > div { padding:22px 0 0; border-left:0; border-top:1px solid rgba(255,255,255,.18); margin:0 0 22px; } #home .band .stats > div:first-child { border-top:0; padding-top:0; } }
   /* Design A, "Tape measure": the issue panel and the issue card. Barlow type, black ink, tape yellow, red; flat white, hairlines, no glass.
      The colours apply in Daylight only; Night and High contrast keep theirs and get the same flat shapes. */
-  aside, #card { --font:'Barlow', -apple-system, 'Helvetica Neue', system-ui, sans-serif; --head:'Barlow Semi Condensed', 'Barlow', system-ui, sans-serif; font-family:var(--font); border-radius:10px; }
-  :root:not([data-theme=night]):not([data-theme=contrast]) :is(aside, #card) { --ink:#141414; --muted:#5C5A55; --sep:#E2DFD6; --fill:#F3F1EA; --fill2:#E9E6DC; --seg:#fff; --chosen:#FFF6CC; --accent:#141414; --accentInk:#fff;
+  aside, #card, #chair { --font:'Barlow', -apple-system, 'Helvetica Neue', system-ui, sans-serif; --head:'Barlow Semi Condensed', 'Barlow', system-ui, sans-serif; font-family:var(--font); border-radius:10px; }
+  :root:not([data-theme=night]):not([data-theme=contrast]) :is(aside, #card, #chair) { --ink:#141414; --muted:#5C5A55; --sep:#E2DFD6; --fill:#F3F1EA; --fill2:#E9E6DC; --seg:#fff; --chosen:#FFF6CC; --accent:#141414; --accentInk:#fff;
     --fail:#D7261E; --failInk:#D7261E; --verify:#FFD21F; --helps:#FFD21F; --verifyInk:#7A5B00; --pass:#1E7B3A; --fixed:#1E7B3A; --passInk:#1E7B3A;
     background:#fff; -webkit-backdrop-filter:none; backdrop-filter:none; border:1px solid var(--sep); box-shadow:0 1px 2px rgba(0,0,0,.06), 0 8px 24px rgba(0,0,0,.08); color:var(--ink); }
   :root:not([data-theme=night]):not([data-theme=contrast]) :is(.opt, .fix) { background:#fff; box-shadow:inset 0 0 0 1px var(--sep); }
-  aside header h1 { font-family:var(--head); font-size:18px; letter-spacing:0; color:var(--ink); } aside header h1 span { color:var(--muted); }
+  aside header h1 { font-family:var(--head); font-size:26px; line-height:1.1; letter-spacing:0; color:var(--ink); } aside header h1 span { color:var(--muted); } .brandlink { color:inherit; text-decoration:none; } .brandlink:hover { opacity:.7; } /* the logo is the way home */
+  @media (min-width:761px) and (max-width:1500px) { aside header h1 { font-size:32px; } } /* the panel is zoomed to .8 there: the logo still shows at 26 px */
   aside .answer b { font-family:var(--head); font-size:26px; letter-spacing:0; }
   aside .tiles { gap:0; border:1px solid var(--sep); border-radius:8px; overflow:hidden; } aside .tile { background:none; border-radius:0; padding:8px 10px; } aside .tile + .tile { border-left:1px solid var(--sep); }
   aside .tile b { font-family:var(--head); font-size:20px; letter-spacing:0; }
@@ -414,6 +417,25 @@
   .opt .price, .fix .price { font-family:var(--head); font-size:18px; letter-spacing:0; text-align:right; }
   .opt .price small { display:block; font:500 11px/1.3 var(--font); color:var(--muted); white-space:nowrap; } /* "+ labour, may vary" under the price of anything that has to be screwed on */
   #card .measure { border-radius:10px; background:none; box-shadow:inset 0 0 0 1.5px var(--ink); font-weight:600; }
+  /* "Your wheelchair", asked before the scan: the same flat card as an issue. Left: the two numbers. Right: how to measure them. */
+  #chair { width:min(880px, calc(100vw - 32px)); padding:26px 28px 22px; color:var(--ink); background:var(--glassStrong); }
+  #chair::backdrop { background:rgba(20,20,20,.4); }
+  #chair form { display:grid; grid-template-columns:1fr 1fr; gap:0 34px; position:relative; }
+  #chair .tag { display:inline-block; background:var(--verify, #FFD21F); color:#1d1d1f; font:600 13px/1 var(--font); padding:6px 9px; border-radius:4px; }
+  #chair h3 { font-family:var(--head); font-size:34px; line-height:1.1; margin:12px 0 6px; }
+  #chair p { margin:0 0 12px; font-size:15px; color:var(--muted); }
+  #chair label { display:flex; justify-content:space-between; align-items:baseline; gap:12px; padding:12px 0; border-bottom:1px solid var(--sep); font-size:16px; font-weight:600; white-space:nowrap; }
+  #chair label small { display:block; font-weight:400; color:var(--muted); font-size:13px; white-space:normal; }
+  #chair input { width:86px; font:600 26px/1.2 var(--head); text-align:right; border:0; border-bottom:2px solid var(--ink); border-radius:0; background:none; color:var(--ink); padding:2px 0; margin-right:4px; }
+  #chair .go { width:100%; margin-top:22px; padding:13px; border-radius:999px; background:var(--accent); color:var(--accentInk); font:600 16px var(--font); }
+  #chair h4 { margin:2px 0 8px; font-size:14px; }
+  #chair svg { width:100%; height:auto; display:block; background:#fff; border:1px solid var(--sep); border-radius:8px; font-family:var(--font); }
+  #chair ol { margin:12px 0 0; padding:0; list-style:none; counter-reset:step; font-size:14px; }
+  #chair li { counter-increment:step; display:flex; gap:10px; padding:5px 0; }
+  #chair li::before { content:counter(step); flex:none; width:22px; height:22px; display:grid; place-items:center; background:var(--verify, #FFD21F); color:#1d1d1f; border-radius:4px; font:700 13px var(--head); }
+  #chair .x { position:absolute; right:-10px; top:-10px; width:30px; height:30px; padding:0; font-size:19px; line-height:1; color:var(--muted); background:none; }
+  #chair .src { grid-column:1 / -1; font-size:12px; margin:16px 0 0; }
+  @media (max-width:700px) { #chair form { grid-template-columns:1fr; } }
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Work+Sans:wght@400;500;600&family=Barlow:wght@400;500;600&family=Barlow+Semi+Condensed:wght@600;700&display=swap" rel="stylesheet">
@@ -437,9 +459,9 @@
         <div class="screen"><video id="filmVideo" muted loop playsinline preload="auto" aria-label="Recorded demo: someone asks the assistant about an apartment for their dad, and it walks them through it"></video><span class="tag">Recorded demo</span></div>
       </figure>
     </section>
-    <section class="band" aria-labelledby="bandH"><h3 id="bandH">Most US homes don’t work for someone who can’t walk far.</h3><div class="stats">
-      <div><b>13.4%</b><span>of US adults have trouble walking a quarter mile.</span><small>5.5 million use a wheelchair.<i>US Census Bureau, 2014</i></small></div>
-      <div><b class="red">&lt;4%</b><span>of US homes work for someone who has trouble walking.</span><small>Under 0.2% are fully wheelchair accessible.<i>HUD-funded NYU study, 2011</i></small></div>
+    <section class="band" aria-labelledby="bandH"><h3 id="bandH">Finding an apartment is hard. From a wheelchair, harder.</h3><div class="stats">
+      <div><b>2.3%</b><span>of all US adults use a wheelchair.</span><small>5.5 million of 240 million adults.<i>US Census Bureau, 2014</i></small></div>
+      <div><b class="red">&lt;1%</b><span>of all US homes are wheelchair accessible.</span><small>From the 2011 American Housing Survey.<i>HUD, 2015</i></small></div>
       <div><b>&lt;50%</b><span>of wheelchair users can turn all the way round in the space the rules require.</span><small>495 wheelchair users measured.<i>Steinfeld et al., for the US Access Board, 2010</i></small></div>
     </div></section>
     <h3 id="apartments">Apartments we checked</h3>
@@ -470,7 +492,7 @@
   <header>
     <a class="homelink" href="./"><svg viewBox="0 0 8 12" aria-hidden="true"><path d="M6.5 1L1.5 6l5 5"/></svg>All apartments</a>
     <button type="button" id="side-hide" title="Hide the panel ( [ )" aria-label="Hide the panel"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M9 4v16M15 10l-2 2 2 2"/></svg></button>
-    <h1>Inch <span>&amp;</span> Ease</h1>
+    <h1><a class="brandlink" href="./" target="_top" title="Home">Inch <span>&amp;</span> Ease</a></h1>
     <select id="pick" aria-label="Apartment"></select>
     <div class="score" id="score">Loading…</div>
     <div class="tabs" role="tablist"><button role="tab" id="t-issues" aria-selected="true">Issues</button><button role="tab" id="t-plan" aria-selected="false">Plan</button><button role="tab" id="t-ask" aria-selected="false">Ask Claude</button></div>
@@ -494,6 +516,7 @@
     <div class="looks" role="group" aria-label="Look"><button type="button" data-look="standard">Daylight</button><button type="button" data-look="night">Night</button><button type="button" data-look="contrast">High contrast</button></div>
     <div style="margin-top:8px"><div class="looks" role="group" aria-label="Text size"><button type="button" data-text-size="standard">Standard</button><button type="button" data-text-size="large">Large</button><button type="button" data-text-size="larger">Larger</button></div></div>
     <label class="sub" style="display:flex;gap:8px;align-items:center;margin-top:8px">Quality <select id="quality" aria-label="Quality" style="margin:0;flex:1"><option value="standard">Standard</option><option value="high">High (sharp panoramas)</option><option value="max">Max (sharpest 3D, slower)</option></select></label>
+    <button type="button" id="chair-open" style="margin-top:8px;width:100%;text-align:left">Your wheelchair</button>
     </details>
     <div id="status"></div>
   </footer>
@@ -531,13 +554,27 @@
   </div>
 </main>
 <div id="card" role="dialog" aria-label="Issue details"></div>
+<dialog id="chair" aria-labelledby="chair-h"><form method="dialog">
+  <div><span class="tag">Before the scan</span><h3 id="chair-h">Your wheelchair</h3>
+    <p>Every door and room in the scan is measured against these two numbers. Leave them as they are for a standard manual chair.</p>
+    <label for="chair-w"><span>Width<small>across the widest point, hands on the rims</small></span><span><input id="chair-w" type="number" min="20" max="40" step="0.1" required> in</span></label>
+    <label for="chair-t"><span>Room to turn<small>a full circle</small></span><span><input id="chair-t" type="number" min="48" max="96" step="1" required> in</span></label>
+    <button class="go" id="chair-go" value="save">Start the scan</button></div>
+  <div><h4>How to measure it (to scale)</h4><div id="chair-svg"></div>
+    <ol><li>Sit in the chair with your hands on the rims.</li><li>Have someone hold a tape across the widest point, knuckle to knuckle: that is the width.</li><li>In an open room, turn a full circle and measure across the floor you used: that is the room to turn.</li></ol></div>
+  <p class="src">Standard chair: 30.8" wide (95th-percentile manual chair, Access Board study) with a 60" turning circle (ADA 304.3). Saved in this browser only.</p>
+  <button class="x" value="cancel" formnovalidate aria-label="Close">×</button>
+</form></dialog>
 
 <script type="module">
 import { planAll, hasPricedFix } from './fixes.js';
-import { evaluate, describe, ordered, groupOf, GROUPS, summary, CHECK, ftin, setValue } from './checks.js';
+import { evaluate, describe, ordered, groupOf, GROUPS, summary, CHECK, ftin, setValue, setChair, CHAIR0 } from './checks.js';
 // Same limits as the 3D model page: 32" clear door (opening ≥ 82.3 cm passes, ≤ 80.3 cm fails), ½" step, 5' (152.5 cm) turning circle.
-const TURN = 1.525;
-const IN = 0.0254, CHAIR = 30.8, CLEAR_LOSS = 1.75; // 95th-pct manual chair occupied width (Access Board); opening → clear width loss (HUD: 1.5–2")
+// The person's own chair, asked before the scan and saved in this browser. setChair moves the door and turning limits to fit it.
+let savedChair = null; try { savedChair = JSON.parse(localStorage.getItem('ie-chair')); } catch {}
+const MY = setChair(savedChair), OWN = MY.w !== CHAIR0.w || MY.turn !== CHAIR0.turn, NEED = +(32 + MY.w - CHAIR0.w).toFixed(1); // NEED: clear door width for this chair (32" for the reference chair)
+const TURN = 1.525 + (MY.turn - CHAIR0.turn) * 0.0254;
+const IN = 0.0254, CHAIR = MY.w, CLEAR_LOSS = 1.75; // 95th-pct manual chair occupied width (Access Board); opening → clear width loss (HUD: 1.5–2")
 const ft = m => { const i = Math.round(m / 0.0254 * 2) / 2; if (i < 12) return `${i.toString().replace('.5', '½')}"`; const r = Math.round(i); return `${Math.floor(r / 12)}' ${r % 12}"`; };
 const $ = id => document.getElementById(id);
 const status = t => { $('status').textContent = t; console.log('[tour]', t); };
@@ -685,6 +722,10 @@ async function connect(sid) {
   for (const [k, val] of Object.entries({ m: sid, 'application-key': window.MP_KEY, 'asset-base': 'private/mp', play: '1', qs: '1', brand: '0', title: '0', search: '0', vr: '0', help: '0', ...Q })) v.setAttribute(k, val);
   v.style.cssText = 'display:block;width:100%;height:100%';
   document.querySelector('main').prepend(v); // keep the floating controls that live in <main>
+  // Matterport's own prompts ("Ctrl + click or right-click and drag to rotate", "Double click to explore inside the Space") sat over the voice bar
+  // in every view from above (seen in the Nov 14 takes); help=0 doesn't cover them. The dock and the voice explain the views here.
+  { const quiet = () => { const r = v.shadowRoot; if (!r) return false; const st = document.createElement('style'); st.textContent = '[class*="peekaboo"]{display:none!important}'; r.appendChild(st); return true; };
+    if (!quiet()) { const iv = setInterval(() => { if (quiet()) clearInterval(iv); }, 300); setTimeout(() => clearInterval(iv), 30000); } }
   // A tour Matterport can't start (one CoStar model answers with an internal error and throws) never resolves. Give up only when the
   // viewer has thrown and still hasn't started 20 s after loading began; a merely slow load (bad Wi-Fi, a background tab) keeps waiting.
   const t0 = performance.now(); let thrown = null; const caught = e => { thrown ||= String(e.message || e.reason?.message || e.reason || 'error'); };
@@ -1067,12 +1108,12 @@ function showCard(i) {
     const clear = inch(i.w) - CLEAR_LOSS;
     const bad = i.s !== 'pass';
     tag = { fail: 'Door too narrow', verify: 'Check with a tape', pass: 'Door wide enough', skip: 'Closet door' }[i.s];
-    nums = [['This doorway', `${inch(i.w).toFixed(1)}"`, bad], ['Clear when open', `~${clear.toFixed(0)}"`, bad], ['Needed clear', '32"', false]];
+    nums = [['This doorway', `${inch(i.w).toFixed(1)}"`, bad], ['Clear when open', `~${clear.toFixed(0)}"`, bad], ['Needed clear', `${NEED}"`, false]];
     if (i.cut) { // the scan's outline stops at a wall corner: its width is a lower bound, so no verdict and no drawing of a doorway it may not have
-      nums = [['The scan reads', `${inch(i.w).toFixed(1)}" or more`, true], ['Needed clear', '32"', false]];
-      why = `The scan's floor plan ends this doorway at a wall corner, so the real doorway may well be wider than ${inch(i.w).toFixed(1)}" (a front door read as 22" was really about 36"). Measure the clear opening with the door open: <b>32"</b> or more fits a manual wheelchair.`;
-    } else why = `A manual wheelchair is up to <b>${CHAIR}"</b> wide with hands on the wheels. This opening is ${inch(i.w).toFixed(1)}"; an open door takes about 1½–2", leaving about <b>${clear.toFixed(0)}"</b>. ` +
-      (i.s === 'fail' ? 'The chair doesn\'t fit through.' : i.s === 'verify' ? 'An opening between 32" and 34" may leave just under 32" clear: measure it with a tape.' : i.s === 'skip' ? 'It only leads to a closet, so it isn\'t scored.' : clear >= CHAIR ? 'A chair fits through.' : 'It meets the 32" reference, but the widest chairs will be tight.');
+      nums = [['The scan reads', `${inch(i.w).toFixed(1)}" or more`, true], ['Needed clear', `${NEED}"`, false]];
+      why = `The scan's floor plan ends this doorway at a wall corner, so the real doorway may well be wider than ${inch(i.w).toFixed(1)}" (a front door read as 22" was really about 36"). Measure the clear opening with the door open: <b>${NEED}"</b> or more fits ${OWN ? 'your' : 'a manual'} wheelchair.`;
+    } else why = `${OWN ? 'Your wheelchair is' : 'A manual wheelchair is up to'} <b>${CHAIR}"</b> wide with hands on the wheels. This opening is ${inch(i.w).toFixed(1)}"; an open door takes about 1½–2", leaving about <b>${clear.toFixed(0)}"</b>. ` +
+      (i.s === 'fail' ? 'The chair doesn\'t fit through.' : i.s === 'verify' ? `An opening between ${NEED}" and ${+(NEED + 2).toFixed(1)}" may leave just under ${NEED}" clear: measure it with a tape.` : i.s === 'skip' ? 'It only leads to a closet, so it isn\'t scored.' : clear >= CHAIR ? 'A chair fits through.' : `It meets the ${NEED}" reference, but the widest chairs will be tight.`);
     svg = i.cut ? '' : doorSvg(clear, inch(i.w), i.s); src = 'ADA 404.2.3 (32" clear), HUD Fair Housing Design Manual, Access Board anthropometry study';
   } else if (i.kind === 'step') {
     tag = i.s === 'pass' ? 'Level threshold' : 'Step at the door';
@@ -1082,11 +1123,11 @@ function showCard(i) {
   } else if (i.kind === 'turn' || i.kind === 'hall') {
     const across = i.value == null ? null : inch(i.value); i.across_ft = ftin(i.value);
     tag = i.s === 'pass' ? 'Room to turn' : 'No room to turn';
-    nums = [['Room across', i.across_ft, i.s !== 'pass'], ['Turning circle', '5\' 0"', false]];
-    why = i.s === 'pass' ? `The room is ${i.across_ft} across, so a 5' circle fits on paper. Furniture isn't subtracted, so check the open floor.` : `A wheelchair needs a 5' circle to turn around. This room is narrower than that, so a turn means backing in and out. Even in a full 5' circle, fewer than half of wheelchair users complete a 360° turn.`;
+    nums = [['Room across', i.across_ft, i.s !== 'pass'], ['Turning circle', ft(TURN), false]];
+    why = i.s === 'pass' ? `The room is ${i.across_ft} across, so a ${ft(TURN)} circle fits on paper. Furniture isn't subtracted, so check the open floor.` : `${OWN ? 'Your wheelchair' : 'A wheelchair'} needs a ${ft(TURN)} circle to turn around. This room is narrower than that, so a turn means backing in and out. Even in a full 5' circle, fewer than half of wheelchair users complete a 360° turn.`;
     svg = turnSvg(across ?? 58); src = 'ADA 304.3 (60" circle), Access Board turning study';
-    if (i.s === 'none') { tag = 'Needs measuring'; nums = [['Room across', '—', false], ['Turning circle', '5\' 0"', false]]; why = 'The scan has no full size for this room, so it needs measuring. Measure its narrower side with a tape: a wheelchair needs 5\' 0" across to turn around.'; svg = ''; }
-    if (i.kind === 'hall') { tag = { pass: 'Hallway wide enough', fail: 'Hallway too narrow', verify: 'Check with a tape', none: 'Needs measuring' }[i.s]; nums = [['Hallway', i.across_ft, i.s !== 'pass'], ['Needed', '3\' 2"', false]]; why = 'A wheelchair needs 36" to roll down a hallway and more to turn into a door off it. This is the room box, so furniture isn\'t subtracted.'; svg = ''; src = refs(CHECK[11].anchor); }
+    if (i.s === 'none') { tag = 'Needs measuring'; nums = [['Room across', '—', false], ['Turning circle', ft(TURN), false]]; why = `The scan has no full size for this room, so it needs measuring. Measure its narrower side with a tape: a wheelchair needs ${ft(TURN)} across to turn around.`; svg = ''; }
+    if (i.kind === 'hall') { tag = { pass: 'Hallway wide enough', fail: 'Hallway too narrow', verify: 'Check with a tape', none: 'Needs measuring' }[i.s]; nums = [['Hallway', i.across_ft, i.s !== 'pass'], ['Needed', i.need.replace(' wide', ''), false]]; why = `${OWN ? 'Your wheelchair' : 'A wheelchair'} needs ${+(36 + MY.w - CHAIR0.w).toFixed(1)}" to roll down a hallway and more to turn into a door off it. This is the room box, so furniture isn't subtracted.`; svg = ''; src = refs(CHECK[11].anchor); }
   } else {
     const c = CHECK[i.n]; tag = { pass: 'Passes', fail: 'Fails', verify: 'Check with a tape', none: 'Needs measuring', skip: 'Not scored' }[i.s];
     nums = [['Measured', i.measured, i.s === 'fail'], ['Needed', i.need, false]]; why = `${c.rule}. ${c.who}.`; svg = ''; src = refs(c.anchor);
@@ -1116,12 +1157,12 @@ function showCard(i) {
 const DA = { ink: '#141414', mut: '#5C5A55', fail: '#D7261E', tape: '#7A5B00', ok: '#1E7B3A', tint: '#FFF6CC', fill: '#F3F1EA' }, DT = 'text-anchor="middle" font-size="12" font-weight="600"';
 const tick = (x, y) => `M${x - 4} ${y + 4}l8-8`;
 // The chair in inches (30.8 over the handrims, front at the top), its corner at x, y, drawn at s px per inch.
-function chairSvg(x, y, s, wheel = DA.ink) {
+function chairSvg(x, y, s, wheel = DA.ink, w = CHAIR) {
   const t = 0.9 / s, side = m => `<g${m}><path d="M.45 16V34" fill="none" stroke="${wheel}"/><path d="M.45 19H1.2M.45 25H1.2M.45 31H1.2" fill="none" stroke="${wheel}" stroke-width="${t}"/>
     <rect x="1.2" y="13" width="1.7" height="24" rx=".85" fill="${wheel}" stroke="${wheel}"/><path d="M2.9 25H5" fill="none"/><rect x="4.7" y="14.5" width="1.3" height="13" rx=".65"/>
     <path d="M7.6 13.4C7.4 9.5 10.6 8.6 11.2 4.4M7.4 12.2L5.7 9.6" fill="none"/><rect x="4.95" y="7.2" width="1.5" height="4.8" rx=".75" fill="${DA.ink}"/>
     <rect x="8.5" y="0" width="6.2" height="4.4" rx=".9"/><path d="M9.6 1.5H13.6M9.6 2.9H13.6" fill="none" stroke-width="${t}"/><path d="M7.6 31.6V35.4" fill="none" stroke-width="${4 / s}"/></g>`;
-  return `<g transform="translate(${x} ${y}) scale(${s * CHAIR / 30.8} ${s})" stroke="${DA.ink}" stroke-width="${1.5 / s}" fill="#fff" stroke-linejoin="round" stroke-linecap="round">${side('')}${side(' transform="translate(30.8 0) scale(-1 1)"')}
+  return `<g transform="translate(${x} ${y}) scale(${s * w / 30.8} ${s})" stroke="${DA.ink}" stroke-width="${1.5 / s}" fill="#fff" stroke-linejoin="round" stroke-linecap="round">${side('')}${side(' transform="translate(30.8 0) scale(-1 1)"')}
     <rect x="6.4" y="13" width="18" height="17.4" rx="2"/><rect x="7.8" y="14.4" width="15.2" height="13.6" rx="1.4" stroke="${DA.mut}" stroke-width="${t}"/><rect x="6" y="29.4" width="18.8" height="2.4" rx="1.2" fill="${DA.ink}"/></g>`;
 }
 // Top view: the walls, the open door, the clear gap it leaves, and the chair. Up to 5 px per inch.
@@ -1151,15 +1192,15 @@ function stepSvg(h) {
 }
 // Top view, 2.6 px per inch: the room's narrow side, the 5' turning circle and the chair. What the circle needs beyond the walls is tinted red.
 function turnSvg(across) {
-  const k = 2.6, cx = 170, cy = 104, r = 30 * k, half = Math.min(across * k / 2, 150), c = across < 60 ? DA.fail : DA.ink; // rooms wider than the drawing are shown at its edge
+  const k = Math.min(2.6, 78 / (MY.turn / 2)), cx = 170, cy = 104, r = MY.turn / 2 * k, half = Math.min(across * k / 2, 150), c = across < MY.turn ? DA.fail : DA.ink; // rooms wider than the drawing are shown at its edge
   return `<svg viewBox="0 0 340 236" role="img" aria-label="Five foot turning circle in a room ${across.toFixed(0)} inches across">
     <defs><clipPath id="out"><rect x="0" y="0" width="${Math.max(0, cx - half)}" height="236"/><rect x="${cx + half}" y="0" width="${340 - cx - half}" height="236"/></clipPath></defs>
     <circle cx="${cx}" cy="${cy}" r="${r}" fill="${DA.tint}" stroke="${DA.tape}" stroke-width="1.5" stroke-dasharray="5 4"/><circle cx="${cx}" cy="${cy}" r="${r}" fill="${DA.fail}" opacity=".3" clip-path="url(#out)"/>
     <rect x="${cx - half - 8}" y="14" width="8" height="180" fill="${DA.ink}"/><rect x="${cx + half}" y="14" width="8" height="180" fill="${DA.ink}"/>
-    <text x="${cx}" y="${cy - r + 18}" text-anchor="middle" font-size="11" font-weight="600" fill="${DA.tape}">5' turning circle</text>
+    <text x="${cx}" y="${cy - r + 18}" text-anchor="middle" font-size="11" font-weight="600" fill="${DA.tape}">${ft(TURN)} turning circle</text>
     ${chairSvg(cx - CHAIR * k / 2, cy - 19 * k, k)}
     <path d="M${cx - half} 198V216M${cx + half} 198V216" stroke="${DA.mut}"/><path d="M${cx - half} 208H${cx + half}${tick(cx - half, 208)}${tick(cx + half, 208)}" stroke="${c}"/>
-    <text x="${cx}" y="230" ${DT} fill="${c}">room is ${ft(across * IN)} across, circle needs 5' 0"</text></svg>`;
+    <text x="${cx}" y="230" ${DT} fill="${c}">room is ${ft(across * IN)} across, circle needs ${ft(TURN)}</text></svg>`;
 }
 
 let checks = [], convo = [], issueList = [], pose = null, products = [], plan = null, ev = null, choices = {}, budget = null;
@@ -1185,6 +1226,33 @@ function renderPlan() {
     <h5>Still open, and why</h5>${open.length ? open.map(r => `<div class="pr"><div><b>${esc(r.item.title)}</b><small>${esc(r.item.detail)}</small><small>${why(r)}</small><small>${src(r.item)}</small></div><span class="st s-${r.item.s}">${r.item.critical ? 'critical' : r.item.s === 'verify' ? 'tape' : 'fails'}</span></div>`).join('') : '<p class="sub">Nothing open.</p>'}
     <p class="foot">${sum.pass} of ${sum.measured} measured checks pass. ${sum.none} not measured yet. Numbers come from the Matterport scan or from you; confirm with a tape before you sign. Prices from the stores listed, collected Nov 2026.</p>`;
 }
+// "Your wheelchair": top view at the width typed, inside the turning circle typed, with the two lines a tape gives. Both are to scale.
+function chairGuideSvg(w, t) {
+  const k = Math.min(3.4, 132 / (t / 2)), cx = 170, cy = 150, r = t / 2 * k, x0 = cx - w * k / 2, yw = cy + 20 * k;
+  return `<svg viewBox="0 0 340 318" role="img" aria-label="Wheelchair ${w} inches wide inside a ${t} inch turning circle">
+    <circle cx="${cx}" cy="${cy}" r="${r}" fill="${DA.tint}" stroke="${DA.tape}" stroke-width="1.5" stroke-dasharray="5 4"/>
+    ${chairSvg(x0, cy - 19 * k, k, DA.ink, w)}
+    <path d="M${x0} ${yw}H${x0 + w * k}${tick(x0, yw)}${tick(x0 + w * k, yw)}" stroke="${DA.ink}"/><text x="${cx}" y="${yw + 16}" ${DT}>width ${w}"</text>
+    <path d="M${cx - r} ${cy}V306M${cx + r} ${cy}V306" stroke="${DA.tape}" stroke-dasharray="2 3" opacity=".6"/><path d="M${cx - r} 300H${cx + r}${tick(cx - r, 300)}${tick(cx + r, 300)}" stroke="${DA.tape}"/>
+    <text x="${cx}" y="314" ${DT} fill="${DA.tape}">room to turn ${t}"</text></svg>`;
+}
+// Asked before the scan (home: "Try the demo") and from Settings in a tour. Saving reloads, so every check is judged again for this chair.
+function askChair(then) {
+  const dlg = $('chair'), inRange = (el, d) => { const v = +el.value; return v >= +el.min && v <= +el.max ? v : d; };
+  const draw = () => $('chair-svg').innerHTML = chairGuideSvg(inRange($('chair-w'), MY.w), inRange($('chair-t'), MY.turn));
+  $('chair-w').value = MY.w; $('chair-t').value = MY.turn; $('chair-w').oninput = $('chair-t').oninput = draw; draw();
+  $('chair-go').textContent = then ? 'Start the scan' : 'Save and check again';
+  dlg.onclose = () => {
+    if (dlg.returnValue !== 'save') return;
+    try { localStorage.setItem('ie-chair', JSON.stringify({ w: +$('chair-w').value, turn: +$('chair-t').value })); } catch {}
+    then ? location.href = then : location.reload();
+  };
+  dlg.returnValue = ''; dlg.showModal();
+}
+for (const id of ['demoLink', 'navDemo']) $(id)?.addEventListener('click', e => { e.preventDefault(); askChair(e.currentTarget.href); });
+$('chair-open').onclick = () => askChair();
+$('chair-open').textContent = `Your wheelchair: ${MY.w}" wide, ${MY.turn}" to turn`;
+
 // The panel asks "Can a wheelchair user live here?", so the first thing it shows is the answer, then the reason.
 function verdictOf(sum) { // [tone, answer, reason]: the panel and the voice give the same answer
   const crit = issueList.find(i => i.critical), fail = issueList.find(i => i.s === 'fail');
@@ -1340,6 +1408,10 @@ async function load(sid) {
     f.src = `https://my.matterport.com/show/?m=${sid}&play=1&qs=1&brand=0&help=0`; f.allow = 'fullscreen; xr-spatial-tracking'; f.title = '3D tour';
     f.style.cssText = 'display:block;width:100%;height:100%;border:0';
     document.querySelector('main').prepend(f); $('skel')?.remove(); window.__ie = { ready: true, pins: 0 };
+    const note = document.createElement('div'); note.className = 'float'; note.setAttribute('role', 'note');
+    note.style.cssText = 'left:12px;right:12px;bottom:12px;padding:10px 14px;background:var(--glassStrong);box-shadow:0 0 0 .5px var(--ring);font-size:13px;border-radius:12px';
+    note.innerHTML = '<b>Public demo:</b> Matterport doesn\'t allow its 3D SDK on public sites, so the problem pointers can\'t be shown inside the tour here. Every problem is still in the list on the left; the pointers appear when the app runs locally.';
+    document.querySelector('main').appendChild(note);
     $('dock').hidden = $('legend').hidden = true; // views, walkthrough and pin colours need the 3D connection
     return status('Tour ready. The list has every problem; pins in 3D need the full app.');
   }
@@ -1395,7 +1467,7 @@ const apartmentFacts = () => {
   // What the person can tell us by voice: a question with its answer keys, or a height or distance to read off a tape.
   const askOf = c => { const d = CHECK[c.n]; return d?.how === 'ask' ? { question: d.question, answers: Object.fromEntries(d.answers.map(a => [a[0], a[1]])) } : d?.how === 'measure' ? { tape_inches: d.measure } : {}; };
   const fixOf = c => { const r = plan?.rows.find(r => r.item.id === c.id); return r ? { chosen: r.chosen && `${r.chosen.label} (${money(r.chosen)}, ${VERDICT[r.chosen.verdict]})`, options: r.options.map(o => `${o.key}: ${o.label}, ${money(o)}, ${VERDICT[o.verdict]}`) } : undefined; };
-  return { name: model.name, other_apartments: list.filter(t => t.id !== sid).map(({ id, name, city }) => ({ id, name, city })), purchase_total_usd: plan?.purchases, not_fixable_by_buying: plan?.noPurchaseFix.length, budget_usd: budget,
+  return { name: model.name, ...(OWN ? { chair: { width_in: MY.w, turning_circle_in: MY.turn, clear_door_needed_in: NEED } } : {}), other_apartments: list.filter(t => t.id !== sid).map(({ id, name, city }) => ({ id, name, city })), purchase_total_usd: plan?.purchases, not_fixable_by_buying: plan?.noPurchaseFix.length, budget_usd: budget,
     critical_first_ids: issueList.filter(i => i.critical).map(i => i.id),
     rooms: ev.rooms.filter(r => !/void/i.test(r.name)).map(r => ({ name: r.name, ...(r.dims.width && r.dims.depth ? { size: `${ftin(r.dims.width)} by ${ftin(r.dims.depth)}` } : {}), ...(r.dims.areaFloor ? { floor_sq_ft: Math.round(r.dims.areaFloor * 10.764) } : {}) })),
     verdict: (([, answer, because]) => ({ answer, because }))(verdictOf(summary(checks))), // what the panel shows under "Can a wheelchair user live here?"
@@ -1416,6 +1488,14 @@ const TOOLS = {
   async set_budget({ usd }) {
     budget = usd == null ? null : Math.max(0, Number(usd)); replan(); // the chat stays open; the money line shows the budget
     return `Budget ${budget == null ? 'cleared' : '$' + budget}. Purchases $${plan.purchases.toFixed(2)}, ${plan.closed} of ${plan.rows.length} problems closed; still open: ${plan.unsolved.map(i => i.title).join('; ') || 'none'}.`;
+  },
+  async fly_to_room({ room }) { // starts the flight and answers at once, so the guide speaks while the drone is on its way
+    if (!sdk) return { error: 'The drone needs the full app; here the tour plays in Matterport\'s own player.' };
+    if (houseLike()) return { error: 'In a house scan the roof hides the rooms from above: show this room from inside instead.' };
+    const r = roomNamed(room);
+    if (!r) return { error: `No room called ${room}. Rooms: ${ev.rooms.filter(r => r.at && !/void/i.test(r.name)).map(r => r.name).join(', ')}` };
+    landed().then(() => flyToRoom(r));
+    return `The drone is flying to ${r.name} and will hover above it.`;
   },
   async show_issue({ id }) {
     const c = checks.find(c => c.id === id);
@@ -1504,7 +1584,7 @@ const EMBED = new URLSearchParams(location.search).get('embed') === '1' && paren
 const say = (cls, text) => { const el = document.createElement('div'); el.className = cls; el.textContent = text; $('chat').appendChild(el); el.scrollIntoView({ block: 'nearest' }); return el; };
 // What each tool shows on the voice bar and in the chat while it runs.
 const STEP = {
-  show_issue: i => `Showing: ${checks.find(c => c.id === i.id)?.title || i.id}`, set_view: i => `View: ${i.mode}`, walkthrough: i => `Walkthrough: ${i.action}`,
+  show_issue: i => `Showing: ${checks.find(c => c.id === i.id)?.title || i.id}`, set_view: i => `View: ${i.mode}`, fly_to_room: i => `Flying the drone to: ${i.room}`, walkthrough: i => `Walkthrough: ${i.action}`,
   select_fix: () => 'Choosing the fix', set_budget: i => i.usd == null ? 'Clearing the budget' : `Planning for $${i.usd}`,
   show_panel: i => i.tab === 'hidden' ? 'Hiding the panel' : `Panel: ${i.tab}`, set_look: i => `Look: ${i.look}`, set_text: i => `Text size: ${i.size}`,
   open_apartment: i => `Opening: ${list.find(t => t.id === i.id)?.name || (b => b && tourName(b))(browsed.find(m => m.sid === i.id)) || i.id}`, close: () => 'Closing the card',
@@ -1526,7 +1606,9 @@ let asking = null, navTo = null; // the running question (a new one, or "stop", 
 let facts = null, sentFacts = ''; // the apartment data Claude got at the start of the chat, and the newest copy it has seen
 const person = () => { try { return sessionStorage.getItem('ie-person') || ''; } catch { return ''; } };
 const stopAsking = () => { asking?.abort(); navTo = null; }; // a stopped request must not change the page later
-const openApartment = id => { if (id.startsWith('page:')) location.href = { 'page:home': './', 'page:streets': 'street.html' }[id] || 'region.html'; else location.search = `?m=${id}&q=${$('quality').value}`; };
+const openApartment = id => { if (id.startsWith('page:region:')) { try { sessionStorage.setItem('ie-hello', '1'); } catch {} location.href = `region.html?r=${id.slice(12)}${new URLSearchParams(location.search).has('mute') ? '&mute=1' : ''}`; } // said by name on the start page: the flyover greets them
+  else { const mute = new URLSearchParams(location.search).has('mute'); // a muted test stays muted on the next page
+    if (id.startsWith('page:')) location.href = ({ 'page:home': './', 'page:streets': 'street.html' }[id] || 'region.html') + (mute ? '?mute=1' : ''); else location.search = `?m=${id}&q=${$('quality').value}${mute ? '&mute=1' : ''}`; } };
 // One question, typed or spoken. on('step', label) for each thing the tour does; on('say', text) as soon as the answer is known.
 // Returns { text, error, open }: open = the apartment to load once the answer has been read.
 async function ask(text, { on = () => {}, note } = {}) {
@@ -1679,6 +1761,25 @@ async function fly() {
   } finally { droneLoop = false; drone = null; document.body.classList.remove('flying'); }
 }
 $('d-reset').onclick = () => droneStart();
+// The guide's own flight (someone who is talking can't hold keys): the drone view opens, then the camera glides in one eased move to
+// a spot above the room, looking down into it at 55°. Instant steps every frame, like the key flight, so there is no jerk.
+// shortcut: one floor assumed (height from the ground floor); in a house, add the room's floor level before using this upstairs.
+let flyGen = 0; // a newer flight (or the key flight) takes over from one still under way
+const roomNamed = name => { const q = String(name || '').toLowerCase().trim(), ok = ev.rooms.filter(r => r.at && !/void/i.test(r.name)); if (!q) return;
+  return ok.find(r => r.name.toLowerCase() === q) || ok.find(r => r.name.toLowerCase().includes(q)) || ok.find(r => q.split(/[^a-z]+/).some(w => w.length > 3 && w !== 'room' && r.name.toLowerCase().includes(w))); };
+async function flyToRoom(r) {
+  if (mode !== 'drone') { walkOff = true; setMode('drone'); closeCard(); await droneStart(); }
+  if (!pose) return;
+  const span = Math.max(r.dims?.width || 3, r.dims?.depth || 3), d = Math.min(9, Math.max(5, span * 1.5)), a = 55 * Math.PI / 180, c = W(r.at);
+  const to = { x: c.x, y: d * Math.sin(a), z: c.z + d * Math.cos(a), pitch: -55, yaw: 0 }, from = { ...pose.position, pitch: pose.rotation.x, yaw: pose.rotation.y - 360 * Math.round(pose.rotation.y / 360) }, g = ++flyGen; // yaw wrapped, so it never spins the long way round
+  flying = true; document.body.classList.add('flying');
+  for (let k = 0, t0 = performance.now(); k < 1 && flying && mode === 'drone' && g === flyGen && !droneLoop;) {
+    k = Math.min(1, (performance.now() - t0) / 4200); const e = k * k * (3 - 2 * k), m = (p, q) => p + (q - p) * e;
+    await sdk.Mode.moveTo(sdk.Mode.Mode.DOLLHOUSE, { position: { x: m(from.x, to.x), y: m(from.y, to.y), z: m(from.z, to.z) }, rotation: { x: m(from.pitch, to.pitch), y: m(from.yaw, to.yaw) }, transition: sdk.Mode.TransitionType.INSTANT }).catch(() => {});
+    await new Promise(requestAnimationFrame);
+  }
+  if (g === flyGen) { flying = false; drone = null; if (!droneLoop) document.body.classList.remove('flying'); }
+}
 
 // Automatic flyover: one slow circle around the apartment, looking at its centre, then back to the overview.
 function bounds() {
@@ -1857,15 +1958,16 @@ async function showStop() {
   const text = guideLine = lead + line.text;
   const talk = guide(text); await flying; await talk; // it talks while the camera flies
   if (stops[at] !== c || mode !== 'walk' || !playing) return; // moved on, left, or paused because the person spoke
-  if (line.ask) { stopAuto(); resumeAfter = true; return; } // "Shall I add it?": wait for the answer
+  if (line.ask) { stopAuto(); resumeAfter = true; if (EMBED) parent.__region?.asked?.(); return; } // "Shall I add it?": wait for the answer (the flyover's guided run goes on by itself if none comes)
   autoTimer = setTimeout(advance, 2500); // a moment to look before the next stop (slower walk, user Nov 14)
 }
 function advance() {
   if (at < stops.length - 1) { at++; return showStop(); }
   stopAuto();
-  if (!guide || !plan) return;
+  const done = () => { if (EMBED) parent.__region?.walkEnd?.(); }; // the flyover's guided run goes on to the next apartment
+  if (!guide || !plan) return done();
   const [, answer, because] = verdictOf(summary(checks));
-  guide(guideLine = `That's everything. ${answer}: ${because[0].toLowerCase() + because.slice(1)}. Your plan comes to $${plan.purchases.toFixed(2)} and fixes ${plan.closed} of ${plan.rows.length} problems.`);
+  Promise.resolve(guide(guideLine = `That's everything. ${answer}: ${because[0].toLowerCase() + because.slice(1)}. Your plan comes to $${plan.purchases.toFixed(2)} and fixes ${plan.closed} of ${plan.rows.length} problems.`)).then(done);
 }
 function progress(ms) { const b = $('w-prog'); b.style.transition = 'none'; b.style.width = '0'; if (!ms) return; void b.offsetWidth; b.style.transition = `width ${ms}ms linear`; b.style.width = '100%'; }
 function schedule(c) {
@@ -2034,33 +2136,47 @@ window.__tour = { facts: apartmentFacts, convo: () => convo, reset() { convo.len
   state: () => ({ mode, card: cardFor?.id || null, theme: document.documentElement.dataset.theme, tab: document.querySelector('.tabs [aria-selected=true]')?.id || null,
     panel: !document.body.classList.contains('side-off'), budget, choices: { ...choices }, purchases: plan?.purchases ?? null, walk: mode === 'walk' ? { at, playing } : null }) };
 // Voice (voice.js): hold Space and say anything. Optional: without the file the page works as before.
-import('./voice.js').then(v => {
+import('./voice.js').then(async v => {
+  // The start page offers the neighbourhood flyovers by voice: "hi" names them, a name opens one. For 90 s after the greeting a bare
+  // "Houston" or "the first one" means the flyover; otherwise those words stay with the tour list below.
+  const REG = new URLSearchParams(location.search).get('m') ? [] : await fetch('private/region/regions.json').then(r => r.json()).catch(() => []);
+  let greeted = 0;
+  const NTH = ['first|first one|one|number one', 'second|second one|two|number two', 'third|third one|three|number three'];
+  const regionWords = () => { const fresh = Date.now() - greeted < 90000;
+    return REG.map((r, k) => ({ keys: r.say.split('|').filter(s => fresh || !/^(houston|los angeles)$/.test(s)).flatMap(s => [s, `${s} neighbourhood`, `${s} neighborhood`, `${s} demo`, `${s} one`, `one in ${s}`, `in ${s}`]).concat(fresh && NTH[k] ? NTH[k] : []).join('|'),
+      tool: 'open_page', input: { page: 'region:' + r.slug }, say: r.name })); };
+  const STREETS = { keys: 'streets|street|check the streets|check streets|check the street|street check|streets around|street slopes|slopes|sidewalks', tool: 'open_page', input: { page: 'streets' } }; // the street check (street.html), from the start page and from inside a tour
   const title = c => c.kind === 'turn' && c.s === 'pass' ? `${c.room}: room to turn` : c.title;
   // A door or a step is said with the rooms it joins, so "number three" says which door it is.
   const said = c => (c.kind === 'door' || c.kind === 'step') && c.between ? `${c.between.replaceAll(' ↔ ', ' to ').replace(/\bVoid\b/g, 'Outside')}. ${c.title}` : title(c);
   const api = window.__tourApi = { ask, run: runTool, stop: stopAsking, open: openApartment, mode: () => mode, home: !new URLSearchParams(location.search).get('m'), ready: booted, // the bar is there at once; a request waits for the tour
     nav: () => { const n = navTo; navTo = null; return n; },
+    prepare: () => { walkKey = ''; prepareWalk(); }, // the flyover now knows who the apartment is for: write the walk's lines again
     get chatty() { return !!model; }, // inside a tour, a place said by name is described after the camera flies there (voice.js)
     hold: () => { if (mode === 'walk' && (playing || resumeAfter)) { resumeAfter = true; stopAuto(); } }, // the person started talking
     // talked = after an answer to something they said (not after a plain command like "night mode"): that starts the walk if none runs.
     resume: talked => { if (!resumeAfter) return void (talked && autoWalk()); resumeAfter = false; if (mode === 'walk' && cardFor === stops[at]) { playing = true; $('w-play').textContent = 'Pause'; advance(); } },
+    hello: arrived => { greeted = Date.now(); const names = REG.map(r => r.name); // arrived: they came here by voice ("show me another property")
+      return !model ? `${arrived ? 'Back at the start.' : 'Hi, I’m Ethan.'} I can fly you over ${names.length ? `three neighbourhoods and take you inside the apartments there: ${names.slice(0, -1).join(', ')} or ${names.at(-1)}. ${arrived ? 'Or open any apartment on this page. ' : ''}Which one shall we look at?` : 'a neighbourhood and take you inside its apartments. Say neighbourhood to start.'}`
+        : walkOff || mode === 'walk' ? 'Hi, I’m Ethan. Name a room and I’ll take you there, or ask me anything about this place.'
+        : 'Hi, I’m Ethan. Let me walk you through this place. Hold Space any time to stop me, name a room, or ask me anything.'; },
     get help() { return this.home ? 'Ask which apartment is worst, or say open the one in Los Angeles. To browse every CoStar tour, say Houston, Los Angeles, accessible or homes, then more, or open the third one. Say neighbourhood to compare the streets around them, or check the streets for the slopes around any building.'
       : 'Say a room or a door, like the bathroom or the balcony door. Ask anything, like can he get into the bathroom, or fix what you can for two hundred dollars. Say walkthrough, floor plan, night mode, next, or stop.'; },
     places: () => ({ rooms: checks.filter(c => (c.kind === 'turn' || c.kind === 'hall') && c.room).map(c => ({ id: c.id, name: c.room, say: title(c) })),
       doors: checks.filter(c => c.kind === 'door' && c.s !== 'skip').map(c => ({ id: c.id, rooms: (c.between || c.room || '').split(' ↔ '), say: said(c) })),
       issues: issueList.map(c => ({ id: c.id, say: said(c) })),
       // On the start page the browse window's buttons answer at once; "open the third one" and names go to Claude, which sees the list.
-      also: model ? walkWords() : [['all tours|all costar tours|every tour|all of them|show all tours', { group: 'all' }, 'All tours'],
+      also: model ? walkWords().concat(STREETS) : regionWords().concat([['all tours|all costar tours|every tour|all of them|show all tours', { group: 'all' }, 'All tours'],
         ['accessible|accessible ones|accessible tours|accessible units|labelled accessible|labeled accessible|ada|ada tours|ada units|handicap|handicap tours', { group: 'accessible' }, 'Tours labelled accessible'],
         ['homes|houses|homes only|residential|residential tours', { group: 'homes' }, 'Homes'],
         ['houston|houston tours|tours in houston|houston ones', { group: 'houston' }, 'Houston tours'],
         ['los angeles|la|l a|la tours|los angeles tours|tours in los angeles|los angeles ones', { group: 'los_angeles' }, 'Los Angeles tours'],
         ['more|more tours|show more|load more|next page|more please|see more', { more: true }, 'More tours']].map(([keys, input, say]) => ({ keys, tool: 'browse', input, say }))
-        .concat({ keys: 'streets|street|check the streets|check streets|check the street|street check|streets around|street slopes|slopes|sidewalks', tool: 'open_page', input: { page: 'streets' } }) }) }; // the street check (street.html)
+        .concat(STREETS)) }) }; // the street check (street.html)
   // Inside the neighbourhood flyover (embed=1) there is one voice bar, the flyover's: it drives this tour through __tourApi.
   // Space and Esc pressed in here are passed up to it.
   if (EMBED) {
-    for (const type of ['keydown', 'keyup']) addEventListener(type, e => { if ((e.code !== 'Space' && e.key !== 'Escape') || e.target.closest?.('input,textarea,select,[contenteditable]') || mode === 'drone') return;
+    for (const type of ['keydown', 'keyup']) addEventListener(type, e => { if ((e.code !== 'Space' && e.key !== 'Escape') || e.target.closest?.('input,textarea,select,[contenteditable]') || mode === 'drone' || $('chair').open) return;
       e.preventDefault(); parent.dispatchEvent(new KeyboardEvent(type, { code: e.code, key: e.key, repeat: e.repeat, bubbles: true, cancelable: true })); }, true);
     guide = t => parent.__region?.speak?.(t) ?? Promise.resolve(); lineOf = v.stopLine; keepsNumbers = v.keepsNumbers; // the walk talks through the flyover's voice
     booted.then(prepareWalk);

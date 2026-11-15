@@ -4,7 +4,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
-import { judge, LIMITS, evaluate, setValue, statusOf, ordered, groupOf, summary, REGISTRY, roomPolygon } from './checks.js';
+import { setChair, CHAIR0, judge, LIMITS, evaluate, setValue, statusOf, ordered, groupOf, summary, REGISTRY, roomPolygon } from './checks.js';
 
 // Made-up flat: Kitchen (entry) → Hallway → Bathroom and Bedroom. Plan in metres.
 const P = { A: [0, 0], B: [5, 0], C: [5, 6], D: [0, 6], E: [5.9, 0], F: [5.9, 2.5], G: [5.9, 6], H: [7.3, 0], I: [7.3, 2.5], J: [9.5, 2.5], K: [9.5, 6] };
@@ -25,6 +25,16 @@ test('thresholds: door, step, turning and hallway bands', () => {
   assert.deepEqual([1.52, 1.53, 1.575].map(v => s('turn', v)), ['fail', 'verify', 'pass']);
   assert.deepEqual([0.9, 0.93, 0.965].map(v => s('hall', v)), ['fail', 'verify', 'pass']);
   assert.equal(judge(LIMITS.door, null), 'none'); // never guess
+});
+
+test('your own chair moves the door and turning limits; bad numbers fall back to the reference chair', () => {
+  const s = (k, v) => judge(LIMITS[k], v);
+  assert.deepEqual(setChair({ w: 26.8, turn: 66 }), { w: 26.8, turn: 66 });
+  assert.equal(s('door', 0.77), 'pass'); // a chair 4" narrower: a 30.3" opening is now enough
+  assert.equal(s('turn', 1.6), 'fail');  // a 66" circle does not fit in 1.6 m
+  assert.deepEqual(setChair({ w: 'x', turn: 500 }), CHAIR0);
+  assert.deepEqual([0.81, 0.865].map(v => s('door', v)), ['fail', 'pass']);
+  assert.deepEqual([1.52, 1.575].map(v => s('turn', v)), ['fail', 'pass']);
 });
 
 test('the registry has the 21 checks of the master table, each with a rule, an anchor and a fix ladder', () => {

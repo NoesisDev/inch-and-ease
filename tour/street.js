@@ -250,6 +250,7 @@ const bar = initVoice({
   home: false, // the bar goes into <main>; street.html places it at the bottom
   get ready() { return loaded; },
   mode: () => st.view,
+  hello: arrived => (arrived ? 'This is the street check.' : 'Hi, I’m Ethan.') + ' Tell me how you get around, like a manual wheelchair or a power chair, and I’ll show you which streets here work.',
   help: 'Say manual wheelchair, power chair or cane to change who is checking. Say map or 3D, buildings, uphill 10 or avoid steps. Say Los Angeles or Houston for an example, number one or next for an issue, or a street by name. Or say how you get around, like I push a manual chair and my arms tire on hills.',
   stop() { asking?.abort(); asking = null; },
   places,
