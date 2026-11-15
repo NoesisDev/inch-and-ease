@@ -10,7 +10,7 @@ Why: about 5 million older Americans who need a grab bar, shower seat or raised 
 
 An accessibility room planner built solo at HackPrinceton Fall 2026 (Nov 13–15).
 
-**Live:** [inch-and-ease.vercel.app](https://inch-and-ease.vercel.app), the whole app: start page, apartment tours, neighbourhood flyover and street check. Online, the tours play in Matterport's own player beside the full list of problems (the Matterport SDK key only works on localhost, so the 3D pins, shapes and measuring run in the local app). CoStar allowed a temporary public demo for judging as long as the raw data isn't re-published: the server only serves what the pages need.
+**Live:** [inch-and-ease-app.vercel.app](https://inch-and-ease-app.vercel.app), the whole app: start page, apartment tours, neighbourhood flyover and street check. Online, the tours play in Matterport's own player beside the full list of problems (the Matterport SDK key only works on localhost, so the 3D pins, shapes and measuring run in the local app). CoStar allowed a temporary public demo for judging as long as the raw data isn't re-published: the server only serves what the pages need.
 
 | What | Where | Run | Tests |
 |---|---|---|---|
