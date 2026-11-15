@@ -1,5 +1,5 @@
 {
-  "about": "Pitch and video numbers, ranked. 'say' is wording the sources support. rank 1-5 = the headline set chosen on 12 Nov 2026. Source ids are in sources.json.",
+  "about": "Key claims, ranked. 'say' is wording the sources support. rank 1-5 = the headline set chosen on 12 Nov 2026. Source ids are in sources.json.",
   "claims": [
     {
       "id": "unmet_5m",

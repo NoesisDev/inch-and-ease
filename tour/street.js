@@ -259,7 +259,7 @@ const bar = initVoice({
   async ask(text, { on }) {
     if (!st.area) return { text: '', error: 'Pick a place first: say Los Angeles or Houston, or type a latitude and longitude.', open: null };
     const lim = spokenLimit(text); // "uphill 10": a slider, no Claude needed
-    if (lim) { custom(lim); const t = `Set to ${st.up}% up and ${st.down}% down. ${share(limits())}% of the streets here work both ways.`; on('step', lim.up != null ? `Uphill ${lim.up}%` : `Downhill ${lim.down}%`); const line = await bar.custom(text, t, t); on('say', line); return { text: line, error: '', open: null }; } // Claude says it, in context (user, Nov 14)
+    if (lim) { custom(lim); const t = `Set to ${st.up}% up and ${st.down}% down. ${share(limits())}% of the streets here work both ways.`; on('step', lim.up != null ? `Uphill ${lim.up}%` : `Downhill ${lim.down}%`); const line = await bar.custom(text, t, t); on('say', line); return { text: line, error: '', open: null }; } // Claude says it, in context
     return askClaude(text, on);
   },
 });

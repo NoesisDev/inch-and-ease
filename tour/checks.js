@@ -1,4 +1,4 @@
-// The 21 mobility checks (master table: notes/research/reports/Scan_Checks_and_Fixes.md §2), the thresholds, the room
+// The 21 mobility checks, the thresholds, the room
 // graph with the widest route from the entry, and what counts as critical. Pure functions, no DOM: the page and the tests share them.
 // Wheelchair profile only. Units inside: metres. Statuses: pass · verify (check with a tape) · fail · none (not measured yet) · skip (not scored).
 export const IN = 0.0254;

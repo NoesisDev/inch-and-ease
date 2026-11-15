@@ -12,14 +12,9 @@ ENV = dict(l.strip().split('=', 1) for l in open(_ENV_FILE) if '=' in l and not 
 KEY = ENV.get('ANTHROPIC_API_KEY', '').strip().strip('"') or 'missing'  # no key: the server still starts, Claude calls answer 502
 MP_KEY = ENV.get('MATTERPORT_SDK_KEY', '').strip().strip('"')
 client = anthropic.Anthropic(api_key=KEY, timeout=45, max_retries=1)  # a stuck call must not hold a request thread for 30 min
-# The guide's voice: "Ethan", a public Fish Audio voice (picked by the user Nov 14), on the expressive drama-3 model. /api/speak
+# The guide's voice: "Ethan", a public Fish Audio voice, on the expressive drama-3 model. /api/speak
 # streams one sentence and keeps it in tour/private/tts/, so a line said twice (and the fillers) costs nothing the second time.
-FISH_KEY = ENV.get('FISH_API_KEY', '').strip().strip('"')
-if not FISH_KEY:
-    try:
-        FISH_KEY = open(os.path.expanduser('~/.hackathon-video/fish.key')).read().strip()
-    except OSError:
-        pass  # no key: /api/speak answers 404 and the page uses the browser's own voice
+FISH_KEY = ENV.get('FISH_API_KEY', '').strip().strip('"')  # no key: /api/speak answers 404 and the page uses the browser's own voice
 VOICE_ID = ENV.get('FISH_GUIDE_VOICE', '536d3a5e000945adb7038665781a4aca').strip().strip('"')
 VOICE_MODEL = ENV.get('FISH_GUIDE_MODEL', 'drama-3').strip().strip('"')
 TTS_DIR = os.path.join(HERE, 'private', 'tts')
@@ -29,7 +24,7 @@ _tts_used, _tts_lock = 0, threading.Lock()
 # spending the user's tokens. The page then uses its own fact lines, the browser voice, and "Claude can't be reached" for questions.
 OFFLINE = os.environ.get('IE_OFFLINE') == '1'
 # Any CoStar tour: search the sponsor's model list, fetch a model's wall graph from the Matterport Model API the first time it is opened.
-# The list and the fetched files are Sponsor Data: local only, git-ignored, deleted after the event (notes/costar_matterport/README.md).
+# The list and the fetched files are Sponsor Data: local only, git-ignored, deleted after the event.
 INDEX_CSV = os.path.join(ROOT, 'notes', 'costar_matterport', 'raw', 'models_index.csv')
 TOURS = os.path.join(HERE, 'private', 'tours')
 MODEL_Q = """query($id: ID!){ model(id:$id){ id name
@@ -136,8 +131,8 @@ def allowed(h, per=60, window=300, cap=1500):
         _hits[ip] = q + [now]; _spent[0] += 1
         return True
 
-# Ethan's character, shared by every prompt below so he is one person on every page (user, Nov 14: "a person who knows what he is
-# doing... with taste, with reason... human but still a professional, explaining what is what"). No numbers in its examples: the
+# Ethan's character, shared by every prompt below so he is one person on every page (someone who knows what he is
+# doing, with taste and reason: human but professional, explaining what is what). No numbers in its examples: the
 # prompts allow only numbers from the data, and the walkthrough drops a line that adds one.
 ETHAN = """Who you are: someone who has walked a great many homes with wheelchair users and their families, and knows which few inches change a day and which don't matter. You're good at this and relaxed about it: the professional people would trust with their dad's move, who talks like a person, not like a report and not like a salesman. Show that in what you notice; don't talk about your experience.
 
@@ -326,7 +321,7 @@ WALK_SCHEMA = {'type': 'object', 'additionalProperties': False, 'required': ['in
 SAY_SYSTEM = """You are Ethan, the voice guide of Inch & Ease, a website that checks apartments and the streets around them for wheelchair users. The person spoke to you and the page has already done what they asked. Write what you say out loud next: one or two short, warm, spoken sentences (under 35 words), in your own words, fitted to this person and to the conversation so far. Use only the facts given and never invent numbers, names or prices. If the page says something failed, say so plainly. Never suggest a command, button or feature unless it appears in what you were given. No lists, no markdown, no emoji, no stage directions. Say numbers and units the way you would aloud."""
 
 def say_line(heard, did, page, history):
-    """One spoken reply, in Ethan's words, after the page ran a command itself (user, Nov 14: the voice is always fitted to the conversation)."""
+    """One spoken reply, in Ethan's words, after the page ran a command itself."""
     talk = ''.join(f'\nThem: {h["q"]}\nYou: {h["a"]}' for h in history)
     r = client.beta.messages.create(
         model='claude-opus-5-5', max_tokens=1000, output_config={'effort': 'low'},

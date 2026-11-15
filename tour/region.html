@@ -67,7 +67,7 @@
   #tip { position:fixed; z-index:6; pointer-events:none; max-width:280px; padding:10px 14px; border-radius:14px; font-size:13px; line-height:1.45; color:var(--muted); }
   #tip b { display:block; color:var(--ink); font-size:15px; } #tip .v { color:var(--ink); }
   #card .park { margin-top:12px; font-size:13px; color:var(--muted); } #card .park b { color:var(--ink); }
-  /* Compact (user, Nov 14: "the menus occupy most of the screen"): narrower panels, smaller type and padding, a slimmer ask bar,
+  /* Compact: narrower panels, smaller type and padding, a slimmer ask bar,
      so the map is the picture. At 1440x900 the panels covered about half of it. */
   #side { left:16px; top:16px; width:256px; gap:8px; }
   #top { padding:12px 14px; } #top h1 { font-size:18px; } #top p { margin-top:4px; font-size:12px; line-height:1.35; }
@@ -107,7 +107,7 @@
   .regions img { display:block; width:100%; aspect-ratio:4 / 3; object-fit:cover; } .regions b { display:block; padding:10px 12px; font-size:15px; text-align:left; }
   @media (max-width:560px) { .regions { grid-template-columns:1fr; } .regions img { aspect-ratio:16 / 7; } }
 
-  /* Tape measure look (user picked "A", Nov 14): the apartment tour's and the streets page's white panels, Barlow and black buttons,
+  /* Tape measure look: the apartment tour's and the streets page's white panels, Barlow and black buttons,
      and the side becomes one full-height panel, 320 px like theirs. The aerial map and its colours stay as they are. */
   :root { --glass:rgba(255,255,255,.94); --fill:#F3F1EA; --fill2:#E9E6DC; --line:#E2DFD6; --ink:#141414; --muted:#5C5A55; --on:#fff; --grey:#8E8E93;
           --fail:#FF3B30; --verify:#FF9500; --pass:#34C759; --failInk:#D7261E; --accent:#141414; --accentInk:#fff;
@@ -183,7 +183,7 @@ const SAMPLE_Q = "I'm looking for the best apartment for my father. He uses a wh
 const RSLUG = /^[\w-]+$/.test(params.get('r') || '') ? params.get('r') : '', RD = 'private/region/' + (RSLUG && RSLUG + '/');
 const REGIONS = await fetch('private/region/regions.json').then(r => r.json()).catch(() => []);
 const goRegion = slug => { location.href = 'region.html?r=' + slug; }; // always ?r: a bare region.html is the picker
-// No region in the address: pick one first, and only that one loads (user, Nov 14). Other parameters (mute, …) are kept.
+// No region in the address: pick one first, and only that one loads. Other parameters (mute, …) are kept.
 if (!params.has('r') && REGIONS.length > 1) {
   const url = slug => { const p = new URLSearchParams(params); p.set('r', slug); return 'region.html?' + p; }; // Northeast LA is ?r= (its files are the default folder)
   $('start').firstElementChild.innerHTML = `<h2>Pick a neighbourhood</h2><p>A drone flight over real apartments and the streets around them.</p>
@@ -351,7 +351,7 @@ $('c').addEventListener('pointermove', e => {
 });
 $('c').addEventListener('pointerleave', () => { tip.hidden = true; });
 
-// ---- Your own camera (user, Nov 14): drag to turn and tilt around what you're looking at, right-drag or Shift-drag to slide,
+// ---- Your own camera: drag to turn and tilt around what you're looking at, right-drag or Shift-drag to slide,
 // scroll or pinch to zoom. Taking the camera stops the slow sway and any flight; the list, the keys and voice still fly it. ----
 const cv = $('c'), sph = new THREE.Spherical(), off = new THREE.Vector3(), lim = (v, a, b) => Math.min(b, Math.max(a, v));
 let drag = null; cv.style.cursor = 'grab';
@@ -433,7 +433,7 @@ async function flyover(question, on) {
   if (s.answer.dive) { await dive(my); await greet(my); }
   return s.answer.line;
 }
-// Guided run (user, Nov 14): every apartment, best first. Fly to it and say how it and its streets are (Claude's flyover script),
+// Guided run: every apartment, best first. Fly to it and say how it and its streets are (Claude's flyover script),
 // go inside and let the tour's own Claude say what would stop a wheelchair user there (it shows the worst one), come back out, next.
 const GUIDED = /\b(guided|tour (them )?all|all of them|all the apartments|every apartment|each apartment|one by one|inside and out|through (all|every|each))\b/i;
 async function guided(question, on) {
@@ -558,7 +558,7 @@ const api = {
     if (GUIDED.test(text)) return { text: await guided(text, on), error: '', open: null }; // said is spoken by guided() itself
     if (inner()) return inner().ask(text, { on, note });
     const a = LETTER_A.test(text.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim()) && order[0];
-    if (a) { const fly = runTool('show_issue', { id: a }, on); on('say', await bar.custom(text, `flew to apartment A: ${spoken(a)}`, spoken(a))); await fly; } // Claude's line, in context (user, Nov 14)
+    if (a) { const fly = runTool('show_issue', { id: a }, on); on('say', await bar.custom(text, `flew to apartment A: ${spoken(a)}`, spoken(a))); await fly; } // Claude's line, in context
     return { text: (a ? '' : await flyover(text, on)) || '', error: '', open: null };
   },
   // The tour's Claude asked for another apartment or page.

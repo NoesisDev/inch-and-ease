@@ -9,7 +9,7 @@
   /* Liquid glass: translucent frosted panels over the 3D view, Apple system font and colours. Colours carry meaning only.
      Three looks: Daylight (light glass), Night (dark glass), High contrast (solid black/white/yellow, no blur). */
   :root { --font:-apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", system-ui, sans-serif; --size:14px;
-          --wall:#fff; /* plain white page (user, Nov 14) */
+          --wall:#fff; /* plain white page */
           --bg:#f5f5f7; --ink:#1d1d1f; --muted:#5c5c61; --glass:rgba(255,255,255,.70); --glassStrong:rgba(255,255,255,.82); --edge:rgba(255,255,255,.35);
           --ring:rgba(0,0,0,.08); --fill:rgba(118,118,128,.12); --fill2:rgba(118,118,128,.2); --seg:#fff; --sep:rgba(60,60,67,.12); --chosen:rgba(255,255,255,.92);
           --accent:#1d1d1f; --accentInk:#fff; --focus:#0a84ff;
@@ -181,7 +181,7 @@
   #walkbar #w-prev, #walkbar #w-end { width:34px; height:34px; padding:0; display:grid; place-items:center; flex:none; }
   #walkbar .ic { width:14px; height:14px; stroke-width:2.2; }
   /* Drone: one quiet line of key hints in the dock, in place of "Go to issue"; fades almost away while flying, back on hover. */
-  /* The voice bar sits at the bottom, just above the menu (user, Nov 14), and moves up when the menu grows a second row. */
+  /* The voice bar sits at the bottom, just above the menu, and moves up when the menu grows a second row. */
   main #voice:not(.home) { top:auto; bottom:62px; }
   main:has(#walkbar.on, #drone.on) #voice:not(.home), body.side-off main:has(#jumps:not(:empty)) #voice:not(.home) { bottom:104px; }
   #tip { position:fixed; z-index:30; max-width:280px; padding:10px 12px; border-radius:12px; font-size:13px; line-height:1.4; pointer-events:none; }
@@ -300,7 +300,7 @@
   [data-theme=contrast] .proof div, [data-theme=contrast] .band, [data-theme=contrast] .how > div { border:1px solid #fff; }
   @media (max-width:900px) { .hero { grid-template-columns:1fr; } .hero h2 { font-size:52px; } .band .stats, .grid, .how { grid-template-columns:1fr; } #home .page { padding:0 16px 48px; } .band { padding:32px 20px; } #home nav { gap:8px; padding:0 8px 0 18px; } #home nav .links { display:none; } #prefs { top:80px; right:16px; width:min(300px, calc(100vw - 32px)); } }
 
-  /* ---- Brand "Evergreen" (user's pick, Nov 14; notes/design_refs/options/v9_brand): the name in Space Grotesk, evergreen + sage.
+  /* ---- Brand "Evergreen": the name in Space Grotesk, evergreen + sage.
      The start page follows layout B: flat, centred, cream, square-ish corners, hairlines instead of glass cards. ---- */
   :root { --brand:#1F4D3F; --brandSoft:#7FA393; --brandInk:#fff; --brandFont:'Space Grotesk', var(--font); --homeFont:'Work Sans', var(--font);
           --homeBg:#F7F6F2; --homeInk:#16302A; --homeMuted:#4A5F58; --kickerBg:#E3EBE6; --brandLine:#B9CAC1; --homeRed:#B3261E; }
@@ -312,7 +312,7 @@
   #home :is(h2, h3, h4, h5) { font-family:var(--brandFont); }
   #home nav { position:sticky; top:0; height:72px; margin:0; padding:0; border-radius:0; background:var(--homeBg); border:0; border-bottom:1px solid var(--brandLine); box-shadow:none; -webkit-backdrop-filter:none; backdrop-filter:none; font-weight:400; font-size:15px; }
   #home nav .logo { font-size:22px; font-weight:700; letter-spacing:-.04em; }
-  /* Top bar (user, Nov 14: "neatly"): logo left, links centred on the page, settings + the one demo button right. */
+  /* Top bar: logo left, links centred on the page, settings + the one demo button right. */
   #home nav { display:grid; grid-template-columns:1fr auto 1fr; gap:24px; }
   #home nav .logo { justify-self:start; margin:0; color:var(--brand); white-space:nowrap; }
   #home nav .links { gap:32px; } #home nav .acts { justify-self:end; display:flex; align-items:center; gap:12px; }
@@ -337,9 +337,9 @@
   .band .stats { gap:24px; } .band .stats > div { border-top:2px solid var(--brand); padding-top:18px; }
   .band .stats b { font:700 46px/1 var(--brandFont); letter-spacing:-.04em; margin-bottom:10px; } .band .stats span { font-size:16px; }
   #home h3 { font-size:32px; letter-spacing:-.03em; margin-top:80px; }
-  /* Hero (user, Nov 14): the question and the buttons on the left, a film of a real conversation with the guide on the right,
+  /* Hero: the question and the buttons on the left, a film of a real conversation with the guide on the right,
      with each line said shown under it as it happens. */
-  .hero { grid-template-columns:minmax(0, 5fr) minmax(0, 7fr); gap:56px; align-items:center; padding:28px 0 0; text-align:left; } /* chat starts just under the top bar (user, Nov 14) */
+  .hero { grid-template-columns:minmax(0, 5fr) minmax(0, 7fr); gap:56px; align-items:center; padding:28px 0 0; text-align:left; } /* chat starts just under the top bar */
   .hero > div:first-child { align-items:flex-start; }
   .hero h2 { font-size:76px; margin:22px 0 20px; } .hero p { margin:0 0 32px; max-width:470px; } .ctas { justify-content:flex-start; }
   .hero .proof { grid-column:1 / -1; justify-content:flex-start; margin-top:8px; }
@@ -354,7 +354,7 @@
   .talk li b { display:block; font-size:12px; font-weight:600; opacity:.6; margin-bottom:2px; }
   .talk li.you { align-self:flex-end; background:#1d1d1f; color:#fff; border-bottom-right-radius:6px; }
   .talk li.guide { align-self:flex-start; background:#fff; color:#1d1d1f; border:1px solid rgba(0,0,0,.08); border-bottom-left-radius:6px; }
-  /* The chat sits above the film in its own box (user, Nov 14). */
+  /* The chat sits above the film in its own box. */
   .chatbox { background:#f4f6f3; border:1px solid rgba(0,0,0,.08); border-radius:14px; padding:12px 14px 14px; }
   .chat-head { display:flex; align-items:center; gap:8px; padding:0 2px 10px; margin-bottom:10px; border-bottom:1px solid rgba(0,0,0,.07); font:600 13px var(--brandFont, inherit); color:#1F4D3F; }
   .chat-head i { width:8px; height:8px; border-radius:50%; background:#2e9e6a; }
@@ -373,7 +373,7 @@
   .how .n { color:var(--brand); font-family:var(--brandFont); }
   [data-theme=contrast] .proof div, [data-theme=contrast] .band, [data-theme=contrast] .how > div { border:0; } [data-theme=contrast] .how > div { border-top:1px solid #fff; }
   @media (max-width:900px) { .hero { padding-top:48px; } .hero h2 { font-size:52px; } .photo { height:320px; margin-top:40px; } .note.n1, .note.n2 { left:auto; right:10px; } .proof { flex-direction:column; align-items:center; } .band .stats > div + div { margin-top:8px; } }
-  /* Numbers band (user, Nov 14: option D, dark green, plain): full-bleed strip, square, hairline dividers, no italics. */
+  /* Numbers band: full-bleed strip, square, hairline dividers, no italics. */
   #home .band { --bandBg:#1F4D3F; background:var(--bandBg); box-shadow:0 0 0 100vmax var(--bandBg); clip-path:inset(0 -100vmax); margin-top:96px; padding:72px 0 76px; color:#EEF3F0; }
   #home .band h3 { margin:0 0 44px; font-size:30px; line-height:1.2; letter-spacing:-.025em; color:#fff; max-width:640px; }
   #home .band .stats { gap:0; } #home .band .stats > div { border-top:0; padding:2px 40px 0; border-left:1px solid rgba(255,255,255,.18); } #home .band .stats > div:first-child { padding-left:0; border-left:0; }
@@ -382,7 +382,7 @@
   #home .band .stats small { font-size:13px; line-height:1.5; color:#A9C2B6; margin-top:12px; } #home .band .stats small i { display:block; font-style:normal; color:#8FAEA0; margin-top:2px; }
   [data-theme=night] #home .band { --bandBg:#17302A; } [data-theme=contrast] #home .band { --bandBg:#000; border-block:1px solid #fff; }
   @media (max-width:900px) { #home .band { padding:52px 0 56px; margin-top:64px; } #home .band .stats > div { padding:22px 0 0; border-left:0; border-top:1px solid rgba(255,255,255,.18); margin:0 0 22px; } #home .band .stats > div:first-child { border-top:0; padding-top:0; } }
-  /* Design A, "Tape measure" (user, Nov 14): the issue panel and the issue card. Barlow type, black ink, tape yellow, red; flat white, hairlines, no glass.
+  /* Design A, "Tape measure": the issue panel and the issue card. Barlow type, black ink, tape yellow, red; flat white, hairlines, no glass.
      The colours apply in Daylight only; Night and High contrast keep theirs and get the same flat shapes. */
   aside, #card { --font:'Barlow', -apple-system, 'Helvetica Neue', system-ui, sans-serif; --head:'Barlow Semi Condensed', 'Barlow', system-ui, sans-serif; font-family:var(--font); border-radius:10px; }
   :root:not([data-theme=night]):not([data-theme=contrast]) :is(aside, #card) { --ink:#141414; --muted:#5C5A55; --sep:#E2DFD6; --fill:#F3F1EA; --fill2:#E9E6DC; --seg:#fff; --chosen:#FFF6CC; --accent:#141414; --accentInk:#fff;
@@ -431,7 +431,7 @@
         <p>We check apartments for wheelchair users. From a 3D tour, we measure every door, step and room, show what won’t work, and find the fixes and the home that fits best.</p>
         <div class="ctas"><a class="btn" id="demoLink" href="#">Try the demo</a></div>
       </div>
-      <!-- The film: a recorded walk with the guide (notes/demo_capture.mjs), and what is said, line by line, in step with it. -->
+      <!-- The film: a recorded walk with the guide, and what is said, line by line, in step with it. -->
       <figure class="film" id="film" hidden>
         <div class="chatbox"><div class="chat-head"><i aria-hidden="true"></i>Talking with your assistant</div><ol class="talk" id="filmTalk" aria-label="What is said in the demo"></ol></div>
         <div class="screen"><video id="filmVideo" muted loop playsinline preload="auto" aria-label="Recorded demo: someone asks the assistant about an apartment for their dad, and it walks them through it"></video><span class="tag">Recorded demo</span></div>
@@ -664,7 +664,7 @@ function seesDoor(i) {
   if (k !== seenKey) { seenKey = k; seenVal = wholeView({ x: p.x, y: -p.z }, i, floorOf(i)); }
   return seenVal;
 }
-// A door or step is only really seen when BOTH sides of it are (user's screenshot, Nov 14: from the bathroom the camera saw the
+// A door or step is only really seen when BOTH sides of it are (e.g. from the bathroom the camera saw the
 // middle of the hallway→bedroom door through the bathroom doorway; the rest of the red pane lay over the bathroom wall).
 function wholeView(from, i, floor = null) {
   if ((i.kind !== 'door' && i.kind !== 'step') || i.angle == null) return clearView(from, i.at, floor);
@@ -1225,13 +1225,13 @@ function roomBuckets() {
 // shortcut: one floor only (rooms on other floors share x/z); use the hit's floor when a multi-floor tour is in the demo.
 const insidePoly = (p, poly) => { let c = false; for (let a = 0, b = poly.length - 1; a < poly.length; b = a++) { const A = poly[a], B = poly[b]; if ((A.y > p.y) !== (B.y > p.y) && p.x < (B.x - A.x) * (p.y - A.y) / (B.y - A.y) + A.x) c = !c; } return c; };
 let peekRoom = null, peekKey = null;
-// Hover a red or orange area (user, Nov 14): the sidebar opens on Issues and says, at the top, what's wrong there and the fix;
+// Hover a red or orange area: the sidebar opens on Issues and says, at the top, what's wrong there and the fix;
 // a door or step under the pointer (within 70 cm) is explained by itself, otherwise the room's problems. Their rows light up below.
 function explainInSide(list, title) {
   let hx = $('hoverx'); if (!hx) { hx = document.createElement('div'); hx.id = 'hoverx';  $('p-issues').prepend(hx); }
   document.querySelectorAll('#issues .issue.hl').forEach(e => e.classList.remove('hl'));
   if (!list.length) { hx.hidden = true; return; }
-  if (document.body.classList.contains('side-off')) { sidePanel(false); showTab('t-issues', 'p-issues'); } // pops the hidden panel (user, Nov 14)
+  if (document.body.classList.contains('side-off')) { sidePanel(false); showTab('t-issues', 'p-issues'); } // pops the hidden panel
   else if ($('p-issues').hidden) return; // reading the plan or Claude's answer: not taken away
   // the fix that closes it first, else the plan's pick
   const fix = i => { const r = plan?.rows.find(r => r.item.id === i.id), o = r?.options?.find(o => o.verdict === 'closes') || r?.chosen || r?.options?.[0]; return o ? `${o.label}, ${money(o)}${o.verdict && o.verdict !== 'closes' ? ` (${VERDICT[o.verdict]})` : ''}` : ''; };
@@ -1354,7 +1354,7 @@ async function load(sid) {
   // Test hooks for the smoke run: measure() feeds two world points through the same handler as Matterport's ruler.
   window.__ie = { ready: true, pins: d.tags, shapes: d.scene, measure: (id, a, b) => onMeasured(id, a, b), plan: () => ({ purchases: plan.purchases, budget, closed: plan.closed }),
     shot5: () => showCard(checks.find(c => c.s === 'none' && CHECK[c.n].how === 'ask' && /bath/i.test(CHECK[c.n].room))),
-    // View checks (notes/view_check.mjs): open problem k, and where its camera stands (distance, angle off straight on, warning).
+    // View checks: open problem k, and where its camera stands (distance, angle off straight on, warning).
     open: k => openItem(issueList[k]),
     cands: k => { const i = issueList[k], fl = floorOf(i); return sweeps.filter(s => s.enabled !== false && Math.abs(floorY(s) - levelOf(i)) < 1.2).map(s => { const p = planOf(s);
       return { id: s.id, d: Math.round(Math.hypot(p.x - i.at.x, p.y - i.at.y) * 100) / 100, sees: clearView(p, i.at, fl), whole: wholeView(p, i, fl),
@@ -1706,7 +1706,7 @@ const seen = new Set(); let walkOff = false, asked = false, introSaid = false, w
 // resumeAfter = the walk paused because the person spoke, and goes on by itself once they have their answer.
 let guide = null, lineOf = null, keepsNumbers = () => false, guideLine = '', resumeAfter = false;
 const typeOf = o => products.find(p => p.id === o.product?.id)?.type?.replaceAll('_', ' ');
-const DWELL = c => isProblem(c) ? 10000 : 5000; // slower walk (user, Nov 14: "more time, smooth") // ms: time to read a problem card vs. a glance at a room that passes
+const DWELL = c => isProblem(c) ? 10000 : 5000; // slower walk // ms: time to read a problem card vs. a glance at a room that passes
 // The walk's order: from the entrance (the unit's front door in the floor plan; the first scan point when there is none), always on
 // to the nearest place by WALKING distance over the scan's own links (straight lines went through walls: bedroom, kitchen, bedroom
 // again), finishing a room before leaving it. from = a plan point to start from instead (where they stand, or the place they asked about).
@@ -1764,7 +1764,7 @@ function untangle(list, start) {
   return list;
 }
 // Checked on every tour once its shapes are drawn: the start, the order, and where the camera stands for each stop. Anything
-// doubtful goes to the console and window.__walkAudit (notes/walk_audit.mjs runs it over every tour), and gets the safe view.
+// doubtful goes to the console and window.__walkAudit (a local audit runs it over every tour), and gets the safe view.
 function auditWalk() {
   const list = route(), start = entrySweep();
   const stops = list.map((c, k) => { const v = viewFor(c), D = metresFrom((k ? viewFor(list[k - 1]).s : start).id);
@@ -1958,7 +1958,7 @@ async function renderHome() {
   renderExamples(); filmOn(); // not awaited: the start page and voice are ready before the extra tours are scored
   browse();
 }
-// The film on the start page (notes/demo_capture.mjs): the recorded walk, and its lines shown under it as the film reaches them,
+// The film on the start page: the recorded walk, and its lines shown under it as the film reaches them,
 // the newest three. Without the recording (it is Sponsor Data, kept local) the hero simply has no film.
 // The chat types along with the film, letter by letter, on the film's own clock (so a loop or a seek lines up again): the person's
 // words at speaking pace, then "…" while the guide thinks, then its reply, each line finished before the next one starts.
@@ -2029,7 +2029,7 @@ async function renderExamples(rowsShown = 2) {
 }
 const booted = !new URLSearchParams(location.search).get('m') ? renderHome()
   : load(sid).catch(e => { status('Error: ' + (e.message || e)); const k = $('skel'); if (k) k.innerHTML = /cannot be checked|not available with the CoStar/.test(e.message) ? `<p>${esc(e.message)} <a href="./#any">Pick another tour</a></p>` : `<p>The 3D tour didn't load. The checks and fixes on the left still work. Check the internet connection, then <button type="button" onclick="location.reload()">Try again</button></p>`; window.__ie = { error: String(e.message || e) }; });
-// Test hook for the voice checks (notes/voice_*.mjs): what Claude is told, the conversation, and what is on screen.
+// Test hook for the voice checks: what Claude is told, the conversation, and what is on screen.
 window.__tour = { facts: apartmentFacts, convo: () => convo, reset() { convo.length = 0; facts = null; sentFacts = ''; },
   state: () => ({ mode, card: cardFor?.id || null, theme: document.documentElement.dataset.theme, tab: document.querySelector('.tabs [aria-selected=true]')?.id || null,
     panel: !document.body.classList.contains('side-off'), budget, choices: { ...choices }, purchases: plan?.purchases ?? null, walk: mode === 'walk' ? { at, playing } : null }) };

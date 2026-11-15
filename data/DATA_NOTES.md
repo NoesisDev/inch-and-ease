@@ -11,22 +11,20 @@ Prepared Wed 11 Nov 2026 in two rounds. Data only, no project code. Scope: wheel
 | `rules.json` | 20 checks with the measurement, the ADA section, what the scan can and can't measure, and which product types fix each |
 | `Rules_and_Stats_Sources.md` | The evidence: every rule and statistic with its quote and link |
 | `profiles.json` | 6 disability profiles (manual wheelchair, power wheelchair, scooter, walker, cane, fall risk): how many, body and device numbers from research, what to ask, core and also checks; plus 3 groups not covered and why (added 12 Nov) |
-| `evidence.json` | 15 ranked pitch claims with safe wording, numbers, sources and caveats (rank 1–5 = the headline set), plus 9 "don't say" lines (added 12 Nov) |
+| `evidence.json` | 15 ranked claims with safe wording, numbers, sources and caveats (rank 1–5 = the headline set), plus 9 "don't say" lines (added 12 Nov) |
 | `sources.json` | 46 sources with full citation, link, data year, design and status (`verified` = re-opened by Claude, `agent_full` / `agent_abstract` = agent only) (added 12 Nov) |
 
-**Added 12 Nov from the academic research round:** every check in `rules.json` has a `research` block (what studies say, scan reliability high/medium/low/none, tape flag, sources) and `profiles_core` / `profiles_also`; `rules.json` has `verify_band_cm` (5 cm, a planning assumption until the tape test). Every product has `profiles` (Claude's assignment from the type's use) and, for 40 of them, an `evidence_note` (e.g. the tub-rail self-install failure). The plain-language version is `../notes/Accessibility_Brief.md`.
-
-Round 2 research (rivals, barriers by room, scan limits, who pays, people to talk to) is in `../notes/research/Planner_Research_Nov11.md`, with the six full reports in `../notes/research/planner_nov11/`.
+**Added 12 Nov from the academic research round:** every check in `rules.json` has a `research` block (what studies say, scan reliability high/medium/low/none, tape flag, sources) and `profiles_core` / `profiles_also`; `rules.json` has `verify_band_cm` (5 cm, a planning assumption until the tape test). Every product has `profiles` (Claude's assignment from the type's use) and, for 40 of them, an `evidence_note` (e.g. the tub-rail self-install failure).
 
 ## How the products were collected
 - Each product was read from its own store page on 11 Nov 2026. A value the page did not state is `null`; nothing was estimated.
 - **Opened twice and matched: 29 of 84.** Round 1: rubber threshold ramp, HealthSmart hinges, Olide door opener, Moen 36 in grab bar, Carex seat riser, Drive transfer bench, IKEA crank desk, Stander pole, Able Life bed handle, Stander recliner risers, IKEA rug underlay. Round 2: 12 more of the original list (by a research agent) and 6 of the new ones (IKEA bed frame, Drive transfer board, ½ in Silver Spring ramp, HealthCraft pole, IKEA remote plug, Drive folding-back shower chair). The rest were read once.
 - Three collected products were dropped in round 1: DormCo risers (price label unclear), a GE night light (seen only in a search result), a duplicate overbed table.
 - **Round 2 added 29 products** for the gaps and thin types, and corrected six products from the maker's own page: Drive shower commode chair (seat 20–22 in), CouchCane (250 lb, not 300), Drive 18 in grab bar (250 lb), Moen flip-up bar (30 in long, 1¼ in diameter, 11½ in off the wall when up), Eagle bench (overall width not stated), Silver Spring 2 ft ramp (4 in rise confirmed). Each corrected product says so in its `notes`.
-- `review: "check"` marks 24 products with a known doubt; `review_reason` says what. Look at these before one appears on a judge's screen.
+- `review: "check"` marks 24 products with a known doubt; `review_reason` says what. Check these before relying on one.
 - `tier` is the price rank inside a type (budget, mid, premium, or only). For threshold ramps and grab bars the products also differ by size, so pick by size first.
 - `photo` is the saved file; `image_url` is the store's picture. All 84 have a saved photo, each looked at next to its product (55 saved on 11 Nov, 29 on 12 Nov). Two pairs share one store image: the Moen 36 in and 42 in grab bars, and the Silver Spring ½ in and ¾ in ramps. Sizes run from 310 px to 3000 px: 53 are 800 to 1000 px, and 7 are under 500 px (the smallest are the Drive 18 in grab bar at 310 px and three Moen grab bars at 380 px), which will look soft if shown large.
-- Prices change. Re-open the demo products' pages on Saturday before recording.
+- Prices change: re-open a product's page before quoting it.
 
 ## Gaps
 - **No manufacturer stores.** Stander, Vive, Carex, Moen and the other Shopify-style stores refused automated reading, so prices come from Target, Discount Ramps, HealthyKin, F.W. Webb, IKEA, VEVOR and similar. F.W. Webb is a plumbing distributor: public price and an add-to-cart button, but ordinary-buyer checkout is not confirmed.
@@ -46,9 +44,9 @@ The planner's honest limit, also noted per check in `rules.json`:
 - **Seen as a box only:** bed, sofa and toilet heights include the headboard, backrest or tank. Ask for the seat or mattress height. Boxes are snapped to nearby walls, so gaps beside a wall can be off.
 
 ## Which law
-The ADA Standards do not apply to a private home. They are the reference measurements here. Newer apartment buildings (4+ units, first occupied after 13 March 1991) fall under the Fair Housing Act, which is looser inside the unit. Don't say "ADA compliant" in the pitch; say "meets the ADA reference width".
+The ADA Standards do not apply to a private home. They are the reference measurements here. Newer apartment buildings (4+ units, first occupied after 13 March 1991) fall under the Fair Housing Act, which is looser inside the unit. So the app never says "ADA compliant"; it says "meets the ADA reference width".
 
-## Pitch numbers (sources in `Rules_and_Stats_Sources.md` and `../notes/research/planner_nov11/`)
+## Key numbers (sources in `Rules_and_Stats_Sources.md`)
 - **5.5 million** US adults use a wheelchair; **18.4 million** use a cane, crutches or a walker (Census, 2014 data, published 2018). It is the newest Census count and it is 12 years old; say the year.
 - **12.2%** of US adults have serious difficulty walking or climbing stairs (CDC, 2022 data).
 - **0.15%** of US homes are wheelchair accessible; a third could be modified (HUD, 2011 housing survey, published 2015). No newer wheelchair figure exists; the 2019 survey's "40% aging-ready" uses a looser definition and can't be compared.
@@ -58,5 +56,5 @@ The ADA Standards do not apply to a private home. They are the reference measure
 - **Apartments.com today** (seen 11 Nov 2026, two Princeton listings): a "Wheelchair Access" filter and a "Wheelchair Accessible (Rooms)" tag. No door widths, no measurements.
 - **Don't quote:** a price for an occupational-therapist home visit (no reliable source found), any home counts from page 7 of the JCHS paper (they contradict its own percentages), any home-modification market size, any Apartments.com listing count.
 
-## Rules reminder
-Collected data is allowed before Friday. Say in the README and on Devpost that the product list, photos and rule table were collected by hand before the event.
+## When it was collected
+The product list, photos and rule table were collected by hand before the event, which HackPrinceton allows; all code was written during the event.

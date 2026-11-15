@@ -3,12 +3,12 @@
 // Claude, which drives the same tools. The bar shows what was heard, each thing the tour does, and the answer, which is
 // also read aloud. Speech in: the browser's speech recognition (Chrome). Speech out: Ethan, a Fish Audio voice streamed by
 // serve.py (/api/speak), one sentence at a time, and only Ethan (no browser voice: without Fish a reply is a caption). Every spoken
-// line is Claude's, fitted to the conversation: a command the page runs itself gets its line from /api/say (user, Nov 14).
+// line is Claude's, fitted to the conversation: a command the page runs itself gets its line from /api/say.
 
 // ---- quick(): which sentences need no Claude round trip. Pure; tested in voice.test.mjs ----
 // Only a whole sentence that is nothing but the command matches; anything longer is a question for Claude.
 const FILLER = /\b(um|uh|er|erm|hmm|the|a|an|please|now|hey|ok|okay|just|me|my|can you|could you|would you|lets|let s|i want|to|at|show|go|switch|open|take|give|see|turn on|put on|start|view|mode|look)\b/g;
-// What Chrome's recogniser is known to hear instead (measured with generated speech: notes/voice_mic_results.md).
+// What Chrome's recogniser is known to hear instead (measured with generated speech).
 const HEARD = [[/\b(whole way|holloway|hall way)\b/g, 'hallway'], [/\b(warcraft|walk true|walk thru|walkthru|work through|walk threw)\b/g, 'walkthrough'],
   [/\b(eye|hi|i) contrast\b/g, 'high contrast'], [/\bfloor plant?s?\b/g, 'floor plan'], [/\bnight more\b/g, 'night mode'], [/\bdoll ?house\b/g, 'dollhouse']];
 const norm = t => HEARD.reduce((x, [a, b]) => x.replace(a, b), String(t).toLowerCase().replace(/[^a-z0-9 ]+/g, ' ')).replace(FILLER, ' ').replace(/\s+/g, ' ').trim();
@@ -106,7 +106,7 @@ const usd = n => '$' + (Number.isInteger(n) ? n.toLocaleString('en-US') : n.toFi
 const fixName = (o, typeOf) => o.kind === 'product' ? an(typeOf?.(o) || o.label) : o.label.replace(/\s*\(.*\)\s*$/, '').replace(/^./, m => m.toLowerCase());
 const fixCost = o => o.kind === 'contractor' ? (o.low == null ? '' : `${usd(o.low)} to ${usd(o.high)}`) : o.price == null ? '' : usd(o.price);
 // Spoken like a person showing someone round: what the place means for a wheelchair, not the measurement against the rule
-// (the card shows the numbers; user, Nov 14: "not all data like this size, it should be this size"). Only a fix's price is said.
+// (the card shows the numbers). Only a fix's price is said.
 // The wording varies by check, so a walk never says the same opener twice in a row.
 const pick = (c, xs) => xs[[...String(c.id || c.room || c.between || '')].reduce((h, ch) => (h * 31 + ch.charCodeAt(0)) >>> 0, 7) % xs.length];
 export function stopLine(c, row, typeOf) {
@@ -239,7 +239,7 @@ export default function initVoice(api) {
   // Each next sentence loads while one plays.
   let fishOk = !muted, audio = null;
   const clip = t => Object.assign(new Audio('/api/speak?t=' + encodeURIComponent(t)), { preload: 'auto' });
-  // No fixed filler lines while Claude thinks (user, Nov 14: every spoken line fits the conversation); this only checks Ethan's voice is there.
+  // No fixed filler lines while Claude thinks; this only checks Ethan's voice is there.
   if (fishOk) fetch('/api/speak?t=Hello.').then(r => { if (!r.ok) fishOk = false; }, () => { fishOk = false; });
   function hush() { talk++; audio?.pause(); audio = null; }
   // Plays the sentences in Ethan's voice; a sentence the server can't give is skipped (its words stay in the caption).
@@ -263,7 +263,7 @@ export default function initVoice(api) {
     return new Promise(res => {
       const done = () => { if (my !== talk) return res(); talk++; res(); if (open) listen(true); else rest(); };
       const poll = setInterval(() => { if (my !== talk) { clearInterval(poll); res(); } }, 150); // hushed from outside
-      // Ethan's voice (Fish) only, on every page (user, Nov 14): no browser voice. Without Fish the answer is a caption for its reading time.
+      // Ethan's voice (Fish) only, on every page: no browser voice. Without Fish the answer is a caption for its reading time.
       if (!fishOk) return setTimeout(done, muted === 'fast' ? 30 : Math.max(2000, text.split(/\s+/).length * 330));
       const parts = speakable(text).split(/(?<=[.!?])\s+/).filter(Boolean);
       setTimeout(done, 6000 + text.split(/\s+/).length * 900); // a voice that never reports the end must not hang the request
@@ -328,7 +328,7 @@ export default function initVoice(api) {
   // ---- Speech in: hold Space to talk, or click the mic to keep it open (each finished sentence is a request) ----
   const Rec = window.SpeechRecognition || window.webkitSpeechRecognition;
   let rec = null, open = false, held = false, tail = null, again = false, flush = () => {};
-  const TAIL = 350; // ms the mic stays on after Space is let go: letting go on the last word cut it off (notes/voice_mic_results.md)
+  const TAIL = 350; // ms the mic stays on after Space is let go: letting go on the last word cut it off
   function setOpen(v) { open = v; store.set('ie-voice', v ? 'open' : null); }
   function listen(on) {
     if (!on) return rec?.stop();
